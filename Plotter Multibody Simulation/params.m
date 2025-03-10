@@ -27,3 +27,12 @@ J = 0.013369679361673;
 B = 0.019688440522932;
 
 V_max = 12.0;
+Prisnmatic_Speed_Max = 500e-3;
+
+Prismatic_pulley = 1.5915e-2;
+
+DFFW_t_prismatic = L/(R*Prismatic_pulley);
+RFFW_t_prismatic = (plotter_mass*Prismatic_pulley*Prismatic_pulley*R+J)/(Km*Ke+B*R);
+
+DFFW_t_revolute = L/R;
+RFFW_t_revolute = (R*J)/(Km*Ke+B*R);
