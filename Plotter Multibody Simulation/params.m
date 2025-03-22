@@ -36,6 +36,8 @@ prismatic_B = 0.0088;
 
 prismatic_speed = 500; %mm/s
 prismatic_accel = 250; %mm/s^2
+prismatic_max_speed = 400*2*pi*prismatic_pulley/60;
+prismatic_pulley = 1.5915e-2;
 
 %Revolute Motor
 revolute_ke = 0.1696;
@@ -47,8 +49,6 @@ revolute_B = 0.037;
 
 revolute_speed = 1; %rad/s
 revolute_accel = 0.4; %rad/s^2
-
-prismatic_pulley = 1.5915e-2;
 
 DFFW_t_prismatic = prismatic_L/(prismatic_R*prismatic_pulley);
 RFFW_t_prismatic = (plotter_mass*prismatic_pulley*prismatic_pulley*prismatic_R+prismatic_J)/(prismatic_km*prismatic_ke+prismatic_B*prismatic_R);
