@@ -26,13 +26,35 @@ R = 0.6367;
 J = 0.013369679361673;
 B = 0.019688440522932;
 
-V_max = 12.0;
-Prisnmatic_Speed_Max = 500e-3;
+%Prismatic Motor
+prismatic_ke = 0.1294;
+prismatic_km = 0.4123 * prismatic_ke;
+prismatic_L = 1.34e-4;
+prismatic_R = 0.99;
+prismatic_J = 2.3673e-4;
+prismatic_B = 0.0088;
 
-Prismatic_pulley = 1.5915e-2;
+prismatic_speed = 500; %mm/s
+prismatic_accel = 250; %mm/s^2
 
-DFFW_t_prismatic = L/(R*Prismatic_pulley);
-RFFW_t_prismatic = (plotter_mass*Prismatic_pulley*Prismatic_pulley*R+J)/(Km*Ke+B*R);
+%Revolute Motor
+revolute_ke = 0.1696;
+revolute_km = 0.4621 * revolute_ke;
+revolute_L = 7.356e-4;
+revolute_R = 1.3;
+revolute_J = 0.0029;
+revolute_B = 0.037;
 
-DFFW_t_revolute = L/R;
-RFFW_t_revolute = (R*J)/(Km*Ke+B*R);
+revolute_speed = 1; %rad/s
+revolute_accel = 0.4; %rad/s^2
+
+prismatic_pulley = 1.5915e-2;
+
+DFFW_t_prismatic = prismatic_L/(prismatic_R*prismatic_pulley);
+RFFW_t_prismatic = (plotter_mass*prismatic_pulley*prismatic_pulley*prismatic_R+prismatic_J)/(prismatic_km*prismatic_ke+prismatic_B*prismatic_R);
+
+DFFW_t_revolute = revolute_L/revolute_R;
+RFFW_t_revolute = (revolute_R*revolute_J)/(revolute_km*revolute_ke+revolute_B*revolute_R);
+
+v_max = 12.0;
+
