@@ -36,8 +36,8 @@ prismatic_B = 0.0088;
 
 prismatic_speed = 500; %mm/s
 prismatic_accel = 250; %mm/s^2
-prismatic_max_speed = 400*2*pi*prismatic_pulley/60;
 prismatic_pulley = 1.5915e-2;
+prismatic_max_speed = 400*2*pi*prismatic_pulley/60;
 
 %Revolute Motor
 revolute_ke = 0.1696;
