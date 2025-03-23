@@ -7,9 +7,15 @@ function [t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt)
 %   dt - time step for trajectory discretization
 %
 % Outputs:
+%   t - time vector
 %   p - position trajectories [time_steps×n]
 %   v - velocity trajectories [time_steps×n]
 %   a - acceleration trajectories [time_steps×n]
+%
+% This function ensures all joints finish their motion at the same time,
+% scaling velocities and accelerations for joints that would finish earlier.
+
+% Get number of joints
 num_joints = length(p0);
 if length(pf) ~= num_joints || length(v_max) ~= num_joints || length(a_max) ~= num_joints
     error('Input vectors must have the same length');

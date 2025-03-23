@@ -1,53 +1,49 @@
-% Example for a 2-joint robot (1 revolute, 1 prismatic):
-p0 = [0; 0];              % Initial joint positions [rad; m]
-pf = [pi/2; 0.25];         % Final joint positions [rad; m]
-v_max = [revolute_speed, prismatic_speed];         % Maximum velocities [rad/s; m/s]
-a_max = [revolute_accel, prismatic_accel];       % Maximum accelerations [rad/s²; m/s²]
-dt = 0.001;                % Time step (seconds)
+p0 = [0; 0];               % Initial joint positions [rad; m]
+pf = [pi/2; 0.5];         % Final joint positions [rad; m]
+v_max = [revolute_speed; prismatic_speed];     % Maximum velocities [rad/s; mm/s]
+a_max = [revolute_accel; prismatic_accel];     % Maximum accelerations [rad/s²; mm/s²]
+dt = 0.001;                 % Time step (seconds)
 
-% Generate synchronized trajectory
-[p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt);
+[t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt);
 
-% Plot results
-figure;
+figure('Position', [100, 100, 1000, 800]);
 
-% Plot joint positions
-subplot(3,2,1);
-plot(t, p(:,1));
-ylabel('Position (rad)');
-title('Revolute Joint Position');
-grid on;
+joint_names = {'Revolute Joint', 'Prismatic Joint'};
+units = {'rad', 'm'};
+vel_units = {'rad/s', 'm/s'};
+acc_units = {'rad/s²', 'm/s²'};
 
-subplot(3,2,2);
-plot(t, p(:,2));
-ylabel('Position (m)');
-title('Prismatic Joint Position');
-grid on;
+for i = 1:2
+    subplot(3, 2, i);
+    plot(t, p(:,i), 'LineWidth', 2);
+    grid on;
+    xlabel('Time (s)');
+    ylabel(['Position (', units{i}, ')']);
+    title([joint_names{i}, ' Position']);
+    
+    subplot(3, 2, i+2);
+    plot(t, v(:,i), 'LineWidth', 2);
+    grid on;
+    xlabel('Time (s)');
+    ylabel(['Velocity (', vel_units{i}, ')']);
+    title([joint_names{i}, ' Velocity']);
+    hold on;
+    plot(t, ones(size(t))*v_max(i), 'r--', 'LineWidth', 1.5);
+    plot(t, ones(size(t))*-v_max(i), 'r--', 'LineWidth', 1.5);
+    hold off;
+    legend('Velocity', 'Constraints');
+    
+    subplot(3, 2, i+4);
+    plot(t, a(:,i), 'LineWidth', 2);
+    grid on;
+    xlabel('Time (s)');
+    ylabel(['Acceleration (', acc_units{i}, ')']);
+    title([joint_names{i}, ' Acceleration']);
+    hold on;
+    plot(t, ones(size(t))*a_max(i), 'r--', 'LineWidth', 1.5);
+    plot(t, ones(size(t))*-a_max(i), 'r--', 'LineWidth', 1.5);
+    hold off;
+    legend('Acceleration', 'Constraints');
+end
 
-% Plot joint velocities
-subplot(3,2,3);
-plot(t, v(:,1));
-ylabel('Velocity (rad/s)');
-title('Revolute Joint Velocity');
-grid on;
-
-subplot(3,2,4);
-plot(t, v(:,2));
-ylabel('Velocity (m/s)');
-title('Prismatic Joint Velocity');
-grid on;
-
-% Plot joint accelerations
-subplot(3,2,5);
-plot(t, a(:,1));
-xlabel('Time (s)');
-ylabel('Acceleration (rad/s²)');
-title('Revolute Joint Acceleration');
-grid on;
-
-subplot(3,2,6);
-plot(t, a(:,2));
-xlabel('Time (s)');
-ylabel('Acceleration (m/s²)');
-title('Prismatic Joint Acceleration');
-grid on;
+sgtitle('Joint Trajectory Profiles with Velocity and Acceleration Constraints');
