@@ -1,10 +1,10 @@
 p0 = [0; 0];               % Initial joint positions [rad; m]
-pf = [pi/2; 0.5];         % Final joint positions [rad; m]
-v_max = [revolute_speed; prismatic_speed];     % Maximum velocities [rad/s; mm/s]
-a_max = [revolute_accel; prismatic_accel];     % Maximum accelerations [rad/s²; mm/s²]
+pf = [pi/2; 2];          % Final joint positions [rad; m]
+v_max = [revolute_speed; prismatic_speed/1000];     % Maximum velocities [rad/s; mm/s]
+a_max = [revolute_accel; prismatic_accel/1000];     % Maximum accelerations [rad/s²; mm/s²]
 dt = 0.001;                 % Time step (seconds)
 
-[t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt);
+[t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt, 0);
 
 figure('Position', [100, 100, 1000, 800]);
 

@@ -1,10 +1,11 @@
-function [t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt)
+function [t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt, end_together)
 % Inputs:
 %   p0 - vector of initial positions for each joint [n×1]
 %   pf - vector of final positions for each joint [n×1]
 %   v_max - vector of maximum velocity constraints for each joint [n×1]
 %   a_max - vector of maximum acceleration constraints for each joint [n×1]
 %   dt - time step for trajectory discretization
+%   end_together - boolean flag to indicate if all joints should finish at the same time
 %
 % Outputs:
 %   t - time vector
@@ -12,8 +13,8 @@ function [t, p, v, a] = trajectory_generator(p0, pf, v_max, a_max, dt)
 %   v - velocity trajectories [time_steps×n]
 %   a - acceleration trajectories [time_steps×n]
 %
-% This function ensures all joints finish their motion at the same time,
-% scaling velocities and accelerations for joints that would finish earlier.
+% This function generates the trajectory for each joint, with an option
+% to either make all joints end at the same time or not.
 
 % Get number of joints
 num_joints = length(p0);
@@ -57,26 +58,31 @@ for i = 1:num_joints
     joint_times(i) = t_acc + t_const + t_dec;
 end
 
-% Find the longest execution time
-t_total = max(joint_times);
-
-% Scale velocity and acceleration for joints that would finish earlier
-for i = 1:num_joints
-    displacement = abs(pf(i) - p0(i));
+% If end_together is true, find the longest execution time and scale
+if end_together
+    t_total = max(joint_times);
     
-    % Skip joints with no motion
-    if displacement < 1e-6
-        continue;
-    end
-    
-    if joint_times(i) < t_total
-        % Calculate scaling factor
-        scaling_factor = joint_times(i) / t_total;
+    % Scale velocity and acceleration for joints that would finish earlier
+    for i = 1:num_joints
+        displacement = abs(pf(i) - p0(i));
         
-        % Scale velocity and acceleration
-        v_max(i) = v_max(i) * scaling_factor;
-        a_max(i) = a_max(i) * scaling_factor^2;
+        % Skip joints with no motion
+        if displacement < 1e-6
+            continue;
+        end
+        
+        if joint_times(i) < t_total
+            % Calculate scaling factor
+            scaling_factor = joint_times(i) / t_total;
+            
+            % Scale velocity and acceleration
+            v_max(i) = v_max(i) * scaling_factor;
+            a_max(i) = a_max(i) * scaling_factor^2;
+        end
     end
+else
+    % If not ending together, use the original joint times
+    t_total = max(joint_times);
 end
 
 % Generate time vector
@@ -99,11 +105,11 @@ for joint = 1:num_joints
         continue;
     end
     
-    % Recalculate trajectory parameters with scaled values
+    % Recalculate trajectory parameters with original or scaled values
     t_acc = v_max(joint) / a_max(joint);
     d_acc = 0.5 * a_max(joint) * t_acc^2;
     
-    % Check if we can reach maximum velocity with scaled values
+    % Check if we can reach maximum velocity with original values
     if (2 * d_acc >= displacement)
         % No constant velocity phase (triangular profile)
         t_acc = sqrt(displacement / a_max(joint));
