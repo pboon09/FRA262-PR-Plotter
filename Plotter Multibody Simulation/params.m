@@ -26,12 +26,18 @@ J = 0.013369679361673;
 B = 0.019688440522932;
 
 %Prismatic Motor
-% prismatic_ke = 0.1294;
-% prismatic_km = 0.4123 * prismatic_ke;
-% prismatic_L = 1.34e-4;
-% prismatic_R = 0.99;
-% prismatic_J = 2.3673e-4;
-% prismatic_B = 0.0088;
+% prismatic_ke = 0.5615;
+% prismatic_km = 0.8156 * prismatic_ke;
+% prismatic_L = 0.14;
+% prismatic_R = 0.924;
+% prismatic_J = 6.4276e-4;
+% prismatic_B = 0.1505;
+% prismatic_ke = 0.2064;
+% prismatic_km = 0.9582 * prismatic_ke;
+% prismatic_L = 0.1382;
+% prismatic_R = 0.5981;
+% prismatic_J = 0.0011;
+% prismatic_B = 0.0338;
 prismatic_ke = Ke;
 prismatic_km = Km;
 prismatic_L = L;
@@ -45,18 +51,18 @@ prismatic_pulley = 1.5915e-2;
 prismatic_max_speed = 400*2*pi/60;
 
 %Revolute Motor
-revolute_ke = 0.5615;
-revolute_km = 0.8156 * revolute_ke;
-revolute_L = 0.14;
-revolute_R = 0.924;
-revolute_J = 6.4276e-4;
-revolute_B = 0.1505;
-% revolute_ke = Ke;
-% revolute_km = Km;
-% revolute_L = L;
-% revolute_R = R;
-% revolute_J = J;
-% revolute_B = B;
+% revolute_ke = 0.5615;
+% revolute_km = 0.8156 * revolute_ke;
+% revolute_L = 0.14;
+% revolute_R = 0.924;
+% revolute_J = 6.4276e-4;
+% revolute_B = 0.1505;
+revolute_ke = Ke;
+revolute_km = Km;
+revolute_L = L;
+revolute_R = R;
+revolute_J = J;
+revolute_B = B;
 
 revolute_speed = 1; %rad/s
 revolute_accel = 0.4; %rad/s^2
