@@ -12,6 +12,9 @@
 #include "tim.h"
 #include "gpio.h"
 
+#include "stdio.h"
+#include "string.h"
+
 #include "QEI.h"
 #include "PWM.h"
 #include "Cytron_MDXX.h"
@@ -20,6 +23,7 @@
 #include "signal_generator.h"
 #include "FIR.h"
 #include "kalman.h"
+#include "ModBusRTU.h"
 
 /*-------Configure Signal Generator Start------*/
 extern SignalGenerator sine_sg;
@@ -161,6 +165,17 @@ extern FIR LP_revolute_current;
 extern KalmanFilter flit_prismatic_velocity;
 extern KalmanFilter flit_revolute_velocity;
 /*-------Configure Kalman Stop------*/
+
+/*----- Config ModBus Start -----*/
+extern ModbusHandleTypedef ModBus; // ModBus OOP
+extern UART_HandleTypeDef huart2;
+extern TIM_HandleTypeDef htim16;
+extern u16u8_t registerFrame[200];
+#define MODBUS_USART &huart2
+#define MODBUS_DATA_SENDING_PERIOD_TIM &htim16
+#define MODBUS_SLAVE_ADDRESS 0x15
+#define MODBUS_REGISTER_FRAME_SIZE 200
+/*----- Config ModBus End -----*/
 
 void plotter_begin();
 

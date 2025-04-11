@@ -39,6 +39,9 @@ KalmanFilter flit_revolute_velocity;
 
 uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 
+ModbusHandleTypedef ModBus;
+u16u8_t registerFrame[200];
+
 float joystick_x = 0.0f;
 float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
@@ -96,6 +99,8 @@ void plotter_begin() {
 
 	Kalman_Start(&flit_prismatic_velocity);
 	Kalman_Start(&flit_revolute_velocity);
+
+	Modbus_init(&ModBus, MODBUS_USART, MODBUS_DATA_SENDING_PERIOD_TIM, registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);
 
 	HAL_TIM_Base_Start_IT(CONTROL_TIM);
 }

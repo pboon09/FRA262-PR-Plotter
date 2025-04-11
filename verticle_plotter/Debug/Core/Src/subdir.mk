@@ -10,6 +10,7 @@ C_SRCS += \
 ../Core/Src/Cytron_MDXX.c \
 ../Core/Src/FIR.c \
 ../Core/Src/MathOperation.c \
+../Core/Src/ModBusRTU.c \
 ../Core/Src/PWM.c \
 ../Core/Src/QEI.c \
 ../Core/Src/Scurve.c \
@@ -26,7 +27,8 @@ C_SRCS += \
 ../Core/Src/syscalls.c \
 ../Core/Src/sysmem.c \
 ../Core/Src/system_stm32g4xx.c \
-../Core/Src/tim.c 
+../Core/Src/tim.c \
+../Core/Src/usart.c 
 
 OBJS += \
 ./Core/Src/ADC_DMA.o \
@@ -34,6 +36,7 @@ OBJS += \
 ./Core/Src/Cytron_MDXX.o \
 ./Core/Src/FIR.o \
 ./Core/Src/MathOperation.o \
+./Core/Src/ModBusRTU.o \
 ./Core/Src/PWM.o \
 ./Core/Src/QEI.o \
 ./Core/Src/Scurve.o \
@@ -50,7 +53,8 @@ OBJS += \
 ./Core/Src/syscalls.o \
 ./Core/Src/sysmem.o \
 ./Core/Src/system_stm32g4xx.o \
-./Core/Src/tim.o 
+./Core/Src/tim.o \
+./Core/Src/usart.o 
 
 C_DEPS += \
 ./Core/Src/ADC_DMA.d \
@@ -58,6 +62,7 @@ C_DEPS += \
 ./Core/Src/Cytron_MDXX.d \
 ./Core/Src/FIR.d \
 ./Core/Src/MathOperation.d \
+./Core/Src/ModBusRTU.d \
 ./Core/Src/PWM.d \
 ./Core/Src/QEI.d \
 ./Core/Src/Scurve.d \
@@ -74,7 +79,8 @@ C_DEPS += \
 ./Core/Src/syscalls.d \
 ./Core/Src/sysmem.d \
 ./Core/Src/system_stm32g4xx.d \
-./Core/Src/tim.d 
+./Core/Src/tim.d \
+./Core/Src/usart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -84,7 +90,7 @@ Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/ADC_DMA.cyclo ./Core/Src/ADC_DMA.d ./Core/Src/ADC_DMA.o ./Core/Src/ADC_DMA.su ./Core/Src/Controller.cyclo ./Core/Src/Controller.d ./Core/Src/Controller.o ./Core/Src/Controller.su ./Core/Src/Cytron_MDXX.cyclo ./Core/Src/Cytron_MDXX.d ./Core/Src/Cytron_MDXX.o ./Core/Src/Cytron_MDXX.su ./Core/Src/FIR.cyclo ./Core/Src/FIR.d ./Core/Src/FIR.o ./Core/Src/FIR.su ./Core/Src/MathOperation.cyclo ./Core/Src/MathOperation.d ./Core/Src/MathOperation.o ./Core/Src/MathOperation.su ./Core/Src/PWM.cyclo ./Core/Src/PWM.d ./Core/Src/PWM.o ./Core/Src/PWM.su ./Core/Src/QEI.cyclo ./Core/Src/QEI.d ./Core/Src/QEI.o ./Core/Src/QEI.su ./Core/Src/Scurve.cyclo ./Core/Src/Scurve.d ./Core/Src/Scurve.o ./Core/Src/Scurve.su ./Core/Src/Trapezoidal.cyclo ./Core/Src/Trapezoidal.d ./Core/Src/Trapezoidal.o ./Core/Src/Trapezoidal.su ./Core/Src/adc.cyclo ./Core/Src/adc.d ./Core/Src/adc.o ./Core/Src/adc.su ./Core/Src/dma.cyclo ./Core/Src/dma.d ./Core/Src/dma.o ./Core/Src/dma.su ./Core/Src/gpio.cyclo ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/kalman.cyclo ./Core/Src/kalman.d ./Core/Src/kalman.o ./Core/Src/kalman.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/plotter_config.cyclo ./Core/Src/plotter_config.d ./Core/Src/plotter_config.o ./Core/Src/plotter_config.su ./Core/Src/signal_generator.cyclo ./Core/Src/signal_generator.d ./Core/Src/signal_generator.o ./Core/Src/signal_generator.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su ./Core/Src/tim.cyclo ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su
+	-$(RM) ./Core/Src/ADC_DMA.cyclo ./Core/Src/ADC_DMA.d ./Core/Src/ADC_DMA.o ./Core/Src/ADC_DMA.su ./Core/Src/Controller.cyclo ./Core/Src/Controller.d ./Core/Src/Controller.o ./Core/Src/Controller.su ./Core/Src/Cytron_MDXX.cyclo ./Core/Src/Cytron_MDXX.d ./Core/Src/Cytron_MDXX.o ./Core/Src/Cytron_MDXX.su ./Core/Src/FIR.cyclo ./Core/Src/FIR.d ./Core/Src/FIR.o ./Core/Src/FIR.su ./Core/Src/MathOperation.cyclo ./Core/Src/MathOperation.d ./Core/Src/MathOperation.o ./Core/Src/MathOperation.su ./Core/Src/ModBusRTU.cyclo ./Core/Src/ModBusRTU.d ./Core/Src/ModBusRTU.o ./Core/Src/ModBusRTU.su ./Core/Src/PWM.cyclo ./Core/Src/PWM.d ./Core/Src/PWM.o ./Core/Src/PWM.su ./Core/Src/QEI.cyclo ./Core/Src/QEI.d ./Core/Src/QEI.o ./Core/Src/QEI.su ./Core/Src/Scurve.cyclo ./Core/Src/Scurve.d ./Core/Src/Scurve.o ./Core/Src/Scurve.su ./Core/Src/Trapezoidal.cyclo ./Core/Src/Trapezoidal.d ./Core/Src/Trapezoidal.o ./Core/Src/Trapezoidal.su ./Core/Src/adc.cyclo ./Core/Src/adc.d ./Core/Src/adc.o ./Core/Src/adc.su ./Core/Src/dma.cyclo ./Core/Src/dma.d ./Core/Src/dma.o ./Core/Src/dma.su ./Core/Src/gpio.cyclo ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/kalman.cyclo ./Core/Src/kalman.d ./Core/Src/kalman.o ./Core/Src/kalman.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/plotter_config.cyclo ./Core/Src/plotter_config.d ./Core/Src/plotter_config.o ./Core/Src/plotter_config.su ./Core/Src/signal_generator.cyclo ./Core/Src/signal_generator.d ./Core/Src/signal_generator.o ./Core/Src/signal_generator.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su ./Core/Src/tim.cyclo ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su ./Core/Src/usart.cyclo ./Core/Src/usart.d ./Core/Src/usart.o ./Core/Src/usart.su
 
 .PHONY: clean-Core-2f-Src
 

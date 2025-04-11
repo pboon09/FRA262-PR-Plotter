@@ -48,8 +48,8 @@ typedef struct
     bool isFinised;        // Flag indicating if trajectory is complete
 } Dual_Trapezoidal_EvaStruct;
 
-void Trajectory_Generator(volatile Trapezoidal_GenStruct *trapGen, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
-void Trajectory_Evaluated(volatile Trapezoidal_GenStruct *trapGen, volatile Trapezoidal_EvaStruct *evaTrapezoidal, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
+void Trapezoidal_Generator(volatile Trapezoidal_GenStruct *trapGen, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
+void Trapezoidal_Evaluated(volatile Trapezoidal_GenStruct *trapGen, volatile Trapezoidal_EvaStruct *evaTrapezoidal, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
 
 // Function to generate synchronized dual-joint trajectories
 void Dual_Trajectory_Generator(
