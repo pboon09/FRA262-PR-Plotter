@@ -19,6 +19,12 @@ PID_CONTROLLER prismatic_velocity_pid;
 PID_CONTROLLER revolute_position_pid;
 PID_CONTROLLER revolute_velocity_pid;
 
+DC_MOTOR_FFeedward prismatic_motor_ffd;
+DC_MOTOR_DFeedward prismatic_motor_dfd;
+
+DC_MOTOR_FFeedward revolute_motor_ffd;
+DC_MOTOR_DFeedward revolute_motor_dfd;
+
 PWM servo;
 
 ADC_DMA adc_dma;
@@ -35,7 +41,34 @@ FIR LP_revolute_velocity;
 FIR LP_revolute_current;
 
 KalmanFilter flit_prismatic_velocity;
+float32_t prismatic_A[16] = {
+	    1.0f, 0.000991203202452616f, -7.58380272526136e-05f, 3.54373669483581e-05f,
+	    0.0f, 0.982415142884365f,   -0.151228895527954f, 0.0705795807772549f,
+	    0.0f, 0.0f, 1.0f, 0.0f,
+	    0.0f, -0.00359965953788849f, 0.000275750228790085f, 0.992612408366667f
+};
+
+float32_t prismatic_B[4] = {
+		7.49874875871698e-08f,
+		0.000224494576940452f,
+	    0.0f,
+		0.00631167507255972f
+};
+
 KalmanFilter flit_revolute_velocity;
+float32_t revolute_A[16] = {
+	    1.0f, 0.000988562926927761f, -0.000649922017925031f, 0.000112742749409589f,
+	    0.0f, 0.977162908316739f,   -1.29485853504780f, 0.224367910579471f,
+	    0.0f, 0.0f, 1.0f, 0.0f,
+	    0.0f, -0.00132500147466383f, 0.000872091882057674f, 0.993164026946268f
+};
+
+float32_t revolute_B[4] = {
+		7.49874875871698e-08f,
+		0.000224494576940452f,
+	    0.0f,
+		0.00631167507255972f
+};
 
 uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 
@@ -89,6 +122,12 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&revolute_position_pid, 0, 0, 0, 65535);
 	PID_CONTROLLER_Init(&revolute_velocity_pid, 0, 0, 0, 65535);
 
+	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
+	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);
+
+	REVOLUTE_MOTOR_DFD_Init(&revolute_motor_dfd, &ZGX45RGG_150RPM_Constant, &Disturbance_Constant);
+	PRISMATIC_MOTOR_DFD_Init(&prismatic_motor_dfd, &ZGX45RGG_400RPM_Constant, &Disturbance_Constant);
+
 	ADC_DMA_Init(&adc_dma, &hadc1, adc_dma_buffer, ADC_BUFFER_SIZE, ADC_CHANNELS, 3.3f, 4095.0f);
 	ADC_DMA_Start(&adc_dma);
 
@@ -97,8 +136,8 @@ void plotter_begin() {
 	FIR_init(&LP_revolute_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 	FIR_init(&LP_revolute_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 
-	Kalman_Start(&flit_prismatic_velocity);
-	Kalman_Start(&flit_revolute_velocity);
+	Kalman_Start(&flit_revolute_velocity, revolute_A, revolute_B);
+	Kalman_Start(&flit_prismatic_velocity, prismatic_A, prismatic_B);
 
 	Modbus_init(&ModBus, MODBUS_USART, MODBUS_DATA_SENDING_PERIOD_TIM, registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);
 

@@ -75,8 +75,8 @@ all: main-build
 main-build: verticle_plotter.elf secondary-outputs
 
 # Tool invocations
-verticle_plotter.elf verticle_plotter.map: $(OBJS) $(USER_OBJS) D:\FRA262-PR-Plotter\verticle_plotter\STM32G474RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "verticle_plotter.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\FRA262-PR-Plotter\verticle_plotter\STM32G474RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="verticle_plotter.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+verticle_plotter.elf verticle_plotter.map: $(OBJS) $(USER_OBJS) D:\What\ you\ need\ is\ in\ this\ folder\FRA262-PR-Plotter\verticle_plotter\STM32G474RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "verticle_plotter.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\What you need is in this folder\FRA262-PR-Plotter\verticle_plotter\STM32G474RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="verticle_plotter.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

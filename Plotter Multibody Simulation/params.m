@@ -75,4 +75,3 @@ DFFW_t_revolute = revolute_L/revolute_R;
 RFFW_t_revolute = (revolute_R*revolute_J)/(revolute_km*revolute_ke+revolute_B*revolute_R);
 
 v_max = 12.0;
-

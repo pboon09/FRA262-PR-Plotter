@@ -104,19 +104,9 @@ float SteadyStateKalmanFilter(KalmanFilter* filter, float32_t Vin,float32_t Velo
 	  return  filter->Kalman_Speed;
 }
 
-void Kalman_Start(KalmanFilter* filter){
+void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix){
 	filter->Q = 0.05f; //0.05
 	filter->R[0] = 1.0f;
-
-	float32_t a[16] = {1.0f, 9.999812785357154e-04f, -1.149563041803406e-04f, 7.180678148697623e-06f,
-	                   0.0f, 0.999950617296464f,   -0.229910715302858f, 0.014322070901902f,
-	                   0.0f, 0.0f   ,   1.0f  , 0.0f,
-	                   0.0f,-0.004961131606500f, 5.718837195395508e-04f, 0.983689934032327f};
-
-	float32_t b[4] = {1.908889505894626e-07f,
-					  5.718837195395508e-04f,
-					  0.0f,
-					  0.078991236957537f};
 
 	float32_t c[4] = {0.0f, 1.0f, 0.0f, 0.0f};
 
@@ -137,7 +127,7 @@ void Kalman_Start(KalmanFilter* filter){
 	int i;
 	for(i=0;i<16;i++)
 	{
-		filter->A[i] = a[i];
+		filter->A[i] = A_matrix[i];
 		filter->eye[i] = iden[i];
 		filter->P_k[i] = 0.0f;
 	}
@@ -145,7 +135,7 @@ void Kalman_Start(KalmanFilter* filter){
 	for(i=0;i<4;i++)
 	{
 		filter->X_k[i] = x_k[i];
-		filter->B[i] = b[i];
+		filter->B[i] = B_matrix[i];
 		filter->C[i] = c[i];
 		filter->G[i] = g[i];
 

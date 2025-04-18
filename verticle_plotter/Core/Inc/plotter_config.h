@@ -24,6 +24,7 @@
 #include "FIR.h"
 #include "kalman.h"
 #include "ModBusRTU.h"
+#include "DC_MOTOR.h"
 
 /*-------Configure Signal Generator Start------*/
 extern SignalGenerator sine_sg;
@@ -123,6 +124,14 @@ extern PID_CONTROLLER revolute_position_pid;
 extern PID_CONTROLLER revolute_velocity_pid;
 /*-------Configure Controller Stop------*/
 
+/*------- Configure DC Motor Feedforward/Disturbance Control Start ------*/
+extern DC_MOTOR_FFeedward prismatic_motor_ffd;
+extern DC_MOTOR_DFeedward prismatic_motor_dfd;
+extern DC_MOTOR_FFeedward revolute_motor_ffd;
+extern DC_MOTOR_DFeedward revolute_motor_dfd;
+
+/*------- Configure DC Motor Feedforward/Disturbance Control End ------*/
+
 /*-------Configure ADC DMA Start------*/
 extern ADC_HandleTypeDef hadc1;  // Your ADC handle
 extern ADC_DMA adc_dma;
@@ -163,7 +172,12 @@ extern FIR LP_revolute_current;
 
 /*-------Configure Kalman Start------*/
 extern KalmanFilter flit_prismatic_velocity;
+extern float32_t prismatic_A[16];
+extern float32_t prismatic_B[4];
+
 extern KalmanFilter flit_revolute_velocity;
+extern float32_t revolute_A[16];
+extern float32_t revolute_B[4];
 /*-------Configure Kalman Stop------*/
 
 /*----- Config ModBus Start -----*/

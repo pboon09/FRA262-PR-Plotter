@@ -67,7 +67,8 @@ Core/Src/plotter_config.o: ../Core/Src/plotter_config.c \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/support_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/quaternion_math_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/window_functions.h \
- ../Core/Inc/FIR.h ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h
+ ../Core/Inc/FIR.h ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h \
+ ../Core/Inc/DC_MOTOR.h
 ../Core/Inc/plotter_config.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -146,3 +147,4 @@ Core/Src/plotter_config.o: ../Core/Src/plotter_config.c \
 ../Core/Inc/FIR.h:
 ../Core/Inc/kalman.h:
 ../Core/Inc/ModBusRTU.h:
+../Core/Inc/DC_MOTOR.h:

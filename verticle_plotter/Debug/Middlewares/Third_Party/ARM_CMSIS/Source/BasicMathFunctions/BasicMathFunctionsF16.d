@@ -1,6 +1,6 @@
 Middlewares/Third_Party/ARM_CMSIS/Source/BasicMathFunctions/BasicMathFunctionsF16.o: \
  ../Middlewares/Third_Party/ARM_CMSIS/Source/BasicMathFunctions/BasicMathFunctionsF16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_abs_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_abs_f16.c \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/basic_math_functions_f16.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types_f16.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h \
@@ -10,15 +10,15 @@ Middlewares/Third_Party/ARM_CMSIS/Source/BasicMathFunctions/BasicMathFunctionsF1
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/none.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/utils.h \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_add_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_dot_prod_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_mult_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_negate_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_offset_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_scale_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_sub_f16.c \
- D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_clip_f16.c
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_abs_f16.c:
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_add_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_dot_prod_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_mult_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_negate_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_offset_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_scale_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_sub_f16.c \
+ D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_clip_f16.c
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_abs_f16.c:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/basic_math_functions_f16.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types_f16.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h:
@@ -28,11 +28,11 @@ D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_abs_f16.c:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/none.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/utils.h:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_add_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_dot_prod_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_mult_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_negate_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_offset_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_scale_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_sub_f16.c:
-D:/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_clip_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_add_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_dot_prod_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_mult_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_negate_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_offset_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_scale_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_sub_f16.c:
+D:/What\ you\ need\ is\ in\ this\ folder/FRA262-PR-Plotter/verticle_plotter/Source/BasicMathFunctions/arm_clip_f16.c:
