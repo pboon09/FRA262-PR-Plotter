@@ -57,7 +57,6 @@ void Modbus_init(ModbusHandleTypedef* hmodbus,UART_HandleTypeDef* huart,TIM_Hand
 	hModbus->RegisterAddress = RegisterStartAddress;
 	hModbus->slaveAddress = slaveAddress;
 	hModbus->RegisterSize = RegisterSize;
-
 	//config timer interrupt
 
 	HAL_TIM_RegisterCallback(hmodbus->htim,HAL_TIM_PERIOD_ELAPSED_CB_ID ,(void*)modbus_3t5_Timeout);

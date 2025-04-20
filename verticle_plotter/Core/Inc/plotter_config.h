@@ -112,16 +112,16 @@ extern QEI revolute_encoder;
 #define ENC_PPR 8192.0
 #define ENC_FREQ 1000
 #define MOTOR_RATIO1 1.0f
-#define MOTOR_RATIO2 0.5f
+#define MOTOR_RATIO2 1.0f
 /*-----Configure Encoder End-----*/
 
 /*-------Configure Controller Start------*/
 extern TIM_HandleTypeDef htim2; //For Control Loop
-#define CONTROL_TIM &htim2
 extern PID_CONTROLLER prismatic_position_pid;
 extern PID_CONTROLLER prismatic_velocity_pid;
 extern PID_CONTROLLER revolute_position_pid;
 extern PID_CONTROLLER revolute_velocity_pid;
+#define CONTROL_TIM &htim2
 /*-------Configure Controller Stop------*/
 
 /*------- Configure DC Motor Feedforward/Disturbance Control Start ------*/
