@@ -192,5 +192,6 @@ extern u16u8_t registerFrame[200];
 /*----- Config ModBus End -----*/
 
 void plotter_begin();
+void update_sensors(void);
 
 #endif /* INC_PLOTTER_CONFIG_H_ */
