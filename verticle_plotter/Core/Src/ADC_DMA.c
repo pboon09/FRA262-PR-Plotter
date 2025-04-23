@@ -73,5 +73,5 @@ float ADC_DMA_ComputeCurrent(ADC_DMA *adc_dma, uint8_t channel_index, float offs
 float ADC_DMA_GetJoystick(ADC_DMA *adc_dma, uint8_t channel_index, float joydata) {
     float value = ADC_DMA_GetValue(adc_dma, channel_index);
 
-    return mapf(value, 0.0, adc_dma->adc_resolution/2, -joydata, joydata);
+    return mapf(value, 0.0, adc_dma->adc_resolution, 0.0, joydata);
 }

@@ -112,9 +112,9 @@ void plotter_begin() {
 
 	PWM_init(&servo, SERVO_TIM, SERVO_TIM_CH);
 
-	MDXX_set_range(&prismatic_motor, 2000, 0);
-	MDXX_set_range(&revolute_motor, 2000, 0);
-	PWM_write_range(&servo, 2000, 0);
+	MDXX_set_range(&prismatic_motor, 1000, 0);
+	MDXX_set_range(&revolute_motor, 1000, 0);
+	PWM_write_range(&servo, 50, 0);
 
 	PID_CONTROLLER_Init(&prismatic_position_pid, 0, 0, 0, 65535);
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 0, 0, 0, 65535);
@@ -145,8 +145,8 @@ void plotter_begin() {
 }
 
 void update_sensors(void) {
-    joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 10.0);
-    joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 10.0);
-    prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
-    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
+    joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
+    joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
+//    prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
+//    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }
