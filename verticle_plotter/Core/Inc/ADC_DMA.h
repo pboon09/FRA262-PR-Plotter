@@ -29,11 +29,10 @@ void ADC_DMA_Start(ADC_DMA *adc_dma);
 void ADC_DMA_Stop(ADC_DMA *adc_dma);
 
 // Get raw voltage from ADC channel
-float ADC_DMA_GetChannelVoltage(ADC_DMA *adc_dma, uint8_t channel_index);
+float ADC_DMA_GetValue(ADC_DMA *adc_dma, uint8_t channel_index);
 
-// Get joystick X and Y values (-1.0 to 1.0 range)
-float ADC_DMA_GetJoystickX(ADC_DMA *adc_dma, uint8_t channel_index);
-float ADC_DMA_GetJoystickY(ADC_DMA *adc_dma, uint8_t channel_index);
+// Get joystick X and Y values
+float ADC_DMA_GetJoystick(ADC_DMA *adc_dma, uint8_t channel_index, float joydata);
 
 // Compute current from specified channel
 float ADC_DMA_ComputeCurrent(ADC_DMA *adc_dma, uint8_t channel_index, float offset_voltage);

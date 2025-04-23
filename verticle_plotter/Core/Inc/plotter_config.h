@@ -144,7 +144,7 @@ extern ADC_DMA adc_dma;
 
 // Number of ADC channels and samples
 #define ADC_CHANNELS 4
-#define SAMPLES_PER_CHANNEL 50
+#define SAMPLES_PER_CHANNEL 10
 #define ADC_BUFFER_SIZE (ADC_CHANNELS * SAMPLES_PER_CHANNEL)
 extern uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 

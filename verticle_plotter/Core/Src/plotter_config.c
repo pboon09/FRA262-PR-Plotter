@@ -145,8 +145,8 @@ void plotter_begin() {
 }
 
 void update_sensors(void) {
-    joystick_x = ADC_DMA_GetJoystickX(&adc_dma, JOYSTICK_X_CHANNEL);
-    joystick_y = ADC_DMA_GetJoystickY(&adc_dma, JOYSTICK_Y_CHANNEL);
+    joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 10.0);
+    joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 10.0);
     prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
     revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }

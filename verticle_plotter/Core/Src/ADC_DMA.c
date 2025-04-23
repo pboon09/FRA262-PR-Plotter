@@ -37,22 +37,21 @@ void ADC_DMA_Stop(ADC_DMA *adc_dma) {
     HAL_ADC_Stop_DMA(adc_dma->hadc);
 }
 
-float ADC_DMA_GetChannelVoltage(ADC_DMA *adc_dma, uint8_t channel_index) {
+float ADC_DMA_GetValue(ADC_DMA *adc_dma, uint8_t channel_index) {
     uint32_t sum = 0;
     uint32_t samples = 0;
 
     // Average all samples for this channel
-    for (uint32_t j = 0; j < adc_dma->buffer_length; j += adc_dma->num_channels) {
-        if ((j + channel_index) < adc_dma->buffer_length) {
-            sum += adc_dma->dma_buffer[j + channel_index];
-            samples++;
-        }
+    for (uint32_t j = channel_index; j < adc_dma->buffer_length; j += adc_dma->num_channels) {
+        sum += adc_dma->dma_buffer[j];
+        samples++;
     }
+
 
     // Calculate raw ADC value and convert to voltage
     if (samples > 0) {
         float raw_value = (float)sum / samples;
-        return mapf(raw_value, 0, adc_dma->adc_resolution, 0, adc_dma->adc_vref);
+        return raw_value;
     }
 
     return 0.0f;
@@ -60,7 +59,9 @@ float ADC_DMA_GetChannelVoltage(ADC_DMA *adc_dma, uint8_t channel_index) {
 
 float ADC_DMA_ComputeCurrent(ADC_DMA *adc_dma, uint8_t channel_index, float offset_voltage) {
     // Get raw voltage
-    float raw_voltage = ADC_DMA_GetChannelVoltage(adc_dma, channel_index);
+    float value = ADC_DMA_GetValue(adc_dma, channel_index);
+
+    float raw_voltage = mapf(value, 0, adc_dma->adc_resolution, 0, adc_dma->adc_vref);
 
     // Calculate offset voltage
     float voltage = raw_voltage - offset_voltage;
@@ -69,14 +70,8 @@ float ADC_DMA_ComputeCurrent(ADC_DMA *adc_dma, uint8_t channel_index, float offs
     return 15.1793457908771 * voltage - 24.8674344063837;
 }
 
-float ADC_DMA_GetJoystickX(ADC_DMA *adc_dma, uint8_t channel_index) {
-    float voltage = ADC_DMA_GetChannelVoltage(adc_dma, channel_index);
+float ADC_DMA_GetJoystick(ADC_DMA *adc_dma, uint8_t channel_index, float joydata) {
+    float value = ADC_DMA_GetValue(adc_dma, channel_index);
 
-    return (voltage - (adc_dma->adc_vref / 2)) / (adc_dma->adc_vref / 2);
-}
-
-float ADC_DMA_GetJoystickY(ADC_DMA *adc_dma, uint8_t channel_index) {
-    float voltage = ADC_DMA_GetChannelVoltage(adc_dma, channel_index);
-
-    return (voltage - (adc_dma->adc_vref / 2)) / (adc_dma->adc_vref / 2);
+    return mapf(value, 0.0, adc_dma->adc_resolution/2, -joydata, joydata);
 }
