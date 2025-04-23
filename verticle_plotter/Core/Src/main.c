@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "plotter_config.h"
 #include "Trapezoidal.h"
+#include "ModBusRTU.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,101 +64,98 @@ void SystemClock_Config(void);
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
 
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-  MX_TIM2_Init();
-  MX_TIM3_Init();
-  MX_TIM4_Init();
-  MX_TIM5_Init();
-  MX_TIM8_Init();
-  MX_USART2_UART_Init();
-  MX_TIM16_Init();
-  /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_ADC1_Init();
+	MX_TIM2_Init();
+	MX_TIM3_Init();
+	MX_TIM4_Init();
+	MX_TIM5_Init();
+	MX_TIM8_Init();
+	MX_USART2_UART_Init();
+	MX_TIM16_Init();
+	/* USER CODE BEGIN 2 */
 	plotter_begin();
-  /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
 	while (1) {
-    /* USER CODE END WHILE */
+		/* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+		/* USER CODE BEGIN 3 */
+
 	}
-  /* USER CODE END 3 */
+	/* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ * @brief System Clock Configuration
+ * @retval None
+ */
+void SystemClock_Config(void) {
+	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
-  /** Configure the main internal regulator output voltage
-  */
-  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+	/** Configure the main internal regulator output voltage
+	 */
+	HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the RCC_OscInitTypeDef structure.
+	 */
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+	RCC_OscInitStruct.PLL.PLLN = 85;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+	RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		Error_Handler();
+	}
 
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+	/** Initializes the CPU, AHB and APB buses clocks
+	 */
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+		Error_Handler();
+	}
 }
 
 /* USER CODE BEGIN 4 */
@@ -173,34 +171,125 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		Modbus_Protocal_Worker();
 
-		QEI_get_diff_count(&prismatic_encoder);
-		QEI_compute_data(&prismatic_encoder);
+		//--Modbus Protocol--//
 
-		Voltage = 12.0 * cmd_ux / 65535.0;
-		filter_velocity = SteadyStateKalmanFilter(&flit_prismatic_velocity, Voltage , prismatic_encoder.radps * pulley);
+		registerFrame[Heartbeat_Protocol].U16 = 22881;
+		if (registerFrame[Servo_UP].U16 == 1) {
 
-		cmd_vx = PID_CONTROLLER_Compute(&prismatic_position_pid, setpointPos - prismatic_encoder.rads * pulley);
-		cmd_ux_no_ffw = PWM_Satuation(PID_CONTROLLER_Compute(&prismatic_velocity_pid, cmd_vx + setpointVel - filter_velocity), 65535, -65535);
+			// servo up command
+			registerFrame[LimitSwitch_Status].U16 = 1;
+		}
+		if (registerFrame[Servo_Down].U16 == 1) {
+			// servo down command
+			registerFrame[LimitSwitch_Status].U16 = 2;
+		}
 
-		cmd_ux = cmd_ux_no_ffw + PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd, prismatic_encoder.radps * pulley) + PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd, prismatic_encoder.rads, filter_velocity, prismatic_encoder.rads) * pully;
+		if (registerFrame[BaseSystem_Status].U16 == 1) {// homing
 
-		MDXX_set_range(&prismatic_motor, 2000, cmd_ux);
+			registerFrame[R_Theta_Status].U16 = 1;
+			//reset Arm Position command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 1; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 1; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 1; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 1; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 1; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 1; //pris Acc
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 2) {//joy
+
+			registerFrame[R_Theta_Status].U16 = 2;
+			//joystick control command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 2; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 2; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 2; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 2; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 2; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 2; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 4) {//point
+
+			registerFrame[R_Theta_Status].U16 = 4;
+			//Point mode command
+
+
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 3; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 3; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 3; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 3; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 3; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 3; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 8) {//go to
+
+			registerFrame[R_Theta_Status].U16 = 8;
+			//send Arm to target command
+
+			// goto registerFrame[Goal_R].U16,registerFrame[Goal_Theta].U16
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 4; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 4; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 4; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 4; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 4; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 4; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 16) {//stop
+
+			registerFrame[R_Theta_Status].U16 = 16;
+			//send Arm to target command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 5; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 5; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 0; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 0; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 0; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 0; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+
+		}
+
 	}
 }
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
+void Error_Handler(void) {
+	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
 	while (1) {
 	}
-  /* USER CODE END Error_Handler_Debug */
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
