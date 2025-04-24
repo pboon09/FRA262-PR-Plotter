@@ -96,10 +96,10 @@ extern MDXX revolute_motor;
 /*-------Configure Revolute Motor End------*/
 
 /*-------Configure Servo Start------*/
-extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim1;
 extern PWM servo;
-#define SERVO_TIM &htim8
-#define SERVO_TIM_CH TIM_CHANNEL_3
+#define SERVO_TIM &htim1
+#define SERVO_TIM_CH TIM_CHANNEL_4
 /*-------Configure Servo End------*/
 
 /*-----Configure Encoder Start-----*/
