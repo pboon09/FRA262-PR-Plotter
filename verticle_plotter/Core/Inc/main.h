@@ -70,14 +70,34 @@ void Error_Handler(void);
 #define RCC_OSC_OUT_GPIO_Port GPIOF
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
+#define UPPER_LIM_Pin GPIO_PIN_1
+#define UPPER_LIM_GPIO_Port GPIOB
+#define LOWER_LIM_Pin GPIO_PIN_2
+#define LOWER_LIM_GPIO_Port GPIOB
+#define PHOTO_REVO_Pin GPIO_PIN_10
+#define PHOTO_REVO_GPIO_Port GPIOB
+#define PHOTO_PRIS_Pin GPIO_PIN_8
+#define PHOTO_PRIS_GPIO_Port GPIOA
+#define PILOT_Pin GPIO_PIN_10
+#define PILOT_GPIO_Port GPIOA
 #define T_SWDIO_Pin GPIO_PIN_13
 #define T_SWDIO_GPIO_Port GPIOA
 #define T_SWCLK_Pin GPIO_PIN_14
 #define T_SWCLK_GPIO_Port GPIOA
+#define START_Pin GPIO_PIN_10
+#define START_GPIO_Port GPIOC
+#define DELETE_Pin GPIO_PIN_11
+#define DELETE_GPIO_Port GPIOC
+#define RESET_SYS_Pin GPIO_PIN_12
+#define RESET_SYS_GPIO_Port GPIOC
 #define T_SWO_Pin GPIO_PIN_3
 #define T_SWO_GPIO_Port GPIOB
 #define EMER_Pin GPIO_PIN_4
 #define EMER_GPIO_Port GPIOB
+#define PROX_Pin GPIO_PIN_5
+#define PROX_GPIO_Port GPIOB
+#define SAVE_Pin GPIO_PIN_7
+#define SAVE_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -51,20 +51,4 @@ typedef struct
 void Trapezoidal_Generator(volatile Trapezoidal_GenStruct *trapGen, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
 void Trapezoidal_Evaluated(volatile Trapezoidal_GenStruct *trapGen, volatile Trapezoidal_EvaStruct *evaTrapezoidal, float32_t initial_p, float32_t target_p, float32_t vmax, float32_t amax);
 
-// Function to generate synchronized dual-joint trajectories
-void Dual_Trajectory_Generator(
-    volatile Dual_Trapezoidal_GenStruct *dualTrapGen,
-    float32_t initial_p1, float32_t target_p1, float32_t vmax1, float32_t amax1,
-    float32_t initial_p2, float32_t target_p2, float32_t vmax2, float32_t amax2);
-
-// Function to evaluate synchronized dual-joint trajectories
-void Dual_Trajectory_Evaluated(
-    volatile Dual_Trapezoidal_GenStruct *dualTrapGen,
-    volatile Dual_Trapezoidal_EvaStruct *dualEvaTrapezoidal,
-    float32_t initial_p1, float32_t target_p1, float32_t vmax1, float32_t amax1,
-    float32_t initial_p2, float32_t target_p2, float32_t vmax2, float32_t amax2);
-
-// Function to initialize dual-joint trajectory evaluation structure
-void Dual_Trajectory_Init(volatile Dual_Trapezoidal_EvaStruct *dualEvaTrapezoidal);
-
 #endif /* INC_TRAPEZOIDAL_H_ */

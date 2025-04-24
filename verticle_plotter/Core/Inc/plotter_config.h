@@ -81,18 +81,18 @@ extern SignalGenerator ramp_sg;
 extern TIM_HandleTypeDef htim8;
 extern MDXX prismatic_motor;
 #define MOTOR1_TIM &htim8
-#define MOTOR1_TIM_CH TIM_CHANNEL_1
-#define MOTOR1_GPIOx GPIOC
-#define MOTOR1_GPIO_Pin GPIO_PIN_8
+#define MOTOR1_TIM_CH TIM_CHANNEL_2
+#define MOTOR1_GPIOx GPIOA
+#define MOTOR1_GPIO_Pin GPIO_PIN_9
 /*-------Configure Prismatic Motor End------*/
 
 /*-------Configure Revolute Motor Start------*/
 extern TIM_HandleTypeDef htim8;
 extern MDXX revolute_motor;
 #define MOTOR2_TIM &htim8
-#define MOTOR2_TIM_CH TIM_CHANNEL_2
-#define MOTOR2_GPIOx GPIOA
-#define MOTOR2_GPIO_Pin GPIO_PIN_9
+#define MOTOR2_TIM_CH TIM_CHANNEL_1
+#define MOTOR2_GPIOx GPIOC
+#define MOTOR2_GPIO_Pin GPIO_PIN_8
 /*-------Configure Revolute Motor End------*/
 
 /*-------Configure Servo Start------*/
@@ -107,8 +107,8 @@ extern TIM_HandleTypeDef htim3; //For QEI Encoder
 extern TIM_HandleTypeDef htim4; //For QEI Encoder
 extern QEI prismatic_encoder;
 extern QEI revolute_encoder;
-#define ENC_TIM1 &htim3
-#define ENC_TIM2 &htim4
+#define ENC_TIM1 &htim4
+#define ENC_TIM2 &htim3
 #define ENC_PPR 8192.0
 #define ENC_FREQ 1000
 #define MOTOR_RATIO1 1.0f
@@ -144,7 +144,7 @@ extern ADC_DMA adc_dma;
 
 // Number of ADC channels and samples
 #define ADC_CHANNELS 4
-#define SAMPLES_PER_CHANNEL 50
+#define SAMPLES_PER_CHANNEL 10
 #define ADC_BUFFER_SIZE (ADC_CHANNELS * SAMPLES_PER_CHANNEL)
 extern uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 
@@ -191,7 +191,15 @@ extern u16u8_t registerFrame[200];
 #define MODBUS_REGISTER_FRAME_SIZE 200
 /*----- Config ModBus End -----*/
 
+/*----- Test Sensor and Motor Start -----*/
+extern int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim;
+extern float joy_x, joy_y;
+/*----- Test Sensor and Motor End -----*/
+
 void plotter_begin();
-void update_sensors(void);
+void update_sensors();
+void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
+void pen_up();
+void pen_down();
 
 #endif /* INC_PLOTTER_CONFIG_H_ */
