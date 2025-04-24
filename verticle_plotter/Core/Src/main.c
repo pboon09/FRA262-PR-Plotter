@@ -116,6 +116,7 @@ int main(void) {
 	MX_TIM16_Init();
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
+	pen_up();
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -187,7 +188,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
-		test_sensors_motor_servo(duty_pris, duty_revo, duty_servo);
+//		test_sensors_motor_servo(duty_pris, duty_revo, duty_servo);
+		MDXX_set_range(&prismatic_motor, 2000, duty_pris);
 
 //		int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim, emer;
 //		float joy_x, joy_y;

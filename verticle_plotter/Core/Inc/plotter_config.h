@@ -192,12 +192,14 @@ extern u16u8_t registerFrame[200];
 /*----- Config ModBus End -----*/
 
 /*----- Test Sensor and Motor Start -----*/
-extern int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim, emer;
+extern int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim;
 extern float joy_x, joy_y;
 /*----- Test Sensor and Motor End -----*/
 
 void plotter_begin();
 void update_sensors();
 void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
+void pen_up();
+void pen_down();
 
 #endif /* INC_PLOTTER_CONFIG_H_ */

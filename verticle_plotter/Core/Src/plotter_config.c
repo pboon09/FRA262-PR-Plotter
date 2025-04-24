@@ -68,7 +68,7 @@ float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
 float revolute_current = 0.0f;
 
-int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim, emer;
+int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim;
 float joy_x, joy_y;
 
 void plotter_begin() {
@@ -108,8 +108,8 @@ void plotter_begin() {
 
 	PWM_init(&servo, SERVO_TIM, SERVO_TIM_CH);
 
-	MDXX_set_range(&prismatic_motor, 1000, 0);
-	MDXX_set_range(&revolute_motor, 1000, 0);
+	MDXX_set_range(&prismatic_motor, 2000, 0);
+	MDXX_set_range(&revolute_motor, 2000, 0);
 	PWM_write_range(&servo, 50, 0);
 
 	PID_CONTROLLER_Init(&prismatic_position_pid, 0, 0, 0, 65535);
@@ -160,9 +160,9 @@ void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo
 	QEI_get_diff_count(&prismatic_encoder);
 	QEI_compute_data(&prismatic_encoder);
 
-	MDXX_set_range(&prismatic_motor, 2000, duty_pris * 65535 / 100);
-	MDXX_set_range(&prismatic_motor, 2000, duty_revo * 65535 / 100);
-	PWM_write_range(&servo, 2000, duty_servo * 65535 / 100);
+	MDXX_set_range(&prismatic_motor, 2000, duty_pris);
+	MDXX_set_range(&revolute_motor, 2000, duty_revo);
+	PWM_write_duty(&servo, 50, duty_servo);
 
 	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
 	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
@@ -179,4 +179,12 @@ void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo
 
 	joy_x = joystick_x;
 	joy_y = joystick_y;
+}
+
+void pen_up(){
+	PWM_write_duty(&servo, 50, 7);
+}
+
+void pen_down(){
+	PWM_write_duty(&servo, 50, 12);
 }
