@@ -52,6 +52,7 @@ Trapezoidal_GenStruct prisGen;
 Trapezoidal_EvaStruct prisEva;
 bool trajectoryActive = false;
 float32_t initial_p = 0.0f;   // Initial position (mm)
+float32_t target_p = 0.0f;
 volatile float32_t current_position;   // Current position (mm)
 volatile float32_t current_velocity;   // Current velocity (mm/s)
 
@@ -213,7 +214,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
                     ZGX45RGG_400RPM_Constant.qd_max * 3.0);
             current_position = prisEva.setposition;
             current_velocity = prisEva.setvelocity;
-            current_acceleration = prisEva.setacceleration;
 
             setpoint_pos = current_position;
             setpoint_vel = current_velocity;
