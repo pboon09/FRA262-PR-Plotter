@@ -144,6 +144,19 @@ void plotter_begin() {
 void update_sensors() {
 	joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
 	joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
+
+	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
+	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
+	b3 = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
+	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
+
+	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+	photo_pris = HAL_GPIO_ReadPin(PHOTO_PRIS_GPIO_Port, PHOTO_PRIS_Pin);
+	photo_revo = HAL_GPIO_ReadPin(PHOTO_REVO_GPIO_Port, PHOTO_REVO_Pin);
+	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+
+	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 //    prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
 //    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }
