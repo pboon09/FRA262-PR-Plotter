@@ -191,7 +191,13 @@ extern u16u8_t registerFrame[200];
 #define MODBUS_REGISTER_FRAME_SIZE 200
 /*----- Config ModBus End -----*/
 
+/*----- Test Sensor and Motor Start -----*/
+extern int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim, emer;
+extern float joy_x, joy_y;
+/*----- Test Sensor and Motor End -----*/
+
 void plotter_begin();
-void update_sensors(void);
+void update_sensors();
+void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
 
 #endif /* INC_PLOTTER_CONFIG_H_ */
