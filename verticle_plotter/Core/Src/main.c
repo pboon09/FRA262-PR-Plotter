@@ -123,34 +123,16 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		static uint8_t button_pressed_previous = 0;
-
-		if (b1 && !button_pressed_previous && !trajectoryActive) {
-			prisEva.t = 0.0f;
-			prisEva.isFinised = false;
-
-			initial_p = current_position;
-
-			target_p = trajectory_sequence[trajectory_sequence_index];
-
-//			Trapezoidal_Generator(&prisGen, initial_p, target_p,
-//					ZGX45RGG_400RPM_Constant.qd_max,
-//					ZGX45RGG_400RPM_Constant.qd_max * 3.0);
-
-			Trapezoidal_Generator(&prisGen, initial_p, target_p,
-					ZGX45RGG_150RPM_Constant.qd_max,
-					ZGX45RGG_150RPM_Constant.qd_max * 3.0);
-
-			trajectoryActive = true;
-
-			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
-		}
-		button_pressed_previous = b1;
-
 		HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, b2);
 
 		if (b3) {
 			NVIC_SystemReset();
+		}
+		if (b1) {
+			pen_up();
+		}
+		if (b4) {
+			pen_down();
 		}
 	}
 	/* USER CODE END 3 */
@@ -211,6 +193,108 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		update_sensors();
+		Modbus_Protocal_Worker();
+
+		//Heartbeat
+		registerFrame[Heartbeat_Protocol].U16 = 22881;
+
+		if (registerFrame[Servo_UP].U16 == 1) {
+			pen_up(); //servo up command
+			registerFrame[LimitSwitch_Status].U16 = 1;
+		}
+		if (registerFrame[Servo_Down].U16 == 1) {
+			pen_down(); // servo down command
+			registerFrame[LimitSwitch_Status].U16 = 2;
+		}
+
+		if (registerFrame[BaseSystem_Status].U16 == 1) { // homing
+
+			registerFrame[R_Theta_Status].U16 = 1;
+			//reset Arm Position command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 1; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 1; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 1; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 1; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 1; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 1; //pris Acc
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 2) {				//joy
+
+			registerFrame[R_Theta_Status].U16 = 2;
+			//joystick control command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 2; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 2; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 2; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 2; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 2; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 2; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 4) { //point
+
+			registerFrame[R_Theta_Status].U16 = 4;
+			//Point mode command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 3; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 3; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 3; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 3; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 3; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 3; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 8) { //go to
+
+			registerFrame[R_Theta_Status].U16 = 8;
+			//send Arm to target command
+
+			// goto registerFrame[Goal_R].U16,registerFrame[Goal_Theta].U16
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 4; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 4; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 4; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 4; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 4; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 4; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 16) { //stop
+
+			registerFrame[R_Theta_Status].U16 = 16;
+			//send Arm to target command
+
+			//--tell Arm Status--//
+			registerFrame[R_Axis_Actual_Position].U16 = 5; //Rev Pos
+			registerFrame[Theta_Axis_Actual_Position].U16 = 5; //pris Pos
+			registerFrame[R_Axis_Actual_Speed].U16 = 0; //Rev speed
+			registerFrame[Theta_Axis_Actual_Speed].U16 = 0; //pris speed
+			registerFrame[R_Axis_Acceleration].U16 = 0; //Rev Acc
+			registerFrame[Theta_Axis_Acceleration].U16 = 0; //pris Acc
+
+			//if finish
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+
+		}
 
 //		if (trajectoryActive && !prisEva.isFinised) {
 //			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
@@ -240,34 +324,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //
 //		MDXX_set_range(&prismatic_motor, 2000, cmd_ux);
 
-		if (trajectoryActive && !prisEva.isFinised) {
-			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
-					ZGX45RGG_150RPM_Constant.qd_max,
-					ZGX45RGG_150RPM_Constant.qd_max * 3.0);
-
-			current_position = prisEva.setposition;
-			current_velocity = prisEva.setvelocity;
-
-			setpoint_pos = current_position;
-			setpoint_vel = current_velocity;
-
-			QEI_get_diff_count(&revolute_encoder);
-			QEI_compute_data(&revolute_encoder);
-
-			lp_filt = FIR_process(&LP_revolute_velocity,
-					revolute_encoder.radps);
-
-			cmd_vx = PID_CONTROLLER_Compute(&revolute_position_pid,
-					setpoint_pos - revolute_encoder.rads);
-			cmd_ux = PWM_Satuation(
-					PID_CONTROLLER_Compute(&revolute_velocity_pid,
-							cmd_vx + setpoint_vel - lp_filt), 65535, -65535);
-		} else {
-			trajectoryActive = false;
-			cmd_ux = 0;
-		}
-
-		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
+//		if (trajectoryActive && !prisEva.isFinised) {
+//			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
+//					ZGX45RGG_150RPM_Constant.qd_max,
+//					ZGX45RGG_150RPM_Constant.qd_max * 3.0);
+//
+//			current_position = prisEva.setposition;
+//			current_velocity = prisEva.setvelocity;
+//
+//			setpoint_pos = current_position;
+//			setpoint_vel = current_velocity;
+//
+//			QEI_get_diff_count(&revolute_encoder);
+//			QEI_compute_data(&revolute_encoder);
+//
+//			lp_filt = FIR_process(&LP_revolute_velocity,
+//					revolute_encoder.radps);
+//
+//			cmd_vx = PID_CONTROLLER_Compute(&revolute_position_pid,
+//					setpoint_pos - revolute_encoder.rads);
+//			cmd_ux = PWM_Satuation(
+//					PID_CONTROLLER_Compute(&revolute_velocity_pid,
+//							cmd_vx + setpoint_vel - lp_filt), 65535, -65535);
+//		} else {
+//			trajectoryActive = false;
+//			cmd_ux = 0;
+//		}
+//
+//		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
 	}
 }
 

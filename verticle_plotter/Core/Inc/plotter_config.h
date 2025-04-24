@@ -189,6 +189,31 @@ extern u16u8_t registerFrame[200];
 #define MODBUS_DATA_SENDING_PERIOD_TIM &htim16
 #define MODBUS_SLAVE_ADDRESS 0x15
 #define MODBUS_REGISTER_FRAME_SIZE 200
+
+#define Heartbeat_Protocol 0x00 // Read/Write
+#define BaseSystem_Status 0x01 // Write
+#define LimitSwitch_Status 0x03 // Read
+#define Servo_UP 0x04 //Write
+#define Servo_Down 0x05 //Write
+#define R_Theta_Status 0x10 // Read
+#define R_Axis_Actual_Position 0x11 //Write
+#define Theta_Axis_Actual_Position 0x12 //Write
+#define R_Axis_Actual_Speed 0x13 //Write
+#define Theta_Axis_Actual_Speed 0x14 //Write
+#define R_Axis_Acceleration 0x15 //Write
+#define Theta_Axis_Acceleration 0x16 //Write
+#define Target_Pos_1 0x20 // Read
+#define Target_Pos_2 0x21 // Read
+#define Target_Pos_3 0x22 // Read
+#define Target_Pos_4 0x23 // Read
+#define Target_Pos_5 0x24 // Read
+#define Target_Pos_6 0x25 // Read
+#define Target_Pos_7 0x26 // Read
+#define Target_Pos_8 0x27 // Read
+#define Target_Pos_9 0x28 // Read
+#define Target_Pos_10 0x29 // Read
+#define Goal_R 0x30 // Read
+#define Goal_Theta 0x21 // Read
 /*----- Config ModBus End -----*/
 
 /*----- Test Sensor and Motor Start -----*/
