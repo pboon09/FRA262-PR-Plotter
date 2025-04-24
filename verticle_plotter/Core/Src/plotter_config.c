@@ -113,8 +113,8 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1, ZGX45RGG_400RPM_Constant.U_max);
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0, ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 0, 0, 0, 65535);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 0, 0, 0, 65535);
+	PID_CONTROLLER_Init(&revolute_position_pid, 2, 1e-7, 1, ZGX45RGG_150RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 50, 0, ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
 	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);
