@@ -4334,7 +4334,7 @@ void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix
  80025e2:	60f8      	str	r0, [r7, #12]
  80025e4:	60b9      	str	r1, [r7, #8]
  80025e6:	607a      	str	r2, [r7, #4]
-	filter->Q = 0.025f; //0.7
+	filter->Q = 0.05f; //0.7
  80025e8:	68fb      	ldr	r3, [r7, #12]
  80025ea:	4a38      	ldr	r2, [pc, #224]	@ (80026cc <Kalman_Start+0xf0>)
  80025ec:	f8c3 20c0 	str.w	r2, [r3, #192]	@ 0xc0
@@ -4448,7 +4448,7 @@ void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix
  80026c4:	f8c7 3084 	str.w	r3, [r7, #132]	@ 0x84
  80026c8:	e03f      	b.n	800274a <Kalman_Start+0x16e>
  80026ca:	bf00      	nop
- 80026cc:	3ccccccd 	.word	0x3ccccccd
+ 80026cc:	3d4ccccd 	.word	0x3d4ccccd
  80026d0:	0800d814 	.word	0x0800d814
 	{
 		filter->X_k[i] = x_k[i];
