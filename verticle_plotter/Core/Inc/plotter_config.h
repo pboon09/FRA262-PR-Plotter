@@ -34,12 +34,12 @@ extern SignalGenerator square_sg;
 extern SignalGenerator ramp_sg;
 
 // Sine wave configuration
-#define SINE_AMPLITUDE       (0.7f / 3.0f)
-#define SINE_FREQUENCY       0.05f
+#define SINE_AMPLITUDE       65535.0f
+#define SINE_FREQUENCY       0.1f
 #define SINE_PHASE           0.0f
 #define SINE_OFFSET          0.0f
-#define SINE_MIN_SETPOINT    (-0.7f / 3.0f)
-#define SINE_MAX_SETPOINT    (0.7f / 3.0f)
+#define SINE_MIN_SETPOINT    -65535.0f
+#define SINE_MAX_SETPOINT    65535.0f
 
 // Chirp linear configuration
 #define CHIRP_LINEAR_AMPLITUDE    (0.7f / 3.0f)
@@ -59,7 +59,7 @@ extern SignalGenerator ramp_sg;
 
 // Square wave configuration
 #define SQUARE_AMPLITUDE     65535.0f
-#define SQUARE_FREQUENCY     0.3f
+#define SQUARE_FREQUENCY     0.1f
 #define SQUARE_DUTY_CYCLE    0.5f
 #define SQUARE_PHASE         0.0f
 #define SQUARE_OFFSET        0.0f

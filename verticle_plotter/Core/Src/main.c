@@ -61,7 +61,7 @@ bool sequence_active = false;
 const float32_t trajectory_sequence[4] = { 100.0f, 400.0f, 200.0f, 300.0f }; // Sequence of setpoints
 
 float setpoint_pos, setpoint_vel, error, kal_flit, lp_filt;
-float cmd_ux, cmd_vx, vin, square_sample;
+float cmd_ux, cmd_vx, vin, square_sample, sine_sample;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,29 +123,29 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-//		static uint8_t button_pressed_previous = 0;
-//
-//		if (b1 && !button_pressed_previous && !trajectoryActive) {
-//			prisEva.t = 0.0f;
-//			prisEva.isFinised = false;
-//
-//			initial_p = current_position;
-//
-//			target_p = trajectory_sequence[trajectory_sequence_index];
-//
-////			Trapezoidal_Generator(&prisGen, initial_p, target_p,
-////					ZGX45RGG_400RPM_Constant.qd_max,
-////					ZGX45RGG_400RPM_Constant.qd_max * 3.0);
-//
+		static uint8_t button_pressed_previous = 0;
+
+		if (b1 && !button_pressed_previous && !trajectoryActive) {
+			prisEva.t = 0.0f;
+			prisEva.isFinised = false;
+
+			initial_p = current_position;
+
+			target_p = trajectory_sequence[trajectory_sequence_index];
+
+			Trapezoidal_Generator(&prisGen, initial_p, target_p,
+					ZGX45RGG_400RPM_Constant.qd_max,
+					ZGX45RGG_400RPM_Constant.qd_max * 3.0);
+
 //			Trapezoidal_Generator(&prisGen, initial_p, target_p,
 //					ZGX45RGG_150RPM_Constant.qd_max,
 //					ZGX45RGG_150RPM_Constant.qd_max * 3.0);
-//
-//			trajectoryActive = true;
-//
-//			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
-//		}
-//		button_pressed_previous = b1;
+
+			trajectoryActive = true;
+
+			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
+		}
+		button_pressed_previous = b1;
 
 		HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, b2);
 
@@ -211,7 +211,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		update_sensors();
-
 //		if (trajectoryActive && !prisEva.isFinised) {
 //			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
 //					ZGX45RGG_400RPM_Constant.qd_max,
@@ -222,17 +221,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //
 //			setpoint_pos = current_position;
 //			setpoint_vel = current_velocity;
+//
 //			QEI_get_diff_count(&prismatic_encoder);
 //			QEI_compute_data(&prismatic_encoder);
 //
 //			lp_filt = FIR_process(&LP_prismatic_velocity,
 //					prismatic_encoder.radps);
 //
+//			vin = cmd_ux * 12.0 / 65535.0;
+//
+//			kal_flit = SteadyStateKalmanFilter(&flit_prismatic_velocity, vin, prismatic_encoder.radps);
+//
 //			cmd_vx = PID_CONTROLLER_Compute(&prismatic_position_pid,
 //					setpoint_pos - prismatic_encoder.rads);
 //			cmd_ux = PWM_Satuation(
 //					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
-//							cmd_vx + setpoint_vel - lp_filt), 65535, -65535);
+//							cmd_vx + setpoint_vel - kal_flit), 65535, -65535);
 //		} else {
 //			trajectoryActive = false;
 //			cmd_ux = 0;
@@ -268,32 +272,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //		}
 //
 //		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
-
+//
 		square_sample = SIGNAL_generate(&square_sg, 0.001f);
-
-//		QEI_get_diff_count(&revolute_encoder);
-//		QEI_compute_data(&revolute_encoder);
-//
-//		vin = square_sample * 12.0 / 65535.0;
-//
-//		kal_flit = SteadyStateKalmanFilter(&flit_revolute_velocity, vin, revolute_encoder.radps);
-//		lp_filt = FIR_process(&LP_revolute_velocity,revolute_encoder.radps);
-//
-//		MDXX_set_range(&revolute_motor, 2000, square_sample);
+//		sine_sample = SIGNAL_generate(&sine_sg, 0.001f);
 
 		QEI_get_diff_count(&prismatic_encoder);
 		QEI_compute_data(&prismatic_encoder);
 
 		vin = square_sample * 12.0 / 65535.0;
 
-		if (abs(prismatic_encoder.radps) < 1e-3){
-			vin = 0;
-		}
-
-		kal_flit = SteadyStateKalmanFilter(&flit_prismatic_velocity, vin, prismatic_encoder.radps);
-		lp_filt = FIR_process(&LP_prismatic_velocity,prismatic_encoder.radps);
+		kal_flit = SteadyStateKalmanFilter(&flit_revolute_velocity, vin, prismatic_encoder.radps);
+		lp_filt = FIR_process(&LP_revolute_velocity,prismatic_encoder.radps);
 
 		MDXX_set_range(&prismatic_motor, 2000, square_sample);
+
+//		QEI_get_diff_count(&prismatic_encoder);
+//		QEI_compute_data(&prismatic_encoder);
+//
+//		vin = square_sample * 12.0 / 65535.0;
+////		vin = square_sample * 12.0 / 65535.0;
+//
+//		if (abs(prismatic_encoder.radps) < 1e-3){
+//			vin = 0;
+//		}
+//
+//		kal_flit = SteadyStateKalmanFilter(&flit_prismatic_velocity, vin, prismatic_encoder.radps);
+//		lp_filt = FIR_process(&LP_prismatic_velocity,prismatic_encoder.radps);
+//
+//		MDXX_set_range(&prismatic_motor, 2000, square_sample);
 	}
 }
 
