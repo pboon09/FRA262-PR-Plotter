@@ -1,8 +1,8 @@
 /*
- * RMX_Motor.h
+ * plotter_config.h
  *
- *  Created on: Nov 29, 2024
- *      Author: beamk
+ *  Created on: Apr 20, 2025
+ *      Author: pboon09
  */
 
 #ifndef INC_PLOTTER_CONFIG_H_
@@ -58,13 +58,13 @@ extern SignalGenerator ramp_sg;
 #define CHIRP_LOG_MAX_SETPOINT (0.7f / 3.0f)
 
 // Square wave configuration
-#define SQUARE_AMPLITUDE     (0.7f / 3.0f)
-#define SQUARE_FREQUENCY     2.0f
-#define SQUARE_DUTY_CYCLE    0.3f
+#define SQUARE_AMPLITUDE     65535.0f
+#define SQUARE_FREQUENCY     0.3f
+#define SQUARE_DUTY_CYCLE    0.5f
 #define SQUARE_PHASE         0.0f
 #define SQUARE_OFFSET        0.0f
-#define SQUARE_MIN_SETPOINT  (-0.7f / 3.0f)
-#define SQUARE_MAX_SETPOINT  (0.7f / 3.0f)
+#define SQUARE_MIN_SETPOINT  -65535.0f
+#define SQUARE_MAX_SETPOINT  65535.0f
 
 // Ramp wave configuration
 #define RAMP_AMPLITUDE       (0.7f / 3.0f)
