@@ -161,23 +161,27 @@ void update_sensors(void);
 /*-------Configure ADC DMA End------*/
 
 /*-------Configure FIR Start------*/
-extern FIR LP_prismatic_velocity;
-extern FIR LP_prismatic_current;
-extern FIR LP_revolute_velocity;
-extern FIR LP_revolute_current;
+extern FIR prismatic_lp_current;
+extern FIR prismatic_lp_velocity;
+extern FIR revolute_lp_current;
+extern FIR revolute_lp_velocity;
 #define NUM_TAPS 31
 #define CUTOFF_FREQ 25.0
 #define SAMPLE_RATE 1000.0f  // 1kHz
 /*-------Configure FIR Stop------*/
 
 /*-------Configure Kalman Start------*/
-extern KalmanFilter flit_prismatic_velocity;
+extern KalmanFilter prismatic_kalman;
 extern float32_t prismatic_A[16];
 extern float32_t prismatic_B[4];
+#define PRISMATIC_Q 1.0f
+#define PRISMATIC_R 0.05f
 
-extern KalmanFilter flit_revolute_velocity;
+extern KalmanFilter revolute_kalman;
 extern float32_t revolute_A[16];
 extern float32_t revolute_B[4];
+#define REVOLUTE_Q 1.0f
+#define REVOLUTE_R 0.05f
 /*-------Configure Kalman Stop------*/
 
 /*----- Config ModBus Start -----*/

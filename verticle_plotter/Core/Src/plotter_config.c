@@ -35,22 +35,21 @@ SignalGenerator chirp_log_sg;
 SignalGenerator square_sg;
 SignalGenerator ramp_sg;
 
-FIR LP_prismatic_velocity;
-FIR LP_prismatic_current;
-FIR LP_revolute_velocity;
-FIR LP_revolute_current;
+FIR prismatic_lp_velocity;
+FIR prismatic_lp_current;
+FIR revolute_lp_velocity;
+FIR revolute_lp_current;
 
-KalmanFilter flit_prismatic_velocity;
+KalmanFilter prismatic_kalman;
 //b * 0.6
 float32_t prismatic_A[16] = { 1.0f, 0.000993096502229541f,
 		-0.000651907539312034f, 0.000113087373016393f, 0.0f, 0.986174211076634f,
 		-1.30079678997714f, 0.225398024082257f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		-0.00133108479516514f, 0.000874757627317859f, 0.993163564257609f };
-
 float32_t prismatic_B[4] = { 2.53264868595647e-07f, 0.000758492055510868f, 0.0f,
 		0.00668435039056396f };
 
-KalmanFilter flit_revolute_velocity;
+KalmanFilter revolute_kalman;
 //float32_t revolute_A[16] = { 1.0f, 0.000988562926927761f,
 //		-0.000649922017925031f, 0.000112742749409589f, 0.0f, 0.977162908316739f,
 //		-1.29485853504780f, 0.224367910579471f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -58,54 +57,20 @@ KalmanFilter flit_revolute_velocity;
 //float32_t revolute_B[4] = { 7.49874875871698e-08f, 0.000224494576940452f, 0.0f,
 //		0.00631167507255972f };
 
-//b * 1.4
-//float32_t revolute_A[16] = {
-//    1.0f, 0.000987730458216224f, -7.56607879232622e-05f, 3.53544968515789e-05f,
-//    0.0f, 0.975518788206619f, -0.150699055355908f, 0.0703319998872943f,
-//    0.0f, 0.0f, 1.0f, 0.0f,
-//    0.0f, -0.00358703255849684f, 0.000275105388326063f, 0.992612709868349f
-//};
-//
-//float32_t revolute_B[4] = {
-//    7.48559161524874e-08f, 0.000223969597549501f, 0.0f, 0.00631167555142406f
-//};
-
-//b * 1.25
-//float32_t revolute_A[16] = {
-//    1.0f, 0.000989030829926645f, -7.57271796839252e-05f, 3.53855389991954e-05f,
-//    0.0f, 0.978099229840933f, -0.150897454409761f, 0.0704247066562337f,
-//    0.0f, 0.0f, 1.0f, 0.0f,
-//    0.0f, -0.00359176073626956f, 0.000275346937855402f, 0.992612596929469f
-//};
-//
-//float32_t revolute_B[4] = {
-//    7.49052120833864e-08f, 0.000224166248553698f, 0.0f, 0.00631167537200777f
-//};
-
-//b * 1.3
 float32_t revolute_A[16] = {
-    1.0f, 0.000988597118708185f, -7.57050393755908e-05f, 3.53751870696359e-05f,
-    0.0f, 0.977238325116089f, -0.150831282641567f, 0.0703937862818857f,
+    1.0f, 0.000991160404599280f, -7.58363901342772e-05f, 3.53506803213686e-05f,
+    0.0f, 0.982287363207144f, -0.151222365815303f, 0.0703196164652582f,
     0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, -0.00359018375296631f, 0.000275266385963705f, 0.992612634592311f
+    0.0f, -0.00717280197253310f, 0.000550151381207752f, 0.985278760882813f
 };
 
 float32_t revolute_B[4] = {
-    7.48887743305548e-08f, 0.000224100669413736f, 0.0f, 0.00631167543183423f
+    1.49700337717311e-07f,
+    0.000447890839907366f,
+    0.0f,
+    0.0125769916902835f
 };
 
-//b*1.275
-//float32_t revolute_A[16] = {
-//    1.0f, 0.000988813942552254f, -7.57161083140429e-05f, 3.53803624657881e-05f,
-//    0.0f, 0.977668682719841f, -0.150864363679221f, 0.0704092442030598f,
-//    0.0f, 0.0f, 1.0f, 0.0f,
-//    0.0f, -0.00359097212904870f, 0.000275306657484869f, 0.992612615762959f
-//};
-//
-//float32_t revolute_B[4] = {
-//    7.48969924847229e-08f, 0.000224133455381480f, 0.0f, 0.00631167540192363f
-//};
-//
 uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 
 ModbusHandleTypedef ModBus;
@@ -179,13 +144,13 @@ void plotter_begin() {
 			ADC_CHANNELS, 3.3f, 4095.0f);
 	ADC_DMA_Start(&adc_dma);
 
-	FIR_init(&LP_prismatic_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
-	FIR_init(&LP_prismatic_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
-	FIR_init(&LP_revolute_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
-	FIR_init(&LP_revolute_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
+	FIR_init(&prismatic_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
+	FIR_init(&prismatic_lp_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
+	FIR_init(&revolute_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
+	FIR_init(&revolute_lp_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 
-	Kalman_Start(&flit_revolute_velocity, revolute_A, revolute_B);
-	Kalman_Start(&flit_prismatic_velocity, prismatic_A, prismatic_B);
+	Kalman_Start(&revolute_kalman, revolute_A, revolute_B, REVOLUTE_Q, REVOLUTE_R);
+	Kalman_Start(&prismatic_kalman, prismatic_A, prismatic_B, PRISMATIC_Q, PRISMATIC_R);
 
 	Modbus_init(&ModBus, MODBUS_USART, MODBUS_DATA_SENDING_PERIOD_TIM,
 			registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);
