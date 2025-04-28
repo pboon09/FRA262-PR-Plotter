@@ -27,11 +27,12 @@
 #include "DC_MOTOR.h"
 
 /*-------Configure Signal Generator Start------*/
-extern SignalGenerator sine_sg;
-extern SignalGenerator chirp_linear_sg;
-extern SignalGenerator chirp_log_sg;
-extern SignalGenerator square_sg;
-extern SignalGenerator ramp_sg;
+extern SignalGenerator sine_sg_PWM;
+extern SignalGenerator square_sg_PWM;
+extern SignalGenerator sine_sg_prismatic;
+extern SignalGenerator square_sg_prismatic;
+extern SignalGenerator sine_sg_revolute;
+extern SignalGenerator square_sg_revolute;
 
 // Sine wave configuration
 #define SINE_AMPLITUDE       65535.0f
@@ -41,22 +42,6 @@ extern SignalGenerator ramp_sg;
 #define SINE_MIN_SETPOINT    -65535.0f
 #define SINE_MAX_SETPOINT    65535.0f
 
-// Chirp linear configuration
-#define CHIRP_LINEAR_AMPLITUDE    (0.7f / 3.0f)
-#define CHIRP_LINEAR_START_FREQ   1.0f
-#define CHIRP_LINEAR_END_FREQ     10.0f
-#define CHIRP_LINEAR_DURATION     5.0f
-#define CHIRP_LINEAR_MIN_SETPOINT (-0.7f / 3.0f)
-#define CHIRP_LINEAR_MAX_SETPOINT (0.7f / 3.0f)
-
-// Chirp logarithmic configuration
-#define CHIRP_LOG_AMPLITUDE    (0.7f / 3.0f)
-#define CHIRP_LOG_START_FREQ   1.0f
-#define CHIRP_LOG_END_FREQ     10.0f
-#define CHIRP_LOG_DURATION     5.0f
-#define CHIRP_LOG_MIN_SETPOINT (-0.7f / 3.0f)
-#define CHIRP_LOG_MAX_SETPOINT (0.7f / 3.0f)
-
 // Square wave configuration
 #define SQUARE_AMPLITUDE     65535.0f
 #define SQUARE_FREQUENCY     0.1f
@@ -65,16 +50,6 @@ extern SignalGenerator ramp_sg;
 #define SQUARE_OFFSET        0.0f
 #define SQUARE_MIN_SETPOINT  -65535.0f
 #define SQUARE_MAX_SETPOINT  65535.0f
-
-// Ramp wave configuration
-#define RAMP_AMPLITUDE       (0.7f / 3.0f)
-#define RAMP_FREQUENCY       1.0f
-#define RAMP_START           (-0.7f / 3.0f)
-#define RAMP_END             (0.7f / 3.0f)
-#define RAMP_PHASE           0.0f
-#define RAMP_OFFSET          0.0f
-#define RAMP_MIN_SETPOINT    (-0.7f / 3.0f)
-#define RAMP_MAX_SETPOINT    (0.7f / 3.0f)
 /*-------Configure Signal Generator End------*/
 
 /*-------Configure Prismatic Motor Start------*/

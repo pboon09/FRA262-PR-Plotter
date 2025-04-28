@@ -29,11 +29,12 @@ PWM servo;
 
 ADC_DMA adc_dma;
 
-SignalGenerator sine_sg;
-SignalGenerator chirp_linear_sg;
-SignalGenerator chirp_log_sg;
-SignalGenerator square_sg;
-SignalGenerator ramp_sg;
+SignalGenerator sine_sg_PWM;
+SignalGenerator square_sg_PWM;
+SignalGenerator sine_sg_prismatic;
+SignalGenerator square_sg_prismatic;
+SignalGenerator sine_sg_revolute;
+SignalGenerator square_sg_revolute;
 
 FIR prismatic_lp_velocity;
 FIR prismatic_lp_current;
@@ -46,30 +47,19 @@ float32_t prismatic_A[16] = { 1.0f, 0.000993096502229541f,
 		-0.000651907539312034f, 0.000113087373016393f, 0.0f, 0.986174211076634f,
 		-1.30079678997714f, 0.225398024082257f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		-0.00133108479516514f, 0.000874757627317859f, 0.993163564257609f };
+
 float32_t prismatic_B[4] = { 2.53264868595647e-07f, 0.000758492055510868f, 0.0f,
 		0.00668435039056396f };
 
 KalmanFilter revolute_kalman;
-//float32_t revolute_A[16] = { 1.0f, 0.000988562926927761f,
-//		-0.000649922017925031f, 0.000112742749409589f, 0.0f, 0.977162908316739f,
-//		-1.29485853504780f, 0.224367910579471f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-//		-0.00132500147466383f, 0.000872091882057674f, 0.993164026946268f };
-//float32_t revolute_B[4] = { 7.49874875871698e-08f, 0.000224494576940452f, 0.0f,
-//		0.00631167507255972f };
+//b * 0.735
+float32_t revolute_A[16] = { 1.0f, 0.000982843274975228f,
+		-0.000357087554676877f, 7.93789751408048e-05f, 0.0f, 0.965802607949948f,
+		-0.710057452064783f, 0.157648968323378f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-0.00301284940198517f, 0.00109597588320089f, 0.992497629717641f };
 
-float32_t revolute_A[16] = {
-    1.0f, 0.000991160404599280f, -7.58363901342772e-05f, 3.53506803213686e-05f,
-    0.0f, 0.982287363207144f, -0.151222365815303f, 0.0703196164652582f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, -0.00717280197253310f, 0.000550151381207752f, 0.985278760882813f
-};
-
-float32_t revolute_B[4] = {
-    1.49700337717311e-07f,
-    0.000447890839907366f,
-    0.0f,
-    0.0125769916902835f
-};
+float32_t revolute_B[4] = { 1.68207942599771e-07f, 0.000502863247943066f, 0.0f,
+		0.00631143131595644f };
 
 uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
 
@@ -85,31 +75,38 @@ int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim;
 float joy_x, joy_y;
 
 void plotter_begin() {
-	SIGNAL_init(&sine_sg, SIGNAL_SINE);
-	SIGNAL_config_sine(&sine_sg, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
+	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
+	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
 	SINE_OFFSET, SINE_MIN_SETPOINT, SINE_MAX_SETPOINT);
 
-	SIGNAL_init(&chirp_linear_sg, SIGNAL_CHIRP);
-	SIGNAL_config_chirp(&chirp_linear_sg, CHIRP_LINEAR_AMPLITUDE,
-	CHIRP_LINEAR_START_FREQ,
-	CHIRP_LINEAR_END_FREQ, CHIRP_LINEAR_DURATION, CHIRP_LINEAR,
-	CHIRP_LINEAR_MIN_SETPOINT, CHIRP_LINEAR_MAX_SETPOINT);
-
-	SIGNAL_init(&chirp_log_sg, SIGNAL_CHIRP);
-	SIGNAL_config_chirp(&chirp_log_sg, CHIRP_LOG_AMPLITUDE,
-	CHIRP_LOG_START_FREQ,
-	CHIRP_LOG_END_FREQ, CHIRP_LOG_DURATION, CHIRP_LOGARITHMIC,
-	CHIRP_LOG_MIN_SETPOINT, CHIRP_LOG_MAX_SETPOINT);
-
-	SIGNAL_init(&square_sg, SIGNAL_SQUARE);
-	SIGNAL_config_square(&square_sg, SQUARE_AMPLITUDE, SQUARE_FREQUENCY,
+	SIGNAL_init(&square_sg_PWM, SIGNAL_SQUARE);
+	SIGNAL_config_square(&square_sg_PWM, SQUARE_AMPLITUDE, SQUARE_FREQUENCY,
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 	SQUARE_MIN_SETPOINT, SQUARE_MAX_SETPOINT);
 
-	SIGNAL_init(&ramp_sg, SIGNAL_RAMP);
-	SIGNAL_config_ramp(&ramp_sg, RAMP_AMPLITUDE, RAMP_FREQUENCY,
-	RAMP_START, RAMP_END, RAMP_PHASE, RAMP_OFFSET,
-	RAMP_MIN_SETPOINT, RAMP_MAX_SETPOINT);
+	SIGNAL_init(&sine_sg_prismatic, SIGNAL_SINE);
+	SIGNAL_config_sine(&sine_sg_prismatic, ZGX45RGG_400RPM_Constant.qd_max,
+	SINE_FREQUENCY, SINE_PHASE,
+	SINE_OFFSET, -ZGX45RGG_400RPM_Constant.qd_max,
+			ZGX45RGG_400RPM_Constant.qd_max);
+
+	SIGNAL_init(&square_sg_prismatic, SIGNAL_SQUARE);
+	SIGNAL_config_square(&square_sg_PWM, ZGX45RGG_400RPM_Constant.qd_max,
+	SQUARE_FREQUENCY,
+	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
+			-ZGX45RGG_400RPM_Constant.qd_max, ZGX45RGG_400RPM_Constant.qd_max);
+
+	SIGNAL_init(&sine_sg_revolute, SIGNAL_SINE);
+	SIGNAL_config_sine(&sine_sg_revolute, ZGX45RGG_150RPM_Constant.qd_max,
+	SINE_FREQUENCY, SINE_PHASE,
+	SINE_OFFSET, -ZGX45RGG_150RPM_Constant.qd_max,
+			ZGX45RGG_150RPM_Constant.qd_max);
+
+	SIGNAL_init(&square_sg_revolute, SIGNAL_SQUARE);
+	SIGNAL_config_square(&square_sg_revolute, ZGX45RGG_150RPM_Constant.qd_max,
+	SQUARE_FREQUENCY,
+	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
+			-ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qd_max);
 
 	QEI_init(&prismatic_encoder, ENC_TIM1, ENC_PPR, ENC_FREQ, MOTOR_RATIO1);
 	QEI_init(&revolute_encoder, ENC_TIM2, ENC_PPR, ENC_FREQ, MOTOR_RATIO2);
@@ -125,12 +122,16 @@ void plotter_begin() {
 	MDXX_set_range(&revolute_motor, 2000, 0);
 	pen_up();
 
-//  Low Pass PID Control
-	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1, ZGX45RGG_400RPM_Constant.U_max);
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0, ZGX45RGG_400RPM_Constant.U_max);
+	//  Low Pass PID Control
+	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1,
+			ZGX45RGG_400RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0,
+			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 2, 1e-7, 1, ZGX45RGG_150RPM_Constant.U_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 50, 0, ZGX45RGG_150RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&revolute_position_pid, 2, 1e-7, 1,
+			ZGX45RGG_150RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 50, 0,
+			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
 	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);
@@ -141,7 +142,7 @@ void plotter_begin() {
 			&Disturbance_Constant);
 
 	ADC_DMA_Init(&adc_dma, &hadc1, adc_dma_buffer, ADC_BUFFER_SIZE,
-			ADC_CHANNELS, 3.3f, 4095.0f);
+	ADC_CHANNELS, 3.3f, 4095.0f);
 	ADC_DMA_Start(&adc_dma);
 
 	FIR_init(&prismatic_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
@@ -149,8 +150,10 @@ void plotter_begin() {
 	FIR_init(&revolute_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 	FIR_init(&revolute_lp_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 
-	Kalman_Start(&revolute_kalman, revolute_A, revolute_B, REVOLUTE_Q, REVOLUTE_R);
-	Kalman_Start(&prismatic_kalman, prismatic_A, prismatic_B, PRISMATIC_Q, PRISMATIC_R);
+	Kalman_Start(&revolute_kalman, revolute_A, revolute_B, REVOLUTE_Q,
+	REVOLUTE_R);
+	Kalman_Start(&prismatic_kalman, prismatic_A, prismatic_B, PRISMATIC_Q,
+	PRISMATIC_R);
 
 	Modbus_init(&ModBus, MODBUS_USART, MODBUS_DATA_SENDING_PERIOD_TIM,
 			registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);
@@ -215,4 +218,8 @@ void pen_up() {
 
 void pen_down() {
 	PWM_write_duty(&servo, 50, 12);
+}
+
+void KalmanTuning(){
+
 }

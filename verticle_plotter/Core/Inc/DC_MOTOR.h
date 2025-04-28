@@ -18,6 +18,7 @@ typedef struct {
     double V_max;       // Maximum voltage (V)
     double U_max;       // Maximum control signal
     double qd_max;      // Maximum angular velocity (rad/s)
+    double qdd_max;
 } Motor_Constant_Structure;
 
 typedef struct {

@@ -278,8 +278,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //
 //		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
 //
-		square_sample = SIGNAL_generate(&square_sg, 0.001f);
-		sine_sample = SIGNAL_generate(&sine_sg, 0.001f);
+//		square_sample = SIGNAL_generate(&square_sg_PWM, 0.001f);
+//		sine_sample = SIGNAL_generate(&sine_sg_PWM, 0.001f);
 
 //		QEI_get_diff_count(&prismatic_encoder);
 //		QEI_compute_data(&prismatic_encoder);
@@ -289,18 +289,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //
 //		lp_filt = FIR_process(&prismatic_lp_velocity,prismatic_encoder.radps);
 //
-//		MDXX_set_duty(&prismatic_motor, 2000, square_sample);
+//		MDXX_set_range(&prismatic_motor, 2000, square_sample);
 
-		QEI_get_diff_count(&revolute_encoder);
-		QEI_compute_data(&revolute_encoder);
-		vin = square_sample * 12.0 / 65535.0;
-
-		kal_flit = SteadyStateKalmanFilter(&revolute_kalman, vin,
-				revolute_encoder.rads);
-
-		lp_filt = FIR_process(&revolute_lp_velocity, revolute_encoder.radps);
-
-		MDXX_set_duty(&revolute_motor, 2000, square_sample);
+//		QEI_get_diff_count(&revolute_encoder);
+//		QEI_compute_data(&revolute_encoder);
+//		vin = sine_sample * 12.0 / 65535.0;
+//
+//		kal_flit = SteadyStateKalmanFilter(&revolute_kalman, vin,
+//				revolute_encoder.rads);
+//
+//		lp_filt = FIR_process(&revolute_lp_velocity, revolute_encoder.radps);
+//
+//		MDXX_set_range(&revolute_motor, 2000, sine_sample);
 	}
 }
 
