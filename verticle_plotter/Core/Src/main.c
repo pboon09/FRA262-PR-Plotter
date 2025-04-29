@@ -49,6 +49,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint16_t A = 0;
+uint16_t prev_A = 1;
+uint16_t B = 0;
+uint16_t count = 0;
+uint16_t Target_Pos[] = { Target_Pos_1R, Target_Pos_1T, Target_Pos_2R,
+Target_Pos_2T, Target_Pos_3R, Target_Pos_3T,
+Target_Pos_4R, Target_Pos_4T, Target_Pos_5R, Target_Pos_5T,
+Target_Pos_6R, Target_Pos_6T,
+Target_Pos_7R, Target_Pos_7T, Target_Pos_8R, Target_Pos_8T,
+Target_Pos_9R, Target_Pos_9T,
+Target_Pos_10R, Target_Pos_10T, };
+uint16_t Mode = 0;
 
 /* USER CODE END PV */
 
@@ -110,7 +122,8 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-
+		A = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_10);
+		B = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_11);
 	}
 	/* USER CODE END 3 */
 }
@@ -169,17 +182,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
+
 		Modbus_Protocal_Worker();
-		registerFrame[Target_Pos_1].U16 = 10;
-		registerFrame[Target_Pos_2].U16 = 20;
-		registerFrame[Target_Pos_3].U16 = 30;
-		registerFrame[Target_Pos_4].U16 = 40;
-		registerFrame[Target_Pos_5].U16 = 50;
-		registerFrame[Target_Pos_6].U16 = 60;
-		registerFrame[Target_Pos_7].U16 = 70;
-		registerFrame[Target_Pos_8].U16 = 80;
-		registerFrame[Target_Pos_9].U16 = 90;
-		registerFrame[Target_Pos_10].U16 = 100;
+
+		if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == 1) {
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+
+		registerFrame[R_Axis_Actual_Position].U16 = 10; //Rev Pos
+		registerFrame[Theta_Axis_Actual_Position].U16 = 20; //pris Pos
+		registerFrame[R_Axis_Actual_Speed].U16 = 30; //Rev speed
+		registerFrame[Theta_Axis_Actual_Speed].U16 = 40; //pris speed
+		registerFrame[R_Axis_Acceleration].U16 = 50; //Rev Acc
+		registerFrame[Theta_Axis_Acceleration].U16 = 60; //pris Acc
+
 		//--Modbus Protocol--//
 
 		registerFrame[Heartbeat_Protocol].U16 = 22881;
@@ -191,76 +208,55 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if (registerFrame[Servo_Down].U16 == 1) {
 			// servo down command
 			registerFrame[LimitSwitch_Status].U16 = 2;
+
 		}
 
+		//Base system
 		if (registerFrame[BaseSystem_Status].U16 == 1) { // homing
 
 			registerFrame[R_Theta_Status].U16 = 1;
 			//reset Arm Position command
 
-			//--tell Arm Status--//
-			registerFrame[R_Axis_Actual_Position].U16 = 10; //Rev Pos
-			registerFrame[Theta_Axis_Actual_Position].U16 = 20; //pris Pos
-			registerFrame[R_Axis_Actual_Speed].U16 = 30; //Rev speed
-			registerFrame[Theta_Axis_Actual_Speed].U16 = 40; //pris speed
-			registerFrame[R_Axis_Acceleration].U16 = 50; //Rev Acc
-			registerFrame[Theta_Axis_Acceleration].U16 = 60; //pris Acc
 			//if finish
 //			registerFrame[BaseSystem_Status].U16 = 0;
 //			registerFrame[R_Theta_Status].U16 = 0;
 		}
-		if (registerFrame[BaseSystem_Status].U16 == 2) {			//joy
-
-			registerFrame[R_Theta_Status].U16 = 2;
-			//joystick control command
-
-			//--tell Arm Status--//
-			registerFrame[R_Axis_Actual_Position].U16 = 2; //Rev Pos
-			registerFrame[Theta_Axis_Actual_Position].U16 = 2; //pris Pos
-			registerFrame[R_Axis_Actual_Speed].U16 = 2; //Rev speed
-			registerFrame[Theta_Axis_Actual_Speed].U16 = 2; //pris speed
-			registerFrame[R_Axis_Acceleration].U16 = 2; //Rev Acc
-			registerFrame[Theta_Axis_Acceleration].U16 = 2; //pris Acc
-
-			//if finish
-			registerFrame[BaseSystem_Status].U16 = 0;
-			registerFrame[R_Theta_Status].U16 = 0;
+		if (registerFrame[BaseSystem_Status].U16 == 2) {
+			Mode = 2;
 		}
-		if (registerFrame[BaseSystem_Status].U16 == 4) { //point
+		if (Mode == 2 ) {
+			if (A == 0 && prev_A != 0) {
+				registerFrame[Target_Pos[count]].U16 = 10;
+				registerFrame[Target_Pos[count + 1]].U16 = 20;
+				count += 2;
+				if (count >= 20) {
+					count = 0;
+				}
 
-			registerFrame[R_Theta_Status].U16 = 4;
+			}
+			if (B == 0) {
+
+			}
+			prev_A = A;
+		}
+		if (registerFrame[BaseSystem_Status].U16 == 4) {
+			Mode = 4;
+			//point
 			//Point mode command
 
-			//--tell Arm Status--//
-			registerFrame[R_Axis_Actual_Position].U16 = 3; //Rev Pos
-			registerFrame[Theta_Axis_Actual_Position].U16 = 3; //pris Pos
-			registerFrame[R_Axis_Actual_Speed].U16 = 3; //Rev speed
-			registerFrame[Theta_Axis_Actual_Speed].U16 = 3; //pris speed
-			registerFrame[R_Axis_Acceleration].U16 = 3; //Rev Acc
-			registerFrame[Theta_Axis_Acceleration].U16 = 3; //pris Acc
-
 			//if finish
-			registerFrame[BaseSystem_Status].U16 = 0;
-			registerFrame[R_Theta_Status].U16 = 0;
+//			registerFrame[BaseSystem_Status].U16 = 0;
+//			registerFrame[R_Theta_Status].U16 = 0;
 		}
 		if (registerFrame[BaseSystem_Status].U16 == 8) { //go to
-
 			registerFrame[R_Theta_Status].U16 = 8;
 			//send Arm to target command
 
 			// goto registerFrame[Goal_R].U16,registerFrame[Goal_Theta].U16
 
-			//--tell Arm Status--//
-			registerFrame[R_Axis_Actual_Position].U16 = 4; //Rev Pos
-			registerFrame[Theta_Axis_Actual_Position].U16 = 4; //pris Pos
-			registerFrame[R_Axis_Actual_Speed].U16 = 4; //Rev speed
-			registerFrame[Theta_Axis_Actual_Speed].U16 = 4; //pris speed
-			registerFrame[R_Axis_Acceleration].U16 = 4; //Rev Acc
-			registerFrame[Theta_Axis_Acceleration].U16 = 4; //pris Acc
-
 			//if finish
-			registerFrame[BaseSystem_Status].U16 = 0;
-			registerFrame[R_Theta_Status].U16 = 0;
+//			registerFrame[BaseSystem_Status].U16 = 0;
+//			registerFrame[R_Theta_Status].U16 = 0;
 
 		}
 

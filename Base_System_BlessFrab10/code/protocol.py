@@ -4,7 +4,7 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 from pymodbus.client import ModbusTcpClient
 
 # ----------------------------------- Config this variable before using ----------------------------------- 
-device_port = "COM5"
+device_port = "COM6"
 # example: for os -> device_port = "/dev/cu.usbmodem14103"
 #          for window -> device_port = "COM3"
 # ---------------------------------------------------------------------------------------------------------
@@ -236,7 +236,6 @@ class Protocol_RT(Binary):
             return None, None
 
 
-
     def read_r_theta_actual_motion(self):
         """
         Read the actual motion values from the robot.
@@ -267,29 +266,33 @@ class Protocol_RT(Binary):
         if hasattr(self, 'app'):
             self.app.handle_ui_change() 
 
+
     def read_target_positions(self):
         """
         Read the target positions of the robot (Target Positions 1-10)
+        Each target position will store (r, theta)
         """
-        self.target_positions = [0] * 10 
+        self.target_positions = [(0, 0)] * 10 
 
-        for i in range(10):
-            self.target_positions[i] = self.binary_reverse_twos_complement(self.register[0x20 + i]) / 10
+        for i in range(10):  
+            r_value = self.binary_reverse_twos_complement(self.register[0x20 + i * 2]) / 10  
+            theta_value = self.binary_reverse_twos_complement(self.register[0x20 + i * 2 + 1]) / 10 
+            self.target_positions[i] = (r_value, theta_value)  
+
+            print(f"Point {i + 1} (r = {r_value} mm, theta = {theta_value}°)")
 
         print("Target Positions Read:", self.target_positions)
+
     
     def write_goal_point(self, r, theta):
         """
         Write goal position (r, theta) to the robot and trigger Go To Target command.
         """
         try:
-            self.client.write_register(address=0x30, value=int(r * 10), slave=self.slave_address)
-            self.client.write_register(address=0x31, value=int(theta * 10), slave=self.slave_address)
+            self.client.write_register(address=0x40, value=int(r * 10), slave=self.slave_address)
+            self.client.write_register(address=0x41, value=int(theta * 10), slave=self.slave_address)
             
             self.client.write_register(address=0x01, value=0x08, slave=self.slave_address)
-            
             print(f"Goal Point Sent: r={r} mm, theta={theta}°")
         except Exception as e:
             print(f"Goal Point Send Failed: {e}")
-
-

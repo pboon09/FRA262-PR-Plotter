@@ -19,7 +19,7 @@ class App(tk.Tk):
         # Title
         self.title('Base System')
         # Mode
-        #self.mode = "Graphic"
+        # self.mode = "Graphic"
         self.mode = "Protocol"
         # Define os
         self.os = platform.platform()[0].upper()
@@ -219,7 +219,7 @@ class App(tk.Tk):
             self.operation_mode = "Point"
             print("Switched to Point Mode")
             self.radio_jog.turn_off()
-
+            self.protocol_rt.write_base_system_status("Run Point Mode")##น่าจะต้องใส่บรรทัดนี้อะครับ
             self.jog_points.clear()  
             self.entry_r.show()
             self.entry_theta.show()
@@ -232,7 +232,7 @@ class App(tk.Tk):
             self.operation_mode = "Jog"
             print("Switched to Jog Mode")
             self.radio_point.turn_off()
-
+            self.protocol_rt.write_base_system_status("Run Jog Mode")##น่าจะต้องใส่บรรทัดนี้อะครับ
             self.entry_r.hide()
             self.entry_theta.hide()
             self.entry_r.disable()
@@ -240,6 +240,7 @@ class App(tk.Tk):
 
             self.point_mode_points.clear() 
             self.press_run.deactivate()
+            
 
     
     def handle_toggle_up_down(self):
@@ -255,12 +256,11 @@ class App(tk.Tk):
                 if not self.toggle_up_down.on:
                     print("🔼 Moving UP")
                     self.protocol_rt.write_up_down_order(up=1, down=0)
-                    self.toggle_up_down.toggle_on()#บรรทัดนี้หาย
+                    self.toggle_up_down.toggle_on()
                 else:
                     print("🔽 Moving DOWN")
                     self.protocol_rt.write_up_down_order(up=0, down=1)
-                    self.toggle_up_down.toggle_off()#บรรทัดนี้หาย
-
+                    self.toggle_up_down.toggle_off()
                 # Read up/down status
                 up, down = self.protocol_rt.read_up_down_order()  
                 print(f"Up: {up}, Down: {down}")
