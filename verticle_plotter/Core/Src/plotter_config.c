@@ -87,11 +87,11 @@ void plotter_begin() {
 	SQUARE_MIN_SETPOINT, SQUARE_MAX_SETPOINT);
 
 	SIGNAL_init(&sine_sg_cascade, SIGNAL_SINE);
-	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE_CASCADE, SINE_FREQUENCY, SINE_PHASE,
+	SIGNAL_config_sine(&sine_sg_cascade, SINE_AMPLITUDE_CASCADE, SINE_FREQUENCY, SINE_PHASE,
 	SINE_OFFSET, SINE_MIN_SETPOINT_CASCADE, SINE_MAX_SETPOINT_CASCADE);
 
 	SIGNAL_init(&square_sg_cascade, SIGNAL_SQUARE);
-	SIGNAL_config_square(&square_sg_PWM, SQUARE_AMPLITUDE_CASCADE, SQUARE_FREQUENCY,
+	SIGNAL_config_square(&square_sg_cascade, SQUARE_AMPLITUDE_CASCADE, SQUARE_FREQUENCY,
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 	SQUARE_MIN_SETPOINT_CASCADE, SQUARE_MAX_SETPOINT_CASCADE);
 
@@ -102,7 +102,7 @@ void plotter_begin() {
 			ZGX45RGG_400RPM_Constant.qd_max);
 
 	SIGNAL_init(&square_sg_prismatic, SIGNAL_SQUARE);
-	SIGNAL_config_square(&square_sg_PWM, ZGX45RGG_400RPM_Constant.qd_max,
+	SIGNAL_config_square(&square_sg_prismatic, ZGX45RGG_400RPM_Constant.qd_max,
 	SQUARE_FREQUENCY,
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 			-ZGX45RGG_400RPM_Constant.qd_max, ZGX45RGG_400RPM_Constant.qd_max);
@@ -133,16 +133,18 @@ void plotter_begin() {
 	MDXX_set_range(&revolute_motor, 2000, 0);
 	pen_up();
 
-	//  Low Pass PID Control
 	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1,
-			ZGX45RGG_400RPM_Constant.U_max);
+			ZGX45RGG_400RPM_Constant.qd_max);
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 2, 1e-7, 1,
+	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72.5,
+			ZGX45RGG_150RPM_Constant.qd_max);
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1800, 1.5, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 2000, 80, 0,
-			ZGX45RGG_150RPM_Constant.U_max);// 1800 , 25 ,0 no overshoot// 2000,80
+	//unit test
+	//25 1e-8 0
+	//2000 80 0
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
 	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);

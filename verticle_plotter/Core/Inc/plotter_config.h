@@ -54,14 +54,14 @@ extern SignalGenerator square_sg_revolute;
 #define SQUARE_MAX_SETPOINT  65535.0f
 
 // Sine wave configuration
-#define SINE_AMPLITUDE_CASCADE       62.8f
-#define SINE_MIN_SETPOINT_CASCADE    -62.8f
-#define SINE_MAX_SETPOINT_CASCADE    62.8f
+#define SINE_AMPLITUDE_CASCADE       25.0f
+#define SINE_MIN_SETPOINT_CASCADE   -25.0f
+#define SINE_MAX_SETPOINT_CASCADE    25.0f
 
 // Square wave configuration
-#define SQUARE_AMPLITUDE_CASCADE     62.8f
-#define SQUARE_MIN_SETPOINT_CASCADE  -62.8f
-#define SQUARE_MAX_SETPOINT_CASCADE  62.8f
+#define SQUARE_AMPLITUDE_CASCADE     25.0f
+#define SQUARE_MIN_SETPOINT_CASCADE -25.0f
+#define SQUARE_MAX_SETPOINT_CASCADE  25.0f
 /*-------Configure Signal Generator End------*/
 
 /*-------Configure Prismatic Motor Start------*/

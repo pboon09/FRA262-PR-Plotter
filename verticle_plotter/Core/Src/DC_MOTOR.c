@@ -26,7 +26,7 @@ Motor_Constant_Structure ZGX45RGG_150RPM_Constant = {
     .V_max = 12.0,
     .U_max = 65535.0,
     .qd_max = 15.707963249999999, // rad/s
-	.qdd_max =  15.707963249999999 * 3
+	.qdd_max =  15.707963249999999 * 0.4
 };
 
 Motor_Constant_Structure ZGX45RGG_400RPM_Constant = {
