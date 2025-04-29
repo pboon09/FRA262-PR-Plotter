@@ -1,0 +1,278 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Hardware Modules &gt; aMG EthernetINF &gt; Webserver CGI &gt; SQLite Database Server</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="SQLite Database Server">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "sqlite_database_server.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">SQLite Database Server</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?sqlite_database_server.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="amg_related_hardware.htm">Hardware Modules</a> &gt; <a href="amg_ethernetinf.htm">aMG EthernetINF</a> &gt; <a href="http_webserver_cgi.htm">Webserver CGI</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">SQLite Database Server</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="remote_variable_interface.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="http_webserver_cgi.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="file_upload.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Description</span></h2>
+<p>The interface provides access to <a href="amg_sqlite.htm" class="topiclink">aMG SQLite Database Server</a> board via http <span style="font-weight: bold;">GET</span> method. Build and download model <span style="font-weight: bold;">webserver_demo.mdl</span> to target for below demo.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">sqlite.cgi</span></h2>
+<p><span class="f_Heading3">Syntax:</span> /sqlite.cgi?<span style="font-style: italic;">&lt;arg1&gt;=&lt;arg1_value&gt;</span>&amp;<span style="font-style: italic;">&lt;arg2&gt;=&lt;arg2_value&gt;</span>&amp;<span style="font-style: italic;">&lt;arg3&gt;=&lt;arg3_value&gt;</span>&amp;...</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Argument list</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p><span style="font-weight: bold;">Name</span></p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p><span style="font-weight: bold;">Value</span></p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>action</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p>getinfo | query</p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>This argument is optional, default is 'query' if not specified.</p>
+<p><span style="font-weight: bold;">getinfo</span> - get hardware board information (Firmware version and library version).</p>
+<p><span style="font-weight: bold;">query</span> - input sqlite query statement.</p>
+<p><span style="font-weight: bold;">Usage example</span>:</p>
+<p> <a href="http://192.168.1.41/sqlite.cgi?action=getinfo" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?action=getinfo</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>query</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p><span style="font-style: italic;">&lt;query string&gt;</span></p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>This argument cannot be empty if argument action=query.</p>
+<p><span style="font-weight: bold;">Usage example</span>:</p>
+<p><a href="http://192.168.1.41/sqlite.cgi?action=query&amp;query=.help" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?action=query&amp;query=.help</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>mode</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p>csv | column | html | insert | line | list | tabs | tcl</p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>This argument equivalent to <span style="font-weight: bold;">.mode</span> <span style="font-style: italic;">&lt;mode&gt;</span> in sqlite command line.</p>
+<p><span style="font-weight: bold;">Usage example:</span></p>
+<p><a href="http://192.168.1.41/sqlite.cgi?query=select%20*%20from%20sensors%20limit%2050&amp;mode=csv" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=select * from sensors limit 50&amp;mode=csv</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>header</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p>on | off</p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>This argument equivalent to <span style="font-weight: bold;">.header</span> <span style="font-style: italic;">&lt;on|off&gt;</span> in sqlite command line. If this argument not specified, default is <span style="font-weight: bold;">'on'</span></p>
+<p><span style="font-weight: bold;">Usage example:</span></p>
+<p><a href="http://192.168.1.41/sqlite.cgi?query=select%20*%20from%20sensors%20limit%2050&amp;mode=csv&amp;header=on" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=select * from sensors limit 50&amp;mode=csv&amp;header=on</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>db</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p><span style="font-style: italic;">&lt;database file name&gt;</span></p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>Specify database file name. If this argument not specified, default is 'database.db'.</p>
+<p><a href="http://192.168.1.41/sqlite.cgi?query=.tables&amp;db=database.db" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=.tables&amp;db=database.db</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:110px; padding:0px;"><p>output</p>
+</td>
+<td style="vertical-align:top; width:407px; padding:0px;"><p><span style="font-style: italic;">&lt;sqlite query output to file&gt; </span>| <span style="font-size: 10pt; font-family: Consolas; color: #a31515;">sqlite_query.html</span></p>
+</td>
+<td style="vertical-align:top; width:730px; padding:0px;"><p>This argument ask server to save output of query to file to directory 'system', and also response to web browser the same file.</p>
+<p><span style="font-weight: bold;">Usage example:</span></p>
+<p><a href="http://192.168.1.41/sqlite.cgi?query=select%20*%20from%20sensors%20limit%2050&amp;mode=csv&amp;header=on&amp;output=sql.csv" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=select * from sensors limit 50&amp;mode=csv&amp;header=on&amp;output=sql.csv</a></p>
+<p><span style="font-weight: bold;">Then request output file (stored in directory 'system'):</span></p>
+<p><a href="http://192.168.1.41/system/sql.csv" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/system/sql.csv</a></p>
+<p>&nbsp;</p>
+<p>Note: <span style="font-size: 10pt; font-family: Consolas; color: #a31515;">sqlite_query.html</span> is reserved for demo of query form<span style="font-size: 10pt; font-family: Consolas; color: #a31515;">.</span></p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">SQLite query demo</span></h2>
+<h4 class="p_Heading4"><span class="f_Heading4">1. Get aMG SQLite Dataserver board firmware and library version</span></h4>
+<p>Query: <a href="http://192.168.1.41/sqlite.cgi?action=getinfo" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?action=getinfo</a></p>
+<p>Response:</p>
+<p><img src="webserver_cgi_sqlite_web.png" width="950" height="287" alt="webserver_cgi_sqlite_web" style="width:950px;height:287px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Data query</span></h3>
+<p>Query: <a href="http://192.168.1.41/sqlite.cgi?query=select%20*%20from%20sensors%20limit%2010&amp;mode=csv" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=select%20*%20from%20sensors%20limit%2010&amp;mode=csv</a></p>
+<p>Response:</p>
+<p><img src="webserver_cgi_sqlite_web2.png" width="950" height="305" alt="webserver_cgi_sqlite_web2" style="width:950px;height:305px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">SQLite Form demo</span></h2>
+<p>The CGI accept GET method, user may create html form for input query string.</p>
+<p>Query:</p>
+<p><a href="http://192.168.1.41/sqlite.cgi?query=.version&amp;output=sqlite_query.html&amp;mode=csv&amp;db=database.db" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://192.168.1.41/sqlite.cgi?query=.version&amp;output=sqlite_query.html&amp;mode=csv&amp;db=database.db</a></p>
+<p>Response:</p>
+<p><img src="webserver_cgi_sqlite_web3.png" width="950" height="433" alt="webserver_cgi_sqlite_web3" style="width:950px;height:433px;border:none" /></p>
+<p>Try enter some query string and Submit:</p>
+<p><img src="webserver_cgi_sqlite_web4.png" width="950" height="604" alt="webserver_cgi_sqlite_web4" style="width:950px;height:604px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Limitation</span></h2>
+<p>1. Length of sqlite is limit. Due to using GET method for sqlite.cgi, HTTP request line limit to 1023 character.</p>
+<p>2. SQLite output size is limit to 8k bytes maximum.</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

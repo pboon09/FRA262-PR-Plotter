@@ -1,0 +1,392 @@
+%implements stm32f4_regular_adc "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign adcmodule = CAST("String",SFcnParamSettings.adcmodule)
+%assign outputdatatype = CAST("String",SFcnParamSettings.outputdatatype)
+%assign prescalerstr = CAST("String",SFcnParamSettings.prescalerstr)
+%assign chsamplingtimestr = CAST("String",SFcnParamSettings.chsamplingtimestr)
+%assign read_an0 = CAST("Number",SFcnParamSettings.read_an0)
+%assign read_an1 = CAST("Number",SFcnParamSettings.read_an1)
+%assign read_an2 = CAST("Number",SFcnParamSettings.read_an2)
+%assign read_an3 = CAST("Number",SFcnParamSettings.read_an3)
+%assign read_an4 = CAST("Number",SFcnParamSettings.read_an4)
+%assign read_an5 = CAST("Number",SFcnParamSettings.read_an5)
+%assign read_an6 = CAST("Number",SFcnParamSettings.read_an6)
+%assign read_an7 = CAST("Number",SFcnParamSettings.read_an7)
+%assign read_an8 = CAST("Number",SFcnParamSettings.read_an8)
+%assign read_an9 = CAST("Number",SFcnParamSettings.read_an9)
+%assign read_an10 = CAST("Number",SFcnParamSettings.read_an10)
+%assign read_an11 = CAST("Number",SFcnParamSettings.read_an11)
+%assign read_an12 = CAST("Number",SFcnParamSettings.read_an12)
+%assign read_an13 = CAST("Number",SFcnParamSettings.read_an13)
+%assign read_an14 = CAST("Number",SFcnParamSettings.read_an14)
+%assign read_an15 = CAST("Number",SFcnParamSettings.read_an15)
+%assign read_an16 = CAST("Number",SFcnParamSettings.read_an16)
+%assign read_an17 = CAST("Number",SFcnParamSettings.read_an17)
+%assign read_an18 = CAST("Number",SFcnParamSettings.read_an18)
+%assign pinstr = CAST("String",SFcnParamSettings.pinstr)
+%assign usedpinarray = SFcnParamSettings.usedpinarray
+%assign usedportidarray = SFcnParamSettings.usedportidarray
+%assign usedpinidarray = SFcnParamSettings.usedpinidarray
+%assign usedpinidcount = CAST("Number",SFcnParamSettings.usedpinidcount)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign blockid = block.Identifier
+%assign block = block + adcmodule + outputdatatype + prescalerstr + chsamplingtimestr \
+         + read_an0 + read_an1 + read_an2 + read_an3 + read_an4 + read_an5 + read_an6 \
+         + read_an7 + read_an8 + read_an9 + read_an10 + read_an11 + read_an12 + read_an13 \
+         + read_an14 + read_an15 + read_an16 + read_an17 + read_an18 + pinstr + usedpinarray \
+         + sampletime + blockid + usedportidarray + usedpinidarray + usedpinidcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_ADC__) == 0)
+      %assign :: __STM32F4XX_ADC__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_adc.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+    %openfile tmpBuf
+
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+    %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+    %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+  %openfile tmpBuf
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid>
+   * ########################################################################
+   */
+    /* Conversion result */
+    extern uint16_t %<blockid>_ConvertedValue[];
+
+    /* ADC%<adcmodule> Configuration */
+    #define %<blockid>_ADC_DR_ADDRESS   ADC%<adcmodule>_DR_ADDRESS                
+    %if adcmodule == "1"
+      /* ADC1 DR Address */
+      #define ADC1_DR_ADDRESS     ((uint32_t)0x4001204C)
+      /* DMA */
+      #define %<blockid>_DMA_CHANNEL     DMA_Channel_0
+      #define %<blockid>_DMA_STREAM      DMA2_Stream4
+      #define %<blockid>_DMA_TC_FLAG     DMA_FLAG_TCIF4
+    %endif
+    %if adcmodule == "2"
+      /* ADC2 DR Address */
+      #define ADC2_DR_ADDRESS     ((uint32_t)0x4001214C)
+      #define %<blockid>_DMA_CHANNEL     DMA_Channel_1
+      #define %<blockid>_DMA_STREAM      DMA2_Stream3
+      #define %<blockid>_DMA_TC_FLAG     DMA_FLAG_TCIF3
+    %endif
+    %if adcmodule == "3"
+      /* ADC3 DR Address */
+      #define ADC3_DR_ADDRESS     ((uint32_t)0x4001224C)
+      #define %<blockid>_DMA_CHANNEL     DMA_Channel_2
+      #define %<blockid>_DMA_STREAM      DMA2_Stream0
+      #define %<blockid>_DMA_TC_FLAG     DMA_FLAG_TCIF0
+    %endif
+  %closefile tmpBuf
+  %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+  %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+  %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+%assign ch_count = 0
+%foreach idx=19
+  %if (%<usedpinarray[idx]> == 1)
+    %assign ch_count = ch_count + 1
+  %endif
+%endforeach
+
+%if ch_count > 0
+  ADC_InitTypeDef       %<blockid>_ADC_InitStructure;
+  ADC_CommonInitTypeDef %<blockid>_ADC_CommonInitStructure;
+  DMA_InitTypeDef       %<blockid>_DMA_InitStructure;
+%endif
+
+%if ch_count > 0
+/* %<blockid> */
+uint16_t %<blockid>_ConvertedValue[%<ch_count>];
+%endif
+    void enable_%<blockid>(void){
+      %if ch_count > 0
+          %%ADC_InitTypeDef       ADC_InitStructure;
+          %%ADC_CommonInitTypeDef ADC_CommonInitStructure;
+          %%DMA_InitTypeDef       DMA_InitStructure;
+
+          GPIO_InitTypeDef      GPIO_InitStructure;
+
+          %assign port_A_used = 0
+          %assign port_B_used = 0
+          %assign port_C_used = 0
+          %assign port_D_used = 0
+          %assign port_E_used = 0
+          %assign port_F_used = 0
+          %foreach portidx = usedpinidcount
+             %if usedportidarray[portidx] == 0
+                %assign port_A_used = 1
+             %endif
+             %if usedportidarray[portidx] == 1
+                %assign port_B_used = 1
+             %endif
+             %if usedportidarray[portidx] == 2
+                %assign port_C_used = 1
+             %endif
+             %if usedportidarray[portidx] == 3
+                %assign port_D_used = 1
+             %endif
+             %if usedportidarray[portidx] == 4
+                %assign port_E_used = 1
+             %endif
+             %if usedportidarray[portidx] == 5
+                %assign port_F_used = 1
+             %endif
+          %endforeach
+
+          /* Enable ADCx, DMA and GPIO clocks ****************************************/          
+          /* ADC%<adcmodule> */
+          %if port_A_used == 1
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);	
+          %endif
+          %if port_B_used == 1
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);	
+          %endif
+          %if port_C_used == 1
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);	
+          %endif            
+          %if port_F_used == 1
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);	
+          %endif
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+          RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC%<adcmodule>, ENABLE);
+
+          /* Configure ADCx using channel pins as analog input ******************************/
+          GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+          GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+          GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+          %assign portnames = ["A", "B", "C", "D", "E", "F"]
+          %assign pinindex = ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"]
+          %foreach idx = usedpinidcount
+            /* ADC pin %<portnames[usedportidarray[idx]]>%<pinindex[usedpinidarray[idx]]>*/
+            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pinindex[usedpinidarray[idx]]>;
+            GPIO_Init(GPIO%<portnames[usedportidarray[idx]]>, &GPIO_InitStructure);
+          %endforeach
+
+          /* DMA2 Stream channel configuration **************************************/
+          %<blockid>_DMA_InitStructure.DMA_Channel =  %<blockid>_DMA_CHANNEL;
+          %<blockid>_DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+          %<blockid>_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+          %<blockid>_DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+          %<blockid>_DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+          %<blockid>_DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+          %<blockid>_DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+          %<blockid>_DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+          %<blockid>_DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+          %<blockid>_DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+          %<blockid>_DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+          %<blockid>_DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+          %<blockid>_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)%<blockid>_ADC_DR_ADDRESS;
+          %<blockid>_DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&%<blockid>_ConvertedValue;
+          %<blockid>_DMA_InitStructure.DMA_BufferSize = %<ch_count>;
+
+          %%DMA_Init(%<blockid>_DMA_STREAM, &%<blockid>_DMA_InitStructure);
+          %%DMA_Cmd(%<blockid>_DMA_STREAM, ENABLE);
+
+          /* ADC Common Init **********************************************************/
+          %<blockid>_ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+          %<blockid>_ADC_CommonInitStructure.ADC_Prescaler = %<prescalerstr>;
+          %<blockid>_ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+          %<blockid>_ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+
+          %%ADC_CommonInit(&%<blockid>_ADC_CommonInitStructure);
+
+          /* ADCx Init ****************************************************************/
+          %<blockid>_ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+          %<blockid>_ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+          %<blockid>_ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+          %<blockid>_ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+          %<blockid>_ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_Ext_IT11; // avoid assert_fail
+          %<blockid>_ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+          %<blockid>_ADC_InitStructure.ADC_NbrOfConversion = %<ch_count>;
+
+          %%ADC_Init(ADC%<adcmodule>, &%<blockid>_ADC_InitStructure);
+
+          %%/* ADCx regular channel1 configuration *************************************/
+          %%%assign rank = 1
+          %%%foreach idx = 19
+          %%  %if usedpinarray[idx] == 1
+          %%    ADC_RegularChannelConfig(ADC%<adcmodule>, ADC_Channel_%<idx>, %<rank>, ADC_SampleTime_3Cycles);
+          %%    %assign rank = rank + 1
+          %%  %endif
+          %%%endforeach
+          %%
+          %%/* Enable DMA request after last transfer (Single-ADC mode) */
+          %%ADC_DMARequestAfterLastTransferCmd(ADC%<adcmodule>, ENABLE);
+          %%
+          %%/* Enable ADC%<adcmodule> DMA */
+          %%ADC_DMACmd(ADC%<adcmodule>, ENABLE);
+          %%
+          %%/* Enable ADC%<adcmodule> */
+          %%ADC_Cmd(ADC%<adcmodule>, ENABLE);
+      %endif
+    }
+
+    void %<blockid>StartConversion(void)
+    {
+       %if ch_count > 0
+          /* DMA */
+          DMA_DeInit(%<blockid>_DMA_STREAM);
+          DMA_Init(%<blockid>_DMA_STREAM, &%<blockid>_DMA_InitStructure);
+          DMA_Cmd(%<blockid>_DMA_STREAM, ENABLE);
+
+          /* ADC Common */
+          ADC_CommonInit(&%<blockid>_ADC_CommonInitStructure);
+
+          /* ADC */
+          ADC_Init(ADC%<adcmodule>, &%<blockid>_ADC_InitStructure);
+          /* ADCx regular channel1 configuration *************************************/
+          %assign rank = 1
+          %foreach idx = 19
+            %if usedpinarray[idx] == 1
+              ADC_RegularChannelConfig(ADC%<adcmodule>, ADC_Channel_%<idx>, %<rank>, ADC_SampleTime_3Cycles);
+              %assign rank = rank + 1
+            %endif
+          %endforeach
+
+          /* Enable DMA request after last transfer (Single-ADC mode) */
+          ADC_DMARequestAfterLastTransferCmd(ADC%<adcmodule>, ENABLE);
+
+          /* Enable ADC%<adcmodule> DMA */
+          ADC_DMACmd(ADC%<adcmodule>, ENABLE);
+
+          /* Enable ADC%<adcmodule> */
+          ADC_Cmd(ADC%<adcmodule>, ENABLE);
+       %endif
+
+       %if ch_count > 0
+         /* Start ADC Software Conversion */ 
+         ADC_SoftwareStartConv(ADC%<adcmodule>);
+
+         /* Wait for ADA%<adcmodule>-DMA transfer complete */	
+         while(!DMA_GetFlagStatus(%<blockid>_DMA_STREAM, %<blockid>_DMA_TC_FLAG));
+
+         /* Clear */ 
+         DMA_ClearFlag(%<blockid>_DMA_STREAM, %<blockid>_DMA_TC_FLAG);
+      %endif 
+    }
+
+    void disable_%<blockid>(void){
+        %if ch_count > 0
+        %%/* Disable ADC%<adcmodule> DMA */
+        %%ADC_DMACmd(ADC%<adcmodule>, DISABLE);
+
+        %%/* Disable ADC%<adcmodule> */
+        %%ADC_Cmd(ADC%<adcmodule>, DISABLE);
+
+        %%/* Disable DMA */
+        %%DMA_Cmd(%<blockid>_DMA_STREAM, DISABLE);
+        %endif
+    }
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+void %<blockid>StartConversion(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%assign ch_count = 0
+%foreach idx=19
+  %if (%<usedpinarray[idx]> == 1)
+    %assign ch_count = ch_count + 1
+  %endif
+%endforeach
+
+/* ADC Block */
+%<blockid>StartConversion();
+%foreach idx = ch_count
+  %assign u = LibBlockOutputSignal(%<idx>, "", "", 0)
+  %if outputdatatype == "Double"
+      %<u> = (double)%<blockid>_ConvertedValue[%<idx>];
+  %else
+    %if outputdatatype == "Single"
+      %<u> = (float)%<blockid>_ConvertedValue[%<idx>];
+    %else
+       %<u> = (uint16_T)%<blockid>_ConvertedValue[%<idx>];
+    %endif
+  %endif
+  
+%endforeach
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

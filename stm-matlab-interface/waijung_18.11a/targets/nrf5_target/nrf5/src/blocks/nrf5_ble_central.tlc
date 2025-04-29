@@ -1,0 +1,198 @@
+%implements nrf5_ble_central "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %assign linkcount = optionstring[0]
+ 
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + linkcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__NRF52_GPIO__) == 0)
+      %assign :: __NRF52_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+    /* ########################################################################
+     * BLE Central
+     * ########################################################################
+     */
+     #define BLE_CENTRAL_BLOCK_PRESENT     1
+ 
+     #include "ble_nus_c.h"
+     #include "nrf_ble_scan.h"
+     #include "nrf_ble_qwr.h"
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+/* %<blockid>: '%<block.Name>' */
+
+%% === Tx ===
+%if conf == "Tx"
+if (%<LibBlockInputSignal(0, "", "", 0)>)
+{
+  %assign mac = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign len = LibBlockInputSignal(2, "", "", 0)
+  %assign data = LibBlockInputSignalAddr(3, "", "", 0)
+  Ble_NUS_C_Send_To_Address (%<mac>, %<data>, %<len>);
+}
+%endif
+
+%% === Setup ===
+%if conf == "Setup"
+{
+  if (%<LibBlockInputSignal(0, "", "", 0)>) {
+    %assign count = CAST("Number", linkcount)
+    uint8_t addr1[6] = {0,0,0,0,0,0};
+    uint8_t addr2[6] = {0,0,0,0,0,0};
+    uint8_t addr3[6] = {0,0,0,0,0,0};
+  
+   %if count > 0
+    // Addr1
+    addr1[0] = %<LibBlockInputSignal(1, "", "", 5)>;
+    addr1[1] = %<LibBlockInputSignal(1, "", "", 4)>;
+    addr1[2] = %<LibBlockInputSignal(1, "", "", 3)>;
+    addr1[3] = %<LibBlockInputSignal(1, "", "", 2)>;
+    addr1[4] = %<LibBlockInputSignal(1, "", "", 1)>;
+    addr1[5] = %<LibBlockInputSignal(1, "", "", 0)>;
+    %endif
+    %if count > 1
+    // Addr2
+    addr2[0] = %<LibBlockInputSignal(2, "", "", 5)>;
+    addr2[1] = %<LibBlockInputSignal(2, "", "", 4)>;
+    addr2[2] = %<LibBlockInputSignal(2, "", "", 3)>;
+    addr2[3] = %<LibBlockInputSignal(2, "", "", 2)>;
+    addr2[4] = %<LibBlockInputSignal(2, "", "", 1)>;
+    addr2[5] = %<LibBlockInputSignal(2, "", "", 0)>;
+    %endif
+    %if count > 2
+    // Addr3
+    addr3[0] = %<LibBlockInputSignal(3, "", "", 5)>;
+    addr3[1] = %<LibBlockInputSignal(3, "", "", 4)>;
+    addr3[2] = %<LibBlockInputSignal(3, "", "", 3)>;
+    addr3[3] = %<LibBlockInputSignal(3, "", "", 2)>;
+    addr3[4] = %<LibBlockInputSignal(3, "", "", 1)>;
+    addr3[5] = %<LibBlockInputSignal(3, "", "", 0)>;
+    %endif
+    // Init
+    BLE_NUS_C_Init(addr1, addr2, addr3, %<linkcount>);
+  }
+}
+%endif
+
+%% === Rx ===
+%if conf == "Rx"
+{
+  %assign p_data = LibBlockOutputSignalAddr(3, "", "", 0)
+  %assign data_count = LibBlockOutputSignalWidth(3)
+  uint16_t len = ble_nus_c_rx_buffer_get (%<p_data>, %<data_count>);
+  %<LibBlockOutputSignal(0, "", "", 0)> = (len > 0);
+  %<LibBlockOutputSignal(2, "", "", 0)> = len;
+}
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

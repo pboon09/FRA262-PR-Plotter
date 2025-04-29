@@ -1,0 +1,1076 @@
+%implements waijung_httpserver_setup "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign serverport = optionstring[0]
+  %assign enablessl = optionstring[1]
+  %assign debugport = optionstring[2]
+  %assign sqlite = optionstring[3]
+  %assign enableiap = optionstring[4]
+  %assign mempool = optionstring[5]
+  %assign version = optionstring[6]
+
+  %assign varoffset = 10
+  %assign varcount = (CAST("Number",SIZE(optionstring)[1]) - 10)/10
+
+  %assign block = block+ serverport + enablessl + debugport + sqlite + enableiap + mempool + version + varoffset + varcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_SDIO__) == 0)
+      %assign :: __STM32F4XX_SDIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_sdio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_USART__) == 0)
+      %assign :: __STM32F4XX_USART__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_usart.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_RNG__) == 0)
+      %assign :: __STM32F4XX_RNG__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_rng.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_EXTI__) == 0)
+      %assign :: __STM32F4XX_EXTI__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_exti.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%% ########################################################################
+%% # Waijung version
+%% ########################################################################
+%openfile tmpBuf
+/* Waijung version */
+#define __WAIJUNG_VERSION__ "%<version>"
+void SYSTEM_PriodicHandle(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "webserver_iap_handler")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%% ########################################################################
+%% # Webserver IAP
+%% ########################################################################
+%openfile tmpBuf
+  /* Enable Webserver IAP interface */
+  %if enableiap == "Enable"
+  #define WEBSERVER_IAP_ENABLE 1
+  %else
+  #define WEBSERVER_IAP_ENABLE 0
+  %endif
+
+  #if WEBSERVER_IAP_ENABLE
+    /* Prototype */
+    int webserver_iap_activate(char *filename);
+    void webserver_iap_process(void);
+  #endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "webserver_iap_handler")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%% ########################################################################
+%% # Memory pool
+%% ########################################################################
+%openfile tmpBuf
+/* !!! Temporary use for for memory pool function. Improve later.
+*/
+#define _MEMTINY_SIZE							64
+#define _MEMSMALL_SIZE							512U
+#define _MEMMEDIUM_SIZE							1024U
+#define _MEMLARGE_SIZE							2048U
+
+#define WEBSERVER_MEM_PIECE   64U
+#define WEBSERVER_POOL_SIZE		%<mempool>*1024U /* %<mempool>k */
+
+void webserver_mem_init(void);
+void *_memtiny_alloc(void);
+void *_memtiny_free(void* mem);
+void *_memsmall_alloc(void);
+void *_memsmall_free(void* mem);
+void *_memmedium_alloc(void);
+void *_memmedium_free(void* mem);
+void *_memlarge_alloc(void);
+void *_memlarge_free(void* mem);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom","webserver_mem_handler")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%% ########################################################################
+%% # Debug port
+%% ########################################################################
+%openfile tmpBuf
+  %if debugport == "0"
+    /* extern int webserver_debug_print(const char* format, ...); */
+    /* #define WEBSERVER_DEBUG_PRINT webserver_debug_print */
+    #define WEBSERVER_DEBUG_PRINT(a, ...) while(0)
+  %else
+    /* Return value: 0-Success, Otherwise fail */
+    extern int webserver_debug_print(const char* format, ...);
+    #define WEBSERVER_DEBUG_PRINT webserver_debug_print
+  %endif 
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom","webserver_debug_port")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%% ########################################################################
+%% # HTTPD
+%% ########################################################################
+%openfile tmpBuf
+/*
+ * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ *
+ * This file is part of the lwIP TCP/IP stack.
+ *
+ * Author: Adam Dunkels <adam@sics.se>
+ *
+ * This version of the file has been modified by Texas Instruments to offer
+ * simple server-side-include (SSI) and Common Gateway Interface (CGI)
+ * capability.
+ */
+
+#ifndef __HTTPD_H__
+#define __HTTPD_H__
+
+#include "opt.h"
+#include "err.h"
+#include "pbuf.h"
+
+/** The server port for HTTPD to use */
+#ifndef HTTPD_SERVER_PORT
+extern unsigned int http_server_port;
+#define HTTPD_SERVER_PORT                   http_server_port //%<serverport>
+#endif
+
+/** Set this to 1 to support CGI */
+#ifndef LWIP_HTTPD_CGI
+#define LWIP_HTTPD_CGI            1
+#endif
+
+/** Set this to 1 to support SSI (Server-Side-Includes) */
+#ifndef LWIP_HTTPD_SSI
+#define LWIP_HTTPD_SSI            0
+#endif
+
+/** Set this to 1 to support HTTP POST */
+#ifndef LWIP_HTTPD_SUPPORT_POST
+#define LWIP_HTTPD_SUPPORT_POST   1
+#endif
+
+
+#if LWIP_HTTPD_CGI
+typedef const char *(*tCGIHandler)(int iIndex, int iNumParams, char *pcParam[],
+                             char *pcValue[]);
+
+/*
+ * Structure defining the base filename (URL) of a CGI and the associated
+ * function which is to be called when that URL is requested.
+ */
+typedef struct
+{
+    const char *pcCGIName;
+    tCGIHandler pfnCGIHandler;
+} tCGI;
+
+void http_set_cgi_handlers(const tCGI *pCGIs, int iNumHandlers);
+
+
+/* The maximum number of parameters that the CGI handler can be sent. */
+#ifndef LWIP_HTTPD_MAX_CGI_PARAMETERS
+#define LWIP_HTTPD_MAX_CGI_PARAMETERS 16
+#endif
+
+#endif /* LWIP_HTTPD_CGI */
+
+#if LWIP_HTTPD_SSI
+
+/** LWIP_HTTPD_SSI_MULTIPART==1: SSI handler function is called with 2 more
+ * arguments indicating a counter for insert string that are too long to be
+ * inserted at once: the SSI handler function must then set 'next_tag_part'
+ * which will be passed back to it in the next call. */
+#ifndef LWIP_HTTPD_SSI_MULTIPART
+#define LWIP_HTTPD_SSI_MULTIPART    0
+#endif
+
+/*
+ * Function pointer for the SSI tag handler callback.
+ *
+ */
+typedef u16_t (*tSSIHandler)(int iIndex, char *pcInsert, int iInsertLen
+#if LWIP_HTTPD_SSI_MULTIPART
+                             , u16_t current_tag_part, u16_t *next_tag_part
+#endif /* LWIP_HTTPD_SSI_MULTIPART */
+#if LWIP_HTTPD_FILE_STATE
+                             , void *connection_state
+#endif /* LWIP_HTTPD_FILE_STATE */
+                             );
+
+void http_set_ssi_handler(tSSIHandler pfnSSIHandler,
+                          const char **ppcTags, int iNumTags);
+
+/* The maximum length of the string comprising the tag name */
+#ifndef LWIP_HTTPD_MAX_TAG_NAME_LEN
+#define LWIP_HTTPD_MAX_TAG_NAME_LEN 1
+#endif
+
+/* The maximum length of string that can be returned to replace any given tag */
+#ifndef LWIP_HTTPD_MAX_TAG_INSERT_LEN
+#define LWIP_HTTPD_MAX_TAG_INSERT_LEN 192
+#endif
+
+#endif /* LWIP_HTTPD_SSI */
+
+#if LWIP_HTTPD_SUPPORT_POST
+
+/* These functions must be implemented by the application */
+err_t httpd_post_begin(void *connection, const char *uri, const char *http_request,
+                       u16_t http_request_len, int content_len, char *response_uri,
+                       u16_t response_uri_len, u8_t *post_auto_wnd);
+
+/** Called for each pbuf of data that has been received for a POST.
+ * ATTENTION: The application is responsible for freeing the pbufs passed in!
+ *
+ * @param connection Unique connection identifier.
+ * @param p Received data.
+ * @return ERR_OK: Data accepted.
+ *         another err_t: Data denied, http_post_get_response_uri will be called.
+ */
+err_t httpd_post_receive_data(void *connection, struct pbuf *p);
+
+void httpd_post_finished(void *connection, char *response_uri, u16_t response_uri_len);
+
+#ifndef LWIP_HTTPD_POST_MANUAL_WND
+#define LWIP_HTTPD_POST_MANUAL_WND  0
+#endif
+
+#if LWIP_HTTPD_POST_MANUAL_WND
+void httpd_post_data_recved(void *connection, u16_t recved_len);
+#endif /* LWIP_HTTPD_POST_MANUAL_WND */
+
+#endif /* LWIP_HTTPD_SUPPORT_POST */
+
+void httpd_init(void);
+
+#endif /* __HTTPD_H__ */
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom","httpd")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+#include "waijung_hwdrvlib.h"
+#include "webserver_mem_handler.h"
+/* ########################################################################
+ * Webserver CGI Handler
+ * ########################################################################
+ */
+%if sqlite == "Enable"
+extern char SQliteOutputBuffer[];
+const char * SQLITE_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+%endif
+
+/**
+ * Initialize CGI handlers
+ */
+/* Cgi call table, only one CGI used */
+%assign cgi_count = 4
+%if sqlite == "Enable"
+  %assign cgi_count = cgi_count + 1
+%endif
+%if enableiap == "Enable"
+  %assign cgi_count = cgi_count + 1
+%endif
+tCGI CGI_TAB[%<cgi_count>];
+
+ %if sqlite == "Enable"
+/* CGI handle for SQLite */
+const char * SQLITE_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI SQLITE_CGI = {"/sqlite.cgi", SQLITE_CGI_Handler};
+%endif
+
+%if enableiap == "Enable"
+/* CGI handle for IAP */
+const char * IAP_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI IAP_CGI = {"/iap.html", IAP_CGI_Handler};
+%endif
+
+/* CGI handle for set var */
+const char * VARSSET_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI VARSSET_CGI = {"/varset.cgi", VARSSET_CGI_Handler};
+
+/* CGI handle for get var */
+const char * VARSGET_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI VARSGET_CGI = {"/varget.cgi", VARSGET_CGI_Handler};
+
+/* CGI handle for dir */
+extern const char * FILE_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI FILE_CGI = {"/dir.html", FILE_CGI_Handler};
+
+/* CGI handle for system */
+extern const char * SYSTEM_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[]);
+const tCGI SYSTEM_CGI = {"/system.html", SYSTEM_CGI_Handler};
+
+void httpd_cgi_init(void)
+{ 
+  /* configure CGI handlers (LEDs control CGI) */
+  CGI_TAB[0] = VARSSET_CGI;
+  CGI_TAB[1] = VARSGET_CGI;
+  %assign idx = 2
+  %if sqlite == "Enable"
+    CGI_TAB[%<idx>] = SQLITE_CGI;
+    %assign idx = idx + 1
+  %endif
+
+  %if enableiap == "Enable"
+    CGI_TAB[%<idx>] = IAP_CGI;
+    %assign idx = idx + 1
+  %endif
+
+  %% dir
+  CGI_TAB[%<idx>] = FILE_CGI;
+  %assign idx = idx + 1
+
+  %% system
+  CGI_TAB[%<idx>] = SYSTEM_CGI;
+  %assign idx = idx + 1
+
+  %if idx > 0
+  http_set_cgi_handlers(CGI_TAB, %<idx>);
+  %endif
+}
+
+/* ########################################################################
+ * Webserver Custom CGI-Vars
+ * ########################################################################
+ */
+
+typedef struct {
+  const char *varname;
+  const char *vartype;
+  void *value;
+  uint16_t size;
+  uint8_t write_en;
+  uint8_t kvp_en;
+  WEBSERVER_CGI_VARSET_CALLBACK callback;
+  const char *outputformat;
+} HTTP_VARS_CGI;
+
+char upload_msg[128];
+char return_file_name[128];
+
+%if sqlite == "Enable"
+  #define SYSTEM_VAR_COUNT 6
+%else
+  #define SYSTEM_VAR_COUNT 5
+%endif
+
+#define HTTP_VARS_CGI_COUNT (SYSTEM_VAR_COUNT + %<varcount>)
+const HTTP_VARS_CGI http_variable_list[HTTP_VARS_CGI_COUNT] = {  
+  /* success */
+  {"success", "char *", "Success", 7, 0, 0, (void*)0, "%s"},
+  /* fail */
+  {"fail", "string", "Fail", 4, 0, 0, (void*)0, "%s"},
+  /* sqlitefail */
+  {"sqlitefail", "string", "[{\"label\":\"Fail\",\"data\":\"Operation failed\"}]", 44, 0, 0, (void*)0, "%s"},
+  /* sqlitesuccess */
+  {"sqlitesuccess", "string", "[{\"label\":\"Success\",\"data\":\"Operation success\"}]", 48, 0, 0, (void*)0, "%s"},
+%if sqlite == "Enable"
+  /* sqliteresult */
+  {"sqliteresult", "trim+string", &SQliteOutputBuffer[0], SQLITE_BUFFER_SIZE-1, 0, 0, (void*)0, "%s"},
+%endif
+  /* uploadmsg */
+  {"uploadmsg", "char *", &upload_msg[0], sizeof(upload_msg)-1, 0, 0, (void*)0, "%s"},
+  %foreach idx=varcount
+    %assign varidx = idx + 1
+    /* %<optionstring[varidx*10+0]> */     
+    {"%<optionstring[varidx*10+0]>", "%<optionstring[varidx*10+1]>",\
+    %if optionstring[varidx*10+1] == "string"
+    &%<optionstring[varidx*10+2]>[0]\
+    %else
+    &%<optionstring[varidx*10+2]>\
+    %endif
+    ,%<optionstring[varidx*10+3]>,%<optionstring[varidx*10+4]>,%<optionstring[varidx*10+5]>, %<optionstring[varidx*10+6]>, "%<optionstring[varidx*10+7]>"},
+  %endforeach
+};
+
+/*
+** 
+*/
+int VARList_Get(const char *name, char *buffer, int buffer_size)
+{
+  int i;
+  char *p = buffer;
+  for (i=SYSTEM_VAR_COUNT; i<HTTP_VARS_CGI_COUNT; i++) {
+    /* Name */
+    strcpy(p, http_variable_list[i].varname);
+    p = &p[strlen(p)];
+    /* Separator */
+    strcpy(p, ",");
+    p = &p[strlen(p)];
+    /* Type */
+    strcpy(p, http_variable_list[i].vartype);
+    p = &p[strlen(p)];
+    /* RW */
+    if(http_variable_list[i].write_en)
+      strcpy(p, ",rw");
+    else
+      strcpy(p, ",r");
+    p = &p[strlen(p)];
+    /* EOL */
+    strcpy(p, "\r\n");
+    p = &p[strlen(p)];
+  }
+  return (p - buffer);
+}
+
+/*
+** name: Variable name to get index.
+** rw: 0-index for write, 1-index for read
+** return: zero base index value, -1 if parameter is invalid (Not found or not support write).
+*/
+int vars_getindex(const char *name, uint8_t rw, int len)
+{
+  int i;  
+  for (i=0; i<HTTP_VARS_CGI_COUNT; i++) {
+    if (!strncmp(name, http_variable_list[i].varname, len) \
+      && !strncmp(name, http_variable_list[i].varname, strlen(http_variable_list[i].varname))) {
+
+      /* Check if write value to a ReadOnly variable */
+      if((rw == 0) && (http_variable_list[i].write_en== 0))
+        return -1;
+      else
+        return i;
+    }
+  }
+  return -1; /* Invalid */
+}
+
+int vars_get_typeid(int index, uint8_t *type_id)
+{
+  if(!strcmp(http_variable_list[index].vartype, "double"))
+    *type_id = 0;
+  else if(!strcmp(http_variable_list[index].vartype, "single"))
+    *type_id = 1;
+  else if(!strcmp(http_variable_list[index].vartype, "int8"))
+    *type_id = 2;
+  else if(!strcmp(http_variable_list[index].vartype, "uint8"))
+    *type_id = 3;
+  else if(!strcmp(http_variable_list[index].vartype, "int16"))
+    *type_id = 4;
+  else if(!strcmp(http_variable_list[index].vartype, "uint16"))
+    *type_id = 5;
+  else if(!strcmp(http_variable_list[index].vartype, "int32"))
+    *type_id = 6;
+  else if(!strcmp(http_variable_list[index].vartype, "uint32"))
+    *type_id = 7;
+  else if(!strcmp(http_variable_list[index].vartype, "bool"))
+    *type_id = 8;
+  else if(!strcmp(http_variable_list[index].vartype, "string") || strstr(http_variable_list[index].vartype, "char *"))
+    *type_id = 9;
+  else if(!strcmp(http_variable_list[index].vartype, "trim+string"))
+    *type_id = 10;
+  else
+    return -1;
+
+  return 0;
+}
+
+int vars_get_value(int index, char *buffer, int buffer_len)
+{
+  uint8_t t_id;
+  char *p;
+
+  /* Initial buffer */
+  p = buffer;
+
+  /* Get variable type id */
+  if(vars_get_typeid(index, &t_id) != 0) {
+    sprintf(buffer, "%s:", "Error: Unknown var type");
+    sprintf(&buffer[strlen(buffer)], " %s", http_variable_list[index].vartype);
+    return -1;
+  }
+
+  /* KVP */
+  if(http_variable_list[index].kvp_en) {
+    sprintf(p,"%s=", http_variable_list[index].varname);
+    p = &p[strlen(p)];
+  }
+
+  /* double */
+  if (t_id == 0) {
+    double value = *((double *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);      
+  }
+  /* single */
+  else if (t_id == 1) {
+    float value = *((float *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* int8 */
+  else if (t_id == 2) {
+    int8_t value = *((int8_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* uint8 */
+  else if (t_id == 3) {
+    uint8_t value = *((uint8_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* int16 */
+  else if (t_id == 4) {
+    int16_t value = *((int16_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* uint16 */
+  else if (t_id == 5) {
+    uint16_t value = *((uint16_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* int32 */
+  else if (t_id == 6) {
+    int32_t value = *((int32_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* uint32 */
+  else if (t_id == 7) {
+    uint32_t value = *((uint32_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* bool */
+  else if (t_id == 8) {
+    uint8_t value = *((uint8_t *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);
+  }
+  /* string */
+  else if (t_id == 9) {
+    char *value = ((char *)http_variable_list[index].value);
+    sprintf(p, http_variable_list[index].outputformat, value);    
+  }
+  /* trim+string */
+  else {
+    char *value = ((char *)http_variable_list[index].value);
+    while(*value == ' ') value++;
+    while(*value == '\n') value++;
+
+    if(strlen(value) >= buffer_len) {
+      strncpy(buffer, value, buffer_len);
+      strcpy(&buffer[buffer_len-16], "Error: More...");      
+    }
+    else {
+      strcpy(buffer, value);
+    }
+  }
+
+  return 0;
+}
+
+/* Handle var get */
+const char * VARSGET_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+  int i;
+  char *action = "get";
+  char *name = "fail";
+  char *ftype = "txt";
+
+  for (i=0; i<iNumParams; i++) {
+    if(!strcmp(pcParam[i], "name")) {
+      name = pcValue[i];
+    }
+    else if (!strcmp(pcParam[i], "action")) {
+      action = pcValue[i];
+    }
+    else if (!strcmp(pcParam[i], "ftype")) {
+      ftype = pcValue[i];
+    }
+  }
+
+  /* Get variable value */
+  if(!strcmp(action, "getlist")) {
+    /* Return variable list */
+    sprintf(return_file_name, "/system/varlist.text");    
+  }
+  else {
+    /* Return variable value */
+    sprintf(return_file_name, "/"
+                            "%s.%s", name, ftype);
+  }
+
+  return (const char*)return_file_name;
+}
+
+/* Handle var set */
+const char * VARSSET_CGI_Handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
+{
+  uint8_t result = 1;
+  int i;
+  char *name = 0;
+  char *value = 0;
+  char *ret = 0;
+  int var_index = -1;
+  uint8_t var_type_id = 0;
+
+  /* Get Arg */
+  for (i=0; i<iNumParams; i++) {
+    if (!strcmp("name", pcParam[i])) {
+      name = pcValue[i];
+    }
+    else if (!strcmp("value", pcParam[i])) {
+      value = pcValue[i];
+    }    
+    else if (!strcmp("ret", pcParam[i])) {
+      ret = pcValue[i];
+    }
+  }
+
+  /* Validate Arg */
+  if(!name || !value)
+    result = 0;
+
+  /* Existing ?: Update var_index */
+  if (result) {
+    if((var_index = vars_getindex(name, 0, strlen(name))) < 0)
+      result = 0;
+  }
+
+  /* Var type ID */
+  if (result) {
+    if (vars_get_typeid(var_index, &var_type_id) < 0)
+      result = 0;
+  }
+
+  /* Convert value corresponding to data type */
+  if (result) {
+    if (var_type_id == 0) { /* double */
+      float tmp;
+      if(sscanf(value,"%f",&tmp) == 1)
+        *((double *)http_variable_list[var_index].value) = (double)tmp;
+      else
+        result = 0;            
+    }    
+    else if (var_type_id == 1) { /* single */
+      float tmp;
+      if(sscanf(value,"%f",&tmp) == 1)
+        *((float *)http_variable_list[var_index].value) = tmp;
+      else
+        result = 0;            
+    }
+    else if (var_type_id == 2) { /* int8 */
+      int32_t tmp;
+      if(sscanf(value,"%d",&tmp) == 1)
+        *((int8_t *)http_variable_list[var_index].value) = (int8_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 3) { /* uint8 */
+      uint32_t tmp;
+      if(sscanf(value,"%u",&tmp) == 1)
+        *((uint8_t *)http_variable_list[var_index].value) = (uint8_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 4) { /* int16 */
+      int32_t tmp;
+      if(sscanf(value,"%d",&tmp) == 1)
+        *((int16_t *)http_variable_list[var_index].value) = (int16_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 5) { /* uint16 */
+      uint32_t tmp;
+      if(sscanf(value,"%u",&tmp) == 1)
+        *((uint16_t *)http_variable_list[var_index].value) = (uint16_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 6) { /* int32 */
+      int32_t tmp;
+      if(sscanf(value,"%d",&tmp) == 1)
+        *((int32_t *)http_variable_list[var_index].value) = (int32_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 7) { /* uint32 */
+      uint32_t tmp;
+      if(sscanf(value,"%u",&tmp) == 1)
+        *((uint32_t *)http_variable_list[var_index].value) = (uint32_t)tmp;
+      else
+        result = 0;
+    }
+    else if (var_type_id == 9) { /* string */
+      int len = strlen(value);
+
+      // TODO:
+      // To convert escape char... %%%20
+
+      if(len > http_variable_list[var_index].size)
+        result = 0;
+      else
+        strcpy((char *)http_variable_list[var_index].value, value);
+    }
+    else {
+      result = 0;
+    }
+  }
+
+  /* Post Callback for Cgi varset */
+  if((result != 0) && (http_variable_list[var_index].callback != (void*)0)) {
+    http_variable_list[var_index].callback();
+  }
+
+  /* Return processing result */
+  if(result) { /* Success */
+    if (ret) {
+      strcpy(return_file_name,ret);
+    }
+    else {
+      sprintf(return_file_name, "/"
+                                "%s.txt", "success");
+    }
+  }
+  else { /* Fail */
+    sprintf(return_file_name, "/"
+                              "%s.txt", "fail");
+  }
+  return (const char*)return_file_name;
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","webserver_cgi_handler")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%% ########################################################################
+%% # Enable/ Disable
+%% ########################################################################
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#include "httpd.h"
+#include "webserver_mem_handler.h"
+#include "webserver_debug_port.h"
+#include "webserver_iap_handler.h"
+#include "ff.h"
+#include "amg_sdio.h"
+#include "amg_utils.h"
+
+/* CGI Varset Callback */
+typedef void (*WEBSERVER_CGI_VARSET_CALLBACK)(void);
+
+/* Webserver firmware upgrade handler */
+#include <stdint.h>
+#define VIRTUAL_DISK_START		0x08080000
+#define VIRTUAL_DISK_END			0x080FFFFF
+#define ENABLE_VIRTUAL_DISKIO 1
+
+%if sqlite == "Enable"
+#define ENABLE_SQLITE_DISKIO 1
+%endif
+
+uint8_t webserver_setupgrade_tofile(char *filename, int target, uint8_t enbale);
+void webserver_getupgrade_fromfile(char *filename_buffer, uint8_t *enable);
+void webserver_upgrade_activate(uint8_t activate);
+void webserver_upgrade_check(void);
+
+extern SYS_TIMER_uS_STRUCT httpwebserver_fileupload_timer;
+
+void %<blockid>_handle(void);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if debugport == "0"
+%else
+   #include "stdarg.h"
+   int webserver_debug_print(const char* format, ...) {
+	char c;
+	int result, num;
+	char tmp[8];
+	char *p, *f, *pos, *buffer;
+	va_list ap;
+	
+    /* Make sure Tx buffer is not busy */
+    UART%<debugport>_FlushTxBuffer();
+    /* Use Tx buffer */
+    sprintf((char*)UART%<debugport>_Tx_Buffer, "\r\n[%u] ", webserver_getms_tickcount());
+    buffer = (char*)&UART%<debugport>_Tx_Buffer[strlen((char*)UART%<debugport>_Tx_Buffer)];
+
+	f = (char*)format;	
+	result = -1;
+
+	va_start(ap, format);
+
+	while(*f) {
+        %assign tmp = "%"
+		if(strstr(f, "%<tmp>%") == f) {
+			*buffer ++ = '%';
+			f += 2;
+		}
+		else if(strstr(f, "%") == f) {
+			p = tmp;
+			do { *p ++ = *f++;
+			} while(*f && ((*f>='0') & (*f<='9') || (*f == '.')));
+
+			c = *f;
+			*p ++ = *f++;
+			*p ++ = '\0';
+
+			switch(c) {
+				case 's':
+				case 'S':
+					if((num = sprintf(buffer, tmp, (char*)va_arg(ap, char*))) < 0)
+						goto ___extit_point;
+					buffer += num;
+					break;
+
+				case 'c':
+				case 'C':
+					if((num = sprintf(buffer, tmp, (char)va_arg(ap, int))) < 0)
+						goto ___extit_point;
+					buffer += num;
+					break;
+
+				case 'u':
+				case 'U':
+				case 'x':
+				case 'X':
+					if((num = sprintf(buffer, tmp, (unsigned int)va_arg(ap, unsigned int))) < 0)
+						goto ___extit_point;
+					buffer += num;
+					break;
+
+				case 'd':
+				case 'D':
+					if((num = sprintf(buffer, tmp, (int)va_arg(ap, int))) < 0)
+						goto ___extit_point;
+					buffer += num;
+					break;
+
+				case 'f':
+				case 'F':
+					if((num = sprintf(buffer, tmp,(float)va_arg(ap, double))) < 0)
+						goto ___extit_point;
+					buffer += num;
+					break;
+
+				default:
+					goto ___extit_point;					
+			}
+		}
+		else if ((pos = strstr(f, "%")) != (void*)0) {
+			strncpy(buffer, f, pos-f);
+			buffer += pos-f;
+			f = pos;			
+		}
+		else {
+			strncpy(buffer, f, strlen(f));
+			buffer += strlen(f);
+			f += strlen(f);			
+		}
+	}
+	
+	/* NULL terminator */
+	*buffer = '\0';
+	result = 0;
+    UART%<debugport>_Write(UART%<debugport>_Tx_Buffer, strlen((char*)UART%<debugport>_Tx_Buffer));
+___extit_point:
+	va_end(ap);
+	
+	return result;
+   }
+
+%endif
+
+// Port
+unsigned int http_server_port = %<serverport>;
+
+SYS_TIMER_uS_STRUCT httpwebserver_fileupload_timer;
+static uint8_t %<blockid>_init_state = 0;
+void %<blockid>_handle(void)
+{
+  if(ETHERNET_APP_READY()) {
+    if(%<blockid>_init_state == 0) {
+    
+      /* Http webserver Init */
+      httpd_init();
+
+      /* Ff */
+      stdio_init();
+      
+      /* Init done */
+      %<blockid>_init_state ++;
+    
+    }
+    else {
+      do {
+        /* Driver */
+        setup_eth_link();
+        ethernet_app_handle();
+
+        #if WEBSERVER_IAP_ENABLE
+          webserver_iap_process();
+        #endif
+        /* Upgrade */
+        webserver_upgrade_check();
+      } while (!SysTimer_uS_IsTimeout(&httpwebserver_fileupload_timer)); /* Discard all other service */      
+
+      /* System */
+      SYSTEM_PriodicHandle();
+    }
+  }
+}
+
+void enable_%<blockid>(void) {
+  /* Init memory pool */
+  webserver_mem_init();
+
+  /* Activate webserver upgrade check */
+  webserver_upgrade_activate(0xAA);
+
+  SysTimer_uS_Start(&httpwebserver_fileupload_timer, 0);
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */  
+  %<blockid>_handle();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

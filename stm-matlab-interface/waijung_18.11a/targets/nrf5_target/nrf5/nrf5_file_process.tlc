@@ -1,0 +1,14 @@
+%% Template for generating code for nRF52 Target Blockset
+%selectfile NULL_FILE
+%%This function must be called from the CFP template before any other 
+%%code template API functions are called. Pass in 2 as the level argument.
+%<LibSetCodeTemplateComplianceLevel(2)>
+%if !IsModelReferenceTarget() 
+   %if GenerateSampleERTMain
+      %assign CompiledModel.GenerateSampleERTMain = TLC_FALSE
+   %endif
+   %include "nrf5_mainlib.tlc"
+   %% The above tlc file contains code for generating main.c and other fundamental source and header files.
+   %<SLibGenerateCode()> %% Code generation function (defined in nrf5_mainlib.tlc above)
+%endif
+

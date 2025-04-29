@@ -1,0 +1,429 @@
+%implements stm32f0_spimaster "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+
+%assign mode = CAST("String",SFcnParamSettings.mode)
+%assign configuration = CAST("String",SFcnParamSettings.configuration)
+%assign module = CAST("String",SFcnParamSettings.module)
+%assign datacount = CAST("Number",SFcnParamSettings.datacount)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign direction = confstr[0]
+%assign framesize = confstr[1]
+%assign dataformat = confstr[2]
+%assign cpol = confstr[3]
+%assign cpha = confstr[4]
+%assign prescaler = confstr[5]
+%assign nssmode = confstr[6]
+%assign nssuse = confstr[7]
+%assign nssport = confstr[8]
+%assign nsspin = confstr[9]
+%assign nssaf = confstr[10]
+
+%assign softnssuse = confstr[11]
+%assign softnssport = confstr[12]
+%assign softnsspin = confstr[13]
+
+%assign sckuse = confstr[14]
+%assign sckport = confstr[15]
+%assign sckpin = confstr[16]
+%assign sckaf = confstr[17]
+
+%assign misouse = confstr[18]
+%assign misoport = confstr[19]
+%assign misopin = confstr[20]
+%assign misoaf = confstr[21]
+
+%assign mosiuse = confstr[22]
+%assign mosiport = confstr[23]
+%assign mosipin = confstr[24]
+%assign mosiaf = confstr[25]
+
+%assign port_a_used = confstr[26]
+%assign port_b_used = confstr[27]
+%assign port_c_used = confstr[28]
+%assign port_d_used = confstr[29]
+%assign port_e_used = confstr[30]
+%assign port_f_used = confstr[31]
+%assign port_g_used = confstr[32]
+%assign port_h_used = confstr[33]
+%assign port_i_used = confstr[34]
+
+%assign nssdelay = confstr[35]
+%assign framedelay = confstr[36]
+
+%assign block = block + sampletime + sampletimestr + blockid + module + configuration \
+                + mode + datacount + direction + framesize + dataformat \
+                + cpol + cpha + prescaler + nssmode + nssuse + nssport + nsspin + nssaf\
+                + softnssuse + softnssport + softnsspin \
+                + sckuse + sckport + sckpin + sckaf + misouse + misoport + misopin + misoaf \
+                + mosiuse + mosiport + mosipin + mosiaf + port_a_used + port_b_used \
+                + port_c_used + port_d_used + port_e_used + port_f_used \
+                + port_g_used + port_h_used + port_i_used + nssdelay + framedelay
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_SPI__) == 0)
+      %assign :: __STM32F0XX_SPI__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_spi.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_STRING__) == 0)
+      %assign :: __STM32F0XX_STRING__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if configuration == "Setup"
+  extern uint32_t SPI%<module>_Status;
+  extern void SPI%<module>_SendReceive(\
+  %if framesize == "8b"
+    uint8_t *write_buff, uint8_t *read_buff, \
+  %else
+    uint16_t *write_buff, uint16_t *read_buff, \
+  %endif
+  uint16_t count);
+%else
+  %if framesize == "8b"
+    extern uint8_t %<blockid>_write_buffer[];
+    extern uint8_t %<blockid>_read_buffer[];
+  %else
+    extern uint16_t %<blockid>_write_buffer[];
+    extern uint16_t %<blockid>_read_buffer[];
+  %endif
+  extern void %<blockid>_readwrite_spi(void);
+%endif
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if configuration == "Setup"
+  SYS_TIMER_uS_STRUCT %<blockid>_timer;
+  uint32_t SPI%<module>_Status = 0;
+  void SPI%<module>_SendReceive(\
+  %if framesize == "8b"
+    uint8_t *write_buff, uint8_t *read_buff, \
+  %else
+    uint16_t *write_buff, uint16_t *read_buff, \
+  %endif
+  uint16_t count)
+  {
+    uint16_t i;
+    %if softnssuse == "1"
+      /* Software NSS: Low */
+      GPIO_WriteBit(GPIO%<softnssport>, GPIO_Pin_%<softnsspin>, Bit_RESET);
+    %endif
+    %if nssmode == "Hard"
+    /* Enable NSS */
+    SPI_SSOutputCmd(SPI%<module>, ENABLE);
+    %endif
+    %if nssdelay != "0"
+    /* NSS delay */
+    SysTimer_delay_us(%<nssdelay>); /* Delay %<nssdelay> uS after Nss activated */
+    %endif
+
+    /* SPI Write/Read */
+    for(i=0; i< count; i++) {
+      %%/* Clear flags */
+      %%SPI_I2S_ClearFlag(SPI%<module>, SPI_I2S_FLAG_TXE);
+      %%SPI_I2S_ClearFlag(SPI%<module>, SPI_I2S_FLAG_RXNE);
+
+      /* Wait for Tx */
+      SysTimer_uS_Start(&%<blockid>_timer, 10000); /* 10mS */    
+      while (SPI_I2S_GetFlagStatus(SPI%<module>, SPI_I2S_FLAG_TXE) != SET) {
+        if(SysTimer_uS_IsTimeout(&%<blockid>_timer)) {
+          SPI%<module>_Status = 1; /* Error status */
+          goto __spi_error;
+        }
+      }
+      /* Send data */
+      %if framesize == "8b"
+        SPI_SendData8(SPI%<module>, write_buff[i]);
+      %else
+        SPI_I2S_SendData16(SPI%<module>, write_buff[i]);
+      %endif
+
+      /* Wait to receive data */
+      SysTimer_uS_Start(&%<blockid>_timer, 10000); /* 10mS */
+      while (SPI_I2S_GetFlagStatus(SPI%<module>, SPI_I2S_FLAG_RXNE) != SET) {
+        if(SysTimer_uS_IsTimeout(&%<blockid>_timer)) {
+          SPI%<module>_Status = 1; /* Error status */
+          goto __spi_error;
+        }
+      }
+
+      /* Get data */
+      %if framesize == "8b"
+        read_buff[i] = SPI_ReceiveData8(SPI%<module>);
+      %else
+        read_buff[i] = SPI_I2S_ReceiveData16(SPI%<module>);
+      %endif
+
+      %if framedelay != "0"
+      /* Frame delay */
+      SysTimer_delay_us(%<framedelay>); /* Delay %<framedelay> uS between data frame */
+      %endif
+    }
+
+    %if softnssuse == "1"
+      /* Software NSS: High */
+      GPIO_WriteBit(GPIO%<softnssport>, GPIO_Pin_%<softnsspin>, Bit_SET);
+    %endif
+    %if nssmode == "Hard"
+    /* Disable NSS */
+    SPI_SSOutputCmd(SPI%<module>, DISABLE);
+    %endif
+
+    /* Operation success */
+    SPI%<module>_Status = 0;
+    return;
+
+__spi_error:
+    /* Operation fail */
+    disable_%<blockid>();
+    enable_%<blockid>();
+  }
+
+%else
+  %if framesize == "8b"
+    uint8_t %<blockid>_write_buffer[%<datacount>];
+    uint8_t %<blockid>_read_buffer[%<datacount>];
+  %else
+    uint16_t %<blockid>_write_buffer[%<datacount>];
+    uint16_t %<blockid>_read_buffer[%<datacount>];
+  %endif
+  void %<blockid>_readwrite_spi(void) {
+    /* SPI transaction */
+    SPI%<module>_SendReceive(%<blockid>_write_buffer, %<blockid>_read_buffer, %<datacount>);
+  }
+
+  
+%endif
+
+/* Enable module */
+void enable_%<blockid>(void){
+  %if configuration == "Setup"
+    GPIO_InitTypeDef GPIO_InitStructure;
+    SPI_InitTypeDef  SPI_InitStructure;
+
+    /* Enable the SPI clock */
+    %if module == "1"
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI%<module>, ENABLE);
+    %else
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI%<module>, ENABLE);
+    %endif
+  
+    /* Enable SCK, MOSI and MISO GPIO clocks */
+    %if port_a_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+    %endif
+    %if port_b_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+    %endif
+    %if port_c_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+    %endif
+    %if port_d_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+    %endif
+    %if port_e_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOE, ENABLE);
+    %endif
+    %if port_f_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+    %endif
+    %if port_g_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOG, ENABLE);
+    %endif
+    %if port_h_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOH, ENABLE);
+    %endif
+    %if port_i_used == "1"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOI, ENABLE);
+    %endif
+
+    /* GPIO Configuration */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+    %if nssuse  == "1"
+      /* NSS pin */
+      GPIO_PinAFConfig(GPIO%<nssport>, GPIO_PinSource%<nsspin>, GPIO_AF_%<nssaf>);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<nsspin>;
+      GPIO_Init(GPIO%<nssport>, &GPIO_InitStructure);
+    %endif
+
+    %if sckuse == "1"
+      /* SCK pin */
+      GPIO_PinAFConfig(GPIO%<sckport>, GPIO_PinSource%<sckpin>, GPIO_AF_%<sckaf>);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<sckpin>;
+      GPIO_Init(GPIO%<sckport>, &GPIO_InitStructure);
+    %endif
+
+    %if misouse == "1"
+      /* MISO pin */
+      GPIO_PinAFConfig(GPIO%<misoport>, GPIO_PinSource%<misopin>, GPIO_AF_%<misoaf>);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<misopin>;
+      GPIO_Init(GPIO%<misoport>, &GPIO_InitStructure);
+    %endif
+
+    %if mosiuse == "1"
+      /* MOSI pin */
+      GPIO_PinAFConfig(GPIO%<mosiport>, GPIO_PinSource%<mosipin>, GPIO_AF_%<mosiaf>);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<mosipin>;
+      GPIO_Init(GPIO%<mosiport>, &GPIO_InitStructure);
+    %endif
+
+    %if softnssuse == "1"
+      /* Soft NSS pin: P%<softnssport>%<softnsspin> */
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<softnsspin>;
+      GPIO_Init(GPIO%<softnssport>, &GPIO_InitStructure);
+      /* Software NSS: High */
+      GPIO_WriteBit(GPIO%<softnssport>, GPIO_Pin_%<softnsspin>, Bit_SET);
+    %endif
+
+    /* SPI configuration */
+    SPI_I2S_DeInit(SPI%<module>);
+    SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; /* Always use 2 lines */ %%<direction>
+    SPI_InitStructure.SPI_DataSize = SPI_DataSize_%<framesize>;
+    SPI_InitStructure.SPI_CPOL = SPI_CPOL_%<cpol>;
+    SPI_InitStructure.SPI_CPHA = SPI_CPHA_%<cpha>;
+    SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_%<prescaler>;
+    SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_%<dataformat>;
+    SPI_InitStructure.SPI_CRCPolynomial = 7;
+    SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+    SPI_Init(SPI%<module>, &SPI_InitStructure);
+
+    %if softnssuse == "1"
+    %else
+    %%/* Enable NSS */
+    %%SPI_SSOutputCmd(SPI%<module>, ENABLE);
+    %endif
+
+    SPI_RxFIFOThresholdConfig(SPI2, SPI_RxFIFOThreshold_QF);
+
+    /* Enable SPI%<module>  */
+    SPI_Cmd(SPI%<module>, ENABLE);
+  %else
+    /* Initial write buffer */
+    memset(%<blockid>_write_buffer, 0xFF, (%<datacount>*2));
+  %endif
+}
+
+/* Disable module */
+void disable_%<blockid>(void) {
+  %if configuration == "Setup"
+    /* Disable SPI%<module>  */
+    SPI_Cmd(SPI%<module>, DISABLE);
+
+    /* SPI configuration */
+    SPI_I2S_DeInit(SPI%<module>);
+  %endif
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+  %if configuration == "Setup"
+  %else
+    /* %<blockid> */
+    %if mode == "Write" || mode == "Read/ Write"
+      %foreach idx=datacount
+        %<blockid>_write_buffer[%<idx>] = %<LibBlockInputSignal(idx, "", "", 0)>;
+      %endforeach
+    %endif
+    %<blockid>_readwrite_spi();
+    %<LibBlockOutputSignal(0, "", "", 0)> = SPI%<module>_Status;
+    %if mode == "Read" || mode == "Read/ Write"
+      %foreach idx=datacount
+        %<LibBlockOutputSignal(idx+1, "", "", 0)> = (uint8_t)%<blockid>_read_buffer[%<idx>];
+      %endforeach     
+    %endif
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

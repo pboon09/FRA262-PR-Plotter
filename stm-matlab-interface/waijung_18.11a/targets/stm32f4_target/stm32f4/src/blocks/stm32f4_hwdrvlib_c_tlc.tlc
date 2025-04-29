@@ -1,0 +1,162 @@
+%openfile tmpBuf
+   #include "waijung_hwdrvlib.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+%<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+%<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+    %if (EXISTS(::__WAIJUNG_TICKSTEP__) == 0)
+      %assign :: __WAIJUNG_TICKSTEP__ = 1
+      %openfile tmpBuf
+        /* ########################################################################
+        * Timer
+        * ########################################################################
+        */
+        #define SYS_CURRENT_TICK (SysTick->VAL)
+        #define SYS_TICKSTEP  %<SampleTime[0].ClockTickStepSize>f
+        typedef struct {
+          uint32_t start;
+          uint32_t length;
+        } SYS_TIMER_STRUCT;
+
+        #define SYSTIMER_FLAGS_TIMEOUT  0x01
+        typedef struct {
+          uint8_t flags;
+	      uint32_t tid; /* Tick count */
+	      uint32_t tick; /* Capture cuttent tick */
+	      uint32_t target_us; /* Target of systick */
+        } SYS_TIMER_uS_STRUCT;
+
+        extern volatile unsigned int systick_count; 
+        void SysTimer_Start(SYS_TIMER_STRUCT* timer, uint32_t ms);
+        void SysTimer_uS_Start(SYS_TIMER_uS_STRUCT *timer, uint32_t us);
+        int SysTimer_IsTimeout(SYS_TIMER_STRUCT* timer);
+        int SysTimer_uS_IsTimeout(SYS_TIMER_uS_STRUCT* timer);
+        void SysTimer_delay_us(uint32_t us);
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+      %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__WAIJUNG_TIMER__) == 0)
+      %assign :: __WAIJUNG_TIMER__ = 1
+      %openfile tmpBuf
+      /* ########################################################################
+      * Timer
+      * ########################################################################
+      */
+
+      /* Low precision non-Blocking delay timer.
+      ** Relolution of timer is one TICK step interrupt.
+      */
+      void SysTimer_Start(SYS_TIMER_STRUCT* timer, uint32_t ms)
+      {
+        /* Calculate amount of tick count */
+        timer->length = (uint32_t)((float)ms/(1000*SYS_TICKSTEP));
+
+        /* Capture current tick */
+        timer->start = (uint32_t)systick_count;
+      }
+
+      int SysTimer_IsTimeout(SYS_TIMER_STRUCT* timer)
+      {
+        uint32_t Capture;
+
+        /* Capture current tick */
+        Capture = (uint32_t)systick_count;
+
+        /* Check */
+        if (Capture >= timer->start) {
+          if ((Capture - timer->start) >= timer->length)
+            return 1;
+        } else {
+          if (((0xFFFFFFFF - timer->start)+Capture) >= timer->length)
+            return 1;
+        }
+        return 0;
+      }
+
+      /* Improved precision non-Blocking delay timer.
+      ** Relolution of timer is 1uS.
+      */
+      void SysTimer_uS_Start(SYS_TIMER_uS_STRUCT *timer, uint32_t us)
+      {
+	    /* Tick */
+	    timer->tick = SYS_CURRENT_TICK;
+
+        /* Tick overflow count */
+        timer->tid = (uint32_t)systick_count;	
+	
+	    /* Target */
+	    timer->target_us = us*((uint32_t)HCLK/1000000);	
+      }
+
+      int SysTimer_uS_IsTimeout(SYS_TIMER_uS_STRUCT* timer)
+      {
+	    uint32_t curr_tick;
+	    uint32_t curr_tid;
+	
+	    /* Already timeout ? */
+        if(timer->target_us == 0) {
+		  return 1;
+	    }
+		
+	    /* Capture current tick */
+	    curr_tick = SYS_CURRENT_TICK;
+	    curr_tid = systick_count;
+	
+	    /* Processing TID*/
+	    while(timer->tid != curr_tid) {
+		  if(timer->target_us > timer->tick) {
+			timer->target_us -= timer->tick;
+			timer->tid ++;
+			timer->tick = SYSTICKRELOADVALUE-1;
+		  }
+		  else {
+			timer->target_us = 0;
+			return 1; /* Timeout */
+		  }
+	    }
+	
+ 	    /* Processing Tick */
+        if((timer->tick > curr_tick) && ((timer->tick - curr_tick) > timer->target_us)) {
+          timer->target_us = 0;
+	      return 1; /* Timeout */
+	    }
+	    /* Need wait */
+	    return 0;
+      }
+
+      /* Blocking delay, uS */
+      void SysTimer_delay_us(uint32_t us)
+      {
+	    SYS_TIMER_uS_STRUCT timer;
+	    SysTimer_uS_Start(&timer, us);
+	    while(SysTimer_uS_IsTimeout(&timer) == 0); 
+      }
+
+      /* Blocking delay, mS */
+      void SysTimer_delay_ms(uint32_t ms)
+      {
+	    SYS_TIMER_STRUCT timer;
+	    SysTimer_Start(&timer, ms);
+	    while(SysTimer_IsTimeout(&timer) == 0); 
+      }
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+  %endif

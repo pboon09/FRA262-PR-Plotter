@@ -1,0 +1,359 @@
+%implements stm32f4_datalogger "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign header = CAST("String",SFcnParamSettings.header)
+  %assign asciiformat = CAST("String",SFcnParamSettings.asciiformat)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)  
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+  
+  %assign block = block + conf + sampletime + blockid
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign enablestatus     = optionstring[0]
+  %assign variablefilename = optionstring[1]
+  %assign filename         = optionstring[2]
+  %assign packet           = optionstring[3]
+  %assign buffersize       = optionstring[4]
+  %%%assign header           = optionstring[5]
+  %%%assign asciiformat      = optionstring[6]
+  %assign safeprintf       = optionstring[7]
+  %assign synctimer        = optionstring[8]
+  %assign createfileoptions= optionstring[9]
+  %assign block = block + enablestatus + variablefilename + filename \
+                + packet + buffersize + header + asciiformat + safeprintf \
+                + synctimer + createfileoptions
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_SDIO__) == 0)
+      %assign :: __STM32F4XX_SDIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_sdio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * Data logger
+    * ########################################################################
+   */
+   #include <stdlib.h>
+   #include <stdio.h>
+   #include "amg_utils.h"
+   #include "amg_sdio.h"
+   #include "ff.h"
+   #include "ffconf.h"
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_TIMER_US %<synctimer>UL /* uS */
+#define %<blockid>_BUFFERSIZE %<buffersize>
+extern uint8_t %<blockid>_buffer[];
+extern uint16_t %<blockid>_buffer_index;
+%if variablefilename == "off"
+#define %<blockid>_FILENAME "%<filename>"
+%endif
+uint8_t %<blockid>_timer_reset(uint8_t force_reset);
+uint8_t %<blockid>_file_create(const char *filename);
+uint8_t %<blockid>_write(uint8_t *buffer, uint16_t count);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+SYS_TIMER_uS_STRUCT %<blockid>_timer;
+uint16_t %<blockid>_buffer_index = 0;
+uint8_t %<blockid>_buffer[%<blockid>_BUFFERSIZE];
+char %<blockid>_name[_MAX_LFN + 1];
+FIL %<blockid>_file;
+FRESULT %<blockid>_res = FR_OK;
+
+uint8_t %<blockid>_write(uint8_t *buffer, uint16_t count)
+{
+     uint32_t written;
+
+     /* Write to file */
+     %<blockid>_res = f_write(&%<blockid>_file, buffer, count, &written);
+    
+     /* Sync */
+     if(%<blockid>_res == FR_OK)
+       %<blockid>_res = f_sync(&%<blockid>_file);
+
+     /* Return status */     
+     return (uint8_t)%<blockid>_res;
+}
+
+uint8_t %<blockid>_timer_reset(uint8_t force_reset)
+{
+  if(SysTimer_uS_IsTimeout(&%<blockid>_timer) || force_reset) {
+    SysTimer_uS_Start(&%<blockid>_timer, %<blockid>_TIMER_US);
+    return (force_reset == 0);
+  }
+  return 0;
+}
+
+uint8_t %<blockid>_file_create(const char *filename)
+{
+  static uint8_t file_created = 0;  
+  int file_index = 0;
+  int file_extension;
+
+  /* If file name changed */
+  if((strcmp(%<blockid>_name, filename) != 0) || (%<blockid>_res != FR_OK)) {
+    if(file_created != 0) {
+      /* File already open, close it */
+      f_close(&%<blockid>_file);
+      memset(&%<blockid>_file, 0, sizeof(FIL));
+    }
+    file_created = 0;
+  }
+
+  if(!file_created) {
+    /* Initial file name to open */
+    strcpy(%<blockid>_name, filename);
+
+    %% Create with append file
+    %if createfileoptions == "Append"
+    %<blockid>_res = f_open (&%<blockid>_file, %<blockid>_name, FA_CREATE_NEW|FA_WRITE);
+    if(%<blockid>_res == FR_EXIST) {
+      %<blockid>_res = f_open (&%<blockid>_file, %<blockid>_name, FA_WRITE);
+    }  
+    %else
+    %% Create file with running number if file is existing
+    do {
+      %<blockid>_res = f_open (&%<blockid>_file, %<blockid>_name, FA_CREATE_NEW|FA_WRITE);
+      if(%<blockid>_res == FR_EXIST) {        
+        /* Get file extension */
+        file_extension = _fextension_pos(filename);
+        /* Copy name */
+        strncpy(%<blockid>_name, filename, file_extension);
+        /* File index */
+        sprintf(&%<blockid>_name[file_extension], "(%d)", ++file_index);
+        /* File extension */
+        strcpy(&%<blockid>_name[strlen(%<blockid>_name)], &filename[file_extension]);
+      }
+    } while ((%<blockid>_res == FR_EXIST) && (file_index < 32));
+
+    /* Store active file name */
+    strcpy(%<blockid>_name, filename);
+    %endif
+    
+    if(%<blockid>_res == FR_OK) {
+      /* Activate file created status */
+      file_created = 1;
+
+      %if createfileoptions == "Append"
+      /* Seek to the EOF */
+      %<blockid>_res = f_lseek (&%<blockid>_file, f_size(&%<blockid>_file));
+      %endif
+    } 
+    %if (packet == "Ascii") || (packet == "StringInput")
+    /* Write Header: "%<header>" */
+    if(%<blockid>_res == FR_OK) {    
+      const char *header = "%<header>";
+      if(*header)
+        %<blockid>_write((uint8_t *)header, strlen(header));
+    }
+    %endif    
+
+    /* Return status */
+    return (uint8_t)%<blockid>_res;
+  }
+
+  /* File already created */
+  return %<blockid>_res;
+}
+
+void enable_%<blockid>(void)
+{
+  /* Filename is empty */
+  %<blockid>_name[0] = '\0';
+
+  /* Reset timer */
+  SysTimer_uS_Start(&%<blockid>_timer, %<blockid>_TIMER_US);
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+{
+  uint8_T status; 
+
+  /* Init Disk I/O */
+  stdio_init();
+
+  status = %<blockid>_file_create\
+  %if variablefilename == "off"
+    (%<blockid>_FILENAME);
+    %assign IdxOffset = 0
+  %else
+    ((const char *)%<LibBlockInputSignal(0, "", "", 0)>);
+    %assign IdxOffset = 1
+  %endif
+  if(status == 0) {
+  %% === Ascii/ StringInput ===
+  %if (packet == "Ascii") || (packet == "StringInput")
+    %if (packet == "Ascii")
+      /* string format */
+      %if safeprintf == "on"
+      _sprintf_s((char *)&%<blockid>_buffer[%<blockid>_buffer_index], %<blockid>_BUFFERSIZE, \
+      %else
+      sprintf((char *)&%<blockid>_buffer[%<blockid>_buffer_index], \
+      %endif
+      "%<asciiformat>"\
+      %assign dataIdx = 0
+      %foreach idx = LibBlockNumInputPorts(block)
+        %if idx >= IdxOffset
+          ,(%<optionstring[15+dataIdx]>)%<LibBlockInputSignal(dataIdx+IdxOffset, "", "", 0)>\
+          %assign dataIdx = dataIdx + 1
+        %endif
+      %endforeach
+      );
+      /* Update buffer index */
+      %<blockid>_buffer_index += strlen((char *)&%<blockid>_buffer[%<blockid>_buffer_index]);
+    %else
+      char *src;
+      uint16_t count;
+      src = (char *)%<LibBlockInputSignal(IdxOffset, "", "", 0)>;
+      count = strlen(src);
+
+      /* length of data is longer than buffer */
+      while((%<blockid>_buffer_index + count) >= %<blockid>_BUFFERSIZE) {
+        strncpy((char *)&%<blockid>_buffer[%<blockid>_buffer_index], src, %<blockid>_BUFFERSIZE-%<blockid>_buffer_index);
+        count -= (%<blockid>_BUFFERSIZE-%<blockid>_buffer_index);
+        src += (%<blockid>_BUFFERSIZE-%<blockid>_buffer_index);
+        %<blockid>_buffer_index = 0;
+
+        /* Write to Disk */
+        status = %<blockid>_write(%<blockid>_buffer, %<blockid>_BUFFERSIZE);
+      }
+
+      /* String copy */
+      strcpy((char *)&%<blockid>_buffer[%<blockid>_buffer_index], src);
+      /* Update buffer index */
+      %<blockid>_buffer_index += strlen(src);
+    %endif
+  %endif
+  %% === Binary/BinaryVector ===
+  %if (packet == "Binary") || (packet == "BinaryVector")
+    uint16_t count;
+    %assign dataIdx = 0
+    %foreach idx = LibBlockNumInputPorts(block)
+      %if idx >= IdxOffset
+        /* D%<dataIdx>: %<LibBlockInputSignalDataTypeName(dataIdx+IdxOffset,"")>(%<LibBlockInputSignalWidth(dataIdx+IdxOffset)>) */
+        %if LibBlockInputSignalWidth(dataIdx+IdxOffset) > 1
+          count = %<LibBlockInputSignalWidth(dataIdx+IdxOffset)>*sizeof(%<LibBlockInputSignalDataTypeName(dataIdx+IdxOffset,"")>);
+        %else
+          count = sizeof(%<LibBlockInputSignalDataTypeName(dataIdx+IdxOffset,"")>);
+        %endif
+        memcpy(&%<blockid>_buffer[%<blockid>_buffer_index], \
+        %<LibBlockInputSignalAddr(dataIdx+IdxOffset, "", "", 0)>, \
+        count);
+        %<blockid>_buffer_index += count;
+        %assign dataIdx = dataIdx + 1
+      %endif
+    %endforeach    
+  %endif
+  }
+
+  /* Write to Disk */
+  while(%<blockid>_buffer_index >= (%<blockid>_BUFFERSIZE>>1)) { /* Half buffer */
+    status = %<blockid>_write(%<blockid>_buffer, (%<blockid>_BUFFERSIZE>>1));
+    %<blockid>_timer_reset(1);
+
+    /* Update buffer index */
+    %<blockid>_buffer_index -= (%<blockid>_BUFFERSIZE>>1);
+    memcpy(%<blockid>_buffer, &%<blockid>_buffer[(%<blockid>_BUFFERSIZE>>1)], %<blockid>_buffer_index);
+  }
+
+  /* Write to disk if timer timeout */
+  if((%<blockid>_buffer_index > 0) && (%<blockid>_timer_reset(0))) {
+    status = %<blockid>_write(%<blockid>_buffer, %<blockid>_buffer_index);
+    %<blockid>_buffer_index = 0;
+  }
+  %if enablestatus == "on"
+    %<LibBlockOutputSignal(0, "", "", 0)> = status;
+  %endif
+}
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

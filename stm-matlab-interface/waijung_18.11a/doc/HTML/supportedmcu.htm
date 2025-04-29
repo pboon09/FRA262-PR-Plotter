@@ -1,0 +1,730 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Hardware References &gt; Supported MCU</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Supported MCU">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "supportedmcu.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Supported MCU</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?supportedmcu.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="hardware_references.htm">Hardware References</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Supported MCU</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="hardware_references.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="hardware_references.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="peripherals_summary.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Features and peripherals counts</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="supportedmcu.htm#stm32f405xxandstm32f407xx" class="topiclink">STM32F405xx and STM32F407xx</a> </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="supportedmcu.htm#stm32f415xxandstm32f417xx" class="topiclink">STM32F415xx and STM32F417xx</a> </td></tr></table></div><p>&nbsp;</p>
+<p>&nbsp;</p>
+<h3 class="p_Heading3"><a id="stm32f405xxandstm32f407xx"></a><span class="f_Heading3">STM32F405xx and STM32F407xx </span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:none; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th colspan="2" style="vertical-align:middle; width:141px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">Peripherals</span></p>
+</th>
+<th style="vertical-align:top; width:73px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F405RG</span></p>
+</th>
+<th style="vertical-align:top; width:76px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F405OG</span></p>
+</th>
+<th style="vertical-align:top; width:75px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F405VG</span></p>
+</th>
+<th style="vertical-align:top; width:78px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F405ZG</span></p>
+</th>
+<th style="vertical-align:top; width:78px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F405OE</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:88px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F407Vx</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:76px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F407Zx</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:88px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 9pt; font-weight: bold;">STM32F407Ix</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Flash memory in Kbytes</span></p>
+</td>
+<td colspan="4" style="vertical-align:top; width:310px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:top; width:78px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:top; width:22px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:top; width:44px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:top; width:35px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:top; width:37px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:top; width:29px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:top; width:37px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="2" style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SRAM in Kbytes</span></p>
+</td>
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">System</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">192(112+16+64)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Backup</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">4</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">FSMC memory controller</span></p>
+</td>
+<td style="vertical-align:top; width:73px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td colspan="10" style="vertical-align:top; width:611px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes(1)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Ethernet</span></p>
+</td>
+<td colspan="5" style="vertical-align:top; width:391px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td colspan="6" style="vertical-align:top; width:263px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="6" style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Timers</span></p>
+</td>
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">General-purpose</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">10</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Advanced-control</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Basic</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">IWDG</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">WWDG</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">RTC</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Random number generator</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="7" style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Communication </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">interfaces</span></p>
+</td>
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SPI / I2S</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3/2 (full duplex)(2)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">I2C</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USART/UART</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">4/2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USB OTG FS</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USB OTG HS</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">CAN</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:60px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SDIO</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Camera interface</span></p>
+</td>
+<td colspan="4" style="vertical-align:top; width:310px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td colspan="7" style="vertical-align:top; width:349px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">GPIOs</span></p>
+</td>
+<td style="vertical-align:top; width:73px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">51</span></p>
+</td>
+<td style="vertical-align:top; width:76px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">72</span></p>
+</td>
+<td style="vertical-align:top; width:75px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">82</span></p>
+</td>
+<td style="vertical-align:top; width:78px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">114</span></p>
+</td>
+<td style="vertical-align:top; width:78px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">72</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">82</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:76px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">114</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">140</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" rowspan="2" style="vertical-align:middle; width:141px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">12-bit ADC </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Number of channels</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:73px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td style="vertical-align:top; width:76px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">13</span></p>
+</td>
+<td style="vertical-align:top; width:75px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td style="vertical-align:top; width:78px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+<td style="vertical-align:top; width:78px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">13</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:76px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:31px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">12-bit DAC </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Number of channels</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:31px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes </span></p>
+<p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:141px; height:17px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Maximum CPU frequency</span></p>
+</td>
+<td colspan="11" style="vertical-align:top; width:700px; height:17px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">168 MHz</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:middle; width:141px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Operating voltage</span></p>
+</td>
+<td colspan="11" style="vertical-align:middle; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1.8 to 3.6 V(3)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" rowspan="2" style="vertical-align:middle; width:141px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Operating temperatures</span></p>
+</td>
+<td colspan="11" style="vertical-align:middle; width:700px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Ambient temperatures: –40 to +85 °C /–40 to +105 °C</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="11" style="vertical-align:middle; width:700px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Junction temperature: –40 to + 125 °C</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:middle; width:141px; height:37px; padding:0px; border:solid 1px #000000;"><p><span style="font-size: 10pt;">Package</span></p>
+</td>
+<td style="vertical-align:middle; width:73px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">LQFP64</span></p>
+</td>
+<td style="vertical-align:middle; width:76px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">WLCSP90</span></p>
+</td>
+<td style="vertical-align:middle; width:75px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP100</span></p>
+</td>
+<td style="vertical-align:middle; width:78px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP144</span></p>
+</td>
+<td style="vertical-align:middle; width:78px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">WLCSP90</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:88px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP100</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:76px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP144</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:88px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">UFBGA176 </span></p>
+<p style="text-align: center;"><span style="font-size: 10pt;">LQFP176</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1. For the LQFP100 package, only FSMC Bank1 or Bank2 are available. Bank1 can only support a multiplexed NOR/PSRAM memory using the NE1 Chip Select. Bank2 can only support a 16- or 8-bit NAND Flash memory using the NCE2 Chip Select. The interrupt line cannot be used since Port G is not available in this package.</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2. The SPI2 and SPI3 interfaces give the flexibility to work in an exclusive way in either the SPI mode or the I2S audio mode.</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3. VDD/VDDA minimum value of 1.7 V is obtained when the device operates in the 0 to 70 °C temperature range and an inverted reset signal is applied to PDR_ON.</span></p>
+<p><span style="font-weight: bold;">source :</span> <a href="http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/DATASHEET/DM00037051.pdf" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">STM32F405xxSTM32F407xx Datasheet (DOC ID 022152 Rev 3)</a></p>
+<h3 class="p_Heading3"><span class="f_Heading3">&nbsp;</span></h3>
+<h3 class="p_Heading3"><a id="stm32f415xxandstm32f417xx"></a><span class="f_Heading3">STM32F415xx and STM32F417xx</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:none; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th colspan="2" style="vertical-align:middle; width:161px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">Peripherals</span></p>
+</th>
+<th style="vertical-align:top; width:87px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F415RG</span></p>
+</th>
+<th style="vertical-align:top; width:88px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F415OG</span></p>
+</th>
+<th style="vertical-align:top; width:82px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F415VG</span></p>
+</th>
+<th style="vertical-align:top; width:87px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F415ZG</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:87px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F417Vx</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:86px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F417Zx</span></p>
+</th>
+<th colspan="2" style="vertical-align:top; width:88px; height:19px; background-color:#d5ebfd; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-weight: bold;">STM32F417Ix</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Flash memory in Kbytes</span></p>
+</td>
+<td colspan="4" style="vertical-align:middle; width:349px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:middle; width:44px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:middle; width:40px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:middle; width:39px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:middle; width:44px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+<td style="vertical-align:middle; width:39px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">512</span></p>
+</td>
+<td style="vertical-align:middle; width:48px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1024</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="2" style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SRAM in Kbytes</span></p>
+</td>
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">System</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">192(112+16+64)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Backup</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">4</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">FSMC memory controller</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td colspan="9" style="vertical-align:middle; width:488px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes(1)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Ethernet</span></p>
+</td>
+<td colspan="4" style="vertical-align:middle; width:261px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td colspan="6" style="vertical-align:middle; width:215px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="6" style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Timers</span></p>
+</td>
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">General-purpose</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">10</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Advanced-control</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Basic</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">IWDG</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">WWDG</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">RTC</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Random number generator</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="7" style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Communication </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">interfaces</span></p>
+</td>
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SPI / I2S</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3/2 (full duplex)(2)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">I2C</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USART/UART</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">4/2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USB OTG FS</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">USB OTG HS</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">CAN</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:71px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">SDIO</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Camera interface</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">No</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:87px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:87px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+<td style="vertical-align:middle; width:49px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">GPIOs</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">51</span></p>
+</td>
+<td style="vertical-align:middle; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">72</span></p>
+</td>
+<td style="vertical-align:middle; width:82px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">82</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">114</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">82</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">114</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:44px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">140</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" rowspan="2" style="vertical-align:middle; width:161px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">12-bit ADC </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Number of channels</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">3</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:middle;">
+<td style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td style="vertical-align:middle; width:88px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">13</span></p>
+</td>
+<td style="vertical-align:middle; width:82px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">16</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:44px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">24</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:31px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">12-bit DAC </span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Number of channels</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:31px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Yes </span></p>
+<p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">2</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:top; width:161px; height:17px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Maximum CPU frequency</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:17px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">168 MHz</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:middle; width:161px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Operating voltage</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">1.8 to 3.6 V(3)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" rowspan="2" style="vertical-align:middle; width:161px; height:19px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Operating temperatures</span></p>
+</td>
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Ambient temperatures: –40 to +85 °C /–40 to +105 °C</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:middle;">
+<td colspan="10" style="vertical-align:middle; width:567px; height:19px; background-color:#e7f3fe; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">Junction temperature: –40 to + 125 °C</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="2" style="vertical-align:middle; width:161px; height:37px; padding:0px; border:solid 1px #000000;"><p><span style="font-size: 10pt;">Package</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt;">LQFP64</span></p>
+</td>
+<td style="vertical-align:middle; width:88px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">WLCSP90</span></p>
+</td>
+<td style="vertical-align:middle; width:82px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP100</span></p>
+</td>
+<td style="vertical-align:middle; width:87px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP144</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP100</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:43px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">LQFP144</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:44px; height:37px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-size: 10pt;">UFBGA176 </span></p>
+<p style="text-align: center;"><span style="font-size: 10pt;">LQFP176</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p><span style="font-size: 10pt;">1. For the LQFP100 package, only FSMC Bank1 or Bank2 are available. Bank1 can only support a multiplexed NOR/PSRAM memory using the NE1 Chip Select. Bank2 can only support a 16- or 8-bit NAND Flash memory using the NCE2 Chip Select. The interrupt line cannot be used since Port G is not available in this package.</span><br />
+<span style="font-size: 10pt;">2. The SPI2 and SPI3 interfaces give the flexibility to work in an exclusive way in either the SPI mode or the I2S audio mode.</span><br />
+<span style="font-size: 10pt;">3. VDD/VDDA minimum value of 1.7 V is obtained when the device operates in the 0 to 70 °C temperature range and an inverted reset signal is applied to PDR_ON.</span></p>
+<p><span style="font-weight: bold;">source : </span><a href="https://docs.google.com/viewer?url=http%3A%2F%2Fwww.st.com%2Finternet%2Fcom%2FTECHNICAL_RESOURCES%2FTECHNICAL_LITERATURE%2FDATASHEET%2FDM00035129.pdf" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">STM32F415xxSTM32F417xx Datasheet (DOC ID 022033 Rev 3) </a> </p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

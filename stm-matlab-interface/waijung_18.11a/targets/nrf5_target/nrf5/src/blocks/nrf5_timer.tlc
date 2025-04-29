@@ -1,0 +1,571 @@
+%implements nrf5_timer "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign timer = CAST("Number",optionstring[0])
+  %assign frequency = CAST("Number",optionstring[1])
+  %assign reload = CAST("Number",optionstring[2])
+  %assign prescale = CAST("Number",optionstring[3])
+  %assign pin = CAST("Number",optionstring[4])
+  %assign polarity = CAST("String",optionstring[5])
+  %assign pintype = CAST("String",optionstring[6])
+
+  %assign block = block + timer + frequency + reload + prescale + pin \
+                + polarity + pintype
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__nrf5_GPIOTE__) == 0)
+      %assign :: __nrf5_GPIOTE__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpiote.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: GPIOTE
+    * ########################################################################
+    */
+   #define GPIOTE_CH_COUNT 4
+   int GPIOTE_channel_get(void);
+   int GPIOTE_channel_get(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: GPIOTE
+    * ########################################################################
+    */
+   uint8_t GPIOTE_channel_list[GPIOTE_CH_COUNT] = { /* 0-Free, othewise in used */
+     0, 0, 0, 0
+   };
+   
+   int GPIOTE_channel_get(void)
+   {
+     int i;
+     for (i=0; i<GPIOTE_CH_COUNT; i++) {
+       if(GPIOTE_channel_list[i] == 0) {
+         GPIOTE_channel_list[i] = 1;
+         return i;
+       }
+     }
+     return -1;
+   }
+
+   void GPIOTE_channel_clear(int channel)
+   {
+     if((channel >= 0) && (channel < GPIOTE_CH_COUNT))
+       GPIOTE_channel_list[channel] = 0;
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_PIN %<pin> /* Pin 0.%<pin> */
+extern int %<blockid>_GPIOTE_Channel;
+
+%if conf == "pwmoutput"
+uint8_t %<blockid>_Update(float percent_duty);
+%else
+extern float %<blockid>_Output_Positive_Width;
+extern float %<blockid>_Output_Positive_Duty;
+extern float %<blockid>_Output_Frequency;
+uint8_t %<blockid>_Update(void);
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+static void apply_pan73_workaround(NRF_TIMER_Type *timer, bool enable)
+{
+    if(timer == NRF_TIMER0)
+    {
+        *(uint32_t *)0x40008C0C = (enable ? 1 : 0);
+    }
+    else if(timer == NRF_TIMER1)
+    {
+        *(uint32_t *)0x40009C0C = (enable ? 1 : 0);
+    }
+    else if(timer == NRF_TIMER2)
+    {
+        *(uint32_t *)0x4000AC0C = (enable ? 1 : 0);
+    }
+}
+
+%% === Clock Output ===
+%if conf == "clockoutput"
+int %<blockid>_GPIOTE_Channel = -1;
+
+%endif
+
+%% === PWM Output ===
+%if conf == "pwmoutput"
+#define %<blockid>_RELOAD %<reload>UL
+#define %<blockid>_PRESCALE %<prescale>
+
+int %<blockid>_GPIOTE_Channel = -1;
+uint32_t %<blockid>_CompareValue = 0;
+
+void TIMER%<timer>_IRQHandler(void)
+{
+    static bool cc0_turn = false; /**< Keeps track of which CC register to be used. */
+
+    if ((NRF_TIMER%<timer>->EVENTS_COMPARE[1] != 0) && 
+       ((NRF_TIMER%<timer>->INTENSET & TIMER_INTENSET_COMPARE1_Msk) != 0))
+    {
+        // Sets the next CC1 value
+        NRF_TIMER%<timer>->EVENTS_COMPARE[1] = 0;
+        NRF_TIMER%<timer>->CC[1]             = (NRF_TIMER%<timer>->CC[1] + %<blockid>_RELOAD);
+
+        if (cc0_turn) {
+            NRF_TIMER%<timer>->CC[0] = NRF_TIMER%<timer>->CC[1] + %<blockid>_CompareValue;
+        }
+        else {
+            NRF_TIMER%<timer>->CC[2] = NRF_TIMER%<timer>->CC[1] + %<blockid>_CompareValue;
+        }
+        // Next turn the other CC will get its value.
+        cc0_turn = !cc0_turn;
+    }
+}
+
+uint8_t %<blockid>_Update(float percent_duty)
+{
+  volatile uint32_t compare;
+
+  /* Calculate */
+  if (percent_duty > 100)
+    percent_duty = 100;
+  if (percent_duty < -100)
+    percent_duty = -100;
+  if (percent_duty < 0)
+    percent_duty = 100 + percent_duty;
+  compare = (uint32_t)((float)percent_duty*%<blockid>_RELOAD)/100;
+
+#ifdef USE_S310_SOFTDEVICE
+#else
+  __disable_irq();
+#endif
+
+  %<blockid>_CompareValue = compare;
+#ifdef USE_S310_SOFTDEVICE
+#else
+  __enable_irq();
+#endif
+
+  return 0;
+}
+
+%endif
+%% END PWM Output
+
+%% === Capture ===
+%if conf == "pwminput"
+#define %<blockid>_PRESCALE %<prescale>
+int %<blockid>_GPIOTE_Channel_a = -1;
+int %<blockid>_GPIOTE_Channel_b = -1;
+
+float %<blockid>_Output_Positive_Width = 0;
+float %<blockid>_Output_Positive_Duty = 0;
+float %<blockid>_Output_Frequency = 0;
+
+/* Edge */
+volatile uint32_t %<blockid>_positive_width = 0;
+volatile uint32_t %<blockid>_negative_width = 0;
+
+/* Capture */
+volatile uint8_t %<blockid>_Ready = 0;
+volatile uint32_t %<blockid>_Capture_Base = 0; /* CC[0] */
+volatile uint32_t %<blockid>_Capture_Edge0 = 0; /* CC[0] */
+volatile uint32_t %<blockid>_Capture_Edge1 = 0; /* CC[1] */
+
+uint8_t %<blockid>_Update(void)
+{
+  if(%<blockid>_Ready) {
+    %<blockid>_Output_Positive_Width = (float)%<blockid>_positive_width * (1<<%<blockid>_PRESCALE)/__SYSTEM_CLOCK;
+    %<blockid>_Output_Frequency = (float)__SYSTEM_CLOCK/((1<<%<blockid>_PRESCALE)*(%<blockid>_positive_width + %<blockid>_negative_width));
+    %<blockid>_Output_Positive_Duty = (float)%<blockid>_positive_width*100.0/(float)(%<blockid>_positive_width + %<blockid>_negative_width);
+    %<blockid>_Ready = 0; /* Clear Ready status */
+    return 1;
+  }
+  return 0; /* Note ready */
+}
+
+void GPIOTE_IRQHandler(void)
+{    
+  /* Capture */
+    %<blockid>_Capture_Edge0 = NRF_TIMER%<timer>->CC[0];
+    %<blockid>_Capture_Edge1 = NRF_TIMER%<timer>->CC[1];
+
+  /* Calculation only no pending */
+  if(%<blockid>_Ready == 0) {
+    /* - Width */
+    if(%<blockid>_Capture_Edge1 >= %<blockid>_Capture_Base) {
+      %<blockid>_negative_width = %<blockid>_Capture_Edge1 - %<blockid>_Capture_Base;
+    }
+    else { /* Overflow */
+      %<blockid>_negative_width = 0x10000 - %<blockid>_Capture_Base;
+      %<blockid>_negative_width += %<blockid>_Capture_Edge1;
+    }
+    /* + Width */
+    if(%<blockid>_Capture_Edge0 >= %<blockid>_Capture_Edge1) {
+      %<blockid>_positive_width = %<blockid>_Capture_Edge0 - %<blockid>_Capture_Edge1;
+    }
+    else { /* Overflow */
+      %<blockid>_positive_width = 0x10000 - %<blockid>_Capture_Edge1;
+      %<blockid>_positive_width += %<blockid>_Capture_Edge0;
+    }
+    /* Ready */
+    %<blockid>_Ready = 1;
+  }
+
+  /* Capture base for next calculation */
+  %<blockid>_Capture_Base = %<blockid>_Capture_Edge0;
+
+  /* Clear the event causing the interrupt. */
+  NRF_GPIOTE->EVENTS_IN[%<blockid>_GPIOTE_Channel_a] = 0;  
+}
+%endif
+
+void enable_%<blockid>(void){
+%if conf == "pwmoutput"
+  /* Acquire */  
+  %<blockid>_GPIOTE_Channel = GPIOTE_channel_get();
+  if(%<blockid>_GPIOTE_Channel < 0) {
+    /* Fail */
+    return;
+  }
+
+  /* GPIO Configuration */
+  NRF_GPIO->PIN_CNF[%<blockid>_PIN] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                            | (GPIO_PIN_CNF_DRIVE_%<pintype> << GPIO_PIN_CNF_DRIVE_Pos)
+                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                            | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+
+  /* Configure GPIOTE channel 0 to toggle the PWM pin state */
+  %if polarity == "Positive"
+    nrf_gpiote_task_config(%<blockid>_GPIOTE_Channel, %<blockid>_PIN, NRF_GPIOTE_POLARITY_TOGGLE, NRF_GPIOTE_INITIAL_VALUE_HIGH);
+  %else
+    nrf_gpiote_task_config(%<blockid>_GPIOTE_Channel, %<blockid>_PIN, NRF_GPIOTE_POLARITY_TOGGLE, NRF_GPIOTE_INITIAL_VALUE_LOW);
+  %endif
+
+  /* PPI Configuration */
+  /* Configure PPI channel %<timer*3+1> to toggle PWM_OUTPUT_PIN on every TIMER2 COMPARE[0] match. */
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+1>, \
+    &NRF_TIMER%<timer>->EVENTS_COMPARE[0], \
+    &NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel]);
+#else
+  NRF_PPI->CH[%<timer*3+1>].EEP = (uint32_t)&NRF_TIMER%<timer>->EVENTS_COMPARE[0];
+  NRF_PPI->CH[%<timer*3+1>].TEP = (uint32_t)&NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel];
+#endif //USE_S310_SOFTDEVICE
+
+  // Configure PPI channel %<timer*3+2> to toggle PWM_OUTPUT_PIN on every TIMER2 COMPARE[1] match.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+2>, \
+    &NRF_TIMER%<timer>->EVENTS_COMPARE[1],
+    &NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel]);
+#else
+  NRF_PPI->CH[%<timer*3+2>].EEP = (uint32_t)&NRF_TIMER%<timer>->EVENTS_COMPARE[1];
+  NRF_PPI->CH[%<timer*3+2>].TEP = (uint32_t)&NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel];
+#endif //USE_S310_SOFTDEVICE
+    
+  // Configure PPI channel %<timer*3+3> to toggle PWM_OUTPUT_PIN on every TIMER2 COMPARE[2] match.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+3>, \
+    &NRF_TIMER%<timer>->EVENTS_COMPARE[2],
+    &NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel]);
+#else
+  NRF_PPI->CH[%<timer*3+3>].EEP = (uint32_t)&NRF_TIMER%<timer>->EVENTS_COMPARE[2];
+  NRF_PPI->CH[%<timer*3+3>].TEP = (uint32_t)&NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel];
+#endif //USE_S310_SOFTDEVICE
+    
+  // Enable PPI channels %<timer*3+1>-%<timer*3+3>.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_enable_set((PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+3>_Enabled << PPI_CHEN_CH%<timer*3+3>_Pos));
+#else
+  NRF_PPI->CHENSET = (PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+3>_Enabled << PPI_CHEN_CH%<timer*3+3>_Pos);
+#endif //USE_S310_SOFTDEVICE
+
+  /* Timer%<timer> configuration */
+  NRF_TIMER%<timer>->MODE        = TIMER_MODE_MODE_Timer;
+  NRF_TIMER%<timer>->BITMODE     = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;
+  NRF_TIMER%<timer>->PRESCALER   = %<blockid>_PRESCALE;
+
+  // Clears the timer, sets it to 0.
+  NRF_TIMER%<timer>->TASKS_CLEAR = 1;
+
+  // Load the initial values to TIMER%<timer> CC registers.
+  NRF_TIMER%<timer>->CC[0] = %<blockid>_RELOAD + 0;
+  NRF_TIMER%<timer>->CC[1] = %<blockid>_RELOAD;
+
+  // CC2 will be set on the first CC1 interrupt.
+  NRF_TIMER%<timer>->CC[2] = 0;
+
+  // Interrupt setup.
+  NRF_TIMER%<timer>->INTENSET = (TIMER_INTENSET_COMPARE1_Enabled << TIMER_INTENSET_COMPARE1_Pos);  
+#ifdef USE_S310_SOFTDEVICE
+  sd_nvic_SetPriority(TIMER%<timer>_IRQn, 1);
+  sd_nvic_ClearPendingIRQ(TIMER%<timer>_IRQn);
+  sd_nvic_EnableIRQ(TIMER%<timer>_IRQn);
+#else
+  NVIC_SetPriority(TIMER%<timer>_IRQn, 1);
+  NVIC_ClearPendingIRQ(TIMER%<timer>_IRQn);
+  NVIC_EnableIRQ(TIMER%<timer>_IRQn);
+#endif
+
+  // Workaround for PAN-73: Use of an EVENT from any TIMER module to trigger a TASK in GPIOTE or 
+  // RTC using the PPI could fail under certain conditions.
+  apply_pan73_workaround(NRF_TIMER%<timer>, 1);
+
+  // Start the timer.
+  NRF_TIMER%<timer>->TASKS_START = 1;
+%endif
+
+%% === Capture ===
+%if conf == "pwminput"
+  /* Acquire */  
+  %<blockid>_GPIOTE_Channel_a = GPIOTE_channel_get();
+  %<blockid>_GPIOTE_Channel_b = GPIOTE_channel_get();
+  if((%<blockid>_GPIOTE_Channel_a < 0) || (%<blockid>_GPIOTE_Channel_b < 0)) {
+    GPIOTE_channel_clear(%<blockid>_GPIOTE_Channel_a);
+    GPIOTE_channel_clear(%<blockid>_GPIOTE_Channel_b);    
+    return; /* Fail */
+  }
+
+  nrf_gpio_cfg_input(%<blockid>_PIN, NRF_GPIO_PIN_NOPULL);
+
+  // Configure GPIOTE channel X+0 to generate event on input pin high-to-low transition.
+  // Note that we can connect multiple GPIOTE events to a single input pin.
+  nrf_gpiote_event_config(%<blockid>_GPIOTE_Channel_a, %<blockid>_PIN, NRF_GPIOTE_POLARITY_HITOLO);
+
+  // Configure GPIOTE channel X+1 to generate event on input pin low-to-high transition.
+  // Note that we can connect multiple GPIOTE events to a single input pin.
+  nrf_gpiote_event_config(%<blockid>_GPIOTE_Channel_b, %<blockid>_PIN, NRF_GPIOTE_POLARITY_LOTOHI);
+
+  // Configure PPI channel 0 to capture Timer 1 value into  the CC[0] register.
+  // This is achieved when GPIOTE detects Low-to-High transition on pin INPUT_PIN_NUMBER.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+1>, \
+    &NRF_GPIOTE->EVENTS_IN[%<blockid>_GPIOTE_Channel_a],
+    &NRF_TIMER%<timer>->TASKS_CAPTURE[0]);
+#else
+  NRF_PPI->CH[%<timer*3+1>].EEP = (uint32_t)&NRF_GPIOTE->EVENTS_IN[%<blockid>_GPIOTE_Channel_a];
+  NRF_PPI->CH[%<timer*3+1>].TEP = (uint32_t)&NRF_TIMER%<timer>->TASKS_CAPTURE[0];
+#endif // USE_S310_SOFTDEVICE
+  // Configure PPI channel 1 to capture Timer 1 value into CC[1] register.
+  // This is achieved when GPIOTE detects High-to-Low transition on pin INPUT_PIN_NUMBER.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+2>, \
+    &NRF_GPIOTE->EVENTS_IN[%<blockid>_GPIOTE_Channel_b],
+    &NRF_TIMER%<timer>->TASKS_CAPTURE[1]);
+#else
+  NRF_PPI->CH[%<timer*3+2>].EEP = (uint32_t)&NRF_GPIOTE->EVENTS_IN[%<blockid>_GPIOTE_Channel_b];
+  NRF_PPI->CH[%<timer*3+2>].TEP = (uint32_t)&NRF_TIMER%<timer>->TASKS_CAPTURE[1];
+#endif // USE_S310_SOFTDEVICE
+
+  // Enable only PPI channels %<timer*3+1> and %<timer*3+2>.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_enable_set((PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                  | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos));
+#else
+  NRF_PPI->CHENSET = (PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                  | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos);
+#endif // USE_S310_SOFTDEVICE
+
+  /* Timer configuration */
+  NRF_TIMER%<timer>->MODE        = TIMER_MODE_MODE_Timer;
+  NRF_TIMER%<timer>->PRESCALER   = %<blockid>_PRESCALE;
+  NRF_TIMER%<timer>->BITMODE     = TIMER_BITMODE_BITMODE_16Bit << TIMER_BITMODE_BITMODE_Pos;
+  NRF_TIMER%<timer>->TASKS_CLEAR = 1;
+  NRF_TIMER%<timer>->TASKS_START = 1; // Start clocks
+
+  /* Interrupt configuration */
+  // Enable interrupt on input 1 event.
+  NRF_GPIOTE->INTENSET = (GPIOTE_INTENSET_IN1_Enabled << %<blockid>_GPIOTE_Channel_a);
+#ifdef USE_S310_SOFTDEVICE
+  sd_nvic_SetPriority(GPIOTE_IRQn, 1);
+  sd_nvic_ClearPendingIRQ(GPIOTE_IRQn);
+  sd_nvic_EnableIRQ(GPIOTE_IRQn);
+#else
+  NVIC_SetPriority(GPIOTE_IRQn, 1);
+  NVIC_ClearPendingIRQ(GPIOTE_IRQn);
+  NVIC_EnableIRQ(GPIOTE_IRQn);
+#endif // USE_S310_SOFTDEVICE
+
+%endif
+
+%if conf == "clockoutput"
+  /* Acquire */  
+  %<blockid>_GPIOTE_Channel = GPIOTE_channel_get();
+  if(%<blockid>_GPIOTE_Channel < 0) {
+    /* Fail */
+    return;
+  }
+
+  /* GPIO Configuration */
+  NRF_GPIO->PIN_CNF[%<blockid>_PIN] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                            | (GPIO_PIN_CNF_DRIVE_%<pintype> << GPIO_PIN_CNF_DRIVE_Pos)
+                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                            | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+
+  /* Configure GPIOTE channel 0 to toggle the PWM pin state */
+  %if polarity == "Positive"
+    nrf_gpiote_task_config(%<blockid>_GPIOTE_Channel, %<blockid>_PIN, NRF_GPIOTE_POLARITY_TOGGLE, NRF_GPIOTE_INITIAL_VALUE_HIGH);
+  %else
+    nrf_gpiote_task_config(%<blockid>_GPIOTE_Channel, %<blockid>_PIN, NRF_GPIOTE_POLARITY_TOGGLE, NRF_GPIOTE_INITIAL_VALUE_LOW);
+  %endif
+
+  #ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_assign(%<timer*3+2>, \
+    &NRF_TIMER%<timer>->EVENTS_COMPARE[0],
+    &NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel]);
+  #else
+  NRF_PPI->CH[%<timer*3+2>].EEP = (uint32_t)&NRF_TIMER%<timer>->EVENTS_COMPARE[0];
+  NRF_PPI->CH[%<timer*3+2>].TEP = (uint32_t)&NRF_GPIOTE->TASKS_OUT[%<blockid>_GPIOTE_Channel];
+  #endif //USE_S310_SOFTDEVICE
+  
+  // Enable PPI channels %<timer*3+1>-%<timer*3+3>.
+#ifdef USE_S310_SOFTDEVICE
+  sd_ppi_channel_enable_set((PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+3>_Enabled << PPI_CHEN_CH%<timer*3+3>_Pos));
+#else
+  NRF_PPI->CHENSET = (PPI_CHEN_CH%<timer*3+1>_Enabled << PPI_CHEN_CH%<timer*3+1>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+2>_Enabled << PPI_CHEN_CH%<timer*3+2>_Pos)
+                    | (PPI_CHEN_CH%<timer*3+3>_Enabled << PPI_CHEN_CH%<timer*3+3>_Pos);
+#endif //USE_S310_SOFTDEVICE
+
+  // Clears the timer, sets it to 0.
+  NRF_TIMER%<timer>->TASKS_CLEAR = 1;
+
+  // Configure TIMER%<timer>
+  NRF_TIMER%<timer>->PRESCALER = 0;
+  NRF_TIMER%<timer>->CC[0]     = (uint32_t)((float)8000000/%<frequency>);
+  NRF_TIMER%<timer>->MODE      = TIMER_MODE_MODE_Timer;
+  NRF_TIMER%<timer>->BITMODE   = TIMER_BITMODE_BITMODE_24Bit;
+  NRF_TIMER%<timer>->SHORTS    = (TIMER_SHORTS_COMPARE0_CLEAR_Enabled << TIMER_SHORTS_COMPARE0_CLEAR_Pos);
+  
+  // Workaround for PAN-73: Use of an EVENT from any TIMER module to trigger a TASK in GPIOTE or 
+  // RTC using the PPI could fail under certain conditions.
+  apply_pan73_workaround(NRF_TIMER%<timer>, 1);
+
+  // Start the timer.
+  NRF_TIMER%<timer>->TASKS_START = 1;
+%endif
+}
+
+void disable_%<blockid>(void)
+{
+  %if conf == "pwminput"
+  GPIOTE_channel_clear(%<blockid>_GPIOTE_Channel_a);
+  GPIOTE_channel_clear(%<blockid>_GPIOTE_Channel_b);  
+  %else
+  GPIOTE_channel_clear(%<blockid>_GPIOTE_Channel);
+  %endif
+  NRF_TIMER%<timer>->TASKS_STOP = 1;
+
+  // TODO:
+  // To test enable/disable module
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%% === PWM Output ===
+%if conf == "pwmoutput"
+  %<blockid>_Update((float)%<LibBlockInputSignal(0, "", "", 0)>);
+%endif
+%% === Capture ===
+%if conf == "pwminput"
+  %% READY
+  %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_Update();
+  %% Width
+  %<LibBlockOutputSignal(1, "", "", 0)> = %<blockid>_Output_Positive_Width;
+  %% Duty
+  %<LibBlockOutputSignal(2, "", "", 0)> = %<blockid>_Output_Positive_Duty;
+  %% Freq
+  %<LibBlockOutputSignal(3, "", "", 0)> = %<blockid>_Output_Frequency;
+%endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

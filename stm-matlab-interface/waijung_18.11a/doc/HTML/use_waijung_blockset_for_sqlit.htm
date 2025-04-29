@@ -1,0 +1,297 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Hardware Modules Demos &gt; aMG SQLite Data Server &gt; Use Waijung Blockset for SQLite data logger demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Use Waijung Blockset for SQLite data logger demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "use_waijung_blockset_for_sqlit.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Use Waijung Blockset for SQLite data logger demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?use_waijung_blockset_for_sqlit.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="add-on_hardware_modules_demos.htm">Hardware Modules Demos</a> &gt; <a href="amg_sqlite_data_server.htm">aMG SQLite Data Server</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Use Waijung Blockset for SQLite data logger demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="communication_test_demo.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="amg_sqlite_data_server.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="amg_ethernetinf2.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>This demo showing to use Waijung blockset to communicate to aMG SQLite Data Server board.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Requirements</span></h2>
+<p>1. Log ADC data 2 channel, in format of voltage 0-3.3V.</p>
+<p>2. Every 1 second interval and the record must include sample ID.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware setup</span></h2>
+<p>Connection of &quot;aMG SQLite Data Server&quot; board to &quot;F4 Connect&quot; board.</p>
+<p><img src="amgsqlite_hwsetup2.png" width="950" height="423" alt="amgsqlite_hwsetup2" style="width:950px;height:423px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Software setup</span></h2>
+<p><span style="font-weight: bold;">demo File</span>: sqlite_adclogging_demo.mdl</p>
+<p><img src="amgsqlite_model_demo1.png" width="950" height="541" alt="amgsqlite_model_demo1" style="width:950px;height:541px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p><span style="font-weight: bold;">Number</span></p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p><span style="font-weight: bold;">Block name</span></p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p><span style="font-weight: bold;">Configuration</span></p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>1</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>Target Setup</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p><span style="font-style: italic;">(Use default configuration)</span></p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>Configure Target name, compiler, etc..</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>2</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>SQLite Database Setup</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>- Select UART6 for communication port</p>
+<p>- Timeout 5 seconds</p>
+<p>- 4kbytes buffer</p>
+<p>- Software reset control</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>SQLite connection configuration.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>3</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>UART Setup</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>- Select UART module: 6</p>
+<p>- Baud rate: 1000000</p>
+<p>- Frame: 8-None-1</p>
+<p>- Pin: C6/C7</p>
+<p>- HW flow control: None</p>
+<p>- Buffer: 1024/1024</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>Configure UART module for communication, used by SQLite block.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>4</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>SQLite Database Query1</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>SQLite statement use for Create table (if not existing)</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>This block is for create table in database with specified column format.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>5</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>Regular ADC</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>(Select ADC pin C4 and C4)</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>This block read ADC values as data type double.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>6</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>SQLite Database Query</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>- Statement: INSERT</p>
+<p>- SQLite table: sensors</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>This block will sent SQLite statement to to aMG SQLite Data Server board via UART port 6.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:94px; padding:0px;"><p>7</p>
+</td>
+<td style="vertical-align:top; width:166px; padding:0px;"><p>Counter Free-Running</p>
+</td>
+<td style="vertical-align:top; width:304px; padding:0px;"><p>- Number of Bites: 32</p>
+</td>
+<td style="vertical-align:top; width:408px; padding:0px;"><p>This block will generate increment number for every sample. Output of the block will use as sample ID.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<p>1. Compile/ Build demo model file into target MCU board.</p>
+<p>2. Let MCU run for a few minutes to store ADC data into database.</p>
+<p>3. When all required data is collected, disconnect power of testing board. Disconnect SD Card from aMG SQLite Data Server board and insert into PC card reader, for analyze data.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Analyze database</span></h2>
+<p>1. Start windows command line prompt, cmd.exe:</p>
+<p><img src="amgsqlite_softwaretesting8.png" width="950" height="235" alt="amgsqlite_softwaretesting8" style="width:950px;height:235px;border:none" /></p>
+<p>2. Change directory to the location of <span style="font-weight: bold;">sqlite3.exe. </span>Example: &quot;C:\sqlite&quot;</p>
+<p>3. Run sqlite3.exe from windows command line, with specify database path.</p>
+<p><img src="amgsqlite_test1.png" width="950" height="198" alt="amgsqlite_test1" style="width:950px;height:198px;border:none" /></p>
+<p>4. Make SQLite query statement to see the data store in database. Example:</p>
+<p><img src="amgsqlite_test2.png" width="950" height="510" alt="amgsqlite_test2" style="width:950px;height:510px;border:none" /></p>
+<p>5. Save data to CSV file</p>
+<p><img src="amgsqlite_test3.png" width="950" height="246" alt="amgsqlite_test3" style="width:950px;height:246px;border:none" /></p>
+<p><img src="amgsqlite_test4.png" width="950" height="243" alt="amgsqlite_test4" style="width:950px;height:243px;border:none" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

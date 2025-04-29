@@ -1,0 +1,224 @@
+%implements waijung_sqliteconnstr "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign port = CAST("String",SFcnParamSettings.port)
+%assign filename = CAST("String",SFcnParamSettings.filename)
+%assign tablename = CAST("String",SFcnParamSettings.tablename)
+%assign statement = CAST("String",SFcnParamSettings.statement)
+%assign queryformat = CAST("String",SFcnParamSettings.queryformat)
+%assign defaultqueryformat = CAST("String",SFcnParamSettings.defaultqueryformat)
+%assign scanfformat = CAST("String",SFcnParamSettings.scanfformat)
+%assign typeidcount = CAST("Number",SFcnParamSettings.typeidcount)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign block = block + sampletime + sampletimestr + blockid \
+              + port + filename + tablename + statement + queryformat \
+              + typeidcount + defaultqueryformat + scanfformat
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+  
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Block Name: %<block.Name>
+ * Block ID: %<blockid>
+ * ########################################################################
+*/
+
+#include "sqliteconn.h"
+%if statement == "SELECT"
+  %foreach idx=typeidcount
+    %if columntypes[idx] == "string"
+    extern char %<blockid>_param%<idx>[]; /* %<columnnames[idx]> */
+    %elseif columntypes[idx] == "single"
+    extern float %<blockid>_param%<idx>; /* %<columnnames[idx]> */
+    %else
+    extern int32_t %<blockid>_param%<idx>; /* %<columnnames[idx]> */
+    %endif
+  %endforeach
+int %<blockid>_QueryValue(void);
+%endif
+
+extern SQLITE_INF %<blockid>_inf;
+extern SQLITE_CONN_STA %<blockid>_sta;
+%if statement == "UPDATE"
+int %<blockid>_Validate(void);
+%endif
+void enable_%<blockid>(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Block Name: %<block.Name>
+ * Block ID: %<blockid>
+ * ########################################################################
+*/
+
+%if statement == "SELECT"
+  %foreach idx=typeidcount
+    %if columntypes[idx] == "string"
+    char %<blockid>_param%<idx>[128]; /* %<columnnames[idx]> */
+    %elseif columntypes[idx] == "single"
+    float %<blockid>_param%<idx>; /* %<columnnames[idx]> */
+    %else
+    int32_t %<blockid>_param%<idx>; /* %<columnnames[idx]> */
+    %endif
+  %endforeach
+
+%endif
+SQLITE_CONN_STA %<blockid>_sta;
+SQLITE_INF %<blockid>_inf;
+UARTRX_BUFFER_READ_STRUCT %<blockid>_readstruct;
+/* Read */
+void %<blockid>_Read(uint8_t *buffer, uint16_t buffer_size, uint16_t*reading_count) {
+  /* Read from UART DMA Buffer with specified size */
+  UART%<port>_ReadEx(&%<blockid>_readstruct, buffer, buffer_size, reading_count);
+}
+/* Write */
+void %<blockid>_Write(uint8_t *buffer, uint16_t buffer_size) {
+  UART%<port>_Write(buffer, buffer_size);
+  UART%<port>_FlushTxBuffer();
+}
+/* Get system tick count */
+void %<blockid>_GetTick(uint32_t *tick)
+{
+  *tick = systick_count;
+}
+/* Output logging message */
+void %<blockid>_OutMsg(char *msg)
+{
+  (void)msg; /* Unused */
+}
+
+%if statement == "UPDATE"
+int %<blockid>_Validate(void)
+{
+  int rowcount;
+  static int row_not_empty = 0;
+  if(row_not_empty == 0) {
+    if(SQLite_GetInteger(&%<blockid>_inf, "%<filename>", "select count(*) from %<tablename>", &rowcount) == CONN_OK) {
+      if(rowcount > 0) {
+        row_not_empty = 1;
+      }
+      else {
+        if(SQLite_Submit(&%<blockid>_inf, "%<filename>", %<defaultqueryformat>) == CONN_OK)
+          row_not_empty = 1;
+      }
+    }
+  }
+  return row_not_empty;
+}
+%endif
+%if statement == "SELECT"
+int %<blockid>_QueryValue(void)
+{
+  /* Query string from database */
+  if(SQLite_Query(&%<blockid>_inf, "%<filename>", %<queryformat>, MODE_CSV) != CONN_OK)
+    return 0;
+
+  /* scanf */
+  if(sscanf(SQliteOutputBuffer,%<scanfformat>
+    %foreach idx=typeidcount
+      %if columntypes[idx] == "string"
+      ,%<blockid>_param%<idx> /* %<columnnames[idx]> */
+      %else
+      ,&%<blockid>_param%<idx> /* %<columnnames[idx]> */
+      %endif
+    %endforeach
+    ) == %<typeidcount>) {
+    return 1;
+  }
+  return 0;
+}
+%endif
+
+/* Enable module */
+void enable_%<blockid>(void){
+  /* UART interface */
+  %<blockid>_readstruct.ndtr = URX%<port>_BUFFER_SIZE;
+  /* SQLite interface */
+  %<blockid>_inf.Write = %<blockid>_Write;
+  %<blockid>_inf.Read = %<blockid>_Read;
+  %<blockid>_inf.GetTickCount = %<blockid>_GetTick;
+  %<blockid>_inf.OutMsg = %<blockid>_OutMsg;
+  %<blockid>_inf.TickStep = %<SampleTime[0].ClockTickStepSize>; /* Time step per tick count  */
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if statement == "SELECT"
+    /* Select a record from table: %<tablename> */
+    if(%<blockid>_QueryValue()) {
+      %foreach idx=typeidcount
+      %assign y = LibBlockOutputSignal(idx, "", "", 0)
+      %if columntypes[idx] == "string"
+      %<y> = (uint32_t)%<blockid>_param%<idx>; /* %<columnnames[idx]> */
+      %else
+      %<y> = %<blockid>_param%<idx>; /* %<columnnames[idx]> */
+      %endif
+    %endforeach  
+    }
+  %else
+    /* Insert a record into table: %<tablename> */
+    sprintf(SQliteInputBuffer, %<queryformat>
+    %foreach idx=typeidcount
+      %assign y = LibBlockInputSignal(idx, "", "", 0)
+      %if columntypes[idx] == "string"
+      ,(%<y>)?(char*)%<y>:"" /* %<columnnames[idx]> */
+      %else
+      ,%<y> /* %<columnnames[idx]> */
+      %endif
+    %endforeach  
+    );
+    %if statement == "INSERT"
+      %<blockid>_sta = SQLite_Submit(&%<blockid>_inf, "%<filename>", SQliteInputBuffer);
+    %else
+      if(%<blockid>_Validate()) {
+        %<blockid>_sta = SQLite_Submit(&%<blockid>_inf, "%<filename>", SQliteInputBuffer);
+      }
+    %endif
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

@@ -1,0 +1,752 @@
+Library {
+  Name			  "nrf5_radio_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Dec 01 16:23:15 2014"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:99>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "nrf5_radio_lib"
+    Location		    [-1170, 467, -536, 806]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "RF Receive"
+      Ports		      [0, 2]
+      Position		      [425, 42, 575, 138]
+      FunctionName	      "nrf5_radio"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,binheaderstring,"
+      "binterminatorstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_radio"
+      MaskDescription	      "Receive the RF signal data.\n\nNote:\n1. RF block is not suitable for low power applicati"
+      "on.\n2. Cannot operate with ANT or BLE block in same model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_rf_receive.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Radio Tx Power|Radio Frequency|Radio mode|Radio device address|Accept devi"
+      "ce address|Packet Tx/Rx buffer size (payload), bytes|Packet Rx buffer count|Transfer|Header (example: '7E 7E')|T"
+      "erminator (example: '03 03')|Number of data port, type DOUBLE|Number of data port, type SINGLE|Number of data po"
+      "rt, type INT8|Number of data port, type UINT8|Number of data port, type INT16|Number of data port, type UINT16|N"
+      "umber of data port, type INT32|Number of data port, type UINT32|Port Pin String|Sample time (sec)|Enable custom "
+      "port labels|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Block "
+      "ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compat"
+      "ibility (Reserved for future use)|String(s) to be passed to TLC|Binary header string|Binary terminator string"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(+4dBm|0dBm|-4dBm|-8dBm|-12dBm|-16dBm|-20dBm|-30dBm),popup(2400MH"
+      "z|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|2411MHz|2412MHz|2413MHz|2414MH"
+      "z|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|2425MHz|2426MHz|2427MHz|2428MH"
+      "z|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|2439MHz|2440MHz|2441MHz|2442MH"
+      "z|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|2453MHz|2454MHz|2455MHz|2456MH"
+      "z|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),popup(Nrf_1Mbit|Nrf_2Mbit|Nrf_250Kbit|Ble_1Mbit),popu"
+      "p(0|1|2|3|4|5|6|7),popup(0|1|2|3|4|5|6|7|All (0-7)),popup(8|16|32|64),popup(4|8|16|32),popup(Blocking|Non-Blocki"
+      "ng),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit"
+      ",edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,on,on,on,on,on,on,on,on,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_radio_callback('conf');||||||||nrf5_radio_callback('updateport');|nrf5_radio_ca"
+      "llback('header');|nrf5_radio_callback('terminator');|nrf5_radio_callback('updateport');|nrf5_radio_callback('"
+      "updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('upda"
+      "teport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updatepo"
+      "rt');||nrf5_radio_callback('sampletime');|nrf5_radio_callback('enablecustomportlabel');||nrf5_radio_callback("
+      "'updateport');|nrf5_radio_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,off,off,off,on,off,off,on,on,on,on,on,on,on,on,on,on,on,off,on,on,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;txpower=&2;frequency=&3;mode=&4;txaddress=&5;rxaddress=&6;payload=&7;buffercount=&8"
+      ";transfer=&9;header=&10;terminator=&11;porttype_double=@12;porttype_single=@13;porttype_int8=@14;porttype_uint8="
+      "@15;porttype_int16=@16;porttype_uint16=@17;porttype_int32=@18;porttype_uint32=@19;portpinstr=&20;sampletime=@21;"
+      "enablecustomportlabel=@22;cinputportlabel=&23;coutputportlabel=&24;blockid=&25;inputporttype=@26;inputportwidth="
+      "@27;inputportlabel=&28;outputporttype=@29;outputportwidth=@30;outputportlabel=&31;compat=&32;optionstring=&33;bi"
+      "nheaderstring=&34;binterminatorstring=&35;"
+      MaskInitialization      "nrf5_radio_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, '[RF_Rx]\\nTs (sec): 0','ver','middle','hor','left'); port_label('output', 1,"
+      "'double'); port_label('output', 2,'uint32'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Rx|0dBm|2407MHz|Nrf_1Mbit|0|0|16|4|Blocking|'7E 7E'|'03 03'|1|0|0|0|0|0|0|1|0|-1|off|In1,"
+      "In2|Out1,Out2|RFReceive|[]|[]|{}|[0 7]|[]|{ 'double' 'uint32'}|0|[]|[]|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "RF Send"
+      Ports		      [2]
+      Position		      [225, 41, 375, 139]
+      FunctionName	      "nrf5_radio"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,binheaderstring,"
+      "binterminatorstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_radio"
+      MaskDescription	      "Transmit the data via RF signal.\n\nNote:\n1. RF block is not suitable for low power appl"
+      "ication.\n2. Cannot operate with ANT or BLE block in same model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_rf_send.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Radio Tx Power|Radio Frequency|Radio mode|Radio device address|Accept devi"
+      "ce address|Packet Tx/Rx buffer size (payload), bytes|Packet Rx buffer count|Transfer|Header (example: '7E 7E')|T"
+      "erminator (example: '03 03')|Number of data port, type DOUBLE|Number of data port, type SINGLE|Number of data po"
+      "rt, type INT8|Number of data port, type UINT8|Number of data port, type INT16|Number of data port, type UINT16|N"
+      "umber of data port, type INT32|Number of data port, type UINT32|Port Pin String|Sample time (sec)|Enable custom "
+      "port labels|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Block "
+      "ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compat"
+      "ibility (Reserved for future use)|String(s) to be passed to TLC|Binary header string|Binary terminator string"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(+4dBm|0dBm|-4dBm|-8dBm|-12dBm|-16dBm|-20dBm|-30dBm),popup(2400MH"
+      "z|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|2411MHz|2412MHz|2413MHz|2414MH"
+      "z|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|2425MHz|2426MHz|2427MHz|2428MH"
+      "z|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|2439MHz|2440MHz|2441MHz|2442MH"
+      "z|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|2453MHz|2454MHz|2455MHz|2456MH"
+      "z|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),popup(Nrf_1Mbit|Nrf_2Mbit|Nrf_250Kbit|Ble_1Mbit),popu"
+      "p(0|1|2|3|4|5|6|7),popup(0|1|2|3|4|5|6|7|All (0-7)),popup(8|16|32|64),popup(4|8|16|32),popup(Blocking|Non-Blocki"
+      "ng),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit"
+      ",edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,on,on,on,on,on,on,on,on,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_radio_callback('conf');||||||||nrf5_radio_callback('updateport');|nrf5_radio_ca"
+      "llback('header');|nrf5_radio_callback('terminator');|nrf5_radio_callback('updateport');|nrf5_radio_callback('"
+      "updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('upda"
+      "teport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updatepo"
+      "rt');||nrf5_radio_callback('sampletime');|nrf5_radio_callback('enablecustomportlabel');||nrf5_radio_callback("
+      "'updateport');|nrf5_radio_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,off,off,off,off,off,off,off,on,on,on,on,on,on,on,on,on,on,off,on,on,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;txpower=&2;frequency=&3;mode=&4;txaddress=&5;rxaddress=&6;payload=&7;buffercount=&8"
+      ";transfer=&9;header=&10;terminator=&11;porttype_double=@12;porttype_single=@13;porttype_int8=@14;porttype_uint8="
+      "@15;porttype_int16=@16;porttype_uint16=@17;porttype_int32=@18;porttype_uint32=@19;portpinstr=&20;sampletime=@21;"
+      "enablecustomportlabel=@22;cinputportlabel=&23;coutputportlabel=&24;blockid=&25;inputporttype=@26;inputportwidth="
+      "@27;inputportlabel=&28;outputporttype=@29;outputportwidth=@30;outputportlabel=&31;compat=&32;optionstring=&33;bi"
+      "nheaderstring=&34;binterminatorstring=&35;"
+      MaskInitialization      "nrf5_radio_callback('init');"
+      MaskDisplay	      "text(0.95, 0.5, '[RF_Tx]\\nTs (sec): 0','ver','middle','hor','right'); port_label('input', 1,"
+      "'double'); port_label('input', 2,'uint32'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Tx|0dBm|2407MHz|Nrf_1Mbit|0|5|16|4|Blocking|'7E 7E'|'03 03'|1|0|0|0|0|0|0|1|0|-1|off|In1,"
+      "In2|Out1,Out2|RFSend|[0 7]|[]|{ 'double' 'uint32'}|[]|[]|{}|0|[]|[]|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "RF Setup"
+      Ports		      []
+      Position		      [25, 39, 177, 137]
+      FunctionName	      "nrf5_radio"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,binheaderstring,"
+      "binterminatorstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_radio"
+      MaskDescription	      "Setup the radio module.\n\nNote:\n1. RF block is not suitable for low power application.\n"
+      "2. Cannot operate with ANT or BLE block in same model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_rf_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Radio Tx Power|Radio Frequency|Radio mode|Radio device address|Accept devi"
+      "ce address|Packet Tx/Rx buffer size (payload), bytes|Packet Rx buffer count|Transfer|Header (example: '7E 7E')|T"
+      "erminator (example: '03 03')|Number of data port, type DOUBLE|Number of data port, type SINGLE|Number of data po"
+      "rt, type INT8|Number of data port, type UINT8|Number of data port, type INT16|Number of data port, type UINT16|N"
+      "umber of data port, type INT32|Number of data port, type UINT32|Port Pin String|Sample time (sec)|Enable custom "
+      "port labels|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Block "
+      "ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compat"
+      "ibility (Reserved for future use)|String(s) to be passed to TLC|Binary header string|Binary terminator string"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(+4dBm|0dBm|-4dBm|-8dBm|-12dBm|-16dBm|-20dBm|-30dBm),popup(2400MH"
+      "z|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|2411MHz|2412MHz|2413MHz|2414MH"
+      "z|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|2425MHz|2426MHz|2427MHz|2428MH"
+      "z|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|2439MHz|2440MHz|2441MHz|2442MH"
+      "z|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|2453MHz|2454MHz|2455MHz|2456MH"
+      "z|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),popup(Nrf_1Mbit|Nrf_2Mbit|Nrf_250Kbit|Ble_1Mbit),popu"
+      "p(0|1|2|3|4|5|6|7),popup(0|1|2|3|4|5|6|7|All (0-7)),popup(8|16|32|64),popup(4|8|16|32),popup(Blocking|Non-Blocki"
+      "ng),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit"
+      ",edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,on,on,on,on,on,on,on,on,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_radio_callback('conf');||||||||nrf5_radio_callback('updateport');|nrf5_radio_ca"
+      "llback('header');|nrf5_radio_callback('terminator');|nrf5_radio_callback('updateport');|nrf5_radio_callback('"
+      "updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('upda"
+      "teport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updateport');|nrf5_radio_callback('updatepo"
+      "rt');||nrf5_radio_callback('sampletime');|nrf5_radio_callback('enablecustomportlabel');||nrf5_radio_callback("
+      "'updateport');|nrf5_radio_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,off,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;txpower=&2;frequency=&3;mode=&4;txaddress=&5;rxaddress=&6;payload=&7;buffercount=&8"
+      ";transfer=&9;header=&10;terminator=&11;porttype_double=@12;porttype_single=@13;porttype_int8=@14;porttype_uint8="
+      "@15;porttype_int16=@16;porttype_uint16=@17;porttype_int32=@18;porttype_uint32=@19;portpinstr=&20;sampletime=@21;"
+      "enablecustomportlabel=@22;cinputportlabel=&23;coutputportlabel=&24;blockid=&25;inputporttype=@26;inputportwidth="
+      "@27;inputportlabel=&28;outputporttype=@29;outputportwidth=@30;outputportlabel=&31;compat=&32;optionstring=&33;bi"
+      "nheaderstring=&34;binterminatorstring=&35;"
+      MaskInitialization      "nrf5_radio_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[RF_Setup]\\nPower: 0dBm\\nFreq: 2407MHz\\nDevice addr: 0\\nPayload: 16bytes'"
+      ",'ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|0dBm|2407MHz|Nrf_1Mbit|0|5|16|4|Blocking|'7E 7E'|'03 03'|1|0|0|0|0|0|0|1|0|-1|off|I"
+      "n1,In2|Out1,Out2|RFSetup|[]|[]|{}|[]|[]|{}|0|[]|[]|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+  }
+}

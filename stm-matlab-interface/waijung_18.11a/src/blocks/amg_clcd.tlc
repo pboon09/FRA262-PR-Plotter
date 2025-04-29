@@ -1,0 +1,924 @@
+%implements amg_clcd "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+%assign module = CAST("String",SFcnParamSettings.module)
+%assign configuration = CAST("String",SFcnParamSettings.configuration)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign blockid = block.Identifier
+
+%assign interfacepin = confstr[0]
+%assign linecount = confstr[1]
+%assign columncount = confstr[2]
+%assign pintype = confstr[3]
+%assign controlport = confstr[4]
+%assign pinrs = confstr[5]
+%assign pinen = confstr[6]
+%assign pinrw = confstr[7]
+%assign dataport_30 = confstr[8]
+%assign dataport_74 = confstr[9]
+%assign pind0 = confstr[10]
+%assign pind1 = confstr[11]
+%assign pind2 = confstr[12]
+%assign pind3 = confstr[13]
+%assign pind4 = confstr[14]
+%assign pind5 = confstr[15]
+%assign pind6 = confstr[16]
+%assign pind7 = confstr[17]
+%assign usebuffer = confstr[18]
+%assign buffername = confstr[19]
+%assign port_a_used = confstr[20]
+%assign port_b_used = confstr[21]
+%assign port_c_used = confstr[22]
+%assign port_d_used = confstr[23]
+%assign port_e_used = confstr[24]
+%assign port_f_used = confstr[25]
+%assign port_g_used = confstr[26]
+%assign port_h_used = confstr[27]
+%assign port_i_used = confstr[28]
+%assign targetname  = confstr[29]
+
+%assign block = block + sampletime + sampletimestr + blockid + module + configuration \
+              + interfacepin + linecount + columncount + pintype + controlport + pinrs \
+              + pinen + pinrw + dataport_30 + dataport_74 + pind0 + pind1 + pind2 \
+              + pind3 + pind4 + pind5 + pind6 + pind7 + usebuffer + buffername \
+              + port_a_used + port_b_used + port_c_used + port_d_used + port_e_used \
+              + port_f_used + port_g_used + port_h_used + port_i_used + targetname
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+  %if targetname == "stm32f4"
+    %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+    %if (EXISTS(::__STM32F4XX_STRING__) == 0)
+      %assign :: __STM32F4XX_STRING__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+  %endif
+
+  %if targetname == "stm32f0"
+    %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+  %endif
+
+  %% === nrf5 ===
+  %if targetname == "nrf5"
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+  %endif
+
+  %% === Independent ===
+   %if (EXISTS(::__STDIO_LIB_H__) == 0)
+      %assign :: __STDIO_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_IO_H__) == 0)
+      %assign :: __STDIO_IO_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+/* ########################################################################
+ * CLCD processing
+ * ########################################################################
+ */
+  #define CLCD_CLOCK_DELAY     0.000002f /* 2uS */
+
+  typedef struct {
+    uint8_t cmd; /* LCD initialize command */
+    uint8_t delay_ms; /* Delay for execution time */
+  } LCD_INITIAL_CMD;
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+
+/* ########################################################################
+ * Name: %<block.Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+%if configuration == "Setup"
+  %if (targetname == "stm32f4") || (targetname == "stm32f0")
+    %if interfacepin == "8"
+    #define %<blockid>_DATA_MASK_L     (GPIO_Pin_%<pind0>\
+                                       |GPIO_Pin_%<pind1>\
+                                       |GPIO_Pin_%<pind2>\
+                                       |GPIO_Pin_%<pind3>)
+    %endif
+    #define %<blockid>_DATA_MASK_H     (GPIO_Pin_%<pind4>\
+                                       |GPIO_Pin_%<pind5>\
+                                       |GPIO_Pin_%<pind6>\
+                                       |GPIO_Pin_%<pind7>)
+
+    #define %<blockid>_LCDIO_RwL()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRH = GPIO_Pin_%<pinrw>;\
+                %else
+                GPIO%<controlport>->BRR = GPIO_Pin_%<pinrw>;\
+                %endif
+                }
+    #define %<blockid>_LCDIO_EnL()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRH = GPIO_Pin_%<pinen>;\
+                %else
+                GPIO%<controlport>->BRR = GPIO_Pin_%<pinen>;\
+                %endif
+                }
+
+    #define %<blockid>_LCDIO_Data(value)  { \
+                %if targetname == "stm32f4"
+                GPIO%<dataport_74>->BSRRH = (~value)&%<blockid>_DATA_MASK_H;\
+                GPIO%<dataport_74>->BSRRL = value;\
+                %else
+                GPIO%<dataport_74>->BRR = (~value)&%<blockid>_DATA_MASK_H;\
+                GPIO%<dataport_74>->BSRR = value;\
+                %endif
+                }
+
+    %if interfacepin == "8"
+    #define %<blockid>_LCDIO_Data_8(value_h,value_l)  { \
+                %if targetname == "stm32f4"
+                  GPIO%<dataport_30>->BSRRH = (~value_l)&%<blockid>_DATA_MASK_L;\
+                  GPIO%<dataport_30>->BSRRL = value_l;\
+                  GPIO%<dataport_74>->BSRRH = (~value_h)&%<blockid>_DATA_MASK_H;\
+                  GPIO%<dataport_74>->BSRRL = value_h;\
+                %else
+                  GPIO%<dataport_30>->BRR = (~value_l)&%<blockid>_DATA_MASK_L;\
+                  GPIO%<dataport_30>->BSRR = value_l;\
+                  GPIO%<dataport_74>->BRR = (~value_h)&%<blockid>_DATA_MASK_H;\
+                  GPIO%<dataport_74>->BSRR = value_h;\
+                %endif
+                }
+    %endif
+    #define %<blockid>_LCDIO_RSCmd()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRH = GPIO_Pin_%<pinrs>;\
+                %else
+                GPIO%<controlport>->BRR = GPIO_Pin_%<pinrs>;\
+                %endif
+                }
+    #define %<blockid>_LCDIO_RSCmd_EnH()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRH = GPIO_Pin_%<pinrs>;\
+                GPIO%<controlport>->BSRRL = GPIO_Pin_%<pinen>;\
+                %else
+                GPIO%<controlport>->BRR = GPIO_Pin_%<pinrs>;\
+                GPIO%<controlport>->BSRR = GPIO_Pin_%<pinen>;\
+                %endif
+                }
+    #define %<blockid>_LCDIO_RSDat()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRL = GPIO_Pin_%<pinrs>;\
+                %else
+                GPIO%<controlport>->BRR = GPIO_Pin_%<pinrs>;\
+                %endif
+                }
+    #define %<blockid>_LCDIO_RSDat_EnH()  { \
+                %if targetname == "stm32f4"
+                GPIO%<controlport>->BSRRL = GPIO_Pin_%<pinrs>;\
+                GPIO%<controlport>->BSRRL = GPIO_Pin_%<pinen>;\
+                %else
+                GPIO%<controlport>->BSRR = GPIO_Pin_%<pinrs>;\
+                GPIO%<controlport>->BSRR = GPIO_Pin_%<pinen>;\
+                %endif
+                }
+  %endif
+
+  %if targetname == "nrf5"
+    #define LCD_PIN_RS	%<pinrs>
+    #define LCD_PIN_RW	%<pinrw>
+    #define LCD_PIN_EN	%<pinen>
+
+    %if interfacepin == "8"
+    #define LCD_PIN_D0	%<pind0>
+    #define LCD_PIN_D1	%<pind1>
+    #define LCD_PIN_D2	%<pind2>
+    #define LCD_PIN_D3	%<pind3>
+    %endif
+    #define LCD_PIN_D4	%<pind4>
+    #define LCD_PIN_D5	%<pind5>
+    #define LCD_PIN_D6	%<pind6>
+    #define LCD_PIN_D7	%<pind7>
+
+    #define %<blockid>_LCDIO_RwL()           { nrf_gpio_pin_clear(LCD_PIN_RW); }
+    #define %<blockid>_LCDIO_EnL()           { nrf_gpio_pin_clear(LCD_PIN_EN); }
+    #define %<blockid>_LCDIO_RSCmd()         { nrf_gpio_pin_clear(LCD_PIN_RS); }
+    #define %<blockid>_LCDIO_RSCmd_EnH()     { nrf_gpio_pin_clear(LCD_PIN_RS); nrf_gpio_pin_set(LCD_PIN_EN); }
+    #define %<blockid>p_LCDIO_RSDat()         { nrf_gpio_pin_set(LCD_PIN_RS); }
+    #define %<blockid>_LCDIO_RSDat_EnH()     { nrf_gpio_pin_set(LCD_PIN_RS); nrf_gpio_pin_set(LCD_PIN_EN); }
+    void    %<blockid>_LCDIO_Data(uint8_t data);
+  %endif
+
+  #define %<blockid>_LINECOUNT %<linecount>
+  #define %<blockid>_COLUMNCOUNT %<columncount>
+  void %<blockid>_processing(void);
+  void lcd%<module>_writebuffer(uint8_t cmd, uint8_t xpos, uint8_t ypos, char* data, uint8_t count);
+%endif
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<block.Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+%if configuration == "Setup"
+  int %<blockid>_state;
+  uint8_t %<blockid>_cmd_state;
+  uint8_t %<blockid>_cmd_index;
+  uint8_t %<blockid>_dat_state;
+  uint8_t %<blockid>_dat_index;
+  uint32_t %<blockid>_lasttick;
+  uint8_t %<blockid>_reload_buffer[(%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT)];
+  uint8_t %<blockid>_working_buffer[(%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT)];
+  uint8_t %<blockid>_reload_buffer_index;
+  uint8_t %<blockid>_working_buffer_index;
+  SYS_TIMER_STRUCT %<blockid>_timer;
+
+  %if interfacepin == "8"
+  #define %<blockid>_INITIAL_CMD_COUNT 6
+  %else
+  #define %<blockid>_INITIAL_CMD_COUNT 12
+  %endif
+
+  LCD_INITIAL_CMD %<blockid>_HD44780_CMD_LIST[%<blockid>_INITIAL_CMD_COUNT] = 
+  {
+    %if interfacepin == "8"
+    {0x30, 10},
+    {0x30, 10},
+    {0x30, 10},
+    {0x38, 10},
+    {0x08, 10},
+    {0x0C, 10},
+    %else
+    {0x30, 5}, /* Command 0x33, delay 50ms */
+    {0x30, 10},
+    {0x30, 5}, /* Command 0x32, delay 50ms */
+    {0x20, 10},
+
+    {0x20, 5}, /* Command 0x28, delay 5ms */
+    {0x80, 10},
+    {0x00, 5}, /* Command 0x0C, delay 5ms */
+    {0xC0, 10},
+
+    {0x00, 5}, /* Command 0x01, delay 5ms */
+    {0x10, 10},
+    {0x00, 5}, /* Command 0x06, delay 5ms */  
+    {0x60, 10},
+    %endif
+  };
+
+  /* Write to LCD buffer */
+  void lcd%<module>_writebuffer(uint8_t cmd, uint8_t xpos, uint8_t ypos, char* data, uint8_t count)
+  {
+    uint8_t update_count;
+
+    /* validate */
+    if((xpos >= (%<blockid>_COLUMNCOUNT)) || (ypos >= %<blockid>_LINECOUNT))
+      return;
+
+    /* processing command */
+    switch(cmd) {
+      /* clear lcd line */
+      case 1:
+        memset(&%<blockid>_reload_buffer[ypos*%<blockid>_COLUMNCOUNT], ' ', %<blockid>_COLUMNCOUNT);
+        break;
+    }
+
+    /* calculate offset count */
+    if(count > (%<blockid>_COLUMNCOUNT-xpos))
+      update_count = (%<blockid>_COLUMNCOUNT-xpos);
+    else
+      update_count = count;
+
+    /* write to buffer */
+    memcpy(&%<blockid>_reload_buffer[(ypos*%<blockid>_COLUMNCOUNT)+xpos], data, update_count);
+  }
+ 
+  %if targetname == "nrf5"
+    void %<blockid>_LCDIO_Data(uint8_t data)
+    {
+	  %if interfacepin == "8"
+		  // D0
+		  if (data & 0x1)
+			nrf_gpio_pin_set(LCD_PIN_D0);
+		  else
+			nrf_gpio_pin_clear(LCD_PIN_D0);
+		  // D1
+		  if (data & 0x2)
+			nrf_gpio_pin_set(LCD_PIN_D1);
+		  else
+			nrf_gpio_pin_clear(LCD_PIN_D1);
+		  // D2
+		  if (data & 0x4)
+			nrf_gpio_pin_set(LCD_PIN_D2);
+		  else
+			nrf_gpio_pin_clear(LCD_PIN_D2);
+		  // D3
+		  if (data & 0x8)
+			nrf_gpio_pin_set(LCD_PIN_D3);
+		  else
+			nrf_gpio_pin_clear(LCD_PIN_D3);		  
+	  %endif
+	  // D4
+	  if (data & 0x10)
+		nrf_gpio_pin_set(LCD_PIN_D4);
+	  else
+		nrf_gpio_pin_clear(LCD_PIN_D4);
+	  // D5
+	  if (data & 0x20)
+		nrf_gpio_pin_set(LCD_PIN_D5);
+	  else
+		nrf_gpio_pin_clear(LCD_PIN_D5);
+	  // D6
+	  if (data & 0x40)
+		nrf_gpio_pin_set(LCD_PIN_D6);
+	  else
+		nrf_gpio_pin_clear(LCD_PIN_D6);
+	  // D7
+	  if (data & 0x80)
+		nrf_gpio_pin_set(LCD_PIN_D7);
+	  else
+		nrf_gpio_pin_clear(LCD_PIN_D7);	
+    }
+  %endif
+
+  void %<blockid>_write_upper(uint8_t data)
+  {
+  %if targetname == "nrf5"
+    /* RW: Low, EN: High, Data 4 bits upper */    
+    /* Control */
+    %<blockid>_LCDIO_RSCmd_EnH();
+
+    /* Data */
+    %<blockid>_LCDIO_Data(data);
+  %else
+    uint16_t tmp;
+
+    /* RW: Low, EN: High, Data 4 bits upper */    
+    /* Control */
+    %<blockid>_LCDIO_RSCmd_EnH();
+
+    /* Data */
+    tmp = 0;
+    if(data & 0x10) tmp |= GPIO_Pin_%<pind4>;
+    if(data & 0x20) tmp |= GPIO_Pin_%<pind5>;
+    if(data & 0x40) tmp |= GPIO_Pin_%<pind6>;
+    if(data & 0x80) tmp |= GPIO_Pin_%<pind7>;
+    %<blockid>_LCDIO_Data(tmp);
+  %endif
+
+    /* Some delay */
+    SysTimer_delay_us(100);
+
+    /* Apply */
+    %<blockid>_LCDIO_EnL();      
+
+    /* Some delay */
+    SysTimer_delay_us(100);
+  }
+
+  void %<blockid>_write_data4_upper(uint8_t data)
+  {
+  %if targetname == "nrf5"
+    %<blockid>_LCDIO_Data(data);
+  %else
+    uint16_t tmp;
+  
+    /* Collect bytes */
+    tmp = 0;
+    if(data & 0x10) tmp |= GPIO_Pin_%<pind4>;
+    if(data & 0x20) tmp |= GPIO_Pin_%<pind5>;
+    if(data & 0x40) tmp |= GPIO_Pin_%<pind6>;
+    if(data & 0x80) tmp |= GPIO_Pin_%<pind7>;
+    %<blockid>_LCDIO_Data(tmp);
+  %endif
+  }
+
+  %if interfacepin == "8"
+  void %<blockid>_configure_8(uint8_t data)
+  {
+  %if targetname == "nrf5"
+    /* RW: Low, EN: High, Data 4 bits upper */    
+    /* Control */
+    %<blockid>_LCDIO_RSCmd_EnH();
+
+    /* Data */
+    %<blockid>_LCDIO_Data(data);
+  %else
+    uint16_t value_h, value_l;
+
+    /* RW: Low, EN: High, Data 4 bits upper */    
+    /* Control */
+    %<blockid>_LCDIO_RSCmd_EnH();
+
+    /* Data */
+    value_h = 0; value_l = 0;
+    if(data & 0x01) value_l |= GPIO_Pin_%<pind0>;
+    if(data & 0x02) value_l |= GPIO_Pin_%<pind1>;
+    if(data & 0x04) value_l |= GPIO_Pin_%<pind2>;
+    if(data & 0x08) value_l |= GPIO_Pin_%<pind3>;
+    if(data & 0x10) value_h |= GPIO_Pin_%<pind4>;
+    if(data & 0x20) value_h |= GPIO_Pin_%<pind5>;
+    if(data & 0x40) value_h |= GPIO_Pin_%<pind6>;
+    if(data & 0x80) value_h |= GPIO_Pin_%<pind7>;
+    %<blockid>_LCDIO_Data_8(value_h,value_l)
+  %endif
+
+    /* Some delay */
+    SysTimer_delay_us(100);
+
+    /* Apply */
+    %<blockid>_LCDIO_EnL();      
+
+    /* Some delay */
+    SysTimer_delay_us(100);
+  }
+
+  void %<blockid>_write_data8(uint8_t data)
+  {
+    %if targetname == "nrf5"
+    %<blockid>_LCDIO_Data(data);
+    %else
+    uint16_t value_h, value_l;
+    value_h = 0; value_l = 0;
+    if(data & 0x01) value_l |= GPIO_Pin_%<pind0>;
+    if(data & 0x02) value_l |= GPIO_Pin_%<pind1>;
+    if(data & 0x04) value_l |= GPIO_Pin_%<pind2>;
+    if(data & 0x08) value_l |= GPIO_Pin_%<pind3>;
+    if(data & 0x10) value_h |= GPIO_Pin_%<pind4>;
+    if(data & 0x20) value_h |= GPIO_Pin_%<pind5>;
+    if(data & 0x40) value_h |= GPIO_Pin_%<pind6>;
+    if(data & 0x80) value_h |= GPIO_Pin_%<pind7>;
+    %<blockid>_LCDIO_Data_8(value_h,value_l)
+    %endif
+  }
+  %endif
+
+  /* LCD processing */
+  void %<blockid>_processing(void)
+  {
+    static uint8_t en_strobe = 0;
+    static uint8_t col_index = 0;
+    static uint8_t line_index = 0;
+    uint32_t i;
+    uint32_t numofcontrol;
+    uint32_t currenttick; 
+
+    /* initialize command */
+    if(%<blockid>_cmd_index < %<blockid>_INITIAL_CMD_COUNT){
+      switch(%<blockid>_cmd_state) {
+        case 0: /* Select command mode */
+          %<blockid>_cmd_index = 0;
+          %<blockid>_LCDIO_RSCmd();
+          SysTimer_Start(&%<blockid>_timer, 50); /* Delay 50ms at start-up */
+          %<blockid>_cmd_state ++; /* Next */
+          break;
+
+        case 1: /* Wait for command mode */
+          if(SysTimer_IsTimeout(&%<blockid>_timer)) {
+            SysTimer_Start(&%<blockid>_timer, %<blockid>_HD44780_CMD_LIST[%<blockid>_cmd_index].delay_ms);
+            %<blockid>_cmd_state ++; /* Next */
+          }
+          else {
+            break;
+          }
+
+        default: /* Write command */
+          if(SysTimer_IsTimeout(&%<blockid>_timer)) {
+            %if interfacepin == "8"
+            %<blockid>_configure_8(%<blockid>_HD44780_CMD_LIST[%<blockid>_cmd_index].cmd);
+            %else
+            %<blockid>_write_upper(%<blockid>_HD44780_CMD_LIST[%<blockid>_cmd_index].cmd);
+            %endif
+            SysTimer_Start(&%<blockid>_timer, %<blockid>_HD44780_CMD_LIST[%<blockid>_cmd_index].delay_ms);
+            %<blockid>_cmd_index ++;
+          }
+          break;
+      }
+    }
+    /* Data control */
+    else {
+      /* current tick */
+      currenttick = systick_count;
+
+      /* calculate number of control, 500uS per one control */
+      %if targetname == "nrf5"
+      numofcontrol = (uint32_t)((float)(currenttick - %<blockid>_lasttick)/(__SYSTICK_FREQUENCY*0.0005f));
+      %else
+      numofcontrol = (uint32_t)((float)(currenttick - %<blockid>_lasttick)*(SYS_TICKSTEP/0.0005f));
+      %endif
+      if(numofcontrol > (%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT)) { /* Limit max update to half screen */
+        numofcontrol = (%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT);
+      }
+
+      /* number of control */
+      for(i=0; i<numofcontrol; i++) {
+        if((en_strobe ++ & 0x01) == 0) {
+          /* Apply */
+          %<blockid>_LCDIO_EnL();
+
+          if(numofcontrol > 1)
+            SysTimer_delay_us(60);
+        }
+        else {
+
+          /* Check data index */
+          if(%<blockid>_dat_index >= (%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT))
+            %<blockid>_dat_index = 0;
+
+          /* Data */
+          switch(%<blockid>_dat_state) {
+            case 0: /* Copy LCD reload buffer */
+              memcpy(%<blockid>_working_buffer, %<blockid>_reload_buffer, (%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT));
+              %<blockid>_working_buffer_index = 0;
+              %<blockid>_dat_state ++;
+              line_index = 0;
+
+              break;
+
+            case 1: /* Write command bit: [7:4] */
+            case 2: /* Write command bit: [3:0] */
+              /* Small delay */
+              if((numofcontrol > 1)/* && (i<(numofcontrol-1))*/)
+                SysTimer_delay_us(60);
+
+              /* CMD mode, EN high */
+              %<blockid>_LCDIO_RSCmd_EnH();
+              switch(line_index) {
+                case 0:
+                  %if interfacepin == "8"
+                  %<blockid>_write_data8(0x80);
+                  %else
+                  %<blockid>_write_data4_upper((uint8_t)0x80<<(4*(%<blockid>_dat_state-1)));
+                  %endif
+                  break;
+                case 1:
+                  %if interfacepin == "8"
+                  %<blockid>_write_data8(0xC0);
+                  %else
+                  %<blockid>_write_data4_upper((uint8_t)0xC0<<(4*(%<blockid>_dat_state-1)));
+                  %endif
+                  break;
+                case 2:
+                  %if interfacepin == "8"
+                  %<blockid>_write_data8(0x80+%<blockid>_COLUMNCOUNT);
+                  %else
+                  %<blockid>_write_data4_upper((uint8_t)(0x80+%<blockid>_COLUMNCOUNT)<<(4*(%<blockid>_dat_state-1)));
+                  %endif
+                  break;
+                default:
+                  %if interfacepin == "8"
+                  %<blockid>_write_data8(0xC0+%<blockid>_COLUMNCOUNT);
+                  %else
+                  %<blockid>_write_data4_upper((uint8_t)(0xC0+%<blockid>_COLUMNCOUNT)<<(4*(%<blockid>_dat_state-1)));
+                  %endif
+                  break;
+              }
+
+              /* Next state */
+              %if interfacepin == "8"
+              %<blockid>_dat_state += 2;
+              %else
+              %<blockid>_dat_state ++;
+              %endif
+              col_index = 0;
+              break;
+
+            case 3:
+            case 4:
+              /* Small delay */
+              if((numofcontrol > 1)/* && (i<(numofcontrol-1))*/)
+                SysTimer_delay_us(60);
+
+              /* DAT mode, EN high */
+              %<blockid>_LCDIO_RSDat_EnH();
+
+              %if interfacepin == "8"
+              %<blockid>_write_data8(%<blockid>_working_buffer[%<blockid>_working_buffer_index]);
+              %<blockid>_working_buffer_index ++;
+              /* Previous state */   
+              if(++col_index >= %<blockid>_COLUMNCOUNT) {
+                %<blockid>_dat_state = 1;
+                line_index ++;
+              }
+              %else
+ 
+              /* Write data to port */
+              if(%<blockid>_dat_state == 3) {
+                %<blockid>_write_data4_upper((uint8_t)(%<blockid>_working_buffer[%<blockid>_working_buffer_index]));
+                /* Next state */   
+                %<blockid>_dat_state ++;
+              }
+              else {
+                %<blockid>_write_data4_upper((uint8_t)(%<blockid>_working_buffer[%<blockid>_working_buffer_index])<<4);
+                %<blockid>_working_buffer_index ++;
+
+                /* Previous state */   
+                if(++col_index >= %<blockid>_COLUMNCOUNT) {
+                  %<blockid>_dat_state = 1;
+                  line_index ++;
+                }
+                else {
+                  %<blockid>_dat_state = 3;
+                }
+              }
+              %endif
+
+              /*  */
+              if(%<blockid>_working_buffer_index >= (%<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT)) {
+                %<blockid>_dat_state = 0;
+              }
+
+              break;
+          }
+        }
+      }
+      /* Last tick of next process */
+      if(numofcontrol > 0) {
+        %<blockid>_lasttick = systick_count;
+      }
+    }
+  }
+%endif
+
+/* Enable module */
+void enable_%<blockid>(void){
+  %if configuration == "Setup"
+    %if targetname == "nrf5"
+      uint32_t config;
+    %else
+      GPIO_InitTypeDef GPIO_InitStructure;
+    %endif
+
+    /* Processing counter */
+    %<blockid>_state = 0;
+    %<blockid>_cmd_state = 0;
+    %<blockid>_cmd_index = 0;
+    %<blockid>_dat_state = 0;
+    %<blockid>_dat_index = 0;
+
+    %<blockid>_lasttick = systick_count;
+
+    /* Initial buffer */    
+    memset(%<blockid>_reload_buffer, ' ', %<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT);
+    memset(%<blockid>_working_buffer, ' ', %<blockid>_COLUMNCOUNT*%<blockid>_LINECOUNT);
+   
+    %if (targetname == "stm32f4") || (targetname == "stm32f0")
+
+      %if targetname == "stm32f4"
+        %assign ahb_number = "1"
+      %else
+        %assign ahb_number = ""
+      %endif
+
+      /* Enable GPIO clocks */
+      %if port_a_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOA, ENABLE);
+      %endif
+      %if port_b_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOB, ENABLE);
+      %endif
+      %if port_c_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOC, ENABLE);
+      %endif
+      %if port_d_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOD, ENABLE);
+      %endif
+      %if port_e_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOE, ENABLE);
+      %endif
+      %if port_f_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOF, ENABLE);
+      %endif
+      %if port_g_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOG, ENABLE);
+      %endif
+      %if port_h_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOH, ENABLE);
+      %endif
+      %if port_i_used == "1"
+        RCC_AHB%<ahb_number>PeriphClockCmd(RCC_AHB%<ahb_number>Periph_GPIOI, ENABLE);
+      %endif
+
+      /* GPIO Configuration */
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_%<pintype>;
+      %if pintype == "OD"
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+      %else
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+      %endif
+      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+      /* Control pin, RS: P%<controlport>%<pinrs> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pinrs>;
+      GPIO_Init(GPIO%<controlport>, &GPIO_InitStructure);
+
+      /* Control pin, EN: P%<controlport>%<pinen> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pinen>;
+      GPIO_Init(GPIO%<controlport>, &GPIO_InitStructure);
+
+      /* Control pin, RW: P%<controlport>%<pinrw> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pinrw>;
+      GPIO_Init(GPIO%<controlport>, &GPIO_InitStructure);
+
+      %if interfacepin == "8"
+      /* Data pin, D0: P%<dataport_30>%<pind0> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind0>;
+      GPIO_Init(GPIO%<dataport_30>, &GPIO_InitStructure);
+
+      /* Data pin, D1: P%<dataport_30>%<pind1> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind1>;
+      GPIO_Init(GPIO%<dataport_30>, &GPIO_InitStructure);
+
+      /* Data pin, D2: P%<dataport_30>%<pind2> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind2>;
+      GPIO_Init(GPIO%<dataport_30>, &GPIO_InitStructure);
+
+      /* Data pin, D3: P%<dataport_30>%<pind3> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind3>;
+      GPIO_Init(GPIO%<dataport_30>, &GPIO_InitStructure);
+      %endif
+
+      /* Data pin, D4: P%<dataport_74>%<pind4> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind4>;
+      GPIO_Init(GPIO%<dataport_74>, &GPIO_InitStructure);
+   
+      /* Data pin, D5: P%<dataport_74>%<pind5> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind5>;
+      GPIO_Init(GPIO%<dataport_74>, &GPIO_InitStructure);
+
+      /* Data pin, D6: P%<dataport_74>%<pind6> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind6>;
+      GPIO_Init(GPIO%<dataport_74>, &GPIO_InitStructure);
+
+      /* Data pin, D7: P%<dataport_74>%<pind7> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pind7>;
+      GPIO_Init(GPIO%<dataport_74>, &GPIO_InitStructure);
+
+    %endif
+
+    %if targetname == "nrf5"
+      %if pintype == "OD"
+        config = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+                | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+      %else
+        config = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+      %endif
+
+      // RS
+      NRF_GPIO->PIN_CNF[LCD_PIN_RS] = config;
+      // RW
+      NRF_GPIO->PIN_CNF[LCD_PIN_RW] = config;
+      // EN
+      NRF_GPIO->PIN_CNF[LCD_PIN_EN] = config;
+      %if interfacepin == "8"
+      // D0
+      NRF_GPIO->PIN_CNF[LCD_PIN_D0] = config;
+      // D1
+      NRF_GPIO->PIN_CNF[LCD_PIN_D1] = config;
+      // D2
+      NRF_GPIO->PIN_CNF[LCD_PIN_D2] = config;
+      // D3
+      NRF_GPIO->PIN_CNF[LCD_PIN_D3] = config;
+      %endif
+      // D4
+      NRF_GPIO->PIN_CNF[LCD_PIN_D4] = config;
+      // D5
+      NRF_GPIO->PIN_CNF[LCD_PIN_D5] = config;
+      // D6
+      NRF_GPIO->PIN_CNF[LCD_PIN_D6] = config;
+      // D7
+      NRF_GPIO->PIN_CNF[LCD_PIN_D7] = config;
+
+    %endif
+
+    /* LCD Write mode*/
+    %<blockid>_LCDIO_RwL();
+  %endif
+}
+
+/* Disable module */
+void disable_%<blockid>(void) {  
+
+ 
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+    /* %<blockid> */
+  %if configuration == "Setup"
+    %<blockid>_processing();
+  %else
+    %assign cmd = LibBlockInputSignal(0, "", "", 0)
+    %assign xpos = LibBlockInputSignal(1, "", "", 0)
+    %assign ypos = LibBlockInputSignal(2, "", "", 0)
+    %if usebuffer == "1"
+      lcd%<module>_writebuffer((uint8_t)%<cmd>, (uint8_t)%<xpos>, (uint8_t)%<ypos>, %<buffername>, (uint8_t)strlen(%<buffername>));
+    %else
+      %if LibBlockInputSignalConnected(3)
+        %if LibBlockInputSignalWidth(3) > 1
+          {
+            uint16_t len = 0;
+            char *data = (char *)%<LibBlockInputSignalAddr(3, "", "", 0)>;
+            while ((data[len] != '\0') && (len<%<LibBlockInputSignalWidth(3)>))
+              len++;
+            lcd%<module>_writebuffer((uint8_t)%<cmd>, (uint8_t)%<xpos>, (uint8_t)%<ypos>, data, len); /* Write string */
+          }
+        %else
+          %assign str = LibBlockInputSignal(3, "", "", 0)
+          lcd%<module>_writebuffer((uint8_t)%<cmd>, (uint8_t)%<xpos>, (uint8_t)%<ypos>, (char*)%<str>, strlen((char*)%<str>)); /* Write string */
+        %endif
+      %else
+        /* ignored due to port is not connected. */      
+      %endif
+    %endif
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

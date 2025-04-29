@@ -1,0 +1,369 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Block References &gt; On-chip Peripherals &gt; SDIO &gt; Data Logger</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Data Logger">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f4_datalogger.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Data Logger</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f4_datalogger.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="blockset_references.htm">Block References</a> &gt; <a href="on-chip_peripherals.htm">On-chip Peripherals</a> &gt; <a href="sdio.htm">SDIO</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Data Logger</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="stm32f4_hssdcard_write.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="sdio.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="spi.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="sdio_datalogger_block.png" width="950" height="154" alt="sdio_datalogger_block" style="width:950px;height:154px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Parameters configuration in Ascii packet mode.</span></h3>
+<p><img src="sdio_datalogger_mask_ascii.png" width="950" height="500" alt="sdio_datalogger_mask_ascii" style="width:950px;height:500px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Parameters configuration in Binary/ BinaryVector packet mode.</span></h3>
+<p><img src="sdio_datalogger_mask_binary.png" width="950" height="801" alt="sdio_datalogger_mask_binary" style="width:950px;height:801px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">3. Parameters configuration in StringInput mode.</span></h3>
+<p><img src="sdio_datalogger_mask_stringinput.png" width="950" height="450" alt="sdio_datalogger_mask_stringinput" style="width:950px;height:450px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</th>
+<th style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</th>
+<th style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Description</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Variable filename</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>Checked | &nbsp;Unchecked</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Checked</span>: file name is input port of block. Use <a href="volatile_data_storage_read.htm" class="topiclink">Volatile Data Storage Read</a> (Type string) as file name.</p>
+<p><span style="font-weight: bold;">Unchecked</span>: Use constant file name for data logger.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>File name</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Specify a valid file name)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>Note: not support Unicode.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Packet mode</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>Ascii | Binary | BinaryVector | StringInput</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Ascii</span>: This mode allow user to configure the format of logging data, output is text file. Data type of input specify by sprintf format.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary</span>: This mode allow user specify number of data type.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector</span>: This mode similar to Binary mode, but number of data type is data Width of vector port, suitable for storing large size of data.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">StringInput</span>: This mode is allow logging data from <a href="volatile_data_storage_read.htm" class="topiclink">Volatile Data Storage Read</a> (Type string) block. Similar to %s in Ascii mode, but size is not limit.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Header (Optional)</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Specify header string)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>This string will be written as data header on logging start.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Ascii format</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Specify packet format string)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;">String format support below data type:</p>
+<p style="margin: 0px 0px 0px 0px;"> - <span style="font-weight: bold;">uint32</span>: %u, %i, %o, %x</p>
+<p style="margin: 0px 0px 0px 0px;"> - <span style="font-weight: bold;">int32</span>: %d</p>
+<p style="margin: 0px 0px 0px 0px;"> - <span style="font-weight: bold;">single</span>: %e, %g, %f</p>
+<p style="margin: 0px 0px 0px 0px;"> - <span style="font-weight: bold;">int8</span>: %c</p>
+<p style="margin: 0px 0px 0px 0px;"> - <span style="font-weight: bold;">string</span>: %s (<a href="volatile_data_storage_read.htm" class="topiclink">Volatile Data Storage Read</a>). Size of string is limit to 255.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">DOUBLE</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type double)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">double</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">double</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">SINGLE</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type single)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">single</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">single</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">INT8</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type int8)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">int8</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">int8</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">UINT8</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type uint8)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">uint8</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">uint8</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">INT16</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type int16)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">int16</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">int16</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">UINT16</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type uint16)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">uint16</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">uint16</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">INT32</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type int32)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">int32</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">int32</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Number of data port, type <span style="font-weight: bold;">UINT32</span></p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Port Number/ port Width of data type uint32)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">Binary mode</span>: Specify number of port data type <span style="font-weight: bold;">uint32</span>.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-weight: bold;">BinaryVector mode</span>: Specify data width of port type <span style="font-weight: bold;">uint32</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Advance options</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>To enable or disable advance options.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Create file options</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>Append | Rename</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p style="margin: 0px 0px 5px 0px;">User can select below action for existing file on SD Card.</p>
+<p style="margin: 0px 0px 5px 0px;"><span style="font-weight: bold;">Append</span>: Open file and append data.</p>
+<p style="margin: 0px 0px 5px 0px;"><span style="font-weight: bold;">Rename</span>: Create new file name with running number. example: if <span style="font-weight: bold;">data.txt</span> is already exsting, it will create file <span style="font-weight: bold;">data(1).txt </span>instead for new logging process. Note: Maximum running number of file is 32.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Data buffer sync interval</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>(Specify time interval, default is 1)</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>This mode allow user to specify interval to update file (File system internal action, to update file size to file header). This action is blocking mode and take quite long time (100 to 400ms) depend on speed of SD card. For <a href="stm32f4_hssdcard_write.htm" class="topiclink">High speed SD Card write</a> block, this action will process in non-blocking mode (background).</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Enable status output</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>To enable of disable status port. This port will return 0 when Success, otherwise fail.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:248px; padding:0px; border:solid 1px #000000;"><p>Sample time (sec)</p>
+</td>
+<td style="vertical-align:top; width:318px; padding:0px; border:solid 1px #000000;"><p>-1 for inherited, or specify</p>
+</td>
+<td style="vertical-align:top; width:571px; padding:0px; border:solid 1px #000000;"><p>Specify sample time value, this will be interval time of data logger for a record.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Logger Stop or finish</span></h2>
+<p>1. User may use Enable subsystem to start and stop data logging.</p>
+<p>2. Remove SD Card: SD Card allow to remove during logging process, but last packets may loss. Note: Example for Data buffer synch interval configured to N seconds, the last packet in 0-N second will be loss when card removed.</p>
+<p>3. IMPORTANT: To insert SD Card, when SD card remove and need to re-insert again, please <span style="font-weight: bold; color: #ff0000;">disconnect all DC power supply to the board</span> <span style="font-weight: bold; color: #ff0000;">before insert the card</span>.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Limitations</span></h2>
+<p>1. The block suitable for low data rate logging, example 0.5 Second or longer per packet. For high speed data rate, use <a href="stm32f4_hssdcard_write.htm" class="topiclink">High speed SD Card write</a>.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo</span></h2>
+<p><a href="data_logger_ascii_mode2.htm" class="topiclink">Data Logger Ascii mode</a></p>
+<p><a href="data_logger_ascii_mode_with_hi.htm" class="topiclink">Data Logger Ascii mode with date/time</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

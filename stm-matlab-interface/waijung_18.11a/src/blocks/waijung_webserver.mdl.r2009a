@@ -1,0 +1,863 @@
+Library {
+  Name			  "waijung_webserver"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-1252"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Mon Nov 19 13:38:46 2012"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Sun Feb 11 17:34:18 2018"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:400>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 200, 197, 1080, 827 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      CheckFcnCallInpInsideContextMsg off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+  }
+  System {
+    Name		    "waijung_webserver"
+    Location		    [749, 165, 1642, 663]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Ethernet Application Setup"
+      Ports		      []
+      Position		      [180, 152, 315, 228]
+      FunctionName	      "waijung_ethernet_app"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "waijung_ethernet_app"
+      MaskDescription	      "TCP Timer:\n - Specify TCP timer in unit of ms."
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_ethernet_app.htm'), '-browser')"
+      MaskPromptString	      "Configuration|IP address|Net mask|Gateway|MAC (Media Access Control) address|DHCP (Dynam"
+      "ic Host Configuration Protocol)|TCP timer (ms)|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input "
+      "Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for fut"
+      "ure use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Setup),edit,edit,edit,edit,checkbox,popup(1|5|10|20|30|40|50|100|250|500|1000),edit"
+      ",edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_ethernet_app_callback('conf');||||||||waijung_ethernet_app_callback('sampletime"
+      "');|waijung_ethernet_app_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,off,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ipaddress=&2;netmask=&3;gateway=&4;macaddress=&5;dhcp=&6;timerscaler=&7;portpinstr="
+      "&8;sampletime=@9;blockid=&10;inputporttype=@11;inputportwidth=@12;inputportlabel=&13;outputporttype=@14;outputpo"
+      "rtwidth=@15;outputportlabel=&16;compat=&17;optionstring=&18;"
+      MaskInitialization      "waijung_ethernet_app_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Ethernet App]\\nIP: 192.168.1.31\\nNet mask: 255.255.255.0\\nGateway: 192.16"
+      "8.1.1\\nMAC: 02-00-00-00-00-00','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|192.168.1.31|255.255.255.0|192.168.1.1|02-00-00-00-00-00|off|50|0|-1|EthernetApplic"
+      "ationSetup|[]|[]|{}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Ethernet Link Setup"
+      Ports		      []
+      Position		      [25, 152, 160, 228]
+      FunctionName	      "waijung_ethernet_inf"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "waijung_ethernet_inf"
+      MaskDescription	      "ETH-PHY Link (Hardware configuration),\n Profile #1: F4 Connect v3.6 + F4Discovery\n Prof"
+      "ile #2: F4 Connect v3.6 + FiO 2\n Profile #3: Old version of F4 Connect + F4Discovery"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_ethernet_inf.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Interface pins|Ethernet PHY Chip Address|Media Interface|AutoNegotiation|S"
+      "peed(Mbps)|Duplex Mode|ETH Pin, MDIO:|ETH Pin, MDC:|ETH Pin, PPS:|MII Pin, CRS:|MII Pin, COL:|RMII Pin, CRSDV:|R"
+      "MII Pin, RXCLK:|MII Pin, RXER:|RMII Pin, RXD0:|RMII Pin, RXD1:|MII Pin, RXD2:|MII Pin, RXD3:|MII Pin, TXCLK:|RMI"
+      "I Pin, TXEN:|RMII Pin, TXD0:|RMII Pin, TXD1:|MII Pin, TXD2:|MII Pin, TXD3:|Port Pin String|Sample time (sec)|Blo"
+      "ck ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Com"
+      "patibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Setup),popup(Profile #1|Profile #2|Profile #3|Manual),popup(1|0),popup(MII|RMII),po"
+      "pup(Enable|Disable),popup(100|10),popup(Full|Half),popup(A2),popup(C1),popup(Not used|B5|G8),popup(A0|H2),popup("
+      "A3|H3),popup(A7),popup(A1),popup(B10|I10),popup(C4),popup(C5),popup(B0|H6),popup(B1|H7),popup(C3),popup(B11|G11)"
+      ",popup(B12|G13),popup(B13|G14),popup(C2),popup(B8|E2),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_ethernet_inf_callback('conf');|waijung_ethernet_inf_callback('interfacepin');||"
+      "waijung_ethernet_inf_callback('wj_interfacetype');|waijung_ethernet_inf_callback('autonegotiation');||||||||||||"
+      "||||||||||waijung_ethernet_inf_callback('sampletime');|waijung_ethernet_inf_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,"
+      "on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,off,off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;interfacepin=&2;chipaddress=&3;wj_interfacetype=&4;autonegotiation=&5;speed=&6;dupl"
+      "ex=&7;pin_mdio=&8;pin_mdc=&9;pin_pps=&10;pin_crs=&11;pin_col=&12;pin_dv=&13;pin_rxclk=&14;pin_rxer=&15;pin_rxd0="
+      "&16;pin_rxd1=&17;pin_rxd2=&18;pin_rxd3=&19;pin_txclk=&20;pin_txen=&21;pin_txd0=&22;pin_txd1=&23;pin_txd2=&24;pin"
+      "_txd3=&25;portpinstr=&26;sampletime=@27;blockid=&28;inputporttype=@29;inputportwidth=@30;inputportlabel=&31;outp"
+      "utporttype=@32;outputportwidth=@33;outputportlabel=&34;compat=&35;optionstring=&36;"
+      MaskInitialization      "waijung_ethernet_inf_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Ethernet Link]\\nInterface: MII\\nPins: Profile #1','ver','middle','hor','ce"
+      "nter'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|Profile #1|1|MII|Enable|100|Full|A2|C1|Not used|A0|A3|A7|A1|B10|C4|C5|B0|B1|C3|B11|"
+      "B12|B13|C2|E2|A0,A1,A2,A3,A7,B0,B1,E2,B10,B11,B12,B13,C1,C2,C3,C4,C5|-1|EthernetLinkSetup|[]|[]|{}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "HTTP Client"
+      Ports		      []
+      Position		      [490, 153, 627, 228]
+      OpenFcn		      "waijung_http_client_lib"
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      MaskDisplay	      "disp('HTTP Client Lib')"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "autoscale"
+      System {
+	Name			"HTTP Client"
+	Location		[433, 403, 931, 703]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+      }
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Http Server Setup"
+      Ports		      []
+      Position		      [330, 152, 465, 228]
+      FunctionName	      "waijung_httpserver_setup"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "waijung_httpserver_setup"
+      MaskDescription	      "Http server port:\n  Specify a valid TCP port for Webserver, default is 80.\nSQLite inter"
+      "face:\n - This option for integrate SQLite into webserver, allow user to submit SQLite query via web-browser.\n "
+      "- Auto detect the SQLite Setup block to Enable or Disable.\n\nIAP interface:\n - This option allow user to uploa"
+      "d firmware into MCU storage card, then re-direct to other communication port.\n - Auto detect the Webserver IAP "
+      "ISR block to Enable or Disable option."
+      MaskHelp		      "web(fullfile(waijungdocroot,'Http_Server_Setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Http server port|SSL|SQLite interface (/sqlite.cgi)|IAP interface (/iap.ht"
+      "ml)|Memory pool size (kBytes)|Debug port|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port W"
+      "idth|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future us"
+      "e)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Setup),edit,popup(Enable|Disable),popup(Enable|Disable),popup(Enable|Disable),popup"
+      "(8),popup(Disable|UART1|UART2|UART3|UART4|UART5|UART6),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_httpserver_setup_callback('conf');||||||||waijung_httpserver_setup_callback('sa"
+      "mpletime');|waijung_httpserver_setup_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,off,off,off,on,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;port=@2;ssl=&3;sqlite=&4;iap=&5;mempool=&6;debugport=@7;portpinstr=&8;sampletime=@9"
+      ";blockid=&10;inputporttype=@11;inputportwidth=@12;inputportlabel=&13;outputporttype=@14;outputportwidth=@15;outp"
+      "utportlabel=&16;compat=&17;optionstring=&18;"
+      MaskInitialization      "waijung_httpserver_setup_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Httpserver Setup]\\nPort: 80\\nWeb-SQLite: Disable\\nWeb-IAP: Disable\\n','v"
+      "er','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|80|Disable|Disable|Disable|8|Disable|0|-1|HttpServerSetup|[]|[]|{}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Httpserver CGI varset callback"
+      Ports		      [0, 1]
+      Position		      [180, 14, 315, 116]
+      FunctionName	      "waijung_webserver_vdata_mapping"
+      Parameters	      "callback,inputtype,outputtype,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_webserver_vdata_mapping"
+      MaskDescription	      "The block generate function-call during variable set value via http varset.cgi"
+      MaskHelp		      "web(fullfile(waijungdocroot,'Webserver_Volatile_Data_Mappin.htm'), '-browser')"
+      MaskPromptString	      "Volatile Data Mapping|Volatile Data Reference|Data type|Size|Access mode|Enable callback"
+      " on CGI varset|Enable 'name=value' pair on CGI varget|Callback ISR|Obsolete status|Input data type|Output data t"
+      "ype|BlockID|Sample time (sec)"
+      MaskStyleString	      "popup(adc),edit,edit,edit,popup(ReadWrite|ReadOnly),checkbox,checkbox,edit,popup(No),edit"
+      ",edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_webserver_vdata_mapping_callback('vdatamapping');||||waijung_webserver_vdata_ma"
+      "pping_callback('accessmode');|||||||waijung_webserver_vdata_mapping_callback('blockid');|"
+      MaskEnableString	      "on,off,off,off,on,on,on,on,on,on,on,on,off"
+      MaskVisibilityString    "on,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,"
+      MaskVariables	      "vdatamapping=&1;vdatareference=&2;vdatatype=&3;vdatasize=@4;accessmode=&5;callback=@6;namev"
+      "aluepair=@7;callbackisr=&8;obsoletestatus=&9;inputtype=@10;outputtype=@11;blockid=&12;sampletime=@13;"
+      MaskInitialization      "waijung_webserver_vdata_mapping_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, 'Mapping: adc\\nAccess: ReadWrite','ver','middle','hor','left');port_label('o"
+      "utput', 1,'Call ISR');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "adc|0|0|0|ReadWrite|on|on|HttpserverCGIvarsetcallback_varset_ISR|No|[0]|[0]|HttpserverCGI"
+      "varsetcallback|inf"
+      MaskTabNameString	      ",,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Socket"
+      Ports		      []
+      Position		      [25, 16, 161, 115]
+      OpenFcn		      "waijung_socket_lib"
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      MaskDisplay	      "disp('Socket')"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "autoscale"
+      System {
+	Name			"Socket"
+	Location		[433, 403, 931, 703]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Webserver IAP"
+      Ports		      []
+      Position		      [330, 16, 463, 115]
+      OpenFcn		      "waijung_webserver_iap_lib"
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      MaskDisplay	      "disp('Webserver IAP')"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "autoscale"
+      System {
+	Name			"Webserver IAP"
+	Location		[433, 403, 931, 703]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+      }
+    }
+  }
+}

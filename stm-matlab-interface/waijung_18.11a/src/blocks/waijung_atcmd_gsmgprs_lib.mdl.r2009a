@@ -1,0 +1,979 @@
+Library {
+  Name			  "waijung_atcmd_gsmgprs_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-1252"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Tue Jun 10 22:56:49 2014"
+  Creator		  "Nav"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Sun Feb 05 15:28:57 2017"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:155>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 520, 225, 1400, 855 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "waijung_atcmd_gsmgprs_lib"
+    Location		    [172, 133, 920, 786]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS EMail Send"
+      Ports		      [11, 1]
+      Position		      [40, 422, 240, 598]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_email_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Enable SSL Support|Port Pin String|Sample time (sec)|Block ID|Input Port T"
+      "ype|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserv"
+      "ed for future use)|String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(SMTP),checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');|||waijung_atcmd_gsmgprs_callback('sampletime');"
+      "|waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ssl=&2;portpinstr=&3;sampletime=@4;blockid=&5;inputporttype=@6;inputportwidth=@7;in"
+      "putportlabel=@8;outputporttype=@9;outputportwidth=@10;outputportlabel=@11;compat=&12;optionstring=&13;stringpara"
+      "m1=@14;stringparam2=@15;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[SMTP]\\nTs (sec): 0','ver','middle','hor','center'); port_label('input', 1,'"
+      "Trig'); port_label('input', 2,'ServerName'); port_label('input', 3,'ServerPort'); port_label('input', 4,'***Logi"
+      "n User'); port_label('input', 5,'***Login Password'); port_label('input', 6,'Sender'); port_label('input', 7,'To"
+      " Recipient'); port_label('input', 8,'Cc Recipient'); port_label('input', 9,'Subject'); port_label('input', 10,'M"
+      "essage'); port_label('input', 11,'Timeout(sec)'); port_label('output', 1,'Status'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "SMTP|on|0|-1|GSMGPRSEMailSend|[3 3 -1 3 3 3 3 3 3 3 -1]|[1 -1 1 -1 -1 -1 -1 -1 -1 -1 1]|{"
+      "'Trig','ServerName','ServerPort','***Login User','***Login Password','Sender','To Recipient','Cc Recipient','Sub"
+      "ject','Message','Timeout(sec)'}|[3]|[1]|{'Status'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Get Status"
+      Ports		      [1, 4]
+      Position		      [510, 158, 710, 257]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error\n\nDate/ Time:\n(1) -"
+      " Year\n(2) - Month\n(3) - Day\n(4) - Hour\n(5) - Minute\n(6) - Second\n\nSignal Strength:\n0 (-155 dBm or less)\n"
+      "1 (-111 dBm)\n2 ... 30 (-110 ...-54 dBm)\n31 (-52dBm)\n99 (not known or not detectable)\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_getstatus_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Widt"
+      "h|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|"
+      "String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(GetStatus),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('sampletime');|"
+      "waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;portpinstr=&2;sampletime=@3;blockid=&4;inputporttype=@5;inputportwidth=@6;inputport"
+      "label=@7;outputporttype=@8;outputportwidth=@9;outputportlabel=@10;compat=&11;optionstring=&12;stringparam1=@13;s"
+      "tringparam2=@14;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Get Status]\\nTs (sec): 0','ver','middle','hor','center'); port_label('input"
+      "', 1,'Trig'); port_label('output', 1,'Status'); port_label('output', 2,'Date/Time'); port_label('output', 3,'Ope"
+      "rator'); port_label('output', 4,'Signal Strength'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "GetStatus|0|-1|GSMGPRSGetStatus|[3]|[1]|{'Trig'}|[3 7 3 7]|[1 6 32 1]|{'Status','Date/Tim"
+      "e','Operator','Signal Strength'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Http DOWNLOAD"
+      Ports		      [4, 1]
+      Position		      [40, 159, 240, 256]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,stringparam1,stringparam2,beg"
+      "inpattern,terminatorpattern,optionstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_download_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|SSL (https) enable|Read HTTP response|HTTP response output max size (bytes"
+      ")|Begin output pattern (string)|Terminate output pattern (string)|Port Pin String|Sample time (sec)|Block ID|Inp"
+      "ut Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibilit"
+      "y (Reserved for future use)|String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(HttpDOWNLOAD),checkbox,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,e"
+      "dit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('httpresponse')"
+      ";|waijung_atcmd_gsmgprs_callback('httpresponsesize');||||waijung_atcmd_gsmgprs_callback('sampletime');|waijung_a"
+      "tcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,off,off,off,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ssl=&2;httpresponse=&3;httpresponsesize=@4;beginpattern=@5;terminatorpattern=@6;por"
+      "tpinstr=&7;sampletime=@8;blockid=&9;inputporttype=@10;inputportwidth=@11;inputportlabel=&12;outputporttype=@13;o"
+      "utputportwidth=@14;outputportlabel=&15;compat=&16;optionstring=&17;stringparam1=@18;stringparam2=@19;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Http DOWNLOAD]\\nTs (sec): 0','ver','middle','hor','center'); port_label('in"
+      "put', 1,'Trig'); port_label('input', 2,'URL'); port_label('input', 3,'Timeout(sec)'); port_label('input', 4,'Fil"
+      "e name'); port_label('output', 1,'Status'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "HttpDOWNLOAD|on|off|128*2|'<body>'|''|0|-1|GSMGPRSHttpDOWNLOAD|[3 3 7 3]|[1 -1 1 -1]|{'Tr"
+      "ig','URL','Timeout(sec)','File name'}|[3]|[1]|{'Status'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Http GET"
+      Ports		      [3, 1]
+      Position		      [510, 38, 710, 132]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,stringparam1,stringparam2,beg"
+      "inpattern,terminatorpattern,optionstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_get_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|SSL (https) enable|Read HTTP response|HTTP response output max size (bytes"
+      ")|Begin output pattern (string)|Terminate output pattern (string)|Port Pin String|Sample time (sec)|Block ID|Inp"
+      "ut Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibilit"
+      "y (Reserved for future use)|String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(HttpGET),checkbox,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,e"
+      "dit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('httpresponse')"
+      ";|waijung_atcmd_gsmgprs_callback('httpresponsesize');||||waijung_atcmd_gsmgprs_callback('sampletime');|waijung_a"
+      "tcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,off,off,off,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ssl=&2;httpresponse=&3;httpresponsesize=@4;beginpattern=@5;terminatorpattern=@6;por"
+      "tpinstr=&7;sampletime=@8;blockid=&9;inputporttype=@10;inputportwidth=@11;inputportlabel=&12;outputporttype=@13;o"
+      "utputportwidth=@14;outputportlabel=&15;compat=&16;optionstring=&17;stringparam1=@18;stringparam2=@19;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Http GET]\\nTs (sec): 0','ver','middle','hor','center'); port_label('input',"
+      " 1,'Trig'); port_label('input', 2,'URL'); port_label('input', 3,'Timeout(sec)'); port_label('output', 1,'Status'"
+      "); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "HttpGET|on|off|128*2|'<body>'|''|0|-1|GSMGPRSHttpGET|[3 3 7]|[1 -1 1]|{'Trig','URL','Time"
+      "out(sec)'}|[3]|[1]|{'Status'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Http POST"
+      Ports		      [5, 1]
+      Position		      [275, 38, 475, 132]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,stringparam1,stringparam2,beg"
+      "inpattern,terminatorpattern,optionstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_post_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|SSL (https) enable|Read HTTP response|HTTP response output max size (bytes"
+      ")|Begin output pattern (string)|Terminate output pattern (string)|Port Pin String|Sample time (sec)|Block ID|Inp"
+      "ut Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibilit"
+      "y (Reserved for future use)|String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(HttpPOST),checkbox,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,"
+      "edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('httpresponse')"
+      ";|waijung_atcmd_gsmgprs_callback('httpresponsesize');||||waijung_atcmd_gsmgprs_callback('sampletime');|waijung_a"
+      "tcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,off,off,off,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ssl=&2;httpresponse=&3;httpresponsesize=@4;beginpattern=@5;terminatorpattern=@6;por"
+      "tpinstr=&7;sampletime=@8;blockid=&9;inputporttype=@10;inputportwidth=@11;inputportlabel=&12;outputporttype=@13;o"
+      "utputportwidth=@14;outputportlabel=&15;compat=&16;optionstring=&17;stringparam1=@18;stringparam2=@19;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Http POST]\\nTs (sec): 0','ver','middle','hor','center'); port_label('input'"
+      ", 1,'Trig'); port_label('input', 2,'URL'); port_label('input', 3,'Content type'); port_label('input', 4,'Data');"
+      " port_label('input', 5,'Timeout(sec)'); port_label('output', 1,'Status'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "HttpPOST|on|off|128*2|'<body>'|''|0|-1|GSMGPRSHttpPOST|[3 3 3 3 7]|[1 -1 -1 -1 1]|{'Trig'"
+      ",'URL','Content type','Data','Timeout(sec)'}|[3]|[1]|{'Status'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Send SMS"
+      Ports		      [3, 1]
+      Position		      [275, 161, 475, 259]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Status:\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_sms_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Widt"
+      "h|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|"
+      "String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(SendSMS),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('sampletime');|"
+      "waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;portpinstr=&2;sampletime=@3;blockid=&4;inputporttype=@5;inputportwidth=@6;inputport"
+      "label=@7;outputporttype=@8;outputportwidth=@9;outputportlabel=@10;compat=&11;optionstring=&12;stringparam1=@13;s"
+      "tringparam2=@14;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Send SMS]\\nTs (sec): 0','ver','middle','hor','center'); port_label('input',"
+      " 1,'Trig'); port_label('input', 2,'Number'); port_label('input', 3,'Message'); port_label('output', 1,'Status');"
+      " "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "SendSMS|0|-1|GSMGPRSSendSMS|[3 3 3]|[1 -1 -1]|{'Trig','Number','Message'}|[3]|[1]|{'Statu"
+      "s'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Setup"
+      Ports		      []
+      Position		      [40, 37, 241, 131]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,stringparam1,stringparam2,str"
+      "ingparam3,stringparam4,optionstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "Setup the GSM module interface.\n\nCommunication, UART Module:\n - Select UART module to "
+      "interface with SIM900. UART Setup block of selected UART module is required.\n\nConnection type:\n - GPRS (defau"
+      "lt)\n\nAPN:\n - Access point name, depending on operator (default: Internet)\n\nUser/Password:\n - User name/ pa"
+      "ssword to connect to internet.\n\nPower Control (PWR_Key):\n - Specify GPIO pin for control PWR_KEY pin of SIM90"
+      "0 module.\n\nReset Control:\n - Specify GPIO pin use for reset the SIM900 module."
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_setup_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Communication, UART module|Connection type|APN|User (left empty if not req"
+      "uired)|Password (left empty if not required)|Power control (PWR_Key), Port|Power control (PWR_Key), Pin|Reset co"
+      "ntrol, Port|Reset control, Pin|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Width|Input"
+      " Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|String("
+      "s) to be passed to TLC||||Mask Parameter 23:"
+      MaskStyleString	      "popup(Setup),popup(1|2|3|4|5|6),popup(GPRS),edit,edit,edit,popup(A|B|C|D|E|F|G|H|I),popup"
+      "(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),ed"
+      "it,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');|||waijung_atcmd_gsmgprs_callback('apn');|waijun"
+      "g_atcmd_gsmgprs_callback('user');|waijung_atcmd_gsmgprs_callback('password');||||||waijung_atcmd_gsmgprs_callbac"
+      "k('sampletime');|waijung_atcmd_gsmgprs_callback('blockid');||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,on,on,on,on,on,on,on,off,on,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;connectiontype=&3;apn=&4;user=&5;password=&6;pwrkey_port=&7;pwrkey_pi"
+      "n=&8;reset_port=&9;reset_pin=&10;portpinstr=&11;sampletime=@12;blockid=&13;inputporttype=@14;inputportwidth=@15;"
+      "inputportlabel=&16;outputporttype=@17;outputportwidth=@18;outputportlabel=&19;compat=&20;optionstring=&21;string"
+      "param1=@22;stringparam2=@23;stringparam3=@24;stringparam4=@25;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[GSM/GPRS Setup]\\nPort: UART2\\nPWR_Key: PD1\\nRESET: PD0','ver','middle','h"
+      "or','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|2|GPRS|'Internet'|''|''|D|1|D|0|0|-1|GSMGPRSSetup|[]|[]|{}|[]|[]|{}|0|[]|''|''|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS Sync NetworkTime"
+      Ports		      [3, 2]
+      Position		      [40, 290, 240, 390]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskDescription	      "NTP Server:\n URL of NTP server, example: pool.ntp.org\n\nTime zone: -12 to 12\n\nStatus:"
+      "\n0 - Wait\n1 - Busy\n2 - Data Ready\n3 - Success\n4 - Error\n\nDate/ Time:\n(1) - Year\n(2) - Month\n(3) - Day\n"
+      "(4) - Hour\n(5) - Minute\n(6) - Second"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_networktime_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Widt"
+      "h|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|"
+      "String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(SyncNetworkTime),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('sampletime');|"
+      "waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;portpinstr=&2;sampletime=@3;blockid=&4;inputporttype=@5;inputportwidth=@6;inputport"
+      "label=@7;outputporttype=@8;outputportwidth=@9;outputportlabel=@10;compat=&11;optionstring=&12;stringparam1=@13;s"
+      "tringparam2=@14;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Sync Network Time]\\nTs (sec): 0','ver','middle','hor','center'); port_label"
+      "('input', 1,'Trig'); port_label('input', 2,'NTP Server'); port_label('input', 3,'Time zone'); port_label('output"
+      "', 1,'Status'); port_label('output', 2,'Date/Time'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "SyncNetworkTime|0|-1|GSMGPRSSyncNetworkTime|[3 3 6]|[1 -1 1]|{'Trig','NTP Server','Time z"
+      "one'}|[3 7]|[1 6]|{'Status','Date/Time'}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS TCP/UDP Receive"
+      Ports		      []
+      Position		      [275, 290, 475, 390]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_networktime_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Widt"
+      "h|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|"
+      "String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(TCP Server|UDP Server),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,"
+      "edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('sampletime');|"
+      "waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;portpinstr=&2;sampletime=@3;blockid=&4;inputporttype=@5;inputportwidth=@6;inputport"
+      "label=@7;outputporttype=@8;outputportwidth=@9;outputportlabel=@10;compat=&11;optionstring=&12;stringparam1=@13;s"
+      "tringparam2=@14;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '!UNDER DEVELOPMENT!\\nTs (sec): 0','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "UDP Server|0|-1|GSMGPRSTCPUDPReceive|[]|[]|{}|[]|[]|{}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "GSM/GPRS TCP/UDP Send"
+      Ports		      []
+      Position		      [510, 290, 710, 390]
+      FunctionName	      "waijung_atcmd_gsmgprs"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,'','','','',optionstring,samp"
+      "letime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_atcmd_gsmgprs"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_gsmgprs_networktime_id.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Widt"
+      "h|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|"
+      "String(s) to be passed to TLC||Mask Parameter 18:"
+      MaskStyleString	      "popup(TCP Client|UDP Client),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,"
+      "edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_atcmd_gsmgprs_callback('conf');||waijung_atcmd_gsmgprs_callback('sampletime');|"
+      "waijung_atcmd_gsmgprs_callback('blockid');||||||||||"
+      MaskEnableString	      "on,on,on,off,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;portpinstr=&2;sampletime=@3;blockid=&4;inputporttype=@5;inputportwidth=@6;inputport"
+      "label=@7;outputporttype=@8;outputportwidth=@9;outputportlabel=@10;compat=&11;optionstring=&12;stringparam1=@13;s"
+      "tringparam2=@14;"
+      MaskInitialization      "waijung_atcmd_gsmgprs_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '!UNDER DEVELOPMENT!\\nTs (sec): 0','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "TCP Client|0|-1|GSMGPRSTCPUDPSend|[]|[]|{}|[]|[]|{}|0|[]|''|''"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+  }
+}

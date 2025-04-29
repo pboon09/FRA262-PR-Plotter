@@ -1,0 +1,226 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Standard Peripherals Demos</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Standard Peripherals Demos">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "standard_peripherals_demos.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Standard Peripherals Demos</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?standard_peripherals_demos.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Standard Peripherals Demos</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="send_sms.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="demo_home.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="adc3.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><a href="standard_peripherals_demos.htm" class="topiclink">Standard Peripherals Demos</a></p>
+<p><a href="adc3.htm" class="topiclink">ADC</a></p>
+<p><a href="regular_adc_demo.htm" class="topiclink">Regular ADC</a></p>
+<p><a href="can2.htm" class="topiclink">CAN BUS</a></p>
+<p><a href="can_transmit-receive_demo.htm" class="topiclink">CAN Transmit-Receive</a></p>
+<p><a href="can_transmit-receive_extended_.htm" class="topiclink">CAN Transmit-Receive Extended ID</a></p>
+<p><a href="crc2.htm" class="topiclink">CRC</a></p>
+<p><a href="crc32_demo1.htm" class="topiclink">CRC32</a></p>
+<p><a href="dac.htm" class="topiclink">DAC</a></p>
+<p><a href="regular_dac.htm" class="topiclink">Regular DAC</a></p>
+<p><a href="dmadac_demo.htm" class="topiclink">Arbitrary Waveform Generator</a></p>
+<p><a href="noisedac_demo.htm" class="topiclink">Noise Waveform Generator</a></p>
+<p><a href="gpio.htm" class="topiclink">GPIO</a></p>
+<p><a href="stm32f4_digital_input_demo.htm" class="topiclink">Digital Input</a></p>
+<p><a href="stm32f4_digital_output_demo.htm" class="topiclink">Digital Output</a></p>
+<p><a href="i2c3.htm" class="topiclink">I2C</a></p>
+<p><a href="sensor_l3g4200d.htm" class="topiclink">Sensor L3G4200D</a></p>
+<p><a href="pressure_sensor_mpl3115a2.htm" class="topiclink">Pressure Sensor MPL3115A2</a></p>
+<p><a href="humidity_and_temperature_senso.htm" class="topiclink">Humidity and Temperature Sensor HIH6131</a></p>
+<p><a href="ambient_light_photo_sensor_apd.htm" class="topiclink">Ambient Light Photo Sensor APDS9301</a></p>
+<p><a href="rtc2.htm" class="topiclink">RTC</a></p>
+<p><a href="hardware_setup2.htm" class="topiclink">Hardware setup</a></p>
+<p><a href="date__time_adjest.htm" class="topiclink">Date/ Time Display</a></p>
+<p><a href="date_time_configuration_demo.htm" class="topiclink">Date and Time configuration</a></p>
+<p><a href="sdio2.htm" class="topiclink">SDIO</a></p>
+<p><a href="hi_speed_data_logger.htm" class="topiclink">Hi Speed Data Logger</a></p>
+<p><a href="high_speed_data_logger.htm" class="topiclink">High speed data logger Binary mode (100kHz)</a></p>
+<p><a href="data_logger_ascii_mode.htm" class="topiclink">Data logger Ascii mode (10kHz)</a></p>
+<p><a href="data_logger_manual_stop.htm" class="topiclink">Data logger Manual Stop</a></p>
+<p><a href="data_logger.htm" class="topiclink">Data Logger</a></p>
+<p><a href="data_logger_ascii_mode2.htm" class="topiclink">Data Logger Ascii mode</a></p>
+<p><a href="data_logger_ascii_mode_with_hi.htm" class="topiclink">Data Logger Ascii mode with date/time</a></p>
+<p><a href="spi2.htm" class="topiclink">SPI</a></p>
+<p><a href="sensor_lis302dl.htm" class="topiclink">Sensor LIS302DL</a></p>
+<p><a href="ps2_joystick_demo.htm" class="topiclink">PS2 Joystick Demo</a></p>
+<p><a href="tim2.htm" class="topiclink">TIM</a></p>
+<p><a href="advanced_pwm_demo.htm" class="topiclink">Advanced PWM</a></p>
+<p><a href="basicpwm_demo.htm" class="topiclink">Basic PWM</a></p>
+<p><a href="stm32f4_delayus_demo.htm" class="topiclink">Delay uS</a></p>
+<p><a href="encoder_read_demo.htm" class="topiclink">Encoder Read </a></p>
+<p><a href="stm32f4_bttbisr_demo.htm" class="topiclink">Timer IRQ</a></p>
+<p><a href="uart_demo.htm" class="topiclink">UART</a></p>
+<p><a href="host_pc_and_target.htm" class="topiclink">Host PC and Target</a></p>
+<p><a href="host_pc_and_target_hi-speed_co.htm" class="topiclink">Host PC and Target hi-speed communication</a></p>
+<p><a href="uart_two_boards_communication.htm" class="topiclink">Two boards communication, blocking mode</a></p>
+<p><a href="two_boards_communication__non-.htm" class="topiclink">Two boards communication, non-blocking mode</a></p>
+<p><a href="read_unique_id_demo.htm" class="topiclink">Unique ID</a></p>
+<p><a href="dcmi2.htm" class="topiclink">DCMI</a></p>
+<p><a href="udp_ip_camera_demo.htm" class="topiclink">UDP IP Camera Demo</a></p>
+<p><a href="moving_object_tracking_demo.htm" class="topiclink">Moving Object Tracking Demo</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

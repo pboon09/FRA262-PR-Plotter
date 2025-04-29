@@ -1,0 +1,771 @@
+Library {
+  Name			  "waijung_string_manipulate"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Sun May 12 21:58:33 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Sun Feb 05 15:31:07 2017"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:173>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 520, 225, 1400, 855 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "waijung_string_manipulate"
+    Location		    [355, 109, 1018, 606]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Buffer Compare"
+      Ports		      [0, 1]
+      Position		      [195, 31, 355, 119]
+      FunctionName	      "waijung_stringbuffer_compare"
+      Parameters	      "configuration,method,inputtypearray,outputtypearray,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_compare"
+      MaskDescription	      "This block implements string comparison."
+      MaskHelp		      "web(fullfile(waijungdocroot,'String_Buffer_Compare.htm'))"
+      MaskPromptString	      "Function|Input Parameter type|Parameter 1:|Parameter 1 Var name:|Parameter 1 (Constant):"
+      "|Parameter 2:|Parameter 2 Var name:|Parameter 2 (Constant):|Length source of compare:|Compare Length:|Method|Inp"
+      "ut type array|Output type array|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(strcmp|strncmp|strstr),popup(StringBuffer - StringBuffer|StringBuffer - Constant|Co"
+      "nstant - StringBuffer|Constant - Constant),popup(<empty>),edit,edit,popup(<empty>),edit,edit,popup(Specific|Leng"
+      "th of Parameter 1|Length of Parameter 2),edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_compare_callback('configuration');|waijung_stringbuffer_compare_ca"
+      "llback('inputparametertype');|waijung_stringbuffer_compare_callback('parameter1');||waijung_stringbuffer_compare"
+      "_callback('parameter1_const');|waijung_stringbuffer_compare_callback('parameter2');||waijung_stringbuffer_compar"
+      "e_callback('parameter2_const');|waijung_stringbuffer_compare_callback('comparelengthsource');|waijung_stringbuff"
+      "er_compare_callback('comparelength');|waijung_stringbuffer_compare_callback('method');|||waijung_stringbuffer_co"
+      "mpare_callback('sampletime');|waijung_stringbuffer_compare_callback('sampletimestr');|waijung_stringbuffer_compa"
+      "re_callback('blockid');"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,off,on,on,on,off,off"
+      MaskVisibilityString    "on,on,off,off,on,off,off,on,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;inputparametertype=&2;parameter1=&3;parameter1_varname=&4;parameter1_const"
+      "=@5;parameter2=&6;parameter2_varname=&7;parameter2_const=@8;comparelengthsource=&9;comparelength=@10;method=&11;"
+      "inputtypearray=@12;outputtypearray=@13;sampletime=@14;sampletimestr=&15;blockid=&16;"
+      MaskInitialization      "waijung_stringbuffer_compare_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, '[ strcmp ]\\nParameter 1: \"String1\"\\nParameter 2: \"String2\"\\nTs (sec):"
+      " 0','ver','middle','hor','left');port_label('output', 1,'Result');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "strcmp|Constant - Constant|<empty>||'String1'|<empty>||'String2'|Length of Parameter 2|2|"
+      "strcmp((char*)\"String1\", (char*)\"String2\")|[0]|[1 7]|-1|0|StringBufferCompare"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Buffer Processing"
+      Ports		      [3]
+      Position		      [25, 31, 170, 119]
+      FunctionName	      "waijung_stringbuffer_processing"
+      Parameters	      "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sa"
+      "mpletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_processing"
+      MaskDescription	      "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u,"
+      " %i, %o, %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+      MaskHelp		      "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+      MaskPromptString	      "Function|String buffer|Printf format|Enable output status|Variable name|Input type array"
+      "|Output type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(sprintf|sscanf),popup(<output>|S),edit,checkbox,edit,edit,edit,edit,edit,edit,edit,"
+      "edit"
+      MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_proces"
+      "sing_callback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_pr"
+      "ocessing_callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer"
+      "_processing_callback('blockid');"
+      MaskEnableString	      "on,on,on,on,off,on,on,on,on,on,off,off"
+      MaskVisibilityString    "on,on,on,on,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;out"
+      "puttypearray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+      MaskInitialization      "waijung_stringbuffer_processing_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ sprintf ]\\nBuffer: S\\nTs (sec): 0','ver','middle','hor','center');port_la"
+      "bel('input', 1,'%u');port_label('input', 2,'%d');port_label('input', 3,'%i');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "sprintf|S|'%u,%d,%i'|off||[3 -1 -1 -1]|[0]|[\"uint32_t\",\"int32_t\",\"uint32_t\"]|3|-1|0"
+      "|StringBufferProcessing"
+      MaskTabNameString	      ",,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Processing"
+      Ports		      [2, 1]
+      Position		      [25, 149, 170, 231]
+      FunctionName	      "waijung_string_processing"
+      Parameters	      "conf,stringfunction,stringformat,begindelimiter,enddelimiter,buffersize,enablestatus,datatypes"
+      "tring,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_string_processing_callback"
+      MaskDescription	      "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u,"
+      " %i, %o, %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n%s: vector of data type uint8\n\nReturn:\n return "
+      "number of success parameters.\n\nNote: sscanf and strsplit block required additional <buffersize> bytes stack."
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_string_processing_callback.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Function|Format|Begin delimiter|End delimiter|Buffer size|Enable output st"
+      "atus|Port Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Ty"
+      "pe|Output Port Width|Output port label|Compatibility (Reserved for future use)|String(s) to be passed to TLC|Dat"
+      "a types string"
+      MaskStyleString	      "popup(processing),popup(sprintf|sscanf|strlen|strcmp|strncmp|strextract),edit,edit,edit,e"
+      "dit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_string_processing_callback('conf');|waijung_string_processing_callback('stringf"
+      "unction');|waijung_string_processing_callback('stringformat');|waijung_string_processing_callback('begindelimite"
+      "r');|waijung_string_processing_callback('enddelimiter');|waijung_string_processing_callback('buffersize');|waiju"
+      "ng_string_processing_callback('enablestatus');||waijung_string_processing_callback('sampletime');|waijung_string"
+      "_processing_callback('blockid');|||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,off,off,on,on,off,on,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;stringfunction=&2;stringformat=@3;begindelimiter=@4;enddelimiter=@5;buffersize=@6;e"
+      "nablestatus=@7;portpinstr=&8;sampletime=@9;blockid=&10;inputporttype=@11;inputportwidth=@12;inputportlabel=&13;o"
+      "utputporttype=@14;outputportwidth=@15;outputportlabel=&16;compat=&17;optionstring=&18;datatypestring=&19;"
+      MaskInitialization      "waijung_string_processing_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[sprintf]','ver','middle','hor','center'); port_label('input', 1,'%d'); port_"
+      "label('input', 2,'%f'); port_label('output', 1,'Output'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "processing|sprintf|'value=%d,%f'|''|''|28|off|0|-1|StringProcessing|[-1 -1]|[1 1]|{'%d','"
+      "%f'}|[3]|[28]|{'Output'}|0|[]|[\"int32_t\",\"float\"]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "StringBuffer Read"
+      Ports		      [0, 1]
+      Position		      [195, 150, 355, 230]
+      FunctionName	      "waijung_stringbuffer_read"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_read"
+      MaskDescription	      "Read as Vector from StringBuffer"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_stringbuffer_read.htm'), '-browser')"
+      MaskPromptString	      "Configuration|String buffer|Var name|Output buffer size|Port Pin String|Sample time (sec"
+      ")|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port labe"
+      "l|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(read|write),popup(S),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,ed"
+      "it"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_read_callback('conf');|||waijung_stringbuffer_read_callback('outpu"
+      "tsize');||waijung_stringbuffer_read_callback('sampletime');|waijung_stringbuffer_read_callback('blockid');||||||"
+      "||"
+      MaskEnableString	      "on,on,off,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,off,on,off,on,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;storagename=&2;varname=&3;outputsize=&4;portpinstr=&5;sampletime=@6;blockid=&7;inpu"
+      "tporttype=@8;inputportwidth=@9;inputportlabel=&10;outputporttype=@11;outputportwidth=@12;outputportlabel=&13;com"
+      "pat=&14;optionstring=&15;"
+      MaskInitialization      "waijung_stringbuffer_read_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Name: S\\nTs (sec): 0','ver','middle','hor','center'); port_label('output', 1"
+      ",'Output'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "read|S||32|0|-1|StringBufferRead|[]|[]|{}|[3]|[32]|{'Output'}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "StringBuffer Write"
+      Ports		      [1]
+      Position		      [195, 255, 355, 335]
+      FunctionName	      "waijung_stringbuffer_write"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_write"
+      MaskDescription	      "Write aVector to StringBuffer"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_stringbuffer_write.htm'), '-browser')"
+      MaskPromptString	      "Configuration|String buffer|Var name|Output buffer size|Port Pin String|Sample time (sec"
+      ")|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port labe"
+      "l|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(write),popup(S),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_write_callback('conf');|||waijung_stringbuffer_write_callback('out"
+      "putsize');||waijung_stringbuffer_write_callback('sampletime');|waijung_stringbuffer_write_callback('blockid');||"
+      "||||||"
+      MaskEnableString	      "on,on,off,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,off,on,off,on,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;storagename=&2;varname=&3;outputsize=&4;portpinstr=&5;sampletime=@6;blockid=&7;inpu"
+      "tporttype=@8;inputportwidth=@9;inputportlabel=&10;outputporttype=@11;outputportwidth=@12;outputportlabel=&13;com"
+      "pat=&14;optionstring=&15;"
+      MaskInitialization      "waijung_stringbuffer_write_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Name: S\\nTs (sec): 0','ver','middle','hor','center'); port_label('input', 1,"
+      "'Input'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "write|S||32|0|-1|StringBufferWrite|[3]|[32]|{'Input'}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,"
+    }
+  }
+}

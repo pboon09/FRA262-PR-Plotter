@@ -1,0 +1,349 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Waijung Demos &gt; Hardware in The Loop Tests</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Enable initial value (Closed loop HIL test)">
+   <meta name="description" content="Hardware in The Loop Tests">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "hardware_in_the_loop_tests_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Hardware in The Loop Tests</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?hardware_in_the_loop_tests_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="waijung_demos.htm">Waijung Demos</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Hardware in The Loop Tests</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="execution_time_profiler.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="waijung_demos.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="irq_custom_code_demo.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+   
+  <table id="idnav" class="expander">
+  <tr><td><a href="javascript:toggleToggles()" title="Click to open/close expanding sections">Show/Hide Hidden Text</a>
+  </td></tr></table>
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>Demo files: </p>
+<p>hil0_host_demo.mdl</p>
+<p>hil1_host_demo.mdl</p>
+<p>hil1_target_demo.mdl</p>
+<p>hil2_host_demo.mdl</p>
+<p>hil2_target_demo.mdl</p>
+<p>hil3_host_demo.mdl</p>
+<p>hil3_target_demo.mdl</p>
+<p>&nbsp;</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A1_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A1','TOGGLE0186A1_ICON')">Overview</a></td></tr></table></div><div id="TOGGLE0186A1" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>For Waijung, Hardware in the Loop (HIL) Test refers to all simulation scenarios where some kind of hardware is included in simulation loops.</p>
+<p>The followings show example usages of HIL Test with Waijung.</p>
+<p>In each simulation scenarios, notice the use of <span style="font-weight: bold;">Enable initial value (Closed loop HIL test)</span> feature.</p>
+<p>When <span style="font-weight: bold;">Enable initial value (Closed loop HIL test) </span>is checked, the host Simulnk model automatically transmits initial values to the target as soon as the simulation start, prior to entering simulation loop. This ensures correct data exchange between target and host. This setting is required for Test Case 1 HIL test type only.</p>
+<p>Users must always <span style="font-weight: bold;">manually reset the target hardware</span> to have proper initial values before restarting each HIL Test run.</p>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A2_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A2','TOGGLE0186A2_ICON')">Setting Summary</a></td></tr></table></div><div id="TOGGLE0186A2" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>For correct real-time performance use the following setting for various HIL Tests.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:900px; border:none; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<td rowspan="3" style="vertical-align:middle; width:276px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Case</span></p>
+</td>
+<td colspan="3" style="vertical-align:middle; width:441px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Host Side</span></p>
+</td>
+<td colspan="2" style="vertical-align:middle; width:320px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Target Side</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:middle;">
+<td colspan="2" style="vertical-align:middle; width:285px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Host Serial Rx Block</span></p>
+</td>
+<td style="vertical-align:middle; width:156px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Host Serial Tx Block</span></p>
+</td>
+<td style="vertical-align:middle; width:146px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Target Serial Rx Block</span></p>
+</td>
+<td style="vertical-align:middle; width:172px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Target Serial Tx Block</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:middle;">
+<td style="vertical-align:middle; width:106px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Transfer Mode</span></p>
+</td>
+<td style="vertical-align:middle; width:171px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Enable initial value </span><br />
+<span style="font-weight: bold;">(Closed loop HIL test)</span></p>
+</td>
+<td style="vertical-align:middle; width:156px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Transfer Mode</span></p>
+</td>
+<td style="vertical-align:middle; width:146px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Transfer Mode</span></p>
+</td>
+<td style="vertical-align:middle; width:172px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Transfer Mode</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:276px; padding:0px; border:solid 1px #000000;"><p>Test Case 1: Discrete-Time HIL Test (Algorithm in host PC - Plant in target)</p>
+</td>
+<td style="vertical-align:middle; width:106px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:171px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Checked</p>
+</td>
+<td style="vertical-align:middle; width:156px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:146px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:172px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:276px; padding:0px; border:solid 1px #000000;"><p>Test Case 2: Discrete-Time HIL Test (Algorithm in target - Plant in host PC)</p>
+</td>
+<td style="vertical-align:middle; width:106px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:171px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">NOT Checked</p>
+</td>
+<td style="vertical-align:middle; width:156px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:146px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:172px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:276px; padding:0px; border:solid 1px #000000;"><p>Test Case 3: Discrete-Time Control (Algorithm in target - Continuous-Time Plant in host PC)</p>
+</td>
+<td style="vertical-align:middle; width:106px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:171px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">NOT Checked</p>
+</td>
+<td style="vertical-align:middle; width:156px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:146px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+<td style="vertical-align:middle; width:172px; padding:0px; border:solid 1px #000000;"><p style="text-align: center;">Blocking</p>
+</td>
+</tr>
+</table>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A3_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A3','TOGGLE0186A3_ICON')">Test Settings</a></td></tr></table></div><div id="TOGGLE0186A3" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>The test case is a simple closed loop controller as shown below.</p>
+<p>The test compares outputs between continuous-time and discrete-time model running under pure simulation testing.</p>
+<p><img src="hil0_demo.png" width="950" height="578" alt="hil0_demo" style="width:950px;height:578px;border:none" /></p>
+<p>The following picture shows simulation results.</p>
+<p><img src="hil0_results.png" width="950" height="571" alt="hil0_results" style="width:950px;height:571px;border:none" /></p>
+<p>&nbsp;</p>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A4_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A4','TOGGLE0186A4_ICON')">Test Case 1: Discrete-Time HIL Test (Algorithm in host PC - Plant in target)</a></td></tr></table></div><div id="TOGGLE0186A4" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>This HIL test compares simulation results between. </p>
+<p style="margin: 5px 0px 5px 24px;">1) Plant is running in the host PC.</p>
+<p style="margin: 5px 0px 5px 24px;">2) Plant is running in the target board.</p>
+<p>The control algorithm runs in the host PC for both cases.</p>
+<p>&nbsp;</p>
+<p><img src="hil1_demo.png" width="950" height="1500" alt="hil1_demo" style="width:950px;height:1500px;border:none" /></p>
+<p>The following show the simulation results.</p>
+<p><img src="hil1_results.png" width="950" height="818" alt="hil1_results" style="width:950px;height:818px;border:none" /></p>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A5_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A5','TOGGLE0186A5_ICON')">Test Case 2: Discrete-Time HIL Test (Algorithm in target - Plant in host PC)</a></td></tr></table></div><div id="TOGGLE0186A5" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>This HIL test compares simulation results between. </p>
+<p style="margin: 5px 0px 5px 24px;">1) Controller is running in the host PC.</p>
+<p style="margin: 5px 0px 5px 24px;">2) Controller is running in the target board.</p>
+<p>The plant model runs in the host PC for both cases.</p>
+<p><img src="hil2_demo.png" width="950" height="1700" alt="hil2_demo" style="width:950px;height:1700px;border:none" /></p>
+<p>The following show the simulation results.</p>
+<p><img src="hil2_results.png" width="950" height="762" alt="hil2_results" style="width:950px;height:762px;border:none" /></p>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr style="vertical-align:baseline"><td style="border:none;padding:0;width:18px"><img id="TOGGLE0186A6_ICON" class="dropdown-toggle-icon" src="hmtoggle_plus1.gif" width="9" height="9" alt="hmtoggle_plus1" style="width:9px;height:9px;border:none" /></td><td style="border:none;padding:0"><a class="dropdown-toggle" href="javascript:HMToggle('toggle','TOGGLE0186A6','TOGGLE0186A6_ICON')">Test Case 3: Discrete-Time Control (Algorithm in target - Continuous-Time Plant in host PC)</a></td></tr></table></div><div id="TOGGLE0186A6" style="text-align: left; text-indent: -18px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 18px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>This HIL test compares simulation results between. </p>
+<p style="margin: 5px 0px 5px 24px;">1) Discrete-time controller is running in the host PC.</p>
+<p style="margin: 5px 0px 5px 24px;">2) Discrete-time controller is running in the target board.</p>
+<p>The continuous-time plant model runs in the host PC for both cases.</p>
+<p><img src="hil3_demo.png" width="950" height="1600" alt="hil3_demo" style="width:950px;height:1600px;border:none" /></p>
+<p>The following show the simulation results.</p>
+<p><img src="hil3_results.png" width="950" height="865" alt="hil3_results" style="width:950px;height:865px;border:none" /></p>
+</td>
+</tr>
+</table>
+</div>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+<script type="text/javascript">
+HMInitToggle('TOGGLE0186A1_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A1\',\'TOGGLE0186A1_ICON\')');
+HMInitToggle('TOGGLE0186A1','hm.type','dropdown','hm.state','0');
+HMInitToggle('TOGGLE0186A2_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A2\',\'TOGGLE0186A2_ICON\')');
+HMInitToggle('TOGGLE0186A2','hm.type','dropdown','hm.state','0');
+HMInitToggle('TOGGLE0186A3_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A3\',\'TOGGLE0186A3_ICON\')');
+HMInitToggle('TOGGLE0186A3','hm.type','dropdown','hm.state','0');
+HMInitToggle('TOGGLE0186A4_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A4\',\'TOGGLE0186A4_ICON\')');
+HMInitToggle('TOGGLE0186A4','hm.type','dropdown','hm.state','0');
+HMInitToggle('TOGGLE0186A5_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A5\',\'TOGGLE0186A5_ICON\')');
+HMInitToggle('TOGGLE0186A5','hm.type','dropdown','hm.state','0');
+HMInitToggle('TOGGLE0186A6_ICON','hm.type','dropdown','hm.state','0','hm.src0','hmtoggle_plus0.gif','hm.src1','hmtoggle_plus1.gif','onclick','HMToggle(\'toggle\',\'TOGGLE0186A6\',\'TOGGLE0186A6_ICON\')');
+HMInitToggle('TOGGLE0186A6','hm.type','dropdown','hm.state','0');
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

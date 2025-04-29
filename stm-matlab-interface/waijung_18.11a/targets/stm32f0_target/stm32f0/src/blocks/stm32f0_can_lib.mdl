@@ -1,0 +1,769 @@
+Library {
+  Name			  "stm32f0_can_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Dec 01 16:20:31 2014"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:29>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "stm32f0_can_lib"
+    Location		    [-690, 319, -150, 916]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "CAN Message"
+      Ports		      [0, 3]
+      Position		      [25, 424, 220, 536]
+      FunctionName	      "stm32f0_can"
+      Parameters	      "conf,canmodule,0,inputarray,outputarray,inputlabelarray,outputlabelarray,confstr,sampletime,sa"
+      "mpletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_can"
+      MaskDescription	      "This block work in function-call subsystem which called by CAN Receive ISR."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_can_message.htm'), '-browser')"
+      MaskPromptString	      "Configuration|CAN Module|Use DLC|Data type|D0 data type|D1 data type|D2 data type|D3 dat"
+      "a type|D4 data type|D5 data type|D6 data type|D7 data type|Sample time (sec)|Compiled sample time (sec) in strin"
+      "g|BlockID|Input port|Input port label|Output port|Output port label|Compatibility (Reserved for future use)|Conf"
+      "iguration String"
+      MaskStyleString	      "popup(Msg),popup(1),checkbox,popup(double|single|int8|uint8|int16|uint16|int32|uint32),po"
+      "pup(double|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint"
+      "32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|in"
+      "t32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),"
+      "popup(Not used|int8|uint8|int16|uint16),popup(Not used|int8|uint8),edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "||stm32f0_can_callback('usedlc');|stm32f0_can_callback('datatype');|stm32f0_can_callbac"
+      "k('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatyp"
+      "e');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32"
+      "f0_can_callback('datatype');||stm32f0_can_callback('sampletimestr');|stm32f0_can_callback('blockid');||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,on,off,on,on,on,off,off,off,off,off,on,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;canmodule=&2;usedlc=&3;datatype=&4;data0type=@5;data1type=@6;data2type=@7;data3type"
+      "=@8;data4type=@9;data5type=@10;data6type=@11;data7type=@12;sampletime=@13;sampletimestr=&14;blockid=&15;inputarr"
+      "ay=@16;inputlabelarray=@17;outputarray=@18;outputlabelarray=@19;compat=&20;confstr=&21;"
+      MaskInitialization      "stm32f0_can_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, 'CAN_Message\\n','ver','middle','hor','left'); port_label('output', 1,'ID'); "
+      "port_label('output', 2,'D0 (uint32)'); port_label('output', 3,'D1 (int8)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Msg|1|off|double|uint32|int8|Not used|Not used|Not used|Not used|Not used|Not used|-1|0|C"
+      "ANMessage|[]|{}|[ 7, 7, 2]|{'ID', 'D0 (uint32)', 'D1 (int8)' }|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "CAN Receive"
+      Ports		      [0, 1]
+      Position		      [25, 284, 220, 396]
+      FunctionName	      "stm32f0_can"
+      Parameters	      "conf,canmodule,enableisr,inputarray,outputarray,inputlabelarray,outputlabelarray,confstr,sampl"
+      "etime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_can"
+      MaskDescription	      "This block can be configured to work in two operation mode.\n1. ISR, the block will gener"
+      "ate output as function call when receive CAN packet matched to the specified filter. This port can be connected "
+      "to function-call subsystem.\n2. Normal, the block will collect the receiving CAN packet which match to filter fo"
+      "rmat to its internal buffer and wait to process in time step."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_can_receive.htm'), '-browser')"
+      MaskPromptString	      "Configuration|CAN Module|Identifier Type|ID Filter type|Identifier, ID|Mask|Enable ISR o"
+      "n Filter match|Use DLC|Data type|D0 data type|D1 data type|D2 data type|D3 data type|D4 data type|D5 data type|D"
+      "6 data type|D7 data type|Extended buffer size|Sample time (sec)|Compiled sample time (sec) in string|BlockID|Inp"
+      "ut port|Input port label|Output port|Output port label|Compatibility (Reserved for future use)|Configuration Str"
+      "ing"
+      MaskStyleString	      "popup(Rx),popup(1),popup(Standard|Extended),popup(Specific|Mask),edit,edit,checkbox,check"
+      "box,popup(double|single|int8|uint8|int16|uint16|int32|uint32),popup(double|single|int8|uint8|int16|uint16|int32|"
+      "uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint1"
+      "6|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int"
+      "16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),popup(Not used|int8|uint8|int16|uint16),popup(No"
+      "t used|int8|uint8),popup(8|16|32|64),edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off"
+      MaskCallbackString      "|stm32f0_can_callback('canmodule');||stm32f0_can_callback('filtertype');|||stm32f0_can_"
+      "callback('enableisr');|stm32f0_can_callback('usedlc');|stm32f0_can_callback('datatype');|stm32f0_can_callback('d"
+      "atatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');"
+      "|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_c"
+      "an_callback('datatype');||stm32f0_can_callback('sampletime');|stm32f0_can_callback('sampletimestr');|stm32f0_can"
+      "_callback('blockid');||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;canmodule=&2;idtype=&3;filtertype=&4;id=&5;idmask=&6;enableisr=@7;usedlc=&8;datatyp"
+      "e=&9;data0type=@10;data1type=@11;data2type=@12;data3type=@13;data4type=@14;data5type=@15;data6type=@16;data7type"
+      "=@17;buffersize=&18;sampletime=@19;sampletimestr=&20;blockid=&21;inputarray=@22;inputlabelarray=@23;outputarray="
+      "@24;outputlabelarray=@25;compat=&26;confstr=&27;"
+      MaskInitialization      "stm32f0_can_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, 'CAN1_Receive\\nType ID: Standard\\nFilter ID: 0x0000\\nFilter Mask: 0x0000',"
+      "'ver','middle','hor','left'); port_label('output', 1,'Call ISR'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Rx|1|Standard|Mask|0|0|on|off|single|uint32|uint32|Not used|Not used|Not used|Not used|No"
+      "t used|Not used|8|inf|0|CANReceive|[]|{}|[7]|{'Call ISR' }|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "CAN Setup"
+      Ports		      []
+      Position		      [25, 13, 220, 110]
+      FunctionName	      "stm32f0_can"
+      Parameters	      "conf,canmodule,0,inputarray,outputarray,'','',confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_can"
+      MaskDescription	      "This block setups CAN Module.\n\nAuto Re-transmission,\n - Enable: The CAN hardware will "
+      "automatically retransmit the message until it has been \nsuccessfully transmitted according to the CAN standard."
+      "\n - Disable: A message will be transmitted only once, independently of the transmission result \n(successful, e"
+      "rror or arbitration lost).\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_can_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|CAN Module|Advance configuration|Baud rate (bps)|Resync Jump Width (SJW)|B"
+      "it segment 1 (BS1) + PROP_SEG|Bit segment 2 (BS2)|Adjust|Baud rate prescaler (BRP)|Baud rate (bps)|Time Quantum "
+      "(Second), tq|Auto Re-transmission|CAN Tx pin|CAN Rx pin|Sample time (sec)|Compiled sample time (sec) in string|B"
+      "lockID|Input port|Input port label|Output port|Output port label|Compatibility (Reserved for future use)|Configu"
+      "ration String|Prescale|Tx port string|Tx pin string|Rx port string|Rx pin string|Last module selected"
+      MaskStyleString	      "popup(Setup),popup(1),checkbox,popup(125000|250000|500000|1000000),popup(1tq|2tq|3tq|4tq)"
+      ",popup(1tq|2tq|3tq|4tq|5tq|6tq|7tq|8tq|9tq|10tq|11tq|12tq|13tq|14tq|15tq|16tq),popup(1tq|2tq|3tq|4tq|5tq|6tq|7tq"
+      "|8tq),popup(Prescaler|Baudrate),edit,edit,edit,popup(Enable|Disable),popup(Not set|A12|B9|D1),popup(Not set|A11|"
+      "B8|D0),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off"
+      MaskCallbackString      "|stm32f0_can_callback('canmodule');|stm32f0_can_callback('advance');|stm32f0_can_callba"
+      "ck('bitrate_select');||stm32f0_can_callback('timingconf');|stm32f0_can_callback('timingconf');|stm32f0_can_callb"
+      "ack('timingconf');|stm32f0_can_callback('timingconf');|stm32f0_can_callback('timingconf');|||stm32f0_can_callbac"
+      "k('remaptxpin');|stm32f0_can_callback('remaprxpin');|stm32f0_can_callback('sampletime');|stm32f0_can_callback('s"
+      "ampletimestr');|stm32f0_can_callback('blockid');||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,"
+      "on"
+      MaskVisibilityString    "off,on,on,on,off,off,off,off,off,off,off,on,on,on,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;canmodule=&2;advance=&3;bitrate_select=&4;sjw=&5;bs1=&6;bs2=&7;timingconf=&8;brp=@9"
+      ";bitrate=@10;tq=&11;autoretransmission=&12;remaptxpin=&13;remaprxpin=&14;sampletime=@15;sampletimestr=&16;blocki"
+      "d=&17;inputarray=@18;inputlabelarray=&19;outputarray=@20;outputlabelarray=&21;compat=&22;confstr=&23;presc=&24;t"
+      "xportstr=&25;txpinstr=&26;rxportstr=&27;rxpinstr=&28;lastmodule=&29;"
+      MaskInitialization      "stm32f0_can_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'CAN1_Setup\\nSpeed (bps): 125000\\nTx/Rx pin: B9/B8','ver','middle','hor','ce"
+      "nter'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|1|off|125000|1tq|15tq|8tq|Prescaler|16|125000|3.3333e-007|Disable|B9|B8|-1|0|CANSet"
+      "up|[]|{}|[]|{}|0|[]|16|B|9|B|8|1"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "CAN Transmit"
+      Ports		      [2]
+      Position		      [25, 137, 220, 253]
+      FunctionName	      "stm32f0_can"
+      Parameters	      "conf,canmodule,0,inputarray,outputarray,'','',confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_can"
+      MaskDescription	      "Status:\n0 - Ok\n1 - Failed\n2 - Message is pending\n3 - Error, no available transmit slo"
+      "t"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_can_transmit.htm'), '-browser')"
+      MaskPromptString	      "Configuration|CAN Module|Transfer|Transmit timeout (sec)|Identifier Type|Specific Identi"
+      "fier (ID)|Identifier, ID|Auto calculate Data Lenght Code (DLC)|Data Lenght Code, DLC|Enable Status port|Data typ"
+      "e|D0 data type|D1 data type|D2 data type|D3 data type|D4 data type|D5 data type|D6 data type|D7 data type|Input "
+      "port|Input port label|Output port|Output port lable|Sample time (sec)|Compiled sample time (sec) in string|Block"
+      "ID|Compatibility (Reserved for future use)|Configuration String"
+      MaskStyleString	      "popup(Tx),popup(1),popup(Blocking|Non-Blocking),edit,popup(Standard|Extended),checkbox,ed"
+      "it,checkbox,popup(0|1|2|3|4|5|6|7|8),checkbox,popup(double|single|int8|uint8|int16|uint16|int32|uint32),popup(do"
+      "uble|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),po"
+      "pup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|ui"
+      "nt32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),popup("
+      "Not used|int8|uint8|int16|uint16),popup(Not used|int8|uint8),edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off"
+      MaskCallbackString      "|stm32f0_can_callback('canmodule');|stm32f0_can_callback('transfer');||stm32f0_can_call"
+      "back('idtype');|stm32f0_can_callback('specificid');||stm32f0_can_callback('specificdlc');|stm32f0_can_callback('"
+      "specificdlc');|stm32f0_can_callback('enablestatus');|stm32f0_can_callback('datatype');|stm32f0_can_callback('dat"
+      "atype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|s"
+      "tm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can_callback('datatype');|stm32f0_can"
+      "_callback('datatype');|stm32f0_can_callback('inputarray');||stm32f0_can_callback('outputarray');||stm32f0_can_ca"
+      "llback('sampletime');|stm32f0_can_callback('sampletimestr');|stm32f0_can_callback('blockid');||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,on,on"
+      MaskVisibilityString    "off,on,on,on,on,on,on,on,on,on,off,on,on,on,off,off,off,off,off,off,off,off,off,on,off,"
+      "off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;canmodule=&2;transfer=&3;timeout=&4;idtype=&5;specificid=&6;id=&7;specificdlc=&8;dl"
+      "c=&9;enablestatus=&10;datatype=&11;data0type=@12;data1type=@13;data2type=@14;data3type=@15;data4type=@16;data5ty"
+      "pe=@17;data6type=@18;data7type=@19;inputarray=@20;inputlabelarray=@21;outputarray=@22;outputlabelarray=@23;sampl"
+      "etime=@24;sampletimestr=&25;blockid=&26;compat=&27;confstr=&28;"
+      MaskInitialization      "stm32f0_can_callback('init');"
+      MaskDisplay	      "text(0.95, 0.5, 'CAN1_Send\\nTransfer: Blocking\\nID: 0x0 (Standard)\\nDLC: 5\\nTs (sec): 0',"
+      "'ver','middle','hor','right'); port_label('input', 1,'D0 (uint32)'); port_label('input', 2,'D1 (uint8)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Tx|1|Blocking|0.1|Standard|on|0|on|5|off|single|uint32|uint8|Not used|Not used|Not used|N"
+      "ot used|Not used|Not used|[ 7, 3]|{ 'D0 (uint32)', 'D1 (uint8)' }|[]|{}|-1|0|CANTransmit|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+  }
+}

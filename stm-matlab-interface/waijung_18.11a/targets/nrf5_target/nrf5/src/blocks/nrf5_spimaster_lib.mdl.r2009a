@@ -1,0 +1,678 @@
+Library {
+  Name			  "nrf5_spimaster_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon May 21 00:21:52 2018"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:71>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "nrf5_spimaster_lib"
+    Location		    [1114, 449, 1844, 791]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "SPI Master"
+      Ports		      [4, 1]
+      Position		      [25, 30, 225, 150]
+      FunctionName	      "nrf5_spimaster"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_spimaster"
+      MaskDescription	      "Direction:\n - Full-Duplex, use this mode when need to send and receive data at same cloc"
+      "k.\n - Half-Duplex_Tx, this mode is to transmit data to slave only. Pin MISO (Rx) can be free for other function"
+      ".\n - Half-Duplex_Rx, this mode is to receive data from slave only. Pin MOSIO (Tx) can be free for other functio"
+      "n.\nData format:\n  This configuration is depending on the specification of slave device, MSB or LSB is first bi"
+      "t.\nClock frequency (Hz):\n - Select frequency for SPI clock.\nClock polarity and Clock phase:\n - This configur"
+      "ation parameter is depending on slave device.\n - See waijung help for more description.\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_spimaster.htm'), '-browser')"
+      MaskPromptString	      "Configuration|SPI Module|Direction|Data format|Clock frequency|Clock polarity (CPOL)/ Cl"
+      "ock phase (CPHA):|Slave/chip select (nSS, nCS) pin|SCLK pin:|MISO pin:|MOSI pin:|Slave/chip select (nSS, nCS) de"
+      "lay time (uS)|Data frame delay time (uS)|Input data type|Input data count|Output data type|Output data count|Por"
+      "t Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Outpu"
+      "t Port Width|Output port label|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Master),popup(0),popup(Full-Duplex|Half-Duplex_Tx|Half-Duplex_Rx),popup(FirstBit_MS"
+      "B|FirstBit_LSB),popup(125kHz|250kHz|500kHz|1MHz|2MHz|4MHz),popup(CPOL_Low/ CPHA_Leading|CPOL_Low/ CPHA_Trailing|"
+      "CPOL_High/ CPHA_Leading|CPOL_High/ CPHA_Trailing),popup(Not used|0.0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0.10|0."
+      "11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0.28|0.29|0.30|0.31),popup(0."
+      "0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24"
+      "|0.25|0.26|0.27|0.28|0.29|0.30|0.31),popup(0.0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14|0.15"
+      "|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0.28|0.29|0.30|0.31),popup(0.0|0.1|0.2|0.3|0.4|0.5|"
+      "0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0.28|0"
+      ".29|0.30|0.31),edit,edit,popup(double|single|int8|uint8|int16|uint16|int32|uint32),edit,popup(double|single|int8"
+      "|uint8|int16|uint16|int32|uint32),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off"
+      MaskCallbackString      "nrf5_spimaster_callback('conf');||nrf5_spimaster_callback('direction');||||||nrf5_spima"
+      "ster_callback('misopin');|nrf5_spimaster_callback('mosipin');|||nrf5_spimaster_callback('updateport');|nrf5_spim"
+      "aster_callback('updateport');|nrf5_spimaster_callback('updateport');|nrf5_spimaster_callback('updateport');||nrf"
+      "5_spimaster_callback('sampletime');|nrf5_spimaster_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,off,off,off,off,off,off,off,off,"
+      "off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;module=&2;direction=&3;dataformat=&4;clockfrequency=&5;cpolcpha=&6;nsspin=&7;sckpin"
+      "=&8;misopin=&9;mosipin=&10;nssdelay=&11;framedelay=&12;inputdatatype=&13;inputdatacount=&14;outputdatatype=&15;o"
+      "utputdatacount=&16;portpinstr=&17;sampletime=@18;blockid=&19;inputporttype=@20;inputportwidth=@21;inputportlabel"
+      "=&22;outputporttype=@23;outputportwidth=@24;outputportlabel=&25;compat=&26;optionstring=&27;"
+      MaskInitialization      "nrf5_spimaster_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ SPI0 Master ]\\nFrequency: 2MHz\\nOrder: FirstBit_LSB\\nCPOL_High/ CPHA_Lea"
+      "ding\\nPin: 0.29/ 0.25/ 0.23/ 0.21\\nBytes: 8\\nTs (sec): 0','ver','middle','hor','center'); port_label('input',"
+      " 1,'Wr0'); port_label('input', 2,'Wr1'); port_label('input', 3,'Wr2'); port_label('input', 4,'Wr3'); port_label("
+      "'output', 1,'Rd(8)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Master|0|Full-Duplex|FirstBit_LSB|2MHz|CPOL_High/ CPHA_Leading|0.29|0.25|0.23|0.21|10|0|u"
+      "int8|4|uint8|8|0|-1|SPIMaster|[3,3,3,3]|[]|{'Wr0','Wr1','Wr2','Wr3'}|[3]|[8]|{'Rd(8)'}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "SPI SDCard Setup"
+      Ports		      []
+      Position		      [270, 30, 470, 150]
+      FunctionName	      "nrf5_spimaster"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_spimaster"
+      MaskDescription	      "SPI configuration for SD card inteface:\n - Full-Duplex\n - MSB first\n - Clock polarity "
+      "High\n - Clock phase first edge.\n\nClock frequency (Hz):\n - Select frequency for SPI clock.\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_spi_sdcard_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|SPI Module|Direction|Data format|Clock frequency|Clock polarity (CPOL)/ Cl"
+      "ock phase (CPHA):|Slave/chip select (nSS, nCS) pin|SCLK pin:|MISO pin:|MOSI pin:|Slave/chip select (nSS, nCS) de"
+      "lay time (uS)|Data frame delay time (uS)|Input data type|Input data count|Output data type|Output data count|Por"
+      "t Pin String|Sample time (sec)|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Outpu"
+      "t Port Width|Output port label|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(SDCard),popup(0),popup(Full-Duplex|Half-Duplex_Tx|Half-Duplex_Rx),popup(FirstBit_MS"
+      "B|FirstBit_LSB),popup(125kHz|250kHz|500kHz|1MHz|2MHz|4MHz|8MHz),popup(CPOL_Low/ CPHA_Leading|CPOL_Low/ CPHA_Trai"
+      "ling|CPOL_High/ CPHA_Leading|CPOL_High/ CPHA_Trailing),popup(Not used|0.0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0."
+      "10|0.11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0.28|0.29|0.30|0.31),pop"
+      "up(0.0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23"
+      "|0.24|0.25|0.26|0.27|0.28|0.29|0.30|0.31),popup(0.0|0.1|0.2|0.3|0.4|0.5|0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14"
+      "|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0.28|0.29|0.30|0.31),popup(0.0|0.1|0.2|0.3|0.4"
+      "|0.5|0.6|0.7|0.8|0.9|0.10|0.11|0.12|0.13|0.14|0.15|0.16|0.17|0.18|0.19|0.20|0.21|0.22|0.23|0.24|0.25|0.26|0.27|0"
+      ".28|0.29|0.30|0.31),edit,edit,popup(double|single|int8|uint8|int16|uint16|int32|uint32),edit,popup(double|single"
+      "|int8|uint8|int16|uint16|int32|uint32),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off"
+      MaskCallbackString      "nrf5_spimaster_callback('conf');||nrf5_spimaster_callback('direction');||||||nrf5_spima"
+      "ster_callback('misopin');|nrf5_spimaster_callback('mosipin');|||nrf5_spimaster_callback('updateport');|nrf5_spim"
+      "aster_callback('updateport');|nrf5_spimaster_callback('updateport');|nrf5_spimaster_callback('updateport');||nrf"
+      "5_spimaster_callback('sampletime');|nrf5_spimaster_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,off,off,on,off,on,on,on,on,off,off,off,off,off,off,off,on,off,off,off,off,off,off"
+      ",off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;module=&2;direction=&3;dataformat=&4;clockfrequency=&5;cpolcpha=&6;nsspin=&7;sckpin"
+      "=&8;misopin=&9;mosipin=&10;nssdelay=&11;framedelay=&12;inputdatatype=&13;inputdatacount=&14;outputdatatype=&15;o"
+      "utputdatacount=&16;portpinstr=&17;sampletime=@18;blockid=&19;inputporttype=@20;inputportwidth=@21;inputportlabel"
+      "=&22;outputporttype=@23;outputportwidth=@24;outputportlabel=&25;compat=&26;optionstring=&27;"
+      MaskInitialization      "nrf5_spimaster_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ SPI0 SDCard ]\\nFrequency: 2MHz\\nOrder: FirstBit_MSB\\nCPOL_High/ CPHA_Lea"
+      "ding\\nPin: 0.29/ 0.25/ 0.23/ 0.21\\nTs (sec): 0','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "SDCard|0|Full-Duplex|FirstBit_MSB|2MHz|CPOL_High/ CPHA_Leading|0.29|0.25|0.23|0.21|0|0|ui"
+      "nt32|0|uint8|0|0|-1|SPISDCardSetup|[]|[]|{}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+  }
+}

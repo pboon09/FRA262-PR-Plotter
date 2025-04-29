@@ -1,0 +1,215 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Standard Peripherals Demos &gt; DCMI &gt; Moving Object Tracking Demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Moving Object Tracking Demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "moving_object_tracking_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Moving Object Tracking Demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?moving_object_tracking_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="standard_peripherals_demos.htm">Standard Peripherals Demos</a> &gt; <a href="dcmi2.htm">DCMI</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Moving Object Tracking Demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="udp_ip_camera_demo.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="dcmi2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="waijung_demos.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><span style="font-weight: bold;">demo File</span>: </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">ex04_target_fio2_acquire_image_demo.mdl</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none">ex04_host_track_target_demo.mdl</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none">ex05_target_fio2_track_object_demo.mdl</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none">ex05_host_disp_image_demo.mdl</td></tr></table></div><p>This project shows how to design a real-time moving object tracking algorithm in Matlab / Simulink. It also shows how to use Waijung to generate source code and run the algorithm in STM32F4 MCU in real-time. Image data is transmitted to the host PC to visualize algorithm performance via UDP protocol.</p>
+<p>The algorithm design is performed in two steps:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><a href="moving_object_tracking_demo.htm#hardwareinthelooptest" class="topiclink">Hardware in the Loop Test</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><a href="moving_object_tracking_demo.htm#stand-aloneapplicationtest" class="topiclink">Stand-alone Application Test</a></td></tr></table></div><h2 class="p_Heading2"><a id="hardwareinthelooptest"></a><span class="f_Heading2">Hardware in the Loop Test</span></h2>
+<p>The first step we program FiO 2 board (STM32F417IG + external 8Mb SRAM) to acquire image data (resolution 120 x 160 pixels) and send to the host PC via LAN (UDP protocol). The following show hardware setup.</p>
+<p><img src="camera_setup.png" width="950" height="411" alt="camera_setup" style="width:950px;height:411px;border:none" /></p>
+<p>&nbsp;</p>
+<p>The following figure shows a Simulink model for the target. This model programs FiO 2 to acquire image data and send to the host PC via UDP protocol in real-time.</p>
+<p><img src="ex04_target_fio2_acquire_image_demo.png" width="950" height="566" alt="ex04_target_fio2_acquire_image_demo" style="width:950px;height:566px;border:none" /></p>
+<p>&nbsp;</p>
+<p>The following figure shows Simulink model for the host PC. This model perform object tracking algorithm. In this way, it is very simple to visualize results, analyze performance, and tune the algorithm.</p>
+<p>For background information on the algorithm visit <a href="http://aimagin.com/blog/basic-image-processing-object-tracking/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://aimagin.com/blog/basic-image-processing-object-tracking/</a></p>
+<p><img src="ex04_host_track_target_demo.png" width="950" height="427" alt="ex04_host_track_target_demo" style="width:950px;height:427px;border:none" /></p>
+<h2 class="p_Heading2"><a id="stand-aloneapplicationtest"></a><span class="f_Heading2">Stand-alone Application Test</span></h2>
+<p>&nbsp;</p>
+<p>In this step, the algorithm is moved to run in the FiO 2 board. The detected target XY positions are overlayed on the image using Simulation Computer Vision System Blockset. The resulting image is transmitted to the host PC to display in real-time (around 5Hz update rate). The following summarized necessary steps to make it work in real-time (compare with an ideal algorithm design running in pure Simulation simulation on the host PC).</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">The Gaussian filter was not implemented. Since it put heavy computation load on the MCU.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none">The XY position determination was redesigned to reduce execution time.</td></tr></table></div><p>The following figure shows hardware setup.</p>
+<p><img src="camera_running_in_realtime.png" width="950" height="888" alt="camera_running_in_realtime" style="width:950px;height:888px;border:none" /></p>
+<p>The following figure shows Simulink model for the target. The moving object tracking algorithm runs in FiO 2 in real-time.</p>
+<p><img src="ex05_target_fio2_track_object_demo.png" width="950" height="599" alt="ex05_target_fio2_track_object_demo" style="width:950px;height:599px;border:none" /></p>
+<p>&nbsp;</p>
+<p>The following figure shows the Simulink model running on the host PC. This model only receive image data and display on screen.</p>
+<p><img src="ex05_host_disp_image_demo.png" width="950" height="442" alt="ex05_host_disp_image_demo" style="width:950px;height:442px;border:none" /></p>
+<p>&nbsp;</p>
+<p>The following video shows results from running the test. Notice that algorithm can run at around 5Hz frame rate. Not extremely impressive, but sufficient for introductory courses.</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/onemkjXVEcg?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/onemkjXVEcg?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

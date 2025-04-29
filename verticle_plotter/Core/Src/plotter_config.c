@@ -31,6 +31,8 @@ ADC_DMA adc_dma;
 
 SignalGenerator sine_sg_PWM;
 SignalGenerator square_sg_PWM;
+SignalGenerator sine_sg_cascade;
+SignalGenerator square_sg_cascade;
 SignalGenerator sine_sg_prismatic;
 SignalGenerator square_sg_prismatic;
 SignalGenerator sine_sg_revolute;
@@ -84,6 +86,15 @@ void plotter_begin() {
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 	SQUARE_MIN_SETPOINT, SQUARE_MAX_SETPOINT);
 
+	SIGNAL_init(&sine_sg_cascade, SIGNAL_SINE);
+	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE_CASCADE, SINE_FREQUENCY, SINE_PHASE,
+	SINE_OFFSET, SINE_MIN_SETPOINT_CASCADE, SINE_MAX_SETPOINT_CASCADE);
+
+	SIGNAL_init(&square_sg_cascade, SIGNAL_SQUARE);
+	SIGNAL_config_square(&square_sg_PWM, SQUARE_AMPLITUDE_CASCADE, SQUARE_FREQUENCY,
+	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
+	SQUARE_MIN_SETPOINT_CASCADE, SQUARE_MAX_SETPOINT_CASCADE);
+
 	SIGNAL_init(&sine_sg_prismatic, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_prismatic, ZGX45RGG_400RPM_Constant.qd_max,
 	SINE_FREQUENCY, SINE_PHASE,
@@ -130,8 +141,8 @@ void plotter_begin() {
 
 	PID_CONTROLLER_Init(&revolute_position_pid, 2, 1e-7, 1,
 			ZGX45RGG_150RPM_Constant.U_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 50, 0,
-			ZGX45RGG_150RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 2000, 80, 0,
+			ZGX45RGG_150RPM_Constant.U_max);// 1800 , 25 ,0 no overshoot// 2000,80
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
 	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);

@@ -1,0 +1,2114 @@
+Model {
+  Name			  "pca10040_demo"
+  Version		  7.3
+  MdlSubVersion		  0
+  GraphicalInterface {
+    NumRootInports	    0
+    NumRootOutports	    0
+    ParameterArgumentNames  ""
+    ComputedModelVersion    "1.62"
+    NumModelReferences	    0
+    NumTestPointedSignals   0
+  }
+  SavedCharacterEncoding  "windows-1252"
+  PreLoadFcn		  "waijung.modelPreload; % Required for working with Waijung Blockset. Do not remove."
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  CloseFcn		  "waijung.modelClose; % Required for working with Waijung Blockset. Do not remove."
+  Created		  "Sat May 19 22:19:56 2018"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Navy"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Nov 05 14:50:52 2018"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:62>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  on
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "all"
+  WideLines		  off
+  ShowLineDimensions	  on
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  on
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  BufferReuse		  on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "SingleTasking"
+	  Solver		  "ode3"
+	  SolverName		  "ode3"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode on
+	  LifeSpan		  "1"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "LittleEndian"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "ARM Compatible->Cortex - M0"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "LittleEndian"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "ARM Compatible->Cortex - M0"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  SystemTargetFile	  "nrf5.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  off
+	  TemplateMakefile	  "ert_default_tmf"
+	  Description		  "nRF5 Target"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ProcessScript		  "nrf5_make_rtw_hook"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses off
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.STFCustomTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant off
+	      ParMdlRefBuildCompliant off
+	      CompOptLevelCompliant   off
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns on
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    on
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      off
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   off
+	      SupportNonInlinedSFcns  off
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      SystemTargetFile	      "nrf5.tlc"
+	      DialogCategory	      0
+	      Array {
+		Type			"Handle"
+		Dimension		1
+		Simulink.ERTTargetCC {
+		  $BackupClass		  "Simulink.TargetCC"
+		  $ObjectID		  12
+		  Version		  "1.6.0"
+		  TargetFcnLib		  "ansi_tfl_table_tmw.mat"
+		  TargetLibSuffix	  ""
+		  TargetPreCompLibLocation ""
+		  TargetFunctionLibrary	  "ANSI_C"
+		  UtilityFuncGeneration	  "Auto"
+		  ERTMultiwordTypeDef	  "System defined"
+		  ERTMultiwordLength	  256
+		  MultiwordLength	  2048
+		  GenerateFullHeader	  on
+		  GenerateSampleERTMain	  off
+		  GenerateTestInterfaces  off
+		  IsPILTarget		  off
+		  ModelReferenceCompliant off
+		  ParMdlRefBuildCompliant off
+		  CompOptLevelCompliant	  off
+		  IncludeMdlTerminateFcn  on
+		  CombineOutputUpdateFcns on
+		  SuppressErrorStatus	  off
+		  ERTFirstTimeCompliant	  off
+		  IncludeFileDelimiter	  "Auto"
+		  ERTCustomFileBanners	  on
+		  SupportAbsoluteTime	  on
+		  LogVarNameModifier	  "rt_"
+		  MatFileLogging	  off
+		  MultiInstanceERTCode	  off
+		  SupportNonFinite	  on
+		  SupportComplex	  on
+		  PurelyIntegerCode	  off
+		  SupportContinuousTime	  off
+		  SupportNonInlinedSFcns  off
+		  EnableShiftOperators	  on
+		  ParenthesesLevel	  "Nominal"
+		  PortableWordSizes	  off
+		  ModelStepFunctionPrototypeControlCompliant off
+		  CPPClassGenCompliant	  off
+		  AutosarCompliant	  off
+		  GenerateErtSFunction	  off
+		  GenerateASAP2		  off
+		  ExtMode		  off
+		  ExtModeTransport	  0
+		  ExtModeStaticAlloc	  off
+		  ExtModeStaticAllocSize  1000000
+		  ExtModeTesting	  off
+		  ExtModeMexFile	  "ext_comm"
+		  ExtModeIntrfLevel	  "Level1"
+		  InlinedParameterPlacement "NonHierarchical"
+		  TargetOS		  "BareBoardExample"
+		  MultiInstanceErrorCode  "Error"
+		  RateGroupingCode	  on
+		  RootIOFormat		  "Individual arguments"
+		  RTWCAPISignals	  off
+		  RTWCAPIParams		  off
+		  RTWCAPIStates		  off
+		  ERTSrcFileBannerTemplate "nrf5_code_template.cgt"
+		  ERTHdrFileBannerTemplate "nrf5_code_template.cgt"
+		  ERTDataSrcFileTemplate  "nrf5_code_template.cgt"
+		  ERTDataHdrFileTemplate  "nrf5_code_template.cgt"
+		  ERTCustomFileTemplate	  "nrf5_file_process.tlc"
+		  ModuleNamingRule	  "Unspecified"
+		  SignalDisplayLevel	  10
+		  ParamTuneLevel	  10
+		  GlobalDataDefinition	  "Auto"
+		  DataDefinitionFile	  "global.c"
+		  GlobalDataReference	  "Auto"
+		  DataReferenceFile	  "global.h"
+		  GRTInterface		  off
+		  PreserveExpressionOrder off
+		  PreserveIfCondition	  off
+		  EnableUserReplacementTypes off
+		  Array {
+		    Type		    "Struct"
+		    Dimension		    1
+		    MATStruct {
+		    double		    ""
+		    single		    ""
+		    int32		    ""
+		    int16		    ""
+		    int8		    ""
+		    uint32		    ""
+		    uint16		    ""
+		    uint8		    ""
+		    boolean		    ""
+		    int			    ""
+		    uint		    ""
+		    char		    ""
+		    }
+		    PropName		    "ReplacementTypes"
+		  }
+		  MemSecPackage		  "--- None ---"
+		  MemSecDataConstants	  "Default"
+		  MemSecDataIO		  "Default"
+		  MemSecDataInternal	  "Default"
+		  MemSecDataParameters	  "Default"
+		  MemSecFuncInitTerm	  "Default"
+		  MemSecFuncExecute	  "Default"
+		}
+		PropName		"Components"
+	      }
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "nrf5_configset"
+      ExtraOptions	      "-aGenerateTraceInfo=0 -aIgnoreTestpoints=0 "
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 520, 225, 1400, 855 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  Simulink.ConfigSet {
+    $PropName		    "ActiveConfigurationSet"
+    $ObjectID		    1
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      Assignment
+      NumberOfDimensions      "1"
+      IndexMode		      "One-based"
+      OutputInitialize	      "Initialize using input port <Y0>"
+      DiagnosticForDimensions "None"
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "fixdt(1,16,0)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit from 'Constant value'"
+      LockScale		      off
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
+    }
+    Block {
+      BlockType		      DataTypeConversion
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit via back propagation"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit via back propagation"
+      LockScale		      off
+      ConvertRealWorld	      "Real World Value (RWV)"
+      RndMeth		      "Zero"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Demux
+      Outputs		      "4"
+      DisplayOption	      "none"
+      BusSelectionMode	      off
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: auto"
+      LockScale		      off
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+      DimensionsMode	      "auto"
+    }
+    Block {
+      BlockType		      Memory
+      X0		      "0"
+      InheritSampleTime	      off
+      LinearizeMemory	      off
+      LinearizeAsDelay	      off
+      StateMustResolveToSignalObject off
+      RTWStateStorageClass    "Auto"
+    }
+    Block {
+      BlockType		      Mux
+      Inputs		      "4"
+      DisplayOption	      "none"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      NonVirtualBus	      off
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: auto"
+      LockScale		      off
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      SourceOfInitialOutputValue "Dialog"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
+      DimensionsMode	      "auto"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      CheckFcnCallInpInsideContextMsg off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Sum
+      IconShape		      "rectangular"
+      Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      AccumDataTypeStr	      "Inherit: Inherit via internal rule"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Same as first input"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Switch
+      Criteria		      "u2 >= Threshold"
+      Threshold		      "0"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      ZeroCross		      on
+      SampleTime	      "-1"
+      OutputVariableDimensions off
+    }
+  }
+  System {
+    Name		    "pca10040_demo"
+    Location		    [243, 118, 1667, 955]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      Reference
+      Name		      "BLE NUS Rx"
+      Ports		      [0, 3]
+      Position		      [250, 220, 420, 320]
+      SourceBlock	      "nrf5_ble_lib/BLE Setup"
+      SourceType	      "nrf5_ble"
+      conf		      "Rx"
+      bleprofile	      "NUS"
+      ble_secure_dfu	      off
+      ble_secure_dfu_public_key	"'123bd49bffb387f1de3dc8dc1fc8fcce952739d331fafeb7dd16837154ace7994a0a05af319f68e2a074"
+      "78477b8db746643d6dd7f5f191193738984ffcd2b963'"
+      devicename	      "'Nordic_UART'"
+      advanceoptions	      on
+      rxbuffersize	      "64"
+      txbuffersize	      "64"
+      transfer		      "Non-Blocking"
+      packetmode	      "Ascii"
+      binheader		      "'7E 7E'"
+      binterminator	      "'03 03'"
+      porttype_double	      "0"
+      porttype_single	      "0"
+      porttype_int8	      "0"
+      porttype_uint8	      "3"
+      porttype_int16	      "0"
+      porttype_uint16	      "0"
+      porttype_int32	      "0"
+      porttype_uint32	      "2"
+      asciiformat	      "'led%d=%d'"
+      rx_asciiterminator      "CRLF (0x0D 0x0A - \"\\r\\n\")"
+      tx_asciiterminator      "None"
+      storagename	      "<empty>"
+      portpinstr	      "0"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      blockid		      "BLENUSRx"
+      inputporttype	      "[]"
+      inputportwidth	      "[]"
+      inputportlabel	      "{}"
+      outputporttype	      "[3 6 6]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{'READY' 'int32' 'int32'}"
+      compat		      "0"
+      optionstring1	      "[\"64\",\"64\",\"Non-Blocking\",\"Ascii\",\"led%d=%d\",\"0x0D, 0x0A\",\"2\",\"NUS\",\"Nordi"
+      "c_UART\",\"1\",\"0\"]"
+      optionstring2	      "[\"int32_t\",\"int32_t\"]"
+      optionstring3	      "[\"0x7E\",\"0x7E\"]"
+      optionstring4	      "[\"0x3\",\"0x3\"]"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "BLE NUS Tx"
+      Ports		      [2]
+      Position		      [775, 382, 950, 478]
+      SourceBlock	      "nrf5_ble_lib/BLE Setup"
+      SourceType	      "nrf5_ble"
+      conf		      "Tx"
+      bleprofile	      "NUS"
+      ble_secure_dfu	      off
+      ble_secure_dfu_public_key	"'123bd49bffb387f1de3dc8dc1fc8fcce952739d331fafeb7dd16837154ace7994a0a05af319f68e2a074"
+      "78477b8db746643d6dd7f5f191193738984ffcd2b963'"
+      devicename	      "'Nordic_UART'"
+      advanceoptions	      on
+      rxbuffersize	      "64"
+      txbuffersize	      "64"
+      transfer		      "Blocking"
+      packetmode	      "Raw Buffer"
+      binheader		      "'7E 7E'"
+      binterminator	      "'03 03'"
+      porttype_double	      "0"
+      porttype_single	      "0"
+      porttype_int8	      "0"
+      porttype_uint8	      "3"
+      porttype_int16	      "0"
+      porttype_uint16	      "0"
+      porttype_int32	      "0"
+      porttype_uint32	      "2"
+      asciiformat	      "'led%d=%d'"
+      rx_asciiterminator      "CRLF (0x0D 0x0A - \"\\r\\n\")"
+      tx_asciiterminator      "None"
+      storagename	      "<empty>"
+      portpinstr	      "0"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      blockid		      "BLENUSTx"
+      inputporttype	      "[5 3]"
+      inputportwidth	      "[1 -1]"
+      inputportlabel	      "{'Len','Data'}"
+      outputporttype	      "[]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{}"
+      compat		      "0"
+      optionstring1	      "[\"64\",\"64\",\"Blocking\",\"Raw Buffer\",\"led%d=%d\",\"\",\"\",\"NUS\",\"Nordic_UART\",\""
+      "1\",\"0\"]"
+      optionstring2	      "[\"int32_t\",\"int32_t\"]"
+      optionstring3	      "[\"0x7E\",\"0x7E\"]"
+      optionstring4	      "[\"0x3\",\"0x3\"]"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "BLE NUS Tx1"
+      Ports		      [2]
+      Position		      [775, 526, 950, 624]
+      SourceBlock	      "nrf5_ble_lib/BLE Setup"
+      SourceType	      "nrf5_ble"
+      conf		      "Tx"
+      bleprofile	      "NUS"
+      ble_secure_dfu	      off
+      ble_secure_dfu_public_key	"'123bd49bffb387f1de3dc8dc1fc8fcce952739d331fafeb7dd16837154ace7994a0a05af319f68e2a074"
+      "78477b8db746643d6dd7f5f191193738984ffcd2b963'"
+      devicename	      "'Nordic_UART'"
+      advanceoptions	      on
+      rxbuffersize	      "64"
+      txbuffersize	      "64"
+      transfer		      "Blocking"
+      packetmode	      "Raw Buffer"
+      binheader		      "'7E 7E'"
+      binterminator	      "'03 03'"
+      porttype_double	      "0"
+      porttype_single	      "0"
+      porttype_int8	      "0"
+      porttype_uint8	      "3"
+      porttype_int16	      "0"
+      porttype_uint16	      "0"
+      porttype_int32	      "0"
+      porttype_uint32	      "2"
+      asciiformat	      "'Btn:%u,%u,%u,%u'"
+      rx_asciiterminator      "CRLF (0x0D 0x0A - \"\\r\\n\")"
+      tx_asciiterminator      "None"
+      storagename	      "<empty>"
+      portpinstr	      "0"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      blockid		      "BLENUSTx1"
+      inputporttype	      "[5 3]"
+      inputportwidth	      "[1 -1]"
+      inputportlabel	      "{'Len','Data'}"
+      outputporttype	      "[]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{}"
+      compat		      "0"
+      optionstring1	      "[\"64\",\"64\",\"Blocking\",\"Raw Buffer\",\"Btn:%u,%u,%u,%u\",\"\",\"\",\"NUS\",\"Nordic_U"
+      "ART\",\"1\",\"0\"]"
+      optionstring2	      "[\"uint32_t\",\"uint32_t\",\"uint32_t\",\"uint32_t\"]"
+      optionstring3	      "[\"0x7E\",\"0x7E\"]"
+      optionstring4	      "[\"0x3\",\"0x3\"]"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "BLE Setup"
+      Ports		      []
+      Position		      [325, 65, 480, 165]
+      SourceBlock	      "nrf5_ble_lib/BLE Setup"
+      SourceType	      "nrf5_ble"
+      conf		      "Setup"
+      bleprofile	      "NUS"
+      ble_secure_dfu	      off
+      ble_secure_dfu_public_key	"'123bd49bffb387f1de3dc8dc1fc8fcce952739d331fafeb7dd16837154ace7994a0a05af319f68e2a074"
+      "78477b8db746643d6dd7f5f191193738984ffcd2b963'"
+      devicename	      "'aMG_BLE Demo'"
+      advanceoptions	      on
+      rxbuffersize	      "64"
+      txbuffersize	      "64"
+      transfer		      "Blocking"
+      packetmode	      "Ascii"
+      binheader		      "'7E 7E'"
+      binterminator	      "'03 03'"
+      porttype_double	      "0"
+      porttype_single	      "0"
+      porttype_int8	      "0"
+      porttype_uint8	      "3"
+      porttype_int16	      "0"
+      porttype_uint16	      "0"
+      porttype_int32	      "0"
+      porttype_uint32	      "2"
+      asciiformat	      "'Value=%1.2f'"
+      rx_asciiterminator      "CRLF (0x0D 0x0A - \"\\r\\n\")"
+      tx_asciiterminator      "None"
+      storagename	      "<empty>"
+      portpinstr	      "0"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      blockid		      "BLESetup"
+      inputporttype	      "[]"
+      inputportwidth	      "[]"
+      inputportlabel	      "{}"
+      outputporttype	      "[]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{}"
+      compat		      "0"
+      optionstring1	      "[\"64\",\"64\",\"Blocking\",\"Ascii\",\"Value=%1.2f\",\"\",\"\",\"NUS\",\"aMG_BLE Demo\",\""
+      "1\",\"0\"]"
+      optionstring2	      "[\"float\"]"
+      optionstring3	      "[\"0x7E\",\"0x7E\"]"
+      optionstring4	      "[\"0x3\",\"0x3\"]"
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Button Detector"
+      Ports		      [1, 2]
+      Position		      [570, 524, 665, 626]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"Button Detector"
+	Location		[574, 380, 1549, 734]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 113, 55, 127]
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant"
+	  Position		  [730, 75, 760, 105]
+	  Value			  "0"
+	  OutDataTypeMode	  "uint16"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  OutDataTypeStr	  "uint16"
+	  SampleTime		  "-1"
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion"
+	  Position		  [600, 43, 675, 77]
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux1"
+	  Ports			  [1, 4]
+	  Position		  [200, 67, 205, 168]
+	  ShowName		  off
+	  DisplayOption		  "bar"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "Detect\nDecrease"
+	  Ports			  [1, 1]
+	  Position		  [80, 105, 140, 135]
+	  SourceBlock		  "simulink/Logic and Bit\nOperations/Detect\nDecrease"
+	  SourceType		  "Detect Decrease"
+	  ShowPortLabels	  "FromPortIcon"
+	  SystemSampleTime	  "-1"
+	  FunctionWithSeparateData off
+	  RTWMemSecFuncInitTerm	  "Inherit from model"
+	  RTWMemSecFuncExecute	  "Inherit from model"
+	  RTWMemSecDataConstants  "Inherit from model"
+	  RTWMemSecDataInternal	  "Inherit from model"
+	  RTWMemSecDataParameters "Inherit from model"
+	  vinit			  "0.0"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "String Processing"
+	  Ports			  [4, 1]
+	  Position		  [260, 69, 390, 166]
+	  SourceBlock		  "waijung_string_manipulate/String Processing"
+	  SourceType		  "waijung_string_processing_callback"
+	  conf			  "processing"
+	  stringfunction	  "sprintf"
+	  stringformat		  "'Btn:%u,%u,%u,%u'"
+	  begindelimiter	  "''"
+	  enddelimiter		  "''"
+	  buffersize		  "64"
+	  enablestatus		  off
+	  portpinstr		  "0"
+	  sampletime		  "-1"
+	  blockid		  "ButtonDetectorStringProcessing"
+	  inputporttype		  "[-1 -1 -1 -1]"
+	  inputportwidth	  "[1 1 1 1]"
+	  inputportlabel	  "{'%u','%u','%u','%u'}"
+	  outputporttype	  "[3]"
+	  outputportwidth	  "[64]"
+	  outputportlabel	  "{'Output'}"
+	  compat		  "0"
+	  optionstring		  "[]"
+	  datatypestring	  "[\"uint32_t\",\"uint32_t\",\"uint32_t\",\"uint32_t\"]"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "String Processing1"
+	  Ports			  [1, 1]
+	  Position		  [430, 29, 550, 91]
+	  SourceBlock		  "waijung_string_manipulate/String Processing"
+	  SourceType		  "waijung_string_processing_callback"
+	  conf			  "processing"
+	  stringfunction	  "strlen"
+	  stringformat		  "'Btn:%u,%u,%u,%u'"
+	  begindelimiter	  "''"
+	  enddelimiter		  "''"
+	  buffersize		  "64"
+	  enablestatus		  off
+	  portpinstr		  "0"
+	  sampletime		  "-1"
+	  blockid		  "ButtonDetectorStringProcessing1"
+	  inputporttype		  "[3]"
+	  inputportwidth	  "[-1]"
+	  inputportlabel	  "{'Input'}"
+	  outputporttype	  "[7]"
+	  outputportwidth	  "[1]"
+	  outputportlabel	  "{'Length'}"
+	  compat		  "0"
+	  optionstring		  "[]"
+	  datatypestring	  "[]"
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Sum of\nElements"
+	  Ports			  [1, 1]
+	  Position		  [260, 210, 290, 240]
+	  Inputs		  "+"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^-10"
+	  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Switch
+	  Name			  "Switch"
+	  Position		  [790, 55, 820, 85]
+	  Criteria		  "u2 ~= 0"
+	  Threshold		  "4"
+	  InputSameDT		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [845, 63, 875, 77]
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out2"
+	  Position		  [475, 113, 505, 127]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	}
+	Line {
+	  SrcBlock		  "Detect\nDecrease"
+	  SrcPort		  1
+	  Points		  [15, 0]
+	  Branch {
+	    DstBlock		    "Demux1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 105]
+	    DstBlock		    "Sum of\nElements"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  1
+	  DstBlock		  "String Processing"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  2
+	  DstBlock		  "String Processing"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  3
+	  DstBlock		  "String Processing"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  4
+	  DstBlock		  "String Processing"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "String Processing"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  Branch {
+	    Points		    [0, -60]
+	    DstBlock		    "String Processing1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "Out2"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Sum of\nElements"
+	  SrcPort		  1
+	  Points		  [425, 0; 0, -155]
+	  DstBlock		  "Switch"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "String Processing1"
+	  SrcPort		  1
+	  DstBlock		  "Data Type Conversion"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant"
+	  SrcPort		  1
+	  Points		  [5, 0; 0, -10]
+	  DstBlock		  "Switch"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Switch"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  DstBlock		  "Detect\nDecrease"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion"
+	  SrcPort		  1
+	  DstBlock		  "Switch"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Counter\nFree-Running"
+      Ports		      [0, 1]
+      Position		      [415, 705, 445, 735]
+      SourceBlock	      "simulink/Sources/Counter\nFree-Running"
+      SourceType	      "Counter Free-Running"
+      ShowPortLabels	      "FromPortIcon"
+      SystemSampleTime	      "-1"
+      FunctionWithSeparateData off
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      NumBits		      "32"
+      tsamp		      "-1"
+    }
+    Block {
+      BlockType		      Demux
+      Name		      "Demux"
+      Ports		      [1, 4]
+      Position		      [695, 217, 700, 318]
+      ShowName		      off
+      DisplayOption	      "bar"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Digital Input"
+      Ports		      [0, 4]
+      Position		      [250, 523, 425, 622]
+      SourceBlock	      "nrf5_io_lib/Digital Input"
+      SourceType	      "nrf5_digital_io"
+      conf		      "input"
+      port		      "0"
+      drivemode		      "High"
+      outputpintype	      "Open Drain"
+      inputpintype	      "Pull Up"
+      usepin0		      off
+      usepin1		      off
+      usepin2		      off
+      usepin3		      off
+      usepin4		      off
+      usepin5		      off
+      usepin6		      off
+      usepin7		      off
+      usepin8		      off
+      usepin9		      off
+      usepin10		      off
+      usepin11		      off
+      usepin12		      off
+      usepin13		      on
+      usepin14		      on
+      usepin15		      on
+      usepin16		      on
+      usepin17		      off
+      usepin18		      off
+      usepin19		      off
+      usepin20		      off
+      usepin21		      off
+      usepin22		      off
+      usepin23		      off
+      usepin24		      off
+      usepin25		      off
+      usepin26		      off
+      usepin27		      off
+      usepin28		      off
+      usepin29		      off
+      usepin30		      off
+      usepin31		      off
+      outputmode	      "uint8"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      portpinstr	      off
+      blockid		      "DigitalInput"
+      inputporttype	      "[]"
+      inputportwidth	      "[]"
+      inputportlabel	      "{}"
+      outputporttype	      "[3,3,3,3]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{'P0.13','P0.14','P0.15','P0.16'}"
+      compat		      "0"
+      optionstring	      "[\"0\",\"High\",\"PULLUP\",\"H0D1\",\"dummy\",\"dummy\",\"dummy\",\"dummy\",\"dummy\",\"dumm"
+      "y\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"on"
+      "\",\"on\",\"on\",\"on\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\","
+      "\"off\",\"off\",\"off\",\"off\"]"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Digital Output"
+      Ports		      [4]
+      Position		      [775, 218, 950, 317]
+      SourceBlock	      "nrf5_io_lib/Digital Output"
+      SourceType	      "nrf5_digital_io"
+      conf		      "output"
+      port		      "0"
+      drivemode		      "High"
+      outputpintype	      "Push Pull"
+      inputpintype	      "None"
+      usepin0		      off
+      usepin1		      off
+      usepin2		      off
+      usepin3		      off
+      usepin4		      off
+      usepin5		      off
+      usepin6		      off
+      usepin7		      off
+      usepin8		      off
+      usepin9		      off
+      usepin10		      off
+      usepin11		      off
+      usepin12		      off
+      usepin13		      off
+      usepin14		      off
+      usepin15		      off
+      usepin16		      off
+      usepin17		      on
+      usepin18		      on
+      usepin19		      on
+      usepin20		      on
+      usepin21		      off
+      usepin22		      off
+      usepin23		      off
+      usepin24		      off
+      usepin25		      off
+      usepin26		      off
+      usepin27		      off
+      usepin28		      off
+      usepin29		      off
+      usepin30		      off
+      usepin31		      off
+      outputmode	      "uint8"
+      sampletime	      "-1"
+      enablecustomportlabel   off
+      cinputportlabel	      "In1,In2"
+      coutputportlabel	      "Out1,Out2"
+      portpinstr	      off
+      blockid		      "DigitalOutput"
+      inputporttype	      "[-1,-1,-1,-1]"
+      inputportwidth	      "[]"
+      inputportlabel	      "{'P0.17','P0.18','P0.19','P0.20'}"
+      outputporttype	      "[]"
+      outputportwidth	      "[]"
+      outputportlabel	      "{}"
+      compat		      "0"
+      optionstring	      "[\"0\",\"High\",\"NOPULL\",\"H0H1\",\"dummy\",\"dummy\",\"dummy\",\"dummy\",\"dummy\",\"dumm"
+      "y\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"of"
+      "f\",\"off\",\"off\",\"off\",\"on\",\"on\",\"on\",\"on\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\",\"off\","
+      "\"off\",\"off\",\"off\",\"off\"]"
+    }
+    Block {
+      BlockType		      Mux
+      Name		      "Mux"
+      Ports		      [4, 1]
+      Position		      [485, 522, 490, 623]
+      ShowName		      off
+      DisplayOption	      "bar"
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Subsystem"
+      Ports		      [3, 1]
+      Position		      [575, 219, 655, 321]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"Subsystem"
+	Location		[1025, 527, 1490, 705]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "Ready"
+	  Position		  [115, 33, 145, 47]
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "idx_1"
+	  Position		  [25, 113, 55, 127]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Value"
+	  Position		  [25, 53, 55, 67]
+	  Port			  "3"
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Assignment
+	  Name			  "Assignment"
+	  Ports			  [3, 1]
+	  Position		  [90, 83, 170, 127]
+	  IndexOptions		  "Index vector (port)"
+	  Indices		  "1"
+	  OutputSizes		  "1"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "Compare\nTo Zero"
+	  Ports			  [1, 1]
+	  Position		  [355, 25, 385, 55]
+	  SourceBlock		  "simulink/Logic and Bit\nOperations/Compare\nTo Zero"
+	  SourceType		  "Compare To Zero"
+	  ShowPortLabels	  "FromPortIcon"
+	  SystemSampleTime	  "-1"
+	  FunctionWithSeparateData off
+	  RTWMemSecFuncInitTerm	  "Inherit from model"
+	  RTWMemSecFuncExecute	  "Inherit from model"
+	  RTWMemSecDataConstants  "Inherit from model"
+	  RTWMemSecDataInternal	  "Inherit from model"
+	  RTWMemSecDataParameters "Inherit from model"
+	  relop			  "=="
+	  LogicOutDataTypeMode	  "uint8"
+	  ZeroCross		  off
+	}
+	Block {
+	  BlockType		  Memory
+	  Name			  "Memory"
+	  Position		  [355, 100, 385, 130]
+	  X0			  "[0 0 0 0]"
+	  InheritSampleTime	  on
+	  LinearizeMemory	  on
+	  LinearizeAsDelay	  on
+	}
+	Block {
+	  BlockType		  Switch
+	  Name			  "Switch2"
+	  Position		  [265, 100, 295, 130]
+	  Criteria		  "u2 ~= 0"
+	  InputSameDT		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [410, 33, 440, 47]
+	  IconDisplay		  "Port number"
+	}
+	Line {
+	  SrcBlock		  "Assignment"
+	  SrcPort		  1
+	  DstBlock		  "Switch2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Switch2"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  Branch {
+	    DstBlock		    "Memory"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -75]
+	    DstBlock		    "Compare\nTo Zero"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Memory"
+	  SrcPort		  1
+	  Points		  [15, 0; 0, 35; -180, 0]
+	  Branch {
+	    Points		    [0, -25]
+	    DstBlock		    "Switch2"
+	    DstPort		    3
+	  }
+	  Branch {
+	    Points		    [-155, 0; 0, -60]
+	    DstBlock		    "Assignment"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Value"
+	  SrcPort		  1
+	  Points		  [0, 45]
+	  DstBlock		  "Assignment"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "idx_1"
+	  SrcPort		  1
+	  DstBlock		  "Assignment"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Compare\nTo Zero"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Ready"
+	  SrcPort		  1
+	  Points		  [75, 0; 0, 75]
+	  DstBlock		  "Switch2"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Subsystem1"
+      Ports		      [3, 2]
+      Position		      [575, 378, 655, 482]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"Subsystem1"
+	Location		[983, 468, 1834, 705]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "Ready"
+	  Position		  [365, 20, 395, 35]
+	  BlockRotation		  270
+	  BlockMirror		  on
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Idx_1"
+	  Position		  [25, 68, 55, 82]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Value"
+	  Position		  [25, 108, 55, 122]
+	  Port			  "3"
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant"
+	  Position		  [405, 180, 435, 210]
+	  Value			  "0"
+	  OutDataTypeMode	  "uint32"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  OutDataTypeStr	  "uint32"
+	  SampleTime		  "-1"
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion"
+	  Position		  [550, 43, 625, 77]
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "String Processing"
+	  Ports			  [2, 1]
+	  Position		  [90, 54, 205, 136]
+	  SourceBlock		  "waijung_string_manipulate/String Processing"
+	  SourceType		  "waijung_string_processing_callback"
+	  conf			  "processing"
+	  stringfunction	  "sprintf"
+	  stringformat		  "'OK,led%d=%d'"
+	  begindelimiter	  "''"
+	  enddelimiter		  "''"
+	  buffersize		  "64"
+	  enablestatus		  off
+	  portpinstr		  "0"
+	  sampletime		  "-1"
+	  blockid		  "Subsystem1StringProcessing"
+	  inputporttype		  "[-1 -1]"
+	  inputportwidth	  "[1 1]"
+	  inputportlabel	  "{'%d','%d'}"
+	  outputporttype	  "[3]"
+	  outputportwidth	  "[64]"
+	  outputportlabel	  "{'Output'}"
+	  compat		  "0"
+	  optionstring		  "[]"
+	  datatypestring	  "[\"int32_t\",\"int32_t\"]"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "String Processing1"
+	  Ports			  [1, 1]
+	  Position		  [325, 111, 435, 159]
+	  SourceBlock		  "waijung_string_manipulate/String Processing"
+	  SourceType		  "waijung_string_processing_callback"
+	  conf			  "processing"
+	  stringfunction	  "strlen"
+	  stringformat		  "'OK,led%d=%d'"
+	  begindelimiter	  "''"
+	  enddelimiter		  "''"
+	  buffersize		  "64"
+	  enablestatus		  off
+	  portpinstr		  "0"
+	  sampletime		  "-1"
+	  blockid		  "Subsystem1StringProcessing1"
+	  inputporttype		  "[3]"
+	  inputportwidth	  "[-1]"
+	  inputportlabel	  "{'Input'}"
+	  outputporttype	  "[7]"
+	  outputportwidth	  "[1]"
+	  outputportlabel	  "{'Length'}"
+	  compat		  "0"
+	  optionstring		  "[]"
+	  datatypestring	  "[]"
+	}
+	Block {
+	  BlockType		  Switch
+	  Name			  "Switch1"
+	  Position		  [500, 45, 530, 75]
+	  Criteria		  "u2 ~= 0"
+	  InputSameDT		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Response_Len"
+	  Position		  [730, 53, 760, 67]
+	  IconDisplay		  "Port number"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Response_Data"
+	  Position		  [365, 53, 395, 67]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	}
+	Line {
+	  SrcBlock		  "String Processing"
+	  SrcPort		  1
+	  Points		  [100, 0]
+	  Branch {
+	    DstBlock		    "String Processing1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -35]
+	    DstBlock		    "Response_Data"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Switch1"
+	  SrcPort		  1
+	  DstBlock		  "Data Type Conversion"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "String Processing1"
+	  SrcPort		  1
+	  Points		  [20, 0; 0, -85]
+	  DstBlock		  "Switch1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant"
+	  SrcPort		  1
+	  Points		  [35, 0; 0, -125]
+	  DstBlock		  "Switch1"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Ready"
+	  SrcPort		  1
+	  Points		  [105, 0]
+	  DstBlock		  "Switch1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Idx_1"
+	  SrcPort		  1
+	  DstBlock		  "String Processing"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Value"
+	  SrcPort		  1
+	  DstBlock		  "String Processing"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion"
+	  SrcPort		  1
+	  DstBlock		  "Response_Len"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Target Setup"
+      Ports		      []
+      Position		      [40, 30, 267, 163]
+      ForegroundColor	      "red"
+      Priority		      "100"
+      SourceBlock	      "nrf5_device_config_lib/Target Setup"
+      SourceType	      "nrf5_target_setup"
+      compiler		      "GNU ARM"
+      previous_compiler	      "GNU ARM"
+      mcu		      "nRF52832QFAA (S132-v6)"
+      family		      "nrf52"
+      softdevice	      "S132"
+      clockconfig	      "None"
+      system_nrf5_c_path      "c:\\users\\Krisada\\desktop\\waijung\\waijung-subversion-trunk\\targets\\nrf5_target\\n"
+      "rf5\\utils\\nrf5_lib\\inc"
+      lowpower		      on
+      showmemoryconfiguration on
+      stacksize		      "0x1000"
+      heapsize		      "0x00"
+      enableautocompiledownload	on
+      fullchiperase	      off
+      ble_secure_dfu	      off
+      ble_secure_dfu_public_key	"'123bd49bffb387f1de3dc8dc1fc8fcce952739d331fafeb7dd16837154ace7994a0a05af319f68e2a074"
+      "78477b8db746643d6dd7f5f191193738984ffcd2b963'"
+      programmerinterface     "nrfjprog"
+      editctrlstr	      on
+      compilercontrolstr      "-O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -mfloat-abi=hard -mfpu=fpv4-sp-d16 -f"
+      "function-sections -fdata-sections -fno-strict-aliasing -fno-builtin -fshort-enums "
+      assemblercontrolstr     "-O3 -g3 -mcpu=cortex-m4 -mthumb -mabi=aapcs -mfloat-abi=hard -mfpu=fpv4-sp-d16 "
+      linkercontrolstr	      "-O3 -g3 -mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-"
+      "sections --specs=nano.specs "
+      global_define	      "CONFIG_GPIO_AS_PINRESET,FLOAT_ABI_HARD,NRF52,NRF52832_XXAA,NRF52_PAN_74,S132,SOFTDEVICE_PRE"
+      "SENT,SWI_DISABLE0,NRF_SD_BLE_API_VERSION=6"
+      runafterdownload	      on
+      execprofile	      "None"
+      profileruart	      "3"
+      profilerbaud	      "500000"
+      profilertxpin	      "D8"
+      profilerinitstr	      "0.01,168000000,1680000,500000,0"
+      manualsetsampletime     on
+      sampletime	      "0.1"
+      blockid		      "TargetSetup"
+      systickreloadvalue      "10"
+      hseval		      "8000000"
+      lastprofileruart	      "3"
+      hclk		      "168000000"
+      flashorigin	      "0x26000"
+      flashlength	      "256k"
+      ramorigin		      "0x200032C8"
+      ramlength		      "51k"
+      useextram		      off
+      optionstring	      "[\"s132\",\"on\"]"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "UART Setup"
+      Ports		      []
+      Position		      [515, 65, 670, 165]
+      FunctionName	      "nrf5_uart"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring1,optionstring2,o"
+      "ptionstring3,optionstring4,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_uart"
+      MaskDescription	      "UART Setup block.\nBaud rate:\n - Valid value is 1200 to 1000000."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_uart_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|UART Module|Baud rate (bps)|Data bits|Parity|Stop bit|Tx Pin|Rx Pin|Hardwa"
+      "re flow control|HW Flow control, CTS Pin|HW Flow control, RTS Pin|Advance options|Rx buffer size (bytes)|Tx buff"
+      "er size (bytes)|Transfer|Packet mode|Binary header (example: '7E 7E')|Binary terminator (example: '03 03')|Numbe"
+      "r of data port, type DOUBLE|Number of data port, type SINGLE|Number of data port, type INT8|Number of data port,"
+      " type UINT8|Number of data port, type INT16|Number of data port, type UINT16|Number of data port, type INT32|Num"
+      "ber of data port, type UINT32|Ascii format|End of packet|End of packet|Buffer|Port Pin String|Sample time (sec)|"
+      "Enable custom port labels|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2"
+      ", Out3)|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output por"
+      "t label|Compatibility (Reserved for future use)|String(s) to be passed to TLC|String(s) to be passed to TLC|Stri"
+      "ng(s) to be passed to TLC|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(0),edit,popup(8),popup(None|Odd|Even),popup(0.5|1|1.5|2),popup(N"
+      "ot used|P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|"
+      "P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(Not used|P0.0|P0.1|P0.2|P0."
+      "3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0"
+      ".23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(None|RTS/CTS),popup(P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0."
+      "6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25"
+      "|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|"
+      "P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.3"
+      "1),checkbox,popup(16|32|64|128|256|512|1024),popup(16|32|64|128|256|512|1024),popup(Blocking|Non-Blocking),popup"
+      "(Ascii|Binary|String Buffer),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,popup(CR (0x0D - \"\\r\")|LF"
+      " (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")),popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A -"
+      " \"\\r\\n\")|None),popup(<empty>),edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      ",edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_uart_callback('conf');||||||||nrf5_uart_callback('flowcontrol');|||nrf5_uart_callb"
+      "ack('advanceoptions');|||nrf5_uart_callback('transfer');|nrf5_uart_callback('packetmode');|nrf5_uart_callback('b"
+      "inheader');|nrf5_uart_callback('binterminator');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updatepor"
+      "t');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_"
+      "uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_callb"
+      "ack('asciiformat');|||||nrf5_uart_callback('sampletime');|nrf5_uart_callback('enablecustomportlabel');|||nrf5_ua"
+      "rt_callback('blockid');|||||||||||"
+      MaskEnableString	      "on,off,on,off,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,on,on,on,on,on,on,on,off,off,on,on,on,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;baudrate=&3;databits=&4;parity=&5;stopbit=&6;txpin=&7;rxpin=&8;flowco"
+      "ntrol=&9;ctspin=&10;rtspin=&11;advanceoptions=&12;rxbuffersize=&13;txbuffersize=&14;transfer=&15;packetmode=&16;"
+      "binheader=&17;binterminator=&18;porttype_double=&19;porttype_single=&20;porttype_int8=&21;porttype_uint8=&22;por"
+      "ttype_int16=&23;porttype_uint16=&24;porttype_int32=&25;porttype_uint32=&26;asciiformat=&27;rx_asciiterminator=&2"
+      "8;tx_asciiterminator=&29;storagename=&30;portpinstr=&31;sampletime=@32;enablecustomportlabel=@33;cinputportlabel"
+      "=&34;coutputportlabel=&35;blockid=&36;inputporttype=@37;inputportwidth=@38;inputportlabel=&39;outputporttype=@40"
+      ";outputportwidth=@41;outputportlabel=&42;compat=&43;optionstring1=&44;optionstring2=&45;optionstring3=&46;option"
+      "string4=&47;"
+      MaskInitialization      "nrf5_uart_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[UART0_Setup]\\nBaud: 115200\\nTx/Rx buffer: 64/64\\nTx/Rx pin: P0.6/P0.8','v"
+      "er','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|0|115200|8|None|1|P0.6|P0.8|None|P0.4|P0.2|on|64|64|Blocking|Binary|'7E 7E'|'03 03'"
+      "|0|0|0|0|0|0|0|2|'Value=%1.2f'|CR (0x0D - \"\\r\")|CR (0x0D - \"\\r\")|<empty>|0|-1|off|In1,In2|Out1,Out2|UARTSe"
+      "tup|[]|[]|{}|[]|[]|{}|0|[\"0\",\"115200\",\"6\",\"8\",\"None\",\"4\",\"2\",\"64\",\"64\",\"Blocking\",\"Binary\""
+      ",\"\",\"0\",\"\",\"0\",\"Value=%1.2f\",\"\",\"\",\"\"]|[\"float\"]|[\"0x7E\",\"0x7E\"]|[\"0x3\",\"0x3\"]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "UART Tx"
+      Ports		      [1]
+      Position		      [570, 670, 725, 770]
+      FunctionName	      "nrf5_uart"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring1,optionstring2,o"
+      "ptionstring3,optionstring4,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_uart"
+      MaskDescription	      "UART Tx block.\nFor transmit data via UART communication."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_uart_tx.htm'), '-browser')"
+      MaskPromptString	      "Configuration|UART Module|Baud rate (bps)|Data bits|Parity|Stop bit|Tx Pin|Rx Pin|Hardwa"
+      "re flow control|HW Flow control, CTS Pin|HW Flow control, RTS Pin|Advance options|Rx buffer size (bytes)|Tx buff"
+      "er size (bytes)|Transfer|Packet mode|Buffer size|Binary header (example: '7E 7E')|Binary terminator (example: '0"
+      "3 03')|Number of data port, type DOUBLE|Number of data port, type SINGLE|Number of data port, type INT8|Number o"
+      "f data port, type UINT8|Number of data port, type INT16|Number of data port, type UINT16|Number of data port, ty"
+      "pe INT32|Number of data port, type UINT32|Ascii format|End of packet|End of packet|Buffer|Port Pin String|Sample"
+      " time (sec)|Enable custom port labels|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex"
+      ". Out1, Out2, Out3)|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Widt"
+      "h|Output port label|Compatibility (Reserved for future use)|String(s) to be passed to TLC|String(s) to be passed"
+      " to TLC|String(s) to be passed to TLC|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(0),edit,popup(8),popup(None|Odd|Even),popup(0.5|1|1.5|2),popup(N"
+      "ot used|P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|"
+      "P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(Not used|P0.0|P0.1|P0.2|P0."
+      "3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0"
+      ".23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(None|RTS/CTS),popup(P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0."
+      "6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25"
+      "|P0.26|P0.27|P0.28|P0.29|P0.30|P0.31),popup(P0.0|P0.1|P0.2|P0.3|P0.4|P0.5|P0.6|P0.7|P0.8|P0.9|P0.10|P0.11|P0.12|"
+      "P0.13|P0.14|P0.15|P0.16|P0.17|P0.18|P0.19|P0.20|P0.21|P0.22|P0.23|P0.24|P0.25|P0.26|P0.27|P0.28|P0.29|P0.30|P0.3"
+      "1),checkbox,popup(16|32|64|128|256|512|1024),popup(16|32|64|128|256|512|1024),popup(Blocking|Non-Blocking),popup"
+      "(Ascii|Binary|String Buffer|Raw Buffer),popup(32|64|128|256|512|1024),edit,edit,edit,edit,edit,edit,edit,edit,ed"
+      "it,edit,edit,popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")),popup(CR (0x0D - \"\\r"
+      "\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")|None),popup(<empty>),edit,edit,checkbox,edit,edit,edit,edi"
+      "t,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_uart_callback('conf');||||||||nrf5_uart_callback('flowcontrol');|||nrf5_uart_callb"
+      "ack('advanceoptions');|||nrf5_uart_callback('transfer');|nrf5_uart_callback('packetmode');||nrf5_uart_callback('"
+      "binheader');|nrf5_uart_callback('binterminator');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updatepo"
+      "rt');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5"
+      "_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_callback('updateport');|nrf5_uart_call"
+      "back('asciiformat');|||||nrf5_uart_callback('sampletime');|nrf5_uart_callback('enablecustomportlabel');|||nrf5_u"
+      "art_callback('blockid');|||||||||||"
+      MaskEnableString	      "on,off,on,off,off,off,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      ",on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,on,on,off,off,off,off,off,of"
+      "f,off,off,off,off,on,off,on,off,off,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;baudrate=&3;databits=&4;parity=&5;stopbit=&6;txpin=&7;rxpin=&8;flowco"
+      "ntrol=&9;ctspin=&10;rtspin=&11;advanceoptions=&12;rxbuffersize=&13;txbuffersize=&14;transfer=&15;packetmode=&16;"
+      "buffersize=&17;binheader=&18;binterminator=&19;porttype_double=&20;porttype_single=&21;porttype_int8=&22;porttyp"
+      "e_uint8=&23;porttype_int16=&24;porttype_uint16=&25;porttype_int32=&26;porttype_uint32=&27;asciiformat=&28;rx_asc"
+      "iiterminator=&29;tx_asciiterminator=&30;storagename=&31;portpinstr=&32;sampletime=@33;enablecustomportlabel=@34;"
+      "cinputportlabel=&35;coutputportlabel=&36;blockid=&37;inputporttype=@38;inputportwidth=@39;inputportlabel=&40;out"
+      "putporttype=@41;outputportwidth=@42;outputportlabel=&43;compat=&44;optionstring1=&45;optionstring2=&46;optionstr"
+      "ing3=&47;optionstring4=&48;"
+      MaskInitialization      "nrf5_uart_callback('init');"
+      MaskDisplay	      "text(0.95, 0.5, '[UART0_Tx]\\nPacket: Ascii\\nTransfer: Blocking\\nTs (sec): 0.1','ver','midd"
+      "le','hor','right'); port_label('input', 1,'uint32'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Tx|0|115200|8|None|1|P0.2|P0.3|None|P0.4|P0.2|on|64|64|Blocking|Ascii|32|'7E 7E'|'03 03'|"
+      "0|0|0|0|0|0|0|2|'Running=%u'|CR (0x0D - \"\\r\")|CRLF (0x0D 0x0A - \"\\r\\n\")|<empty>|0|0.1|off|In1,In2|Out1,Ou"
+      "t2|UARTTx|[-1]|[]|{'uint32'}|[]|[]|{}|0|[\"0\",\"115200\",\"2\",\"3\",\"None\",\"4\",\"2\",\"64\",\"64\",\"Block"
+      "ing\",\"Ascii\",\"\",\"0\",\"\",\"0\",\"Running=%u\",\"0x0D, 0x0A\",\"2\",\"\"]|[\"uint32_t\"]|[\"0x7E\",\"0x7E\""
+      "]|[\"0x3\",\"0x3\"]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Line {
+      SrcBlock		      "BLE NUS Rx"
+      SrcPort		      2
+      Points		      [105, 0]
+      Branch {
+	Labels			[0, 0]
+	DstBlock		"Subsystem"
+	DstPort			2
+      }
+      Branch {
+	Labels			[0, 0]
+	Points			[0, 160]
+	DstBlock		"Subsystem1"
+	DstPort			2
+      }
+    }
+    Line {
+      SrcBlock		      "BLE NUS Rx"
+      SrcPort		      3
+      Points		      [80, 0]
+      Branch {
+	Labels			[0, 0]
+	DstBlock		"Subsystem"
+	DstPort			3
+      }
+      Branch {
+	Labels			[0, 0]
+	Points			[0, 160]
+	DstBlock		"Subsystem1"
+	DstPort			3
+      }
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      4
+      DstBlock		      "Digital Output"
+      DstPort		      4
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      2
+      DstBlock		      "Digital Output"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      3
+      DstBlock		      "Digital Output"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Subsystem"
+      SrcPort		      1
+      DstBlock		      "Demux"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "BLE NUS Rx"
+      SrcPort		      1
+      Points		      [125, 0]
+      Branch {
+	DstBlock		"Subsystem"
+	DstPort			1
+      }
+      Branch {
+	Labels			[0, 0]
+	Points			[0, 160]
+	DstBlock		"Subsystem1"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Subsystem1"
+      SrcPort		      1
+      DstBlock		      "BLE NUS Tx"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Demux"
+      SrcPort		      1
+      DstBlock		      "Digital Output"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Subsystem1"
+      SrcPort		      2
+      DstBlock		      "BLE NUS Tx"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Digital Input"
+      SrcPort		      1
+      DstBlock		      "Mux"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Digital Input"
+      SrcPort		      2
+      DstBlock		      "Mux"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Digital Input"
+      SrcPort		      3
+      DstBlock		      "Mux"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Digital Input"
+      SrcPort		      4
+      DstBlock		      "Mux"
+      DstPort		      4
+    }
+    Line {
+      SrcBlock		      "Mux"
+      SrcPort		      1
+      DstBlock		      "Button Detector"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Button Detector"
+      SrcPort		      1
+      DstBlock		      "BLE NUS Tx1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Button Detector"
+      SrcPort		      2
+      DstBlock		      "BLE NUS Tx1"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Counter\nFree-Running"
+      SrcPort		      1
+      DstBlock		      "UART Tx"
+      DstPort		      1
+    }
+  }
+}

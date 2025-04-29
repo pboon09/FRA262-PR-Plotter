@@ -1,0 +1,4802 @@
+Model {
+  Name			  "stm32f4_target_apds_9301"
+  Version		  7.3
+  MdlSubVersion		  0
+  GraphicalInterface {
+    NumRootInports	    0
+    NumRootOutports	    0
+    ParameterArgumentNames  ""
+    ComputedModelVersion    "1.86"
+    NumModelReferences	    0
+    NumTestPointedSignals   0
+  }
+  SavedCharacterEncoding  "windows-874"
+  PreLoadFcn		  "waijung.modelPreload; % Required for working with Waijung Blockset. Do not remove."
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  CloseFcn		  "waijung.modelClose; % Required for working with Waijung Blockset. Do not remove."
+  Created		  "Wed Jul 03 18:51:27 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Tue Feb 07 00:44:58 2017"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:86>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  on
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "all"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  on
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  on
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  BufferReuse		  on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "1"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "SingleTasking"
+	  Solver		  "FixedStepDiscrete"
+	  SolverName		  "FixedStepDiscrete"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode on
+	  LifeSpan		  "1"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "LittleEndian"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "LittleEndian"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  SystemTargetFile	  "stm32f4.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  off
+	  TemplateMakefile	  "ert_default_tmf"
+	  Description		  "STM32F4 Target"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ProcessScript		  "stm32f4_make_rtw_hook"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses off
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.STFCustomTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant off
+	      ParMdlRefBuildCompliant off
+	      CompOptLevelCompliant   off
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns on
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    on
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      off
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   off
+	      SupportNonInlinedSFcns  off
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      SystemTargetFile	      "stm32f4.tlc"
+	      DialogCategory	      0
+	      Array {
+		Type			"Handle"
+		Dimension		1
+		Simulink.ERTTargetCC {
+		  $BackupClass		  "Simulink.TargetCC"
+		  $ObjectID		  12
+		  Version		  "1.6.0"
+		  TargetFcnLib		  "ansi_tfl_table_tmw.mat"
+		  TargetLibSuffix	  ""
+		  TargetPreCompLibLocation ""
+		  TargetFunctionLibrary	  "ANSI_C"
+		  UtilityFuncGeneration	  "Auto"
+		  ERTMultiwordTypeDef	  "System defined"
+		  ERTMultiwordLength	  256
+		  MultiwordLength	  2048
+		  GenerateFullHeader	  on
+		  GenerateSampleERTMain	  off
+		  GenerateTestInterfaces  off
+		  IsPILTarget		  off
+		  ModelReferenceCompliant off
+		  ParMdlRefBuildCompliant off
+		  CompOptLevelCompliant	  off
+		  IncludeMdlTerminateFcn  on
+		  CombineOutputUpdateFcns on
+		  SuppressErrorStatus	  off
+		  ERTFirstTimeCompliant	  off
+		  IncludeFileDelimiter	  "Auto"
+		  ERTCustomFileBanners	  on
+		  SupportAbsoluteTime	  on
+		  LogVarNameModifier	  "rt_"
+		  MatFileLogging	  off
+		  MultiInstanceERTCode	  off
+		  SupportNonFinite	  on
+		  SupportComplex	  on
+		  PurelyIntegerCode	  off
+		  SupportContinuousTime	  off
+		  SupportNonInlinedSFcns  off
+		  EnableShiftOperators	  on
+		  ParenthesesLevel	  "Nominal"
+		  PortableWordSizes	  off
+		  ModelStepFunctionPrototypeControlCompliant off
+		  CPPClassGenCompliant	  off
+		  AutosarCompliant	  off
+		  GenerateErtSFunction	  off
+		  GenerateASAP2		  off
+		  ExtMode		  off
+		  ExtModeTransport	  0
+		  ExtModeStaticAlloc	  off
+		  ExtModeStaticAllocSize  1000000
+		  ExtModeTesting	  off
+		  ExtModeMexFile	  "noextcomm"
+		  ExtModeIntrfLevel	  "Level1"
+		  InlinedParameterPlacement "NonHierarchical"
+		  TargetOS		  "BareBoardExample"
+		  MultiInstanceErrorCode  "Error"
+		  RateGroupingCode	  on
+		  RootIOFormat		  "Individual arguments"
+		  RTWCAPISignals	  off
+		  RTWCAPIParams		  off
+		  RTWCAPIStates		  off
+		  ERTSrcFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTHdrFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTDataSrcFileTemplate  "stm32f4_code_template.cgt"
+		  ERTDataHdrFileTemplate  "stm32f4_code_template.cgt"
+		  ERTCustomFileTemplate	  "stm32f4_file_process.tlc"
+		  ModuleNamingRule	  "Unspecified"
+		  SignalDisplayLevel	  10
+		  ParamTuneLevel	  10
+		  GlobalDataDefinition	  "Auto"
+		  DataDefinitionFile	  "global.c"
+		  GlobalDataReference	  "Auto"
+		  DataReferenceFile	  "global.h"
+		  GRTInterface		  off
+		  PreserveExpressionOrder off
+		  PreserveIfCondition	  off
+		  EnableUserReplacementTypes off
+		  Array {
+		    Type		    "Struct"
+		    Dimension		    1
+		    MATStruct {
+		    double		    ""
+		    single		    ""
+		    int32		    ""
+		    int16		    ""
+		    int8		    ""
+		    uint32		    ""
+		    uint16		    ""
+		    uint8		    ""
+		    boolean		    ""
+		    int			    ""
+		    uint		    ""
+		    char		    ""
+		    }
+		    PropName		    "ReplacementTypes"
+		  }
+		  MemSecPackage		  "--- None ---"
+		  MemSecDataConstants	  "Default"
+		  MemSecDataIO		  "Default"
+		  MemSecDataInternal	  "Default"
+		  MemSecDataParameters	  "Default"
+		  MemSecFuncInitTerm	  "Default"
+		  MemSecFuncExecute	  "Default"
+		}
+		PropName		"Components"
+	      }
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "stm32f4_configset"
+      ExtraOptions	      "-aGenerateTraceInfo=0 -aIgnoreTestpoints=0 "
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 400, 210, 1280, 840 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  Simulink.ConfigSet {
+    $PropName		    "ActiveConfigurationSet"
+    $ObjectID		    1
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      ActionPort
+      InitializeStates	      "held"
+      SignalSizeVariationType "Allow only fixed size"
+      ActionType	      "unset"
+    }
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "fixdt(1,16,0)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit from 'Constant value'"
+      LockScale		      off
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
+    }
+    Block {
+      BlockType		      DataTypeConversion
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit via back propagation"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit via back propagation"
+      LockScale		      off
+      ConvertRealWorld	      "Real World Value (RWV)"
+      RndMeth		      "Zero"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      EnablePort
+      StatesWhenEnabling      "held"
+      SignalSizeVariationType "Allow only fixed size"
+      ShowOutputPort	      off
+      ZeroCross		      on
+    }
+    Block {
+      BlockType		      Gain
+      Gain		      "1"
+      Multiplication	      "Element-wise(K.*u)"
+      ParamMin		      "[]"
+      ParamMax		      "[]"
+      ParameterDataTypeMode   "Same as input"
+      ParameterDataType	      "fixdt(1,16,0)"
+      ParameterScalingMode    "Best Precision: Matrix-wise"
+      ParameterScaling	      "[]"
+      ParamDataTypeStr	      "Inherit: Same as input"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Same as input"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      If
+      NumInputs		      "1"
+      IfExpression	      "u1 > 0"
+      ShowElse		      on
+      ZeroCross		      on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: auto"
+      LockScale		      off
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+      DimensionsMode	      "auto"
+    }
+    Block {
+      BlockType		      Logic
+      Operator		      "AND"
+      Inputs		      "2"
+      IconShape		      "rectangular"
+      AllPortsSameDT	      on
+      OutDataTypeMode	      "Logical (see Configuration Parameters: Optimization)"
+      LogicDataType	      "uint(8)"
+      OutDataTypeStr	      "Inherit: Logical (see Configuration Parameters: Optimization)"
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Math
+      Operator		      "exp"
+      OutputSignalType	      "auto"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Same as first input"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+    }
+    Block {
+      BlockType		      Merge
+      Inputs		      "2"
+      InitialOutput	      "[]"
+      AllowUnequalInputPortWidths off
+      InputPortOffsets	      "[]"
+    }
+    Block {
+      BlockType		      MultiPortSwitch
+      Inputs		      "3"
+      zeroidx		      off
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: auto"
+      LockScale		      off
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      SourceOfInitialOutputValue "Dialog"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
+      DimensionsMode	      "auto"
+    }
+    Block {
+      BlockType		      Product
+      Inputs		      "2"
+      Multiplication	      "Element-wise(.*)"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Same as first input"
+      LockScale		      off
+      RndMeth		      "Zero"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      CheckFcnCallInpInsideContextMsg off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Sum
+      IconShape		      "rectangular"
+      Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      AccumDataTypeStr	      "Inherit: Inherit via internal rule"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Same as first input"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Terminator
+    }
+  }
+  System {
+    Name		    "stm32f4_target_apds_9301"
+    Location		    [588, 178, 1333, 670]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      SubSystem
+      Name		      "APDS 9301"
+      Ports		      [0, 3]
+      Position		      [135, 221, 285, 299]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      MaskType		      "stm32f4_i2c_sensors"
+      MaskDescription	      "aMG Sense - Light\n\nNote: Require I2C Setup block for the selected I2C module."
+      MaskPromptString	      "I2C Module|I2C Slave Address|Output label|Sensor name|Sample time (sec)"
+      MaskStyleString	      "popup(1|2|3),edit,edit,edit,edit"
+      MaskTunableValueString  "off,on,off,off,on"
+      MaskCallbackString      "stm32f4_i2c_sensors_callback('module');||||"
+      MaskEnableString	      "on,on,on,on,on"
+      MaskVisibilityString    "on,on,off,off,on"
+      MaskToolTipString	      "on,on,on,on,on"
+      MaskVarAliasString      ",,,,"
+      MaskVariables	      "module=&1;slvaddr=@2;outputlabel=&3;sensorname=&4;sampletime=@5;"
+      MaskInitialization      "stm32f4_i2c_sensors_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'aMG Sense - Light','ver','middle','hor','center');port_label('output', 1,'CH0"
+      "');port_label('output', 2,'CH1');port_label('output', 3,'Lux');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "1|hex2dec('72')|{'CH0','CH1','Lux'}|aMG Sense - Light|0.5"
+      MaskTabNameString	      ",,,,"
+      System {
+	Name			"APDS 9301"
+	Location		[-1548, -39, -615, 449]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "APDS_9301_Initialize"
+	  Ports			  [1, 1]
+	  Position		  [180, 35, 285, 125]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "APDS_9301_Initialize"
+	    Location		    [71, 460, 1044, 763]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "SlvAddr"
+	      Position		      [165, 48, 195, 62]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Bitwise\nOperator"
+	      Ports		      [2, 1]
+	      Position		      [160, 91, 200, 129]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+	      SourceType	      "Bitwise Operator"
+	      logicop		      "OR"
+	      UseBitMask	      off
+	      NumInputPorts	      "2"
+	      BitMask		      "bin2dec('11011001')"
+	      BitMaskRealWorld	      "Stored Integer"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Bitwise\nOperator1"
+	      Ports		      [1, 1]
+	      Position		      [500, 91, 535, 129]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+	      SourceType	      "Bitwise Operator"
+	      logicop		      "AND"
+	      UseBitMask	      on
+	      NumInputPorts	      "1"
+	      BitMask		      "3"
+	      BitMaskRealWorld	      "Stored Integer"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "CMD"
+	      Position		      [25, 82, 120, 118]
+	      Value		      "hex2dec('80')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Compare\nTo Constant"
+	      Ports		      [1, 1]
+	      Position		      [555, 40, 585, 70]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Constant"
+	      SourceType	      "Compare To Constant"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      relop		      "=="
+	      const		      "0"
+	      LogicOutDataTypeMode    "uint8"
+	      ZeroCross		      off
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Compare\nTo Constant1"
+	      Ports		      [1, 1]
+	      Position		      [555, 95, 585, 125]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Constant"
+	      SourceType	      "Compare To Constant"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      relop		      "~="
+	      const		      "3"
+	      LogicOutDataTypeMode    "uint8"
+	      ZeroCross		      off
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Enabled\nSubsystem"
+	      Ports		      [2, 0, 1]
+	      Position		      [640, 174, 740, 216]
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Enabled\nSubsystem"
+		Location		[863, 187, 1613, 517]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "SlvAddr"
+		  Position		  [20, 98, 50, 112]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "Cmd"
+		  Position		  [110, 133, 140, 147]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  EnablePort
+		  Name			  "Enable"
+		  Ports			  []
+		  Position		  [235, 20, 255, 40]
+		}
+		Block {
+		  BlockType		  "S-Function"
+		  Name			  "I2C Master Read/Write"
+		  Ports			  [3, 1]
+		  Position		  [265, 84, 455, 196]
+		  FunctionName		  "stm32f4_i2c"
+		  Parameters		  "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypearray,ou"
+		  "tputtypearray,confstr,sampletime,sampletimestr,blockid"
+		  EnableBusSupport	  off
+		  MaskType		  "stm32f4_i2c"
+		  MaskHelp		  "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+		  MaskPromptString	  "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed (kHz)|T"
+		  "imeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input type array"
+		  "|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+		  MaskStyleString	  "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh = 16/9"
+		  "|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+		  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+		  MaskCallbackString	  "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_callbac"
+		  "k('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_callback('sda"
+		  "pin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampletime');|stm"
+		  "32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+		  MaskEnableString	  "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+		  MaskVisibilityString	  "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+		  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+		  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,"
+		  MaskVariables		  "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;writeco"
+		  "unt=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confstr=&15;sam"
+		  "pletime=@16;sampletimestr=&17;blockid=&18;"
+		  MaskInitialization	  "stm32f4_i2c_callback('init');"
+		  MaskDisplay		  "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 2 bytes\\nRead: 0 bytes\\nTs (sec): 0.5"
+		  "','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');port_label("
+		  "'input', 3,'Wr1 (uint8)');port_label('output', 1,'Status');"
+		  MaskSelfModifiable	  on
+		  MaskIconFrame		  on
+		  MaskIconOpaque	  on
+		  MaskIconRotate	  "none"
+		  MaskPortRotate	  "default"
+		  MaskIconUnits		  "normalized"
+		  MaskValueString	  "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|2|0|C9|A8|0|[3 3 3 3]|[1 3]|[\"C\",\"9\",\"A\",\""
+		  "8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301APDS_9301_InitializeEnabledSubsystem"
+		  "I2CMasterReadWrite"
+		  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Power ON"
+		  Position		  [110, 161, 170, 189]
+		  Value			  "3"
+		  OutDataTypeMode	  "uint8"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint8"
+		}
+		Block {
+		  BlockType		  Terminator
+		  Name			  "Terminator"
+		  Position		  [510, 130, 530, 150]
+		}
+		Line {
+		  SrcBlock		  "I2C Master Read/Write"
+		  SrcPort		  1
+		  DstBlock		  "Terminator"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Power ON"
+		  SrcPort		  1
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "Cmd"
+		  SrcPort		  1
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "SlvAddr"
+		  SrcPort		  1
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "I2C Master Read/Write"
+	      Ports		      [2, 2]
+	      Position		      [270, 27, 460, 138]
+	      FunctionName	      "stm32f4_i2c"
+	      Parameters	      "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypear"
+	      "ray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "stm32f4_i2c"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+	      MaskPromptString	      "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed "
+	      "(kHz)|Timeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input "
+	      "type array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockI"
+	      "D"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh"
+	      " = 16/9|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_c"
+	      "allback('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_call"
+	      "back('sdapin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampl"
+	      "etime');|stm32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+	      MaskEnableString	      "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;w"
+	      "ritecount=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confst"
+	      "r=&15;sampletime=@16;sampletimestr=&17;blockid=&18;"
+	      MaskInitialization      "stm32f4_i2c_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 1 bytes\\nRead: 1 bytes\\nTs (sec"
+	      "): 0.5','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');po"
+	      "rt_label('output', 1,'Status');port_label('output', 2,'Rd0 (uint8)');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|1|1|C9|A8|0|[2 3 3]|[2 3 3]|[\"C\",\"9\","
+	      "\"A\",\"8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301APDS_9301_InitializeI2CMa"
+	      "sterReadWrite"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      Logic
+	      Name		      "Logical\nOperator"
+	      Ports		      [2, 1]
+	      Position		      [630, 47, 660, 78]
+	      AllPortsSameDT	      off
+	      OutDataTypeMode	      "boolean"
+	      LogicDataType	      "fixdt(0, 8)"
+	      OutDataTypeStr	      "boolean"
+	    }
+	    Block {
+	      BlockType		      Logic
+	      Name		      "Logical\nOperator1"
+	      Ports		      [2, 1]
+	      Position		      [785, 22, 815, 53]
+	      AllPortsSameDT	      off
+	      OutDataTypeMode	      "boolean"
+	      LogicDataType	      "fixdt(0, 8)"
+	      OutDataTypeStr	      "boolean"
+	    }
+	    Block {
+	      BlockType		      Logic
+	      Name		      "Logical\nOperator2"
+	      Ports		      [1, 1]
+	      Position		      [720, 49, 750, 81]
+	      Operator		      "NOT"
+	      AllPortsSameDT	      off
+	      OutDataTypeMode	      "boolean"
+	      LogicDataType	      "fixdt(0, 8)"
+	      OutDataTypeStr	      "boolean"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Register"
+	      Position		      [60, 131, 120, 159]
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "READY"
+	      Position		      [865, 33, 895, 47]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      SrcBlock		      "Logical\nOperator1"
+	      SrcPort		      1
+	      DstBlock		      "READY"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Logical\nOperator2"
+	      SrcPort		      1
+	      Points		      [5, 0; 0, -20]
+	      DstBlock		      "Logical\nOperator1"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Bitwise\nOperator1"
+	      SrcPort		      1
+	      DstBlock		      "Compare\nTo Constant1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Register"
+	      SrcPort		      1
+	      Points		      [10, 0; 0, -25]
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Logical\nOperator"
+	      SrcPort		      1
+	      Points		      [25, 0]
+	      Branch {
+		DstBlock		"Logical\nOperator2"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Enabled\nSubsystem"
+		DstPort			enable
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Compare\nTo Constant1"
+	      SrcPort		      1
+	      Points		      [5, 0; 0, -40]
+	      DstBlock		      "Logical\nOperator"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Compare\nTo Constant"
+	      SrcPort		      1
+	      Points		      [15, 0]
+	      Branch {
+		Points			[0, -25]
+		DstBlock		"Logical\nOperator1"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Logical\nOperator"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      2
+	      DstBlock		      "Bitwise\nOperator1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      1
+	      DstBlock		      "Compare\nTo Constant"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "CMD"
+	      SrcPort		      1
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Bitwise\nOperator"
+	      SrcPort		      1
+	      Points		      [25, 0]
+	      Branch {
+		Points			[0, 95]
+		DstBlock		"Enabled\nSubsystem"
+		DstPort			2
+	      }
+	      Branch {
+		DstBlock		"I2C Master Read/Write"
+		DstPort			2
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "SlvAddr"
+	      SrcPort		      1
+	      Points		      [45, 0]
+	      Branch {
+		Points			[0, 130]
+		DstBlock		"Enabled\nSubsystem"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"I2C Master Read/Write"
+		DstPort			1
+	      }
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "Channel 0"
+	  Ports			  [1, 2, 1]
+	  Position		  [245, 156, 355, 229]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "Channel 0"
+	    Location		    [449, 387, 1280, 612]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "SlvAddr"
+	      Position		      [160, 48, 190, 62]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      EnablePort
+	      Name		      "Enable"
+	      Ports		      []
+	      Position		      [25, 15, 45, 35]
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Bitwise\nOperator"
+	      Ports		      [2, 1]
+	      Position		      [150, 91, 190, 129]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+	      SourceType	      "Bitwise Operator"
+	      logicop		      "OR"
+	      UseBitMask	      off
+	      NumInputPorts	      "2"
+	      BitMask		      "bin2dec('11011001')"
+	      BitMaskRealWorld	      "Stored Integer"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "CMD_WORD"
+	      Position		      [25, 52, 120, 88]
+	      Value		      "hex2dec('A0')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Compare\nTo Zero"
+	      Ports		      [1, 1]
+	      Position		      [460, 30, 490, 60]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Zero"
+	      SourceType	      "Compare To Zero"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      relop		      "=="
+	      LogicOutDataTypeMode    "uint8"
+	      ZeroCross		      off
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Convert"
+	      Ports		      [2, 1, 1]
+	      Position		      [525, 62, 615, 133]
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Convert"
+		Location		[321, 412, 876, 657]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "In1"
+		  Position		  [50, 53, 80, 67]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "In2"
+		  Position		  [50, 93, 80, 107]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  EnablePort
+		  Name			  "Enable"
+		  Ports			  []
+		  Position		  [25, 15, 45, 35]
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Bitwise\nOperator1"
+		  Ports			  [2, 1]
+		  Position		  [305, 71, 345, 109]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+		  SourceType		  "Bitwise Operator"
+		  logicop		  "OR"
+		  UseBitMask		  off
+		  NumInputPorts		  "2"
+		  BitMask		  "bin2dec('11011001')"
+		  BitMaskRealWorld	  "Stored Integer"
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion"
+		  Position		  [100, 50, 145, 70]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion1"
+		  Position		  [100, 90, 145, 110]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion2"
+		  Position		  [370, 80, 415, 100]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Shift\nArithmetic"
+		  Ports			  [1, 1]
+		  Position		  [180, 80, 260, 120]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Shift\nArithmetic"
+		  SourceType		  "Shift Arithmetic"
+		  ShowPortLabels	  "FromPortIcon"
+		  SystemSampleTime	  "-1"
+		  FunctionWithSeparateData off
+		  RTWMemSecFuncInitTerm	  "Inherit from model"
+		  RTWMemSecFuncExecute	  "Inherit from model"
+		  RTWMemSecDataConstants  "Inherit from model"
+		  RTWMemSecDataInternal	  "Inherit from model"
+		  RTWMemSecDataParameters "Inherit from model"
+		  nBitShiftRight	  "-8"
+		  nBinPtShiftRight	  "0"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Output"
+		  Position		  [440, 83, 470, 97]
+		  IconDisplay		  "Port number"
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion"
+		  SrcPort		  1
+		  Points		  [135, 0; 0, 20]
+		  DstBlock		  "Bitwise\nOperator1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion1"
+		  SrcPort		  1
+		  DstBlock		  "Shift\nArithmetic"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "In2"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion2"
+		  SrcPort		  1
+		  DstBlock		  "Output"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "In1"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Bitwise\nOperator1"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Shift\nArithmetic"
+		  SrcPort		  1
+		  DstBlock		  "Bitwise\nOperator1"
+		  DstPort		  2
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "I2C Master Read/Write"
+	      Ports		      [2, 3]
+	      Position		      [225, 24, 415, 136]
+	      FunctionName	      "stm32f4_i2c"
+	      Parameters	      "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypear"
+	      "ray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "stm32f4_i2c"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+	      MaskPromptString	      "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed "
+	      "(kHz)|Timeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input "
+	      "type array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockI"
+	      "D"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh"
+	      " = 16/9|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_c"
+	      "allback('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_call"
+	      "back('sdapin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampl"
+	      "etime');|stm32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+	      MaskEnableString	      "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;w"
+	      "ritecount=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confst"
+	      "r=&15;sampletime=@16;sampletimestr=&17;blockid=&18;"
+	      MaskInitialization      "stm32f4_i2c_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 1 bytes\\nRead: 2 bytes\\nTs (sec"
+	      "): 0.5','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');po"
+	      "rt_label('output', 1,'Status');port_label('output', 2,'Rd0 (uint8)');port_label('output', 3,'Rd1 (uint8)');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|1|2|C9|A8|0|[2 3 3]|[3 3 3 3]|[\"C\",\"9\""
+	      ",\"A\",\"8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301Channel0I2CMasterReadWri"
+	      "te"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Register"
+	      Position		      [50, 105, 120, 135]
+	      Value		      "hex2dec('C')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "SUCCESS"
+	      Position		      [650, 38, 680, 52]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Output"
+	      Position		      [650, 93, 680, 107]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      SrcBlock		      "Compare\nTo Zero"
+	      SrcPort		      1
+	      Points		      [75, 0]
+	      Branch {
+		DstBlock		"Convert"
+		DstPort			enable
+	      }
+	      Branch {
+		DstBlock		"SUCCESS"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Convert"
+	      SrcPort		      1
+	      DstBlock		      "Output"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      1
+	      DstBlock		      "Compare\nTo Zero"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      3
+	      DstBlock		      "Convert"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      2
+	      DstBlock		      "Convert"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Register"
+	      SrcPort		      1
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "CMD_WORD"
+	      SrcPort		      1
+	      Points		      [0, 30]
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Bitwise\nOperator"
+	      SrcPort		      1
+	      DstBlock		      "I2C Master Read/Write"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "SlvAddr"
+	      SrcPort		      1
+	      DstBlock		      "I2C Master Read/Write"
+	      DstPort		      1
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "Channel 1"
+	  Ports			  [1, 2, 1]
+	  Position		  [310, 258, 430, 327]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "Channel 1"
+	    Location		    [398, 431, 1318, 825]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "SlvAddr"
+	      Position		      [160, 48, 190, 62]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      EnablePort
+	      Name		      "Enable"
+	      Ports		      []
+	      Position		      [25, 15, 45, 35]
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Bitwise\nOperator"
+	      Ports		      [2, 1]
+	      Position		      [150, 91, 190, 129]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+	      SourceType	      "Bitwise Operator"
+	      logicop		      "OR"
+	      UseBitMask	      off
+	      NumInputPorts	      "2"
+	      BitMask		      "bin2dec('11011001')"
+	      BitMaskRealWorld	      "Stored Integer"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "CMD_WORD"
+	      Position		      [25, 52, 120, 88]
+	      Value		      "hex2dec('A0')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Compare\nTo Zero"
+	      Ports		      [1, 1]
+	      Position		      [460, 30, 490, 60]
+	      SourceBlock	      "simulink/Logic and Bit\nOperations/Compare\nTo Zero"
+	      SourceType	      "Compare To Zero"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      relop		      "=="
+	      LogicOutDataTypeMode    "uint8"
+	      ZeroCross		      off
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Convert"
+	      Ports		      [2, 1, 1]
+	      Position		      [520, 62, 610, 133]
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Convert"
+		Location		[321, 412, 876, 657]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "In1"
+		  Position		  [50, 53, 80, 67]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "In2"
+		  Position		  [50, 93, 80, 107]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  EnablePort
+		  Name			  "Enable"
+		  Ports			  []
+		  Position		  [25, 15, 45, 35]
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Bitwise\nOperator1"
+		  Ports			  [2, 1]
+		  Position		  [305, 71, 345, 109]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+		  SourceType		  "Bitwise Operator"
+		  logicop		  "OR"
+		  UseBitMask		  off
+		  NumInputPorts		  "2"
+		  BitMask		  "bin2dec('11011001')"
+		  BitMaskRealWorld	  "Stored Integer"
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion"
+		  Position		  [100, 50, 145, 70]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion1"
+		  Position		  [100, 90, 145, 110]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  DataTypeConversion
+		  Name			  "Data Type Conversion2"
+		  Position		  [370, 80, 415, 100]
+		  ShowName		  off
+		  OutDataTypeMode	  "uint16"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint16"
+		  RndMeth		  "Floor"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Shift\nArithmetic"
+		  Ports			  [1, 1]
+		  Position		  [180, 80, 260, 120]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Shift\nArithmetic"
+		  SourceType		  "Shift Arithmetic"
+		  ShowPortLabels	  "FromPortIcon"
+		  SystemSampleTime	  "-1"
+		  FunctionWithSeparateData off
+		  RTWMemSecFuncInitTerm	  "Inherit from model"
+		  RTWMemSecFuncExecute	  "Inherit from model"
+		  RTWMemSecDataConstants  "Inherit from model"
+		  RTWMemSecDataInternal	  "Inherit from model"
+		  RTWMemSecDataParameters "Inherit from model"
+		  nBitShiftRight	  "-8"
+		  nBinPtShiftRight	  "0"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Output"
+		  Position		  [440, 83, 470, 97]
+		  IconDisplay		  "Port number"
+		}
+		Line {
+		  SrcBlock		  "Shift\nArithmetic"
+		  SrcPort		  1
+		  DstBlock		  "Bitwise\nOperator1"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Bitwise\nOperator1"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "In1"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion2"
+		  SrcPort		  1
+		  DstBlock		  "Output"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "In2"
+		  SrcPort		  1
+		  DstBlock		  "Data Type Conversion1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion1"
+		  SrcPort		  1
+		  DstBlock		  "Shift\nArithmetic"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Data Type Conversion"
+		  SrcPort		  1
+		  Points		  [135, 0; 0, 20]
+		  DstBlock		  "Bitwise\nOperator1"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "I2C Master Read/Write"
+	      Ports		      [2, 3]
+	      Position		      [225, 24, 415, 136]
+	      FunctionName	      "stm32f4_i2c"
+	      Parameters	      "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypear"
+	      "ray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "stm32f4_i2c"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+	      MaskPromptString	      "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed "
+	      "(kHz)|Timeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input "
+	      "type array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockI"
+	      "D"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh"
+	      " = 16/9|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_c"
+	      "allback('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_call"
+	      "back('sdapin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampl"
+	      "etime');|stm32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+	      MaskEnableString	      "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;w"
+	      "ritecount=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confst"
+	      "r=&15;sampletime=@16;sampletimestr=&17;blockid=&18;"
+	      MaskInitialization      "stm32f4_i2c_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 1 bytes\\nRead: 2 bytes\\nTs (sec"
+	      "): 0.5','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');po"
+	      "rt_label('output', 1,'Status');port_label('output', 2,'Rd0 (uint8)');port_label('output', 3,'Rd1 (uint8)');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|1|2|C9|A8|0|[2 3 3]|[3 3 3 3]|[\"C\",\"9\""
+	      ",\"A\",\"8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301Channel1I2CMasterReadWri"
+	      "te"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Register"
+	      Position		      [50, 105, 120, 135]
+	      Value		      "hex2dec('E')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "SUCCESS"
+	      Position		      [655, 38, 685, 52]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Output"
+	      Position		      [650, 93, 680, 107]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      SrcBlock		      "SlvAddr"
+	      SrcPort		      1
+	      DstBlock		      "I2C Master Read/Write"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Bitwise\nOperator"
+	      SrcPort		      1
+	      DstBlock		      "I2C Master Read/Write"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "CMD_WORD"
+	      SrcPort		      1
+	      Points		      [0, 30]
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Register"
+	      SrcPort		      1
+	      DstBlock		      "Bitwise\nOperator"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      2
+	      DstBlock		      "Convert"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      3
+	      DstBlock		      "Convert"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "I2C Master Read/Write"
+	      SrcPort		      1
+	      DstBlock		      "Compare\nTo Zero"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Compare\nTo Zero"
+	      SrcPort		      1
+	      Points		      [70, 0]
+	      Branch {
+		DstBlock		"Convert"
+		DstPort			enable
+	      }
+	      Branch {
+		DstBlock		"SUCCESS"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Convert"
+	      SrcPort		      1
+	      DstBlock		      "Output"
+	      DstPort		      1
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "Conversion"
+	  Ports			  [3, 1, 1]
+	  Position		  [510, 363, 620, 427]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "Conversion"
+	    Location		    [499, 168, 1534, 578]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "CH0"
+	      Position		      [20, 108, 50, 122]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "CH1"
+	      Position		      [20, 73, 50, 87]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "Scale"
+	      Position		      [700, 148, 730, 162]
+	      Port		      "3"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      EnablePort
+	      Name		      "Enable"
+	      Ports		      []
+	      Position		      [25, 15, 45, 35]
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant"
+	      Position		      [735, 335, 785, 365]
+	      Value		      "16"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      DataTypeConversion
+	      Name		      "Data Type Conversion"
+	      Position		      [90, 68, 140, 92]
+	      ShowName		      off
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      RndMeth		      "Floor"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      DataTypeConversion
+	      Name		      "Data Type Conversion1"
+	      Position		      [90, 103, 140, 127]
+	      ShowName		      off
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      RndMeth		      "Floor"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Product
+	      Name		      "Divide"
+	      Ports		      [2, 1]
+	      Position		      [775, 262, 805, 293]
+	      Inputs		      "*/"
+	      InputSameDT	      off
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^-10"
+	      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+	      RndMeth		      "Floor"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Product
+	      Name		      "Divide1"
+	      Ports		      [2, 1]
+	      Position		      [850, 272, 880, 303]
+	      Inputs		      "**"
+	      InputSameDT	      off
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^-10"
+	      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+	      RndMeth		      "Floor"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      If
+	      Name		      "If"
+	      Ports		      [1, 5]
+	      Position		      [330, 55, 430, 135]
+	      IfExpression	      "(u1 > 0) & (u1<=0.5)"
+	      ElseIfExpressions	      "(u1 > 0.5) & (u1<=0.61),(u1 > 0.61) & (u1<=0.8),(u1 > 0.8) & (u1<=1.3)"
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "If Action\nSubsystem"
+	      Ports		      [2, 1, 0, 0, 0, 0, 0, 1]
+	      Position		      [460, 202, 530, 238]
+	      ShowName		      off
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"If Action\nSubsystem"
+		Location		[778, 423, 1351, 732]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH0"
+		  Position		  [65, 113, 95, 127]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH1"
+		  Position		  [65, 163, 95, 177]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  ActionPort
+		  Name			  "Action Port"
+		  Position		  [170, 15, 229, 43]
+		  ActionType		  "elseif"
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain"
+		  Position		  [175, 103, 235, 137]
+		  Gain			  "0.0224"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain1"
+		  Position		  [175, 153, 235, 187]
+		  Gain			  "0.031"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Subtract"
+		  Ports			  [2, 1]
+		  Position		  [315, 112, 345, 143]
+		  Inputs		  "+-"
+		  InputSameDT		  off
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^-10"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Lux"
+		  Position		  [385, 123, 415, 137]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Gain1"
+		  SrcPort		  1
+		  Points		  [30, 0; 0, -35]
+		  DstBlock		  "Subtract"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Gain"
+		  SrcPort		  1
+		  DstBlock		  "Subtract"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH1"
+		  SrcPort		  1
+		  DstBlock		  "Gain1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Subtract"
+		  SrcPort		  1
+		  DstBlock		  "Lux"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH0"
+		  SrcPort		  1
+		  DstBlock		  "Gain"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "If Action\nSubsystem1"
+	      Ports		      [3, 1, 0, 0, 0, 0, 0, 1]
+	      Position		      [415, 157, 485, 193]
+	      ShowName		      off
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"If Action\nSubsystem1"
+		Location		[372, 326, 1142, 763]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH0"
+		  Position		  [115, 173, 145, 187]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH1"
+		  Position		  [115, 208, 145, 222]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH1/CH0"
+		  Position		  [115, 248, 145, 262]
+		  Port			  "3"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  ActionPort
+		  Name			  "Action Port"
+		  Position		  [170, 15, 229, 43]
+		  ActionType		  "then"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Constant"
+		  Position		  [240, 270, 270, 300]
+		  Value			  "1.4"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain"
+		  Position		  [225, 163, 285, 197]
+		  Gain			  "0.062"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain1"
+		  Position		  [225, 118, 285, 152]
+		  Gain			  "0.0304"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Math
+		  Name			  "Math\nFunction"
+		  Ports			  [2, 1]
+		  Position		  [305, 247, 335, 278]
+		  Operator		  "pow"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Product
+		  Name			  "Product"
+		  Ports			  [2, 1]
+		  Position		  [375, 237, 405, 268]
+		  InputSameDT		  off
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Subtract"
+		  Ports			  [2, 1]
+		  Position		  [440, 232, 470, 263]
+		  Inputs		  "+-"
+		  InputSameDT		  off
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^-10"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Terminator
+		  Name			  "Terminator"
+		  Position		  [190, 205, 210, 225]
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Lux"
+		  Position		  [610, 243, 640, 257]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "CH1"
+		  SrcPort		  1
+		  DstBlock		  "Terminator"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Subtract"
+		  SrcPort		  1
+		  DstBlock		  "Lux"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Product"
+		  SrcPort		  1
+		  DstBlock		  "Subtract"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Gain1"
+		  SrcPort		  1
+		  Points		  [135, 0]
+		  DstBlock		  "Subtract"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Math\nFunction"
+		  SrcPort		  1
+		  DstBlock		  "Product"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Gain"
+		  SrcPort		  1
+		  Points		  [55, 0; 0, 65]
+		  DstBlock		  "Product"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH1/CH0"
+		  SrcPort		  1
+		  DstBlock		  "Math\nFunction"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Constant"
+		  SrcPort		  1
+		  Points		  [15, 0]
+		  DstBlock		  "Math\nFunction"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "CH0"
+		  SrcPort		  1
+		  Points		  [35, 0]
+		  Branch {
+		    Points		    [0, -45]
+		    DstBlock		    "Gain1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    DstBlock		    "Gain"
+		    DstPort		    1
+		  }
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "If Action\nSubsystem2"
+	      Ports		      [2, 1, 0, 0, 0, 0, 0, 1]
+	      Position		      [545, 302, 615, 338]
+	      ShowName		      off
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"If Action\nSubsystem2"
+		Location		[782, 330, 1280, 630]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH0"
+		  Position		  [70, 123, 100, 137]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH1"
+		  Position		  [70, 173, 100, 187]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  ActionPort
+		  Name			  "Action Port"
+		  Position		  [170, 15, 229, 43]
+		  ActionType		  "elseif"
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain"
+		  Position		  [180, 112, 255, 148]
+		  Gain			  "0.00146"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain1"
+		  Position		  [180, 160, 260, 200]
+		  Gain			  "0.00112"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Subtract"
+		  Ports			  [2, 1]
+		  Position		  [320, 122, 350, 153]
+		  Inputs		  "+-"
+		  InputSameDT		  off
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^-10"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Lux"
+		  Position		  [385, 133, 415, 147]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Gain1"
+		  SrcPort		  1
+		  Points		  [10, 0; 0, -35]
+		  DstBlock		  "Subtract"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Gain"
+		  SrcPort		  1
+		  DstBlock		  "Subtract"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH1"
+		  SrcPort		  1
+		  DstBlock		  "Gain1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Subtract"
+		  SrcPort		  1
+		  DstBlock		  "Lux"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH0"
+		  SrcPort		  1
+		  DstBlock		  "Gain"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "If Action\nSubsystem3"
+	      Ports		      [2, 1, 0, 0, 0, 0, 0, 1]
+	      Position		      [500, 252, 570, 288]
+	      ShowName		      off
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"If Action\nSubsystem3"
+		Location		[703, 390, 1201, 690]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH0"
+		  Position		  [50, 118, 80, 132]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "CH1"
+		  Position		  [50, 168, 80, 182]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  ActionPort
+		  Name			  "Action Port"
+		  Position		  [170, 15, 229, 43]
+		  ActionType		  "elseif"
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain"
+		  Position		  [160, 108, 220, 142]
+		  Gain			  "0.0128"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Gain
+		  Name			  "Gain1"
+		  Position		  [160, 158, 220, 192]
+		  Gain			  "0.0153"
+		  ParameterDataTypeMode	  "Inherit via internal rule"
+		  ParameterDataType	  "fixdt(1, 16)"
+		  ParameterScaling	  "2^0"
+		  ParamDataTypeStr	  "Inherit: Inherit via internal rule"
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Sum
+		  Name			  "Subtract"
+		  Ports			  [2, 1]
+		  Position		  [300, 117, 330, 148]
+		  Inputs		  "+-"
+		  InputSameDT		  off
+		  OutDataTypeMode	  "Inherit via internal rule"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^-10"
+		  OutDataTypeStr	  "Inherit: Inherit via internal rule"
+		  SaturateOnIntegerOverflow off
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Lux"
+		  Position		  [375, 128, 405, 142]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Gain1"
+		  SrcPort		  1
+		  Points		  [30, 0; 0, -35]
+		  DstBlock		  "Subtract"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Gain"
+		  SrcPort		  1
+		  DstBlock		  "Subtract"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH1"
+		  SrcPort		  1
+		  DstBlock		  "Gain1"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Subtract"
+		  SrcPort		  1
+		  DstBlock		  "Lux"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CH0"
+		  SrcPort		  1
+		  DstBlock		  "Gain"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "If Action\nSubsystem4"
+	      Ports		      [0, 1, 0, 0, 0, 0, 0, 1]
+	      Position		      [590, 347, 660, 383]
+	      ShowName		      off
+	      TreatAsAtomicUnit	      on
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"If Action\nSubsystem4"
+		Location		[455, 529, 1177, 829]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  ActionPort
+		  Name			  "Action Port"
+		  Position		  [170, 15, 229, 43]
+		  ActionType		  "else"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Constant"
+		  Position		  [150, 80, 180, 110]
+		  Value			  "0"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Lux"
+		  Position		  [245, 88, 275, 102]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Constant"
+		  SrcPort		  1
+		  DstBlock		  "Lux"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      Merge
+	      Name		      "Merge"
+	      Ports		      [5, 1]
+	      Position		      [680, 250, 720, 290]
+	      Inputs		      "5"
+	    }
+	    Block {
+	      BlockType		      Product
+	      Name		      "Product"
+	      Ports		      [2, 1]
+	      Position		      [195, 62, 220, 133]
+	      Inputs		      "*/"
+	      InputSameDT	      off
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Lux"
+	      Position		      [935, 283, 965, 297]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      SrcBlock		      "Merge"
+	      SrcPort		      1
+	      DstBlock		      "Divide"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "If Action\nSubsystem4"
+	      SrcPort		      1
+	      DstBlock		      "Merge"
+	      DstPort		      5
+	    }
+	    Line {
+	      SrcBlock		      "If Action\nSubsystem2"
+	      SrcPort		      1
+	      Points		      [35, 0; 0, -40]
+	      DstBlock		      "Merge"
+	      DstPort		      4
+	    }
+	    Line {
+	      SrcBlock		      "If Action\nSubsystem3"
+	      SrcPort		      1
+	      DstBlock		      "Merge"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "If Action\nSubsystem"
+	      SrcPort		      1
+	      Points		      [120, 0; 0, 40]
+	      DstBlock		      "Merge"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "If Action\nSubsystem1"
+	      SrcPort		      1
+	      Points		      [175, 0]
+	      DstBlock		      "Merge"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Divide1"
+	      SrcPort		      1
+	      DstBlock		      "Lux"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant"
+	      SrcPort		      1
+	      Points		      [0, -5; 40, 0; 0, -50]
+	      DstBlock		      "Divide1"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Divide"
+	      SrcPort		      1
+	      DstBlock		      "Divide1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Scale"
+	      SrcPort		      1
+	      Points		      [0, 130]
+	      DstBlock		      "Divide"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Data Type Conversion1"
+	      SrcPort		      1
+	      Points		      [20, 0]
+	      Branch {
+		Points			[0, 50; 225, 0]
+		Branch {
+		  Points		  [0, 45; 45, 0]
+		  Branch {
+		    Points		    [0, 50; 35, 0]
+		    Branch {
+		    Points		    [0, 50]
+		    DstBlock		    "If Action\nSubsystem2"
+		    DstPort		    1
+		    }
+		    Branch {
+		    DstBlock		    "If Action\nSubsystem3"
+		    DstPort		    1
+		    }
+		  }
+		  Branch {
+		    DstBlock		    "If Action\nSubsystem"
+		    DstPort		    1
+		  }
+		}
+		Branch {
+		  DstBlock		  "If Action\nSubsystem1"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"Product"
+		DstPort			2
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "Data Type Conversion"
+	      SrcPort		      1
+	      Points		      [15, 0]
+	      Branch {
+		Points			[0, 95; 220, 0]
+		Branch {
+		  Points		  [0, 55; 45, 0]
+		  Branch {
+		    Points		    [0, 50; 30, 0]
+		    Branch {
+		    Points		    [0, 50]
+		    DstBlock		    "If Action\nSubsystem2"
+		    DstPort		    2
+		    }
+		    Branch {
+		    DstBlock		    "If Action\nSubsystem3"
+		    DstPort		    2
+		    }
+		  }
+		  Branch {
+		    DstBlock		    "If Action\nSubsystem"
+		    DstPort		    2
+		  }
+		}
+		Branch {
+		  DstBlock		  "If Action\nSubsystem1"
+		  DstPort		  2
+		}
+	      }
+	      Branch {
+		DstBlock		"Product"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "If"
+	      SrcPort		      5
+	      Points		      [190, 0]
+	      DstBlock		      "If Action\nSubsystem4"
+	      DstPort		      ifaction
+	    }
+	    Line {
+	      SrcBlock		      "If"
+	      SrcPort		      4
+	      Points		      [145, 0]
+	      DstBlock		      "If Action\nSubsystem2"
+	      DstPort		      ifaction
+	    }
+	    Line {
+	      SrcBlock		      "If"
+	      SrcPort		      3
+	      Points		      [100, 0]
+	      DstBlock		      "If Action\nSubsystem3"
+	      DstPort		      ifaction
+	    }
+	    Line {
+	      SrcBlock		      "If"
+	      SrcPort		      2
+	      Points		      [60, 0]
+	      DstBlock		      "If Action\nSubsystem"
+	      DstPort		      ifaction
+	    }
+	    Line {
+	      SrcBlock		      "If"
+	      SrcPort		      1
+	      Points		      [15, 0]
+	      DstBlock		      "If Action\nSubsystem1"
+	      DstPort		      ifaction
+	    }
+	    Line {
+	      Labels		      [0, 0]
+	      SrcBlock		      "Product"
+	      SrcPort		      1
+	      Points		      [0, -5; 40, 0]
+	      Branch {
+		Points			[0, 90]
+		DstBlock		"If Action\nSubsystem1"
+		DstPort			3
+	      }
+	      Branch {
+		DstBlock		"If"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      SrcBlock		      "CH0"
+	      SrcPort		      1
+	      DstBlock		      "Data Type Conversion1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "CH1"
+	      SrcPort		      1
+	      DstBlock		      "Data Type Conversion"
+	      DstPort		      1
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion"
+	  Position		  [700, 193, 775, 227]
+	  ShowName		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion1"
+	  Position		  [700, 378, 775, 412]
+	  ShowName		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion2"
+	  Position		  [700, 293, 775, 327]
+	  ShowName		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Logic
+	  Name			  "Logical\nOperator1"
+	  Ports			  [2, 1]
+	  Position		  [510, 251, 540, 284]
+	  AllPortsSameDT	  off
+	  OutDataTypeMode	  "boolean"
+	  LogicDataType		  "fixdt(0, 8)"
+	  OutDataTypeStr	  "boolean"
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "SCALE"
+	  Ports			  [1, 1]
+	  Position		  [315, 385, 430, 445]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "SCALE"
+	    Location		    [845, 215, 1436, 512]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "usletter"
+	    PaperUnits		    "inches"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "SlvAddr"
+	      Position		      [25, 43, 55, 57]
+	      IconDisplay	      "Port number"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant"
+	      Position		      [165, 75, 230, 105]
+	      Value		      "hex2dec('02')"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Subsystem"
+	      Ports		      [2, 1]
+	      Position		      [280, 31, 395, 109]
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Subsystem"
+		Location		[611, 550, 1484, 922]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "SlvAddr"
+		  Position		  [85, 53, 115, 67]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Inport
+		  Name			  "Value"
+		  Position		  [315, 183, 345, 197]
+		  Port			  "2"
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Bitwise\nOperator2"
+		  Ports			  [2, 1]
+		  Position		  [175, 171, 215, 209]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+		  SourceType		  "Bitwise Operator"
+		  logicop		  "OR"
+		  UseBitMask		  off
+		  NumInputPorts		  "2"
+		  BitMask		  "bin2dec('11011001')"
+		  BitMaskRealWorld	  "Stored Integer"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "CMD1"
+		  Position		  [40, 107, 135, 143]
+		  Value			  "hex2dec('80')"
+		  OutDataTypeMode	  "uint8"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint8"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Compare\nTo Zero"
+		  Ports			  [1, 1]
+		  Position		  [645, 140, 675, 170]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Compare\nTo Zero"
+		  SourceType		  "Compare To Zero"
+		  ShowPortLabels	  "FromPortIcon"
+		  SystemSampleTime	  "-1"
+		  FunctionWithSeparateData off
+		  RTWMemSecFuncInitTerm	  "Inherit from model"
+		  RTWMemSecFuncExecute	  "Inherit from model"
+		  RTWMemSecDataConstants  "Inherit from model"
+		  RTWMemSecDataInternal	  "Inherit from model"
+		  RTWMemSecDataParameters "Inherit from model"
+		  relop			  "=="
+		  LogicOutDataTypeMode	  "uint8"
+		  ZeroCross		  off
+		}
+		Block {
+		  BlockType		  "S-Function"
+		  Name			  "I2C Master Read/Write"
+		  Ports			  [3, 1]
+		  Position		  [400, 99, 590, 211]
+		  FunctionName		  "stm32f4_i2c"
+		  Parameters		  "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypearray,ou"
+		  "tputtypearray,confstr,sampletime,sampletimestr,blockid"
+		  EnableBusSupport	  off
+		  MaskType		  "stm32f4_i2c"
+		  MaskHelp		  "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+		  MaskPromptString	  "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed (kHz)|T"
+		  "imeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input type array"
+		  "|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+		  MaskStyleString	  "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh = 16/9"
+		  "|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+		  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+		  MaskCallbackString	  "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_callbac"
+		  "k('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_callback('sda"
+		  "pin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampletime');|stm"
+		  "32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+		  MaskEnableString	  "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+		  MaskVisibilityString	  "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+		  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+		  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,"
+		  MaskVariables		  "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;writeco"
+		  "unt=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confstr=&15;sam"
+		  "pletime=@16;sampletimestr=&17;blockid=&18;"
+		  MaskInitialization	  "stm32f4_i2c_callback('init');"
+		  MaskDisplay		  "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 2 bytes\\nRead: 0 bytes\\nTs (sec): 0.5"
+		  "','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');port_label("
+		  "'input', 3,'Wr1 (uint8)');port_label('output', 1,'Status');"
+		  MaskSelfModifiable	  on
+		  MaskIconFrame		  on
+		  MaskIconOpaque	  on
+		  MaskIconRotate	  "none"
+		  MaskPortRotate	  "default"
+		  MaskIconUnits		  "normalized"
+		  MaskValueString	  "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|2|0|C9|A8|0|[3 3 3 3]|[1 3]|[\"C\",\"9\",\"A\",\""
+		  "8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301SCALESubsystemI2CMasterReadWrite"
+		  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Register1"
+		  Position		  [75, 186, 135, 214]
+		  OutDataTypeMode	  "uint8"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint8"
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "READY"
+		  Position		  [725, 148, 755, 162]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Compare\nTo Zero"
+		  SrcPort		  1
+		  DstBlock		  "READY"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "I2C Master Read/Write"
+		  SrcPort		  1
+		  DstBlock		  "Compare\nTo Zero"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Bitwise\nOperator2"
+		  SrcPort		  1
+		  Points		  [80, 0; 0, -35]
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Register1"
+		  SrcPort		  1
+		  DstBlock		  "Bitwise\nOperator2"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "CMD1"
+		  SrcPort		  1
+		  Points		  [10, 0; 0, 55]
+		  DstBlock		  "Bitwise\nOperator2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Value"
+		  SrcPort		  1
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  3
+		}
+		Line {
+		  SrcBlock		  "SlvAddr"
+		  SrcPort		  1
+		  Points		  [70, 0; 0, 60]
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  1
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      SubSystem
+	      Name		      "Subsystem1"
+	      Ports		      [1, 1]
+	      Position		      [280, 142, 395, 218]
+	      MinAlgLoopOccurrences   off
+	      PropExecContextOutsideSubsystem off
+	      RTWSystemCode	      "Auto"
+	      FunctionWithSeparateData off
+	      Opaque		      off
+	      RequestExecContextInheritance off
+	      MaskHideContents	      off
+	      System {
+		Name			"Subsystem1"
+		Location		[409, 622, 1283, 922]
+		Open			off
+		ModelBrowserVisibility	off
+		ModelBrowserWidth	200
+		ScreenColor		"white"
+		PaperOrientation	"landscape"
+		PaperPositionMode	"auto"
+		PaperType		"usletter"
+		PaperUnits		"inches"
+		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+		TiledPageScale		1
+		ShowPageBoundaries	off
+		ZoomFactor		"100"
+		Block {
+		  BlockType		  Inport
+		  Name			  "SlvAddr"
+		  Position		  [85, 53, 115, 67]
+		  IconDisplay		  "Port number"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Bitwise\nOperator2"
+		  Ports			  [2, 1]
+		  Position		  [195, 166, 235, 204]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+		  SourceType		  "Bitwise Operator"
+		  logicop		  "OR"
+		  UseBitMask		  off
+		  NumInputPorts		  "2"
+		  BitMask		  "bin2dec('11011001')"
+		  BitMaskRealWorld	  "Stored Integer"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "CMD1"
+		  Position		  [40, 122, 135, 158]
+		  Value			  "hex2dec('80')"
+		  OutDataTypeMode	  "uint8"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint8"
+		}
+		Block {
+		  BlockType		  Reference
+		  Name			  "Compare\nTo Zero"
+		  Ports			  [1, 1]
+		  Position		  [545, 115, 575, 145]
+		  SourceBlock		  "simulink/Logic and Bit\nOperations/Compare\nTo Zero"
+		  SourceType		  "Compare To Zero"
+		  ShowPortLabels	  "FromPortIcon"
+		  SystemSampleTime	  "-1"
+		  FunctionWithSeparateData off
+		  RTWMemSecFuncInitTerm	  "Inherit from model"
+		  RTWMemSecFuncExecute	  "Inherit from model"
+		  RTWMemSecDataConstants  "Inherit from model"
+		  RTWMemSecDataInternal	  "Inherit from model"
+		  RTWMemSecDataParameters "Inherit from model"
+		  relop			  "=="
+		  LogicOutDataTypeMode	  "uint8"
+		  ZeroCross		  off
+		}
+		Block {
+		  BlockType		  "S-Function"
+		  Name			  "I2C Master Read/Write"
+		  Ports			  [2, 2]
+		  Position		  [305, 101, 495, 214]
+		  Priority		  "0"
+		  FunctionName		  "stm32f4_i2c"
+		  Parameters		  "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypearray,ou"
+		  "tputtypearray,confstr,sampletime,sampletimestr,blockid"
+		  EnableBusSupport	  off
+		  MaskType		  "stm32f4_i2c"
+		  MaskHelp		  "web(fullfile(waijungdocroot,'stm32f4_i2c_readwrite.htm'), '-browser')"
+		  MaskPromptString	  "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed (kHz)|T"
+		  "imeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input type array"
+		  "|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+		  MaskStyleString	  "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh = 16/9"
+		  "|TLow/THigh = 2),edit,edit,edit,edit,popup(-|C9),popup(-|A8),edit,edit,edit,edit,edit,edit,edit"
+		  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+		  MaskCallbackString	  "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_callbac"
+		  "k('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_callback('sda"
+		  "pin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampletime');|stm"
+		  "32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+		  MaskEnableString	  "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+		  MaskVisibilityString	  "off,on,off,off,off,off,off,on,on,off,off,on,off,off,off,on,off,off"
+		  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+		  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,"
+		  MaskVariables		  "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;writeco"
+		  "unt=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confstr=&15;sam"
+		  "pletime=@16;sampletimestr=&17;blockid=&18;"
+		  MaskInitialization	  "stm32f4_i2c_callback('init');"
+		  MaskDisplay		  "text(0.5, 0.5, 'Module: I2C1\\nTransfer: Blocking\\nWrite: 1 bytes\\nRead: 1 bytes\\nTs (sec): 0.5"
+		  "','ver','middle','hor','center');port_label('input', 1,'SlvAddr');port_label('input', 2,'Wr0 (uint8)');port_label("
+		  "'output', 1,'Status');port_label('output', 2,'Rd0 (uint8)');"
+		  MaskSelfModifiable	  on
+		  MaskIconFrame		  on
+		  MaskIconOpaque	  on
+		  MaskIconRotate	  "none"
+		  MaskPortRotate	  "default"
+		  MaskIconUnits		  "normalized"
+		  MaskValueString	  "Transaction|1|3|Blocking|TLow/THigh = 2|400|25|1|1|C9|A8|0|[2 3 3]|[2 3 3]|[\"C\",\"9\",\"A\",\""
+		  "8\",\"1\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.5|APDS9301SCALESubsystem1I2CMasterReadWrite"
+		  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
+		}
+		Block {
+		  BlockType		  Constant
+		  Name			  "Register1"
+		  Position		  [75, 181, 135, 209]
+		  OutDataTypeMode	  "uint8"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		  OutDataTypeStr	  "uint8"
+		}
+		Block {
+		  BlockType		  SubSystem
+		  Name			  "Subsystem"
+		  Ports			  [1, 1, 1]
+		  Position		  [595, 154, 675, 216]
+		  MinAlgLoopOccurrences	  off
+		  PropExecContextOutsideSubsystem off
+		  RTWSystemCode		  "Auto"
+		  FunctionWithSeparateData off
+		  Opaque		  off
+		  RequestExecContextInheritance	off
+		  MaskHideContents	  off
+		  System {
+		    Name		    "Subsystem"
+		    Location		    [668, 264, 1477, 702]
+		    Open		    off
+		    ModelBrowserVisibility  off
+		    ModelBrowserWidth	    200
+		    ScreenColor		    "white"
+		    PaperOrientation	    "landscape"
+		    PaperPositionMode	    "auto"
+		    PaperType		    "usletter"
+		    PaperUnits		    "inches"
+		    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+		    TiledPageScale	    1
+		    ShowPageBoundaries	    off
+		    ZoomFactor		    "100"
+		    Block {
+		    BlockType		    Inport
+		    Name		    "In1"
+		    Position		    [20, 38, 50, 52]
+		    IconDisplay		    "Port number"
+		    }
+		    Block {
+		    BlockType		    EnablePort
+		    Name		    "Enable"
+		    Ports		    []
+		    Position		    [250, 20, 270, 40]
+		    }
+		    Block {
+		    BlockType		    Reference
+		    Name		    "Bitwise\nOperator"
+		    Ports		    [1, 1]
+		    Position		    [90, 26, 130, 64]
+		    SourceBlock		    "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+		    SourceType		    "Bitwise Operator"
+		    logicop		    "AND"
+		    UseBitMask		    on
+		    NumInputPorts	    "1"
+		    BitMask		    "3"
+		    BitMaskRealWorld	    "Stored Integer"
+		    }
+		    Block {
+		    BlockType		    Constant
+		    Name		    "Constant1"
+		    Position		    [60, 246, 120, 274]
+		    OutDataType		    "fixdt(1, 16)"
+		    OutScaling		    "2^0"
+		    }
+		    Block {
+		    BlockType		    Constant
+		    Name		    "Constant2"
+		    Position		    [60, 146, 120, 174]
+		    Value		    "0.034"
+		    OutDataType		    "fixdt(1, 16)"
+		    OutScaling		    "2^0"
+		    }
+		    Block {
+		    BlockType		    Constant
+		    Name		    "Constant3"
+		    Position		    [60, 196, 120, 224]
+		    Value		    "0.252"
+		    OutDataType		    "fixdt(1, 16)"
+		    OutScaling		    "2^0"
+		    }
+		    Block {
+		    BlockType		    MultiPortSwitch
+		    Name		    "Multiport\nSwitch"
+		    Ports		    [5, 1]
+		    Position		    [325, 147, 355, 193]
+		    Inputs		    "4"
+		    zeroidx		    on
+		    InputSameDT		    off
+		    OutDataType		    "fixdt(1, 16)"
+		    OutScaling		    "2^0"
+		    SaturateOnIntegerOverflow off
+		    }
+		    Block {
+		    BlockType		    Outport
+		    Name		    "Out1"
+		    Position		    [400, 163, 430, 177]
+		    IconDisplay		    "Port number"
+		    }
+		    Line {
+		    SrcBlock		    "Multiport\nSwitch"
+		    SrcPort		    1
+		    DstBlock		    "Out1"
+		    DstPort		    1
+		    }
+		    Line {
+		    SrcBlock		    "Constant1"
+		    SrcPort		    1
+		    Points		    [130, 0; 0, -70]
+		    Branch {
+		    DstBlock		    "Multiport\nSwitch"
+		    DstPort		    5
+		    }
+		    Branch {
+		    Points		    [0, -10]
+		    DstBlock		    "Multiport\nSwitch"
+		    DstPort		    4
+		    }
+		    }
+		    Line {
+		    SrcBlock		    "Constant3"
+		    SrcPort		    1
+		    Points		    [90, 0; 0, -40]
+		    DstBlock		    "Multiport\nSwitch"
+		    DstPort		    3
+		    }
+		    Line {
+		    SrcBlock		    "Constant2"
+		    SrcPort		    1
+		    DstBlock		    "Multiport\nSwitch"
+		    DstPort		    2
+		    }
+		    Line {
+		    SrcBlock		    "In1"
+		    SrcPort		    1
+		    DstBlock		    "Bitwise\nOperator"
+		    DstPort		    1
+		    }
+		    Line {
+		    SrcBlock		    "Bitwise\nOperator"
+		    SrcPort		    1
+		    Points		    [15, 0; 0, 105]
+		    DstBlock		    "Multiport\nSwitch"
+		    DstPort		    1
+		    }
+		  }
+		}
+		Block {
+		  BlockType		  Outport
+		  Name			  "Conf_scale"
+		  Position		  [730, 178, 760, 192]
+		  IconDisplay		  "Port number"
+		  OutDataType		  "fixdt(1, 16)"
+		  OutScaling		  "2^0"
+		}
+		Line {
+		  SrcBlock		  "Subsystem"
+		  SrcPort		  1
+		  DstBlock		  "Conf_scale"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "I2C Master Read/Write"
+		  SrcPort		  2
+		  DstBlock		  "Subsystem"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "SlvAddr"
+		  SrcPort		  1
+		  Points		  [70, 0; 0, 70]
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "CMD1"
+		  SrcPort		  1
+		  Points		  [10, 0; 0, 35]
+		  DstBlock		  "Bitwise\nOperator2"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Register1"
+		  SrcPort		  1
+		  DstBlock		  "Bitwise\nOperator2"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "Bitwise\nOperator2"
+		  SrcPort		  1
+		  DstBlock		  "I2C Master Read/Write"
+		  DstPort		  2
+		}
+		Line {
+		  SrcBlock		  "I2C Master Read/Write"
+		  SrcPort		  1
+		  DstBlock		  "Compare\nTo Zero"
+		  DstPort		  1
+		}
+		Line {
+		  SrcBlock		  "Compare\nTo Zero"
+		  SrcPort		  1
+		  Points		  [55, 0]
+		  DstBlock		  "Subsystem"
+		  DstPort		  enable
+		}
+	      }
+	    }
+	    Block {
+	      BlockType		      Terminator
+	      Name		      "Terminator"
+	      Position		      [415, 60, 435, 80]
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "Scale"
+	      Position		      [440, 173, 470, 187]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      SrcBlock		      "Constant"
+	      SrcPort		      1
+	      DstBlock		      "Subsystem"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Subsystem1"
+	      SrcPort		      1
+	      DstBlock		      "Scale"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Subsystem"
+	      SrcPort		      1
+	      DstBlock		      "Terminator"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "SlvAddr"
+	      SrcPort		      1
+	      Points		      [75, 0]
+	      Branch {
+		Points			[0, 130]
+		DstBlock		"Subsystem1"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Subsystem"
+		DstPort			1
+	      }
+	    }
+	    Annotation {
+	      Name		      "# Priority: 0"
+	      Position		      [242, 164]
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Slave Address"
+	  Position		  [40, 62, 135, 98]
+	  Value			  "slvaddr"
+	  OutDataTypeMode	  "uint8"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  OutDataTypeStr	  "uint8"
+	  SampleTime		  "sampletime"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "CH0"
+	  Position		  [840, 203, 870, 217]
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "CH1"
+	  Position		  [840, 303, 870, 317]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Lux"
+	  Position		  [840, 388, 870, 402]
+	  Port			  "3"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  SrcBlock		  "SCALE"
+	  SrcPort		  1
+	  DstBlock		  "Conversion"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Logical\nOperator1"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  DstBlock		  "Conversion"
+	  DstPort		  enable
+	}
+	Line {
+	  SrcBlock		  "Channel 1"
+	  SrcPort		  2
+	  Points		  [15, 0]
+	  Branch {
+	    DstBlock		    "Data Type Conversion2"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 85]
+	    DstBlock		    "Conversion"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  SrcBlock		  "Conversion"
+	  SrcPort		  1
+	  DstBlock		  "Data Type Conversion1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Channel 0"
+	  SrcPort		  1
+	  Points		  [120, 0; 0, 85]
+	  DstBlock		  "Logical\nOperator1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Channel 1"
+	  SrcPort		  1
+	  DstBlock		  "Logical\nOperator1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Channel 0"
+	  SrcPort		  2
+	  Points		  [100, 0]
+	  Branch {
+	    DstBlock		    "Data Type Conversion"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 165]
+	    DstBlock		    "Conversion"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "APDS_9301_Initialize"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  Branch {
+	    Points		    [70, 0]
+	    DstBlock		    "Channel 1"
+	    DstPort		    enable
+	  }
+	  Branch {
+	    DstBlock		    "Channel 0"
+	    DstPort		    enable
+	  }
+	}
+	Line {
+	  SrcBlock		  "Slave Address"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  Branch {
+	    Points		    [0, 115; 60, 0]
+	    Branch {
+	      Points		      [0, 100; 70, 0]
+	      Branch {
+		Points			[0, 120]
+		DstBlock		"SCALE"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Channel 1"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "Channel 0"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "APDS_9301_Initialize"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion1"
+	  SrcPort		  1
+	  DstBlock		  "Lux"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion2"
+	  SrcPort		  1
+	  DstBlock		  "CH1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion"
+	  SrcPort		  1
+	  DstBlock		  "CH0"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "CLCD Display"
+      Ports		      []
+      Position		      [585, 68, 706, 147]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"CLCD Display"
+	Location		[658, 404, 1333, 746]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Reference
+	  Name			  "Bitwise\nOperator1"
+	  Ports			  [1, 1]
+	  Position		  [255, 111, 295, 149]
+	  SourceBlock		  "simulink/Logic and Bit\nOperations/Bitwise\nOperator"
+	  SourceType		  "Bitwise Operator"
+	  logicop		  "AND"
+	  UseBitMask		  on
+	  NumInputPorts		  "1"
+	  BitMask		  "bin2dec('11')"
+	  BitMaskRealWorld	  "Stored Integer"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Character LCD Write"
+	  Ports			  [4]
+	  Position		  [460, 50, 650, 180]
+	  FunctionName		  "amg_clcd"
+	  Parameters		  "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "amg_clcd"
+	  MaskDescription	  "Note for cmd:\n1 - Clear specified LCD line display before write data to LCD.\nOtherwise (e.g. 0"
+	  ") - Write data without clearing LCD Line.\n\nPosition:\nx = 0, First Character (from left to right)\ny = 0, Top Lin"
+	  "e"
+	  MaskHelp		  "web(fullfile(waijungdocroot,'amg_clcd_write.htm'), '-browser')"
+	  MaskPromptString	  "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO Output ty"
+	  "pe:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, RW:|GPIO control pin, EN:|GPIO data D[7:4] port|GPIO"
+	  " data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String buffer|Variable na"
+	  "me|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|B"
+	  "lockID"
+	  MaskStyleString	  "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popup(Push-p"
+	  "ull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|"
+	  "11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|"
+	  "11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1"
+	  "|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(lcdline2|lcdline3|lcdline4|lcdline1),edit,edit,edit,edit,edit,ed"
+	  "it,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	  "f,off,off"
+	  MaskCallbackString	  "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer');||amg"
+	  "_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_callback('samp"
+	  "letimestr');|amg_clcd_callback('blockid');"
+	  MaskEnableString	  "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	  MaskVisibilityString	  "off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,off,off,off,off,off,on,of"
+	  "f,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;controlp"
+	  "ort=&8;control_rs=&9;control_rw=&10;control_en=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;usestringbu"
+	  "ffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime=@23;sampletimes"
+	  "tr=&24;blockid=&25;"
+	  MaskInitialization	  "amg_clcd_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Module: CLCD1 (Write)\\nTs (sec): 0.01','ver','middle','hor','center');port_label('"
+	  "input', 1,'cmd');port_label('input', 2,'xpos');port_label('input', 3,'ypos');port_label('input', 4,'str');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "Transaction|1|amg CLCD Std|4-bits|4|20|Push-pull|E|15|13|11|A|7|5|3|1|off|lcdline1|CLCDSetupVola"
+	  "tileDataStorage4_lcdline1|[4 -1 -1 -1 -1]|[0]|[\"4\",\"4\",\"20\",\"PP\",\"E\",\"15\",\"11\",\"13\",\"\",\"A\",\"\""
+	  ",\"\",\"\",\"\",\"7\",\"5\",\"3\",\"1\",\"0\",\"\",\"1\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\""
+	  "]|-1|0.01|CLCDDisplayCharacterLCDWrite"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Clear"
+	  Position		  [345, 26, 405, 54]
+	  OutDataTypeMode	  "uint8"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  OutDataTypeStr	  "uint8"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Clear1"
+	  Position		  [345, 71, 405, 99]
+	  Value			  "0"
+	  OutDataTypeMode	  "uint8"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  OutDataTypeStr	  "uint8"
+	}
+	Block {
+	  BlockType		  Reference
+	  Name			  "Counter\nFree-Running"
+	  Ports			  [0, 1]
+	  Position		  [195, 115, 225, 145]
+	  SourceBlock		  "simulink/Sources/Counter\nFree-Running"
+	  SourceType		  "Counter Free-Running"
+	  ShowPortLabels	  "FromPortIcon"
+	  SystemSampleTime	  "-1"
+	  FunctionWithSeparateData off
+	  RTWMemSecFuncInitTerm	  "Inherit from model"
+	  RTWMemSecFuncExecute	  "Inherit from model"
+	  RTWMemSecDataConstants  "Inherit from model"
+	  RTWMemSecDataInternal	  "Inherit from model"
+	  RTWMemSecDataParameters "Inherit from model"
+	  NumBits		  "16"
+	  tsamp			  "-1"
+	}
+	Block {
+	  BlockType		  DataTypeConversion
+	  Name			  "Data Type Conversion2"
+	  Position		  [345, 112, 405, 148]
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  MultiPortSwitch
+	  Name			  "Multiport\nSwitch"
+	  Ports			  [5, 1]
+	  Position		  [375, 172, 405, 218]
+	  Inputs		  "4"
+	  zeroidx		  on
+	  InputSameDT		  off
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage Read"
+	  Ports			  [0, 1]
+	  Position		  [35, 169, 170, 201]
+	  FunctionName		  "waijung_vdata_read"
+	  Parameters		  "storagename,varname,sampletime,sampletimestr,blockid,storagetype,storagetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_read"
+	  MaskDescription	  "This block implements read data from a buffer."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'waijung_vdata_read.htm'))"
+	  MaskPromptString	  "Storage Name|Variable name|Sample time (sec)|Compiled sample time (sec) in string|BlockID|Data "
+	  "type|Data type string"
+	  MaskStyleString	  "popup(lcdline2|lcdline3|lcdline4|lcdline1),edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_read_callback('storagename');|waijung_vdata_read_callback('varname');|waijung_v"
+	  "data_read_callback('sampletime');|waijung_vdata_read_callback('sampletimestr');|waijung_vdata_read_callback('blocki"
+	  "d');|waijung_vdata_read_callback('storagetype');|"
+	  MaskEnableString	  "on,off,on,off,off,on,on"
+	  MaskVisibilityString	  "on,off,on,off,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,"
+	  MaskVariables		  "storagename=&1;varname=&2;sampletime=@3;sampletimestr=&4;blockid=&5;storagetype=&6;storagetypestr"
+	  "=&7;"
+	  MaskInitialization	  "waijung_vdata_read_callback('init');"
+	  MaskDisplay		  "text(0.05, 0.5, 'Buffer: lcdline1','ver','middle','hor','left');port_label('output',1,'D1(string)')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "lcdline1|CLCDSetupVolatileDataStorage4_lcdline1|inf|0.01|CLCDDisplayVolatileDataStorageRead|stri"
+	  "ng|uint32_t"
+	  MaskTabNameString	  ",,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage Read1"
+	  Ports			  [0, 1]
+	  Position		  [180, 189, 315, 221]
+	  FunctionName		  "waijung_vdata_read"
+	  Parameters		  "storagename,varname,sampletime,sampletimestr,blockid,storagetype,storagetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_read"
+	  MaskDescription	  "This block implements read data from a buffer."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'waijung_vdata_read.htm'))"
+	  MaskPromptString	  "Storage Name|Variable name|Sample time (sec)|Compiled sample time (sec) in string|BlockID|Data "
+	  "type|Data type string"
+	  MaskStyleString	  "popup(lcdline2|lcdline3|lcdline4|lcdline1),edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_read_callback('storagename');|waijung_vdata_read_callback('varname');|waijung_v"
+	  "data_read_callback('sampletime');|waijung_vdata_read_callback('sampletimestr');|waijung_vdata_read_callback('blocki"
+	  "d');|waijung_vdata_read_callback('storagetype');|"
+	  MaskEnableString	  "on,off,on,off,off,on,on"
+	  MaskVisibilityString	  "on,off,on,off,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,"
+	  MaskVariables		  "storagename=&1;varname=&2;sampletime=@3;sampletimestr=&4;blockid=&5;storagetype=&6;storagetypestr"
+	  "=&7;"
+	  MaskInitialization	  "waijung_vdata_read_callback('init');"
+	  MaskDisplay		  "text(0.05, 0.5, 'Buffer: lcdline2','ver','middle','hor','left');port_label('output',1,'D1(string)')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "lcdline2|CLCDSetupVolatileDataStorage1_lcdline2|inf|0.01|CLCDDisplayVolatileDataStorageRead1|str"
+	  "ing|uint32_t"
+	  MaskTabNameString	  ",,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage Read2"
+	  Ports			  [0, 1]
+	  Position		  [25, 254, 160, 286]
+	  FunctionName		  "waijung_vdata_read"
+	  Parameters		  "storagename,varname,sampletime,sampletimestr,blockid,storagetype,storagetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_read"
+	  MaskDescription	  "This block implements read data from a buffer."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'waijung_vdata_read.htm'))"
+	  MaskPromptString	  "Storage Name|Variable name|Sample time (sec)|Compiled sample time (sec) in string|BlockID|Data "
+	  "type|Data type string"
+	  MaskStyleString	  "popup(lcdline2|lcdline3|lcdline4|lcdline1),edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_read_callback('storagename');|waijung_vdata_read_callback('varname');|waijung_v"
+	  "data_read_callback('sampletime');|waijung_vdata_read_callback('sampletimestr');|waijung_vdata_read_callback('blocki"
+	  "d');|waijung_vdata_read_callback('storagetype');|"
+	  MaskEnableString	  "on,off,on,off,off,on,on"
+	  MaskVisibilityString	  "on,off,on,off,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,"
+	  MaskVariables		  "storagename=&1;varname=&2;sampletime=@3;sampletimestr=&4;blockid=&5;storagetype=&6;storagetypestr"
+	  "=&7;"
+	  MaskInitialization	  "waijung_vdata_read_callback('init');"
+	  MaskDisplay		  "text(0.05, 0.5, 'Buffer: lcdline3','ver','middle','hor','left');port_label('output',1,'D1(string)')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "lcdline3|CLCDSetupVolatileDataStorage2_lcdline3|inf|0.01|CLCDDisplayVolatileDataStorageRead2|str"
+	  "ing|uint32_t"
+	  MaskTabNameString	  ",,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage Read3"
+	  Ports			  [0, 1]
+	  Position		  [180, 284, 315, 316]
+	  FunctionName		  "waijung_vdata_read"
+	  Parameters		  "storagename,varname,sampletime,sampletimestr,blockid,storagetype,storagetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_read"
+	  MaskDescription	  "This block implements read data from a buffer."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'waijung_vdata_read.htm'))"
+	  MaskPromptString	  "Storage Name|Variable name|Sample time (sec)|Compiled sample time (sec) in string|BlockID|Data "
+	  "type|Data type string"
+	  MaskStyleString	  "popup(lcdline2|lcdline3|lcdline4|lcdline1),edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_read_callback('storagename');|waijung_vdata_read_callback('varname');|waijung_v"
+	  "data_read_callback('sampletime');|waijung_vdata_read_callback('sampletimestr');|waijung_vdata_read_callback('blocki"
+	  "d');|waijung_vdata_read_callback('storagetype');|"
+	  MaskEnableString	  "on,off,on,off,off,on,on"
+	  MaskVisibilityString	  "on,off,on,off,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,"
+	  MaskVariables		  "storagename=&1;varname=&2;sampletime=@3;sampletimestr=&4;blockid=&5;storagetype=&6;storagetypestr"
+	  "=&7;"
+	  MaskInitialization	  "waijung_vdata_read_callback('init');"
+	  MaskDisplay		  "text(0.05, 0.5, 'Buffer: lcdline4','ver','middle','hor','left');port_label('output',1,'D1(string)')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "lcdline4|CLCDSetupVolatileDataStorage3_lcdline4|inf|0.01|CLCDDisplayVolatileDataStorageRead3|str"
+	  "ing|uint32_t"
+	  MaskTabNameString	  ",,,,,,"
+	}
+	Line {
+	  SrcBlock		  "Clear"
+	  SrcPort		  1
+	  Points		  [0, 30]
+	  DstBlock		  "Character LCD Write"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Clear1"
+	  SrcPort		  1
+	  Points		  [0, 15]
+	  DstBlock		  "Character LCD Write"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Counter\nFree-Running"
+	  SrcPort		  1
+	  DstBlock		  "Bitwise\nOperator1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Data Type Conversion2"
+	  SrcPort		  1
+	  DstBlock		  "Character LCD Write"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Bitwise\nOperator1"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  Branch {
+	    DstBlock		    "Data Type Conversion2"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 45]
+	    DstBlock		    "Multiport\nSwitch"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Multiport\nSwitch"
+	  SrcPort		  1
+	  Points		  [35, 0]
+	  DstBlock		  "Character LCD Write"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Volatile Data Storage Read"
+	  SrcPort		  1
+	  DstBlock		  "Multiport\nSwitch"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Volatile Data Storage Read1"
+	  SrcPort		  1
+	  Points		  [20, 0; 0, -10]
+	  DstBlock		  "Multiport\nSwitch"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Volatile Data Storage Read2"
+	  SrcPort		  1
+	  Points		  [185, 0; 0, -65]
+	  DstBlock		  "Multiport\nSwitch"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Volatile Data Storage Read3"
+	  SrcPort		  1
+	  Points		  [40, 0]
+	  DstBlock		  "Multiport\nSwitch"
+	  DstPort		  5
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "CLCD Setup"
+      Ports		      []
+      Position		      [440, 66, 557, 145]
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"CLCD Setup"
+	Location		[213, 507, 951, 783]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Character LCD Setup"
+	  Ports			  []
+	  Position		  [29, 25, 179, 100]
+	  FunctionName		  "amg_clcd"
+	  Parameters		  "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "amg_clcd"
+	  MaskHelp		  "web(fullfile(waijungdocroot,'amg_clcd_setup.htm'), '-browser')"
+	  MaskPromptString	  "Configuration:|Module:|LCD model:|Interface:|Number of lines (2 or 4):|Number of columns:|GPIO "
+	  "Output type:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, RW:|GPIO control pin, EN:|GPIO data D[7:4] "
+	  "port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String buffer|Va"
+	  "riable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in"
+	  " string|BlockID"
+	  MaskStyleString	  "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popup(Push-p"
+	  "ull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|"
+	  "11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|"
+	  "11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1"
+	  "|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(<empty>),edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	  "f,off,off"
+	  MaskCallbackString	  "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer');||amg"
+	  "_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_callback('samp"
+	  "letimestr');|amg_clcd_callback('blockid');"
+	  MaskEnableString	  "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	  MaskVisibilityString	  "off,on,off,on,off,on,on,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;controlp"
+	  "ort=&8;control_rs=&9;control_rw=&10;control_en=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;usestringbu"
+	  "ffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime=@23;sampletimes"
+	  "tr=&24;blockid=&25;"
+	  MaskInitialization	  "amg_clcd_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Module: CLCD1 (Setup)\\nInterface: 4-bits\\nCntrl: E7/E8/E9\\nD[7:4]: E12/E13/E14/E"
+	  "15\\nTs (sec): 0.01','ver','middle','hor','center');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "Setup|1|amg CLCD Std|4-bits|4|16|Push-pull|E|7|8|9|E|12|13|14|15|off|<empty>||[0]|[0]|[\"4\",\"4"
+	  "\",\"16\",\"PP\",\"E\",\"7\",\"9\",\"8\",\"\",\"E\",\"\",\"\",\"\",\"\",\"12\",\"13\",\"14\",\"15\",\"0\",\"\",\"0\""
+	  ",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\"]|-1|0.01|CLCDSetupCharacterLCDSetup"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage1"
+	  Ports			  []
+	  Position		  [295, 138, 416, 200]
+	  FunctionName		  "waijung_vdata_storage"
+	  Parameters		  "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blockid,st"
+	  "oragetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_storage"
+	  MaskDescription	  "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nEnable - "
+	  "In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	  MaskPromptString	  "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power on Rese"
+	  "t only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset integration|W"
+	  "eb CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Compiled sample ti"
+	  "me (sec) in string|BlockID|Type string"
+	  MaskStyleString	  "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edit,popup("
+	  "Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup(double|singl"
+	  "e|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storagename');"
+	  "|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_storage_callb"
+	  "ack('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callback('weboutputfo"
+	  "rmat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampletimestr');|waijung_vd"
+	  "ata_storage_callback('blockid');|"
+	  MaskEnableString	  "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	  MaskVisibilityString	  "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,"
+	  MaskVariables		  "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webintegration"
+	  "=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&13;storagety"
+	  "pestr=&14;"
+	  MaskInitialization	  "waijung_vdata_storage_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Name: lcdline2\\nType: string','ver','middle','hor','center')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "string|lcdline2|0|CLCDSetupVolatileDataStorage1_lcdline2|20|''|Disable|'%s'|(void*)0|string|-1|0"
+	  ".01|CLCDSetupVolatileDataStorage1|char"
+	  MaskTabNameString	  ",,,,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage2"
+	  Ports			  []
+	  Position		  [430, 138, 551, 200]
+	  FunctionName		  "waijung_vdata_storage"
+	  Parameters		  "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blockid,st"
+	  "oragetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_storage"
+	  MaskDescription	  "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nEnable - "
+	  "In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	  MaskPromptString	  "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power on Rese"
+	  "t only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset integration|W"
+	  "eb CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Compiled sample ti"
+	  "me (sec) in string|BlockID|Type string"
+	  MaskStyleString	  "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edit,popup("
+	  "Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup(double|singl"
+	  "e|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storagename');"
+	  "|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_storage_callb"
+	  "ack('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callback('weboutputfo"
+	  "rmat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampletimestr');|waijung_vd"
+	  "ata_storage_callback('blockid');|"
+	  MaskEnableString	  "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	  MaskVisibilityString	  "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,"
+	  MaskVariables		  "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webintegration"
+	  "=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&13;storagety"
+	  "pestr=&14;"
+	  MaskInitialization	  "waijung_vdata_storage_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Name: lcdline3\\nType: string','ver','middle','hor','center')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "string|lcdline3|0|CLCDSetupVolatileDataStorage2_lcdline3|20|''|Disable|'%s'|(void*)0|string|-1|0"
+	  ".01|CLCDSetupVolatileDataStorage2|char"
+	  MaskTabNameString	  ",,,,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage3"
+	  Ports			  []
+	  Position		  [560, 138, 681, 200]
+	  FunctionName		  "waijung_vdata_storage"
+	  Parameters		  "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blockid,st"
+	  "oragetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_storage"
+	  MaskDescription	  "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nEnable - "
+	  "In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	  MaskPromptString	  "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power on Rese"
+	  "t only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset integration|W"
+	  "eb CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Compiled sample ti"
+	  "me (sec) in string|BlockID|Type string"
+	  MaskStyleString	  "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edit,popup("
+	  "Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup(double|singl"
+	  "e|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storagename');"
+	  "|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_storage_callb"
+	  "ack('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callback('weboutputfo"
+	  "rmat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampletimestr');|waijung_vd"
+	  "ata_storage_callback('blockid');|"
+	  MaskEnableString	  "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	  MaskVisibilityString	  "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,"
+	  MaskVariables		  "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webintegration"
+	  "=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&13;storagety"
+	  "pestr=&14;"
+	  MaskInitialization	  "waijung_vdata_storage_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Name: lcdline4\\nType: string','ver','middle','hor','center')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "string|lcdline4|0|CLCDSetupVolatileDataStorage3_lcdline4|20|''|Disable|'%s'|(void*)0|string|-1|0"
+	  ".01|CLCDSetupVolatileDataStorage3|char"
+	  MaskTabNameString	  ",,,,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "Volatile Data Storage4"
+	  Ports			  []
+	  Position		  [160, 138, 281, 200]
+	  FunctionName		  "waijung_vdata_storage"
+	  Parameters		  "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blockid,st"
+	  "oragetypestr"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_vdata_storage"
+	  MaskDescription	  "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nEnable - "
+	  "In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	  MaskPromptString	  "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power on Rese"
+	  "t only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset integration|W"
+	  "eb CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Compiled sample ti"
+	  "me (sec) in string|BlockID|Type string"
+	  MaskStyleString	  "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edit,popup("
+	  "Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup(double|singl"
+	  "e|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	  MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storagename');"
+	  "|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_storage_callb"
+	  "ack('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callback('weboutputfo"
+	  "rmat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampletimestr');|waijung_vd"
+	  "ata_storage_callback('blockid');|"
+	  MaskEnableString	  "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	  MaskVisibilityString	  "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,"
+	  MaskVariables		  "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webintegration"
+	  "=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&13;storagety"
+	  "pestr=&14;"
+	  MaskInitialization	  "waijung_vdata_storage_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, 'Name: lcdline1\\nType: string','ver','middle','hor','center')"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "string|lcdline1|0|CLCDSetupVolatileDataStorage4_lcdline1|20|'APDS9301'|Disable|'%s'|(void*)0|str"
+	  "ing|-1|0.01|CLCDSetupVolatileDataStorage4|char"
+	  MaskTabNameString	  ",,,,,,,,,,,,,"
+	}
+      }
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "I2C Master Setup"
+      Ports		      []
+      Position		      [290, 66, 414, 143]
+      FunctionName	      "stm32f4_i2c"
+      Parameters	      "configuration,module,transfer,clkspeed,timeout,sdapin,sclpin,writecount,readcount,inputtypearr"
+      "ay,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f4_i2c"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_i2c_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|I2C Module|Last module|Transfer mode|Duty cycle in fast mode|Clock speed ("
+      "kHz)|Timeout (ms)|Bytes write count|Bytes read count|SDA pin|SCL pin|Wait write time (ms), default is 0|Input ty"
+      "pe array|Output type array|Configuration string|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3),edit,popup(Blocking|Non-blocking),popup(TLow/THigh "
+      "= 16/9|TLow/THigh = 2),edit,edit,edit,edit,popup(Not used|B7|B9),popup(Not used|B6|B8),edit,edit,edit,edit,edit,"
+      "edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f4_i2c_callback('configuration');|stm32f4_i2c_callback('module');|||stm32f4_i2c_ca"
+      "llback('dutycycle');|||stm32f4_i2c_callback('writecount');|stm32f4_i2c_callback('readcount');|stm32f4_i2c_callba"
+      "ck('sdapin');|stm32f4_i2c_callback('sclpin');||||stm32f4_i2c_callback('confstr');|stm32f4_i2c_callback('sampleti"
+      "me');|stm32f4_i2c_callback('sampletimestr');|stm32f4_i2c_callback('blockid');"
+      MaskEnableString	      "off,on,off,off,on,on,on,on,on,on,on,on,off,off,off,on,on,on"
+      MaskVisibilityString    "off,on,off,on,on,on,on,off,off,on,on,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;module=&2;lastmodule=&3;transfer=&4;dutycycle=&5;clkspeed=@6;timeout=@7;wr"
+      "itecount=@8;readcount=@9;sdapin=&10;sclpin=&11;waitwritetime=@12;inputtypearray=@13;outputtypearray=@14;confstr="
+      "&15;sampletime=@16;sampletimestr=&17;blockid=&18;"
+      MaskInitialization      "stm32f4_i2c_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Module: I2C1\\nClock: 100kHz\\nSDA/SCL Pin: B7/B6','ver','middle','hor','cent"
+      "er');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|1|1|Blocking|TLow/THigh = 2|100|25|0|0|B7|B6|0|[0]|[0]|[\"B\",\"7\",\"B\",\"6\",\"1"
+      "\",\"1\",\"6\",\"0\",\"I2C_DutyCycle_2\",\"0\",\"off\"]|-1|0.01|I2CMasterSetup"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Buffer Processing2"
+      Ports		      [1]
+      Position		      [580, 390, 710, 450]
+      FunctionName	      "waijung_stringbuffer_processing"
+      Parameters	      "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sa"
+      "mpletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_processing"
+      MaskDescription	      "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u,"
+      " %i, %o, %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+      MaskHelp		      "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+      MaskPromptString	      "Function|String buffer|Printf format|Enable output status|Variable name|Input type array"
+      "|Output type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(sprintf|sscanf),popup(lcdline2|lcdline3|lcdline4|lcdline1|<output>),edit,checkbox,e"
+      "dit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_proces"
+      "sing_callback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_pr"
+      "ocessing_callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer"
+      "_processing_callback('blockid');"
+      MaskEnableString	      "on,on,on,on,off,on,on,on,on,on,off,off"
+      MaskVisibilityString    "on,on,on,on,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;out"
+      "puttypearray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+      MaskInitialization      "waijung_stringbuffer_processing_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ sprintf ]\\nBuffer: lcdline4\\nTs (sec): 0.5','ver','middle','hor','center'"
+      ");port_label('input', 1,'%f');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "sprintf|lcdline4|'Lux: %1.2f'|off|CLCDSetupVolatileDataStorage3_lcdline4|[1 -1]|[0]|[\"fl"
+      "oat\"]|1|-1|0.5|StringBufferProcessing2"
+      MaskTabNameString	      ",,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Buffer Processing3"
+      Ports		      [1]
+      Position		      [580, 205, 710, 265]
+      FunctionName	      "waijung_stringbuffer_processing"
+      Parameters	      "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sa"
+      "mpletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_processing"
+      MaskDescription	      "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u,"
+      " %i, %o, %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+      MaskHelp		      "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+      MaskPromptString	      "Function|String buffer|Printf format|Enable output status|Variable name|Input type array"
+      "|Output type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(sprintf|sscanf),popup(lcdline2|lcdline3|lcdline4|lcdline1|<output>),edit,checkbox,e"
+      "dit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_proces"
+      "sing_callback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_pr"
+      "ocessing_callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer"
+      "_processing_callback('blockid');"
+      MaskEnableString	      "on,on,on,on,off,on,on,on,on,on,off,off"
+      MaskVisibilityString    "on,on,on,on,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;out"
+      "puttypearray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+      MaskInitialization      "waijung_stringbuffer_processing_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ sprintf ]\\nBuffer: lcdline2\\nTs (sec): 0.5','ver','middle','hor','center'"
+      ");port_label('input', 1,'%u');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "sprintf|lcdline2|'CH0: %u'|off|CLCDSetupVolatileDataStorage1_lcdline2|[1 -1]|[0]|[\"uint3"
+      "2_t\"]|1|-1|0.5|StringBufferProcessing3"
+      MaskTabNameString	      ",,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "String Buffer Processing4"
+      Ports		      [1]
+      Position		      [580, 305, 710, 365]
+      FunctionName	      "waijung_stringbuffer_processing"
+      Parameters	      "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sa"
+      "mpletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "waijung_stringbuffer_processing"
+      MaskDescription	      "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u,"
+      " %i, %o, %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+      MaskHelp		      "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+      MaskPromptString	      "Function|String buffer|Printf format|Enable output status|Variable name|Input type array"
+      "|Output type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(sprintf|sscanf),popup(lcdline2|lcdline3|lcdline4|lcdline1|<output>),edit,checkbox,e"
+      "dit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_proces"
+      "sing_callback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_pr"
+      "ocessing_callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer"
+      "_processing_callback('blockid');"
+      MaskEnableString	      "on,on,on,on,off,on,on,on,on,on,off,off"
+      MaskVisibilityString    "on,on,on,on,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,"
+      MaskVariables	      "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;out"
+      "puttypearray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+      MaskInitialization      "waijung_stringbuffer_processing_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ sprintf ]\\nBuffer: lcdline3\\nTs (sec): 0.5','ver','middle','hor','center'"
+      ");port_label('input', 1,'%u');"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "sprintf|lcdline3|'CH1: %u'|off|CLCDSetupVolatileDataStorage2_lcdline3|[1 -1]|[0]|[\"uint3"
+      "2_t\"]|1|-1|0.5|StringBufferProcessing4"
+      MaskTabNameString	      ",,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Target Setup"
+      Ports		      []
+      Position		      [30, 25, 268, 147]
+      Priority		      "100"
+      SourceBlock	      "stm32f4_device_config_lib/Target Setup"
+      SourceType	      "stm32f4_target_setup"
+      compiler		      "GNU ARM"
+      previous_compiler	      "GNU ARM"
+      mcu		      "STM32F417IG (LQFP176)"
+      mcustr		      "STM32F417IG"
+      clockconfig	      "HSEOSC-8MHz"
+      system_stm32f4xx_c_path "F:\\trunk\\targets\\stm32f4_target\\stm32f4\\utils\\system_stm32f4xx_default\\STM32F40_"
+      "41xxx\\hseosc8mhz"
+      showmemoryconfiguration off
+      stacksize		      "0x2000"
+      heapsize		      "0x2000"
+      enableautocompiledownload	on
+      fullchiperase	      off
+      programmerinterface     "ST-Link"
+      editctrlstr	      on
+      compilercontrolstr      "$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu="
+      "fpv4-sp-d16 -ffast-math -Wall -Wextra -Ofast "
+      assemblercontrolstr     "$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu="
+      "fpv4-sp-d16 -ffast-math -Wall -Wextra -Ofast -Wa,-amhls=$(<:.s=.lst) -D__STACK_SIZE=$(STACK_SIZE) -D__HEAP_SIZE="
+      "$(HEAP_SIZE) "
+      linkercontrolstr	      "-T$(LD_SCRIPT) -g -Wl,-Map=$(MAP),--cref,--no-warn-mismatch -mcpu=cortex-m4 -mthumb -mth"
+      "umb-interwork -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs "
+      runafterdownload	      on
+      execprofile	      "None"
+      profileruart	      "3"
+      profilerbaud	      "500000"
+      profilertxpin	      "D8"
+      profilerinitstr	      "0.01,168000000,1680000,500000,0"
+      manualsetsampletime     off
+      sampletime	      "0.01"
+      blockid		      "TargetSetup"
+      systickreloadvalue      "1680000"
+      hseval		      "8000000"
+      lastprofileruart	      "3"
+      hclk		      "168000000"
+      flashorigin	      "0x8000000"
+      flashlength	      "1024k"
+      ramorigin		      "0x20000000"
+      ramlength		      "128k"
+      useextram		      off
+    }
+    Line {
+      SrcBlock		      "APDS 9301"
+      SrcPort		      2
+      Points		      [245, 0; 0, 75]
+      DstBlock		      "String Buffer Processing4"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "APDS 9301"
+      SrcPort		      3
+      Points		      [210, 0; 0, 135]
+      DstBlock		      "String Buffer Processing2"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "APDS 9301"
+      SrcPort		      1
+      DstBlock		      "String Buffer Processing3"
+      DstPort		      1
+    }
+  }
+}

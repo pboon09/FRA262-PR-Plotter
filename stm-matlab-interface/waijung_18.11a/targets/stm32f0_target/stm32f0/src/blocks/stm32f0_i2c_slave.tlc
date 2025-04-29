@@ -1,0 +1,492 @@
+%implements stm32f0_i2c_slave "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+
+  %assign module         = optionstring[0]
+  %assign slaveaddress   = optionstring[1]
+  %assign buffersize     = optionstring[2]
+  %assign seperatebuffer = optionstring[3]
+  %assign clkspeed       = optionstring[4]
+  %assign timeout        = optionstring[5]
+  %assign sdapin         = optionstring[6]
+  %assign sdaport        = optionstring[7]
+  %assign sclpin         = optionstring[8]
+  %assign sclport        = optionstring[9]
+  %assign enableirq      = optionstring[10]
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + module + slaveaddress \
+                + buffersize + seperatebuffer + clkspeed + timeout + sdapin \
+                + sdaport + sclpin + sclport + enableirq
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_I2C__) == 0)
+      %assign :: __STM32F0XX_I2C__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_i2c.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STD_IO__) == 0)
+      %assign :: __STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STD_LIB__) == 0)
+      %assign :: __STD_LIB__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_I2CSLAVE_ISR__) == 0)
+      %assign :: __STM32F0XX_I2CSLAVE_ISR__ = 1
+      %openfile tmpBuf
+         #include "waijung_hwdrvlib.h"
+         #include "%<LibGetMdlPubHdrBaseName()>.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_i2cslave_isr")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+%if conf == "I2CSlaveSetup"
+  %if enableirq == "on"
+    %addtorecord block AsyncCallerGenCode TLC_TRUE
+  %endif
+%endif
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "I2CSlaveSetup"
+  typedef enum {
+    I2CSLAVE_IDLE = 0,
+    I2CSLAVE_WRITE,
+    I2CSLAVE_READ
+  } I2CSLAVE_STATE;
+
+  #define I2CSLAVE_STA_NONE        0
+  #define I2CSLAVE_STA_TRANSMIT    1
+  #define I2CSLAVE_STA_RECEIVED    2
+
+  void i2c_detect_clock_error(void);
+  
+  %if enableirq == "on"
+  void %<blockid>_i2chandle_isr(uint32_t ev);
+  %endif
+
+  void I2C%<module>_Set_TxBuffer(const uint8_t *buffer, uint32_t len);
+  void I2C%<module>_Get_RxBuffer(uint8_t *buffer, uint32_t len, uint32_t *RxCount);
+  void I2C%<module>_Get_Status(uint32_t *State);
+
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+
+%if conf == "I2CSlaveSetup"
+
+  #define I2C%<module>_BUFFER_SIZE    %<buffersize>
+
+  static uint8_t I2C%<module>_Tx_Buffer[I2C%<module>_BUFFER_SIZE];
+  static uint8_t I2C%<module>_Rx_Buffer[I2C%<module>_BUFFER_SIZE];
+  uint8_t I2C%<module>_Tx_Buffer_RELOAD[I2C%<module>_BUFFER_SIZE];
+  uint8_t I2C%<module>_Rx_Buffer_RELOAD[I2C%<module>_BUFFER_SIZE];
+
+  static uint16_t I2C%<module>_Tx_Index = 0;
+  static uint16_t I2C%<module>_Rx_Index = 0;
+  static uint16_t I2C%<module>_Rx_Count = 0;
+
+  static I2CSLAVE_STATE I2C%<module>_Operation_State = I2CSLAVE_IDLE;
+
+  void I2C%<module>_Set_TxBuffer(const uint8_t *buffer, uint32_t len)
+  {
+      memcpy(I2C%<module>_Tx_Buffer_RELOAD, buffer, (len > I2C%<module>_BUFFER_SIZE)?I2C%<module>_BUFFER_SIZE:len);
+  }
+
+  void I2C%<module>_Get_RxBuffer(uint8_t *buffer, uint32_t len, uint32_t *RxCount)
+  {
+    memcpy(buffer, I2C%<module>_Rx_Buffer, (len > I2C%<module>_Rx_Count)?I2C%<module>_Rx_Count:len);
+    *RxCount = I2C%<module>_Rx_Count;
+    I2C%<module>_Rx_Count = 0; // Reset number of rx
+  }
+
+  void I2C%<module>_Get_Status(uint32_t *State)
+  {
+    *State = (uint32_t)I2C%<module>_Operation_State;
+  }
+
+  void I2C%<module>_IRQHandler(void)
+  {
+    volatile uint8_t data;
+
+    // --- Address match ---
+    if (I2C_GetITStatus(I2C%<module>, I2C_IT_ADDR) == SET) {
+      if (I2C_GetTransferDirection(I2C%<module>) == I2C_Direction_Receiver) { // Master READ
+        %if enableirq == "on"
+          %if LibBlockOutputSignalConnected(0)
+            if ((I2C%<module>_Operation_State == I2CSLAVE_WRITE) && (I2C%<module>_Rx_Index != 0)) {
+              %if seperatebuffer == "on"
+              %else
+              // Shared Tx/Rx buffer
+              memcpy(I2C%<module>_Tx_Buffer_RELOAD, I2C%<module>_Rx_Buffer_RELOAD, I2C%<module>_Rx_Index);
+              %endif
+              // Re-START operation
+              %<blockid>_i2chandle_isr(I2CSLAVE_STA_RECEIVED);
+             }
+            // Raise before transmit callback
+            %<blockid>_i2chandle_isr(I2CSLAVE_STA_TRANSMIT);
+          %endif
+        %endif
+
+        // Reload buffer
+        memcpy(I2C%<module>_Tx_Buffer, I2C%<module>_Tx_Buffer_RELOAD, I2C%<module>_BUFFER_SIZE);
+        I2C%<module>_Tx_Index = 0;
+        I2C%<module>_Operation_State = I2CSLAVE_READ;
+      }
+      else { // Master WRITE
+        I2C%<module>_Rx_Index = 0;
+        I2C%<module>_Operation_State = I2CSLAVE_WRITE;
+      }    
+
+      I2C_ClearITPendingBit (I2C%<module>, I2C_IT_ADDR);
+    }
+    // --- Transmit byte ---
+    else if (I2C_GetITStatus(I2C%<module>, I2C_IT_TXIS) == SET) {
+      if (I2C%<module>_Tx_Index < I2C%<module>_BUFFER_SIZE) {
+        I2C_SendData(I2C%<module>, I2C%<module>_Tx_Buffer[I2C%<module>_Tx_Index]);
+        I2C%<module>_Tx_Index ++;
+      }
+      else {
+        I2C_SendData(I2C%<module>, 0xFF);
+      }
+    }
+    // Receive byte
+    else if (I2C_GetITStatus(I2C%<module>, I2C_IT_RXNE) == SET) {
+      data = I2C_ReceiveData(I2C%<module>);
+      if (I2C%<module>_Rx_Index < I2C%<module>_BUFFER_SIZE) {
+        I2C%<module>_Rx_Buffer_RELOAD[I2C%<module>_Rx_Index] = data;
+        I2C%<module>_Rx_Index++;
+      }
+    }
+    // STOP
+    else if (I2C_GetITStatus(I2C%<module>, I2C_IT_STOPF) == SET) {
+      I2C_ClearITPendingBit (I2C%<module>, I2C_IT_STOPF);
+      I2C_SoftwareResetCmd(I2C%<module>);
+      if ((I2C%<module>_Operation_State == I2CSLAVE_WRITE) && (I2C%<module>_Rx_Index != 0)) {
+        if (I2C%<module>_Rx_Count == 0) { // Discard if previous receiving not process
+          %if seperatebuffer == "on"
+          %else
+          // Shared Tx/Rx buffer
+          memcpy(I2C%<module>_Tx_Buffer_RELOAD, I2C%<module>_Rx_Buffer_RELOAD, I2C%<module>_Rx_Index);
+          %endif
+          I2C%<module>_Rx_Count = I2C%<module>_Rx_Index;
+          memcpy(I2C%<module>_Rx_Buffer, I2C%<module>_Rx_Buffer_RELOAD, I2C%<module>_Rx_Count);
+          %if enableirq == "on"
+            %if LibBlockOutputSignalConnected(0)
+              %<blockid>_i2chandle_isr(I2CSLAVE_STA_RECEIVED);
+            %endif
+          %endif
+        }
+      }
+      I2C%<module>_Operation_State = I2CSLAVE_IDLE;
+    }
+    // Error
+    else {
+      /* Check on I2C%<module> SMBALERT flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_ALERT))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_ALERT);
+      }
+      /* Check on I2C%<module> Time out flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_TIMEOUT))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_TIMEOUT);
+      }
+      /* Check on I2C%<module> Arbitration Lost flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_ARLO))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_ARLO);
+      }   
+      /* Check on I2C%<module> PEC error flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_PECERR))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_PECERR);
+      } 
+      /* Check on I2C%<module> Overrun/Underrun error flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_OVR))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_OVR);
+      } 
+      /* Check on I2C%<module> Acknowledge failure error flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_NACKF))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_NACKF);
+      }
+      /* Check on I2C%<module> Bus error flag and clear it */
+      if (I2C_GetITStatus(I2C%<module>, I2C_IT_BERR))
+      {
+        I2C_ClearITPendingBit(I2C%<module>, I2C_IT_BERR);
+      }
+    }
+  }
+%endif
+
+%if conf == "I2CSlaveSetup"
+void i2c_detect_clock_error(void)
+{
+  uint8_t i2c_clk_sta;
+  SYS_TIMER_STRUCT timer = {0,0};
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  SysTimer_Start (&timer, 500);
+  do {
+    i2c_clk_sta = GPIO_ReadInputDataBit(GPIO%<sclport>, GPIO_Pin_%<sclpin>);
+  } while (!i2c_clk_sta && !SysTimer_IsTimeout(&timer));
+  if (!i2c_clk_sta) {
+    I2C_SoftwareResetCmd(I2C%<module>);
+  }
+}
+%endif
+
+void enable_%<blockid>(void){
+%if conf == "I2CSlaveSetup"
+  GPIO_InitTypeDef GPIO_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  I2C_InitTypeDef   I2C_InitStructure;
+
+  // Clock Configuration
+  RCC_I2CCLKConfig(RCC_I2C%<module>CLK_HSI);
+  %if sdaport == sclport
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO%<sdaport>, ENABLE);
+  %else
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO%<sdaport>, ENABLE);
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO%<sclport>, ENABLE);
+  %endif
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C%<module>, ENABLE);
+
+  // GPIO Slave configuration
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_3;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+  %if sdaport == sclport
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_%<sdapin> | GPIO_Pin_%<sclpin>;
+  GPIO_Init(GPIO%<sdaport>, &GPIO_InitStructure);
+  %else
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_%<sdapin>;
+  GPIO_Init(GPIO%<sdaport>, &GPIO_InitStructure);
+
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_%<sclpin>;
+  GPIO_Init(GPIO%<sclport>, &GPIO_InitStructure);
+  %endif
+
+  GPIO_PinAFConfig(GPIO%<sdaport>, GPIO_PinSource%<sdapin>, GPIO_AF_1);
+  GPIO_PinAFConfig(GPIO%<sclport>, GPIO_PinSource%<sclpin>, GPIO_AF_1);
+
+  // I2C NVIC Configuration
+  NVIC_InitStructure.NVIC_IRQChannel = I2C%<module>_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  // I2C%<module> Configuration
+  I2C_DeInit(I2C%<module>);
+  I2C_InitStructure.I2C_Timing = 0x0070D8FF;
+//0x00200000; // max 100kHz
+  I2C_InitStructure.I2C_AnalogFilter = I2C_AnalogFilter_Enable;
+  I2C_InitStructure.I2C_DigitalFilter = 0;
+  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
+  I2C_InitStructure.I2C_OwnAddress1 = %<slaveaddress>;
+  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+  I2C_Init(I2C%<module>, &I2C_InitStructure);
+  I2C_StretchClockCmd(I2C%<module>, ENABLE);
+  //I2C_StretchClockCmd(I2C%<module>, DISABLE);
+  %%I2C_NumberOfBytesConfig(I2C%<module>, 1);
+  %%I2C_SlaveByteControlCmd(I2C%<module>, ENABLE);
+
+  I2C_ITConfig(I2C%<module>, \
+     I2C_IT_ERRI|I2C_IT_ADDRI|I2C_IT_RXI|I2C_IT_TXI|I2C_IT_STOPI, ENABLE);
+  I2C_Cmd (I2C%<module>, ENABLE);
+%endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+  %% === Tx ===	
+  %if conf == "I2CSlaveTx"
+    %if LibBlockNumInputPorts(block) == 1
+      %assign buff = LibBlockInputSignalAddr(0, "", "", 0)
+      %assign width = LibBlockInputSignalWidth(0)
+      I2C%<module>_Set_TxBuffer(%<buff>, %<width>);
+    %else
+      {
+        %assign count = LibBlockNumInputPorts(block)
+        uint8_T buffer[%<count>];
+        %foreach idx=count
+          buffer[%<idx>] = %<LibBlockInputSignal(idx, "", "", 0)>;
+        %endforeach
+        I2C%<module>_Set_TxBuffer(buffer, %<count>);
+      }
+    %endif
+  %endif
+
+  %% === Rx ===
+  %if conf == "I2CSlaveRx"
+    %assign rxcount_buff = LibBlockOutputSignalAddr(0, "", "", 0)
+    %if LibBlockNumOutputPorts(block) == 2
+      %assign buff = LibBlockOutputSignalAddr(1, "", "", 0)
+      %assign width = LibBlockOutputSignalWidth(1)
+      I2C%<module>_Get_RxBuffer(%<buff>, %<width>, %<rxcount_buff>);
+    %else
+      {        
+        %assign count = LibBlockNumOutputPorts(block) - 1
+        uint8_T buffer[%<count>];
+        I2C%<module>_Get_RxBuffer(buffer, %<count>, %<rxcount_buff>);
+        %foreach idx=count
+          %<LibBlockOutputSignal(idx+1, "", "", 0)> = buffer[%<idx>];
+        %endforeach
+      }
+    %endif
+    i2c_detect_clock_error();
+  %endif
+
+  %% === Status ===
+  %if conf == "I2CSlaveStatus"
+    %assign sta_buff = LibBlockOutputSignalAddr(0, "", "", 0)
+    I2C%<module>_Get_Status(%<sta_buff>);
+  %endif
+
+  %% === Setup ===
+  %if conf == "I2CSlaveSetup"
+    %if enableirq == "on"
+      %if LibBlockOutputSignalConnected(0)
+      
+        %% Get the downstream block
+        %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+        %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+        %if !block.GenCodeForTopAsyncSS     
+          %%Don't generate code for downstream f-c subsystem
+          %%if GenCodeForTopAsyncSS is not set yet.
+          %return
+        %endif
+
+        %% Call the downstream function call subsystem
+        %openfile tmpBuf
+          %<LibBlockExecuteFcnCall(block, callIdx)>\
+        %closefile tmpBuf   
+
+        %% Always create the ISR function
+        %openfile funcbuf
+          /* ########################################################################
+           * Block Name: %<block.Name>
+           * Block ID: %<blockid>
+           * ########################################################################
+           * Function call: %<blockid> IRQ
+           */
+          void %<blockid>_i2chandle_isr(uint32_t ev) {
+          %if WHITE_SPACE(tmpBuf)
+            /* Nothing to do for system: %<ssBlock.Name> */
+          %else
+            /* Call the system: %<ssBlock.Name> */
+            %<tmpBuf>
+          %endif
+          }
+        %closefile funcbuf
+        %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_i2cslave_isr")
+        %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+        %<LibSetSourceFileCustomSection(file,"cFunctions",funcbuf)>  
+      %endif
+    %endif
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

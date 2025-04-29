@@ -1,0 +1,282 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Quick Navigation</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Quick Navigation">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "quick_navigation2.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Quick Navigation</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?quick_navigation2.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   &raquo;No topics above this level&laquo;
+   </p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Quick Navigation</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <img src="btn_prev_d.gif" border="0"
+        ><a href="quick_navigation2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="features.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="3" style="vertical-align:top; width:50px; padding:0px;"><p><span style="font-weight: bold;">What's Hot?</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="https://www.aimagin.com/download/" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="download_s.png" width="51" height="50" alt="download_s" style="margin:0px auto 0px auto;width:51px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="https://www.aimagin.com/download/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Download software</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Download Waijung Blockset.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="https://www.aimagin.com" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="girl_shopping_s.png" width="41" height="50" alt="girl_shopping_s" style="margin:0px auto 0px auto;width:41px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="https://www.aimagin.com" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Shop for hardware</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Buy your hardware from Aimagin Store.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="waijung_webpage_designer_w2d.htm" class="topiclink"><img src="web_s.jpg" width="53" height="50" alt="web_s" style="margin:0px auto 0px auto;width:53px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="waijung_webpage_designer_w2d.htm" class="topiclink">Waijung Webpage Designer (W2D)</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Design browser-based monitoring &amp; control systems without the need to write a single line of HTML or C code. Just Drag and Drop as usual.</p>
+<p><a href="http://aimagin.com/blog/w2d/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Change Log and Download</a> the latest W2D firmware.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="demo_home.htm" class="topiclink"><img src="demo_s.png" width="38" height="50" alt="demo_s" style="margin:0px auto 0px auto;width:38px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="demo_home.htm" class="topiclink">All the demos</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>All demos are already included in your downloaded Waijung package under the folder: <span style="font-style: italic;">waijungroot\targets\stm32f4_target\stm32f4\demo.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="http://www.youtube.com/rapidstm32" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="youtube_s.jpeg" width="71" height="50" alt="youtube_s" style="margin:0px auto 0px auto;width:71px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="http://www.youtube.com/rapidstm32" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Youtube Video Tutorials</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>View series of Youtube video tutorials.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="http://blog.aimagin.com" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="blog_pencil_s.png" width="79" height="50" alt="blog_pencil_s" style="margin:0px auto 0px auto;width:79px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="http://blog.aimagin.com/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Aimagin's Blog</a> </p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Portal to online articles and community's contribution.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="http://aimagin.com/blog/waijung-workshop-prince-songkla-university-16-nov-13/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Waijung Beginner Workshop</a> (Thai)<br />
+Recorded workshop video with all related demo files. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="http://aimagin.com/blog/micro-controller-interfacing/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Microcontroller &amp; Interfacing</a> (Thai)<br />
+Recodered video lecture by Prof. Sunphong of KMUTNB .</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="http://aimagin.com/blog/mini-project-kmutnb-mechatronics-56/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Sample 21 mini projects</a> (Thai / English)<br />
+Complete video, Simulink model files, and documentations for 21 projects by KMUTNB students.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="http://aimagin.com/blog/%E0%B8%9A%E0%B8%97%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B9%80%E0%B8%81%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%A7%E0%B8%81%E0%B8%B1%E0%B8%9A-waijung-%E0%B9%81%E0%B8%A5%E0%B8%B0-microcontrollers/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Tutorials about Waijung and Microcontrollers</a> (Thai)<br />
+- <a href="http://aimagin.com/blog/%e0%b8%a7%e0%b8%b4%e0%b8%98%e0%b8%b5%e0%b8%94%e0%b8%b9%e0%b8%82%e0%b8%b2%e0%b8%82%e0%b8%ad%e0%b8%87-microcontroller/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Selecting Microcontroller pins</a><br />
+- <a href="http://aimagin.com/blog/basic-digital-io/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Digital Input / Output</a><br />
+- <a href="http://aimagin.com/blog/adc-dac/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">ADC-DAC</a><br />
+- <a href="http://aimagin.com/blog/driving-7-segments-led/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Driving 7 Segment LED</a><br />
+- <a href="http://aimagin.com/blog/learn-character-lcd/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Driving Character LCD</a><br />
+- <a href="http://aimagin.com/blog/driving-step-motor-and-rc-servo-motor/?lang=th" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Driving Step and RC Servo Motors</a><br />
+- and more...</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Other sample projects (Thai/English)<br />
+- <a href="http://aimagin.com/blog/inverted-pendulum-project-stm32f4/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Invert pendulum</a><br />
+- <a href="http://aimagin.com/blog/real-time-moving-object-tracking-stm32f4-image-processing-algorithms/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Object Tracking with Image Processing</a><br />
+- and more...<br />
+&nbsp;</td></tr></table></div></td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;">&nbsp;</p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td colspan="3" style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Get Help and Be a Part of Community</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="https://www.facebook.com/fioboard" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="facebook_logo_s.png" width="48" height="45" alt="facebook_logo_s" style="margin:0px auto 0px auto;width:48px;height:45px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="https://www.facebook.com/fioboard" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Facebook</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Keep up-to-date with what's new.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center;"><a href="https://www.aimagin.com/forum" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="forum_s.png" width="48" height="50" alt="forum_s" style="margin:0px auto 0px auto;width:48px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="https://www.aimagin.com/forum" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Forum</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Ask questions and get answers from our community of users</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:6%; padding:0px;"><p style="text-align: center; margin: 5px 0px 5px 1px;"><a href="mailto:help@aimagin.com" onclick="return HMTrackTopiclink(this);"><img src="email_s.jpg" width="67" height="50" alt="email_s" style="margin:0px auto 0px auto;width:67px;height:50px;border:none" /></a></p>
+</td>
+<td style="vertical-align:top; width:19%; padding:0px;"><p style="margin: 5px 0px 5px 24px;"><a href="mailto:help@aimagin.com" onclick="return HMTrackTopiclink(this);" class="weblink">Email</a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>help@aimagin.com</p>
+</td>
+</tr>
+</table>
+</div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><span class="f_ImageCaption" style="font-size: 10pt; font-weight: normal;">Last Updated: Wednesday, October 31, 2018 @ 4:43:05 PM (Bangkok Time)</span></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

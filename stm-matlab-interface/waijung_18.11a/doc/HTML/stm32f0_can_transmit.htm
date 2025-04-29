@@ -1,0 +1,289 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F0 Target &gt; Block References &gt; On-chip Peripherals &gt; CAN &gt; CAN Transmit</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="CAN Transmit">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f0_can_transmit.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">CAN Transmit</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f0_can_transmit.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f0_target.htm">STM32F0 Target</a> &gt; <a href="stm32f0_blockset_references.htm">Block References</a> &gt; <a href="on-chip_peripherals2.htm">On-chip Peripherals</a> &gt; <a href="can.htm">CAN</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">CAN Transmit</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="stm32f0_can_setup.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="can.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f0_can_receive.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="can_tx_block.png" width="950" height="126" alt="can_tx_block" style="width:950px;height:126px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="stm32f0_can_transmit_mask.png" width="950" height="657" alt="stm32f0_can_transmit_mask" style="width:950px;height:657px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>CAN Module</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select CAN module number.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transfer</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Blocking | Non-Blocking</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select transfer mode.</p>
+<p>Recommend using Blocking mode if transmit more than 3 packets in same step. </p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transmit timeout (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(transmit timeout)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>This option available when transfer mode configured to Blocking.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Identifier Type</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Standard | Extended</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select ID type, standard id (11 bits) or Extended (29 bits).</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Specific Identifier (ID)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Option to use specific ID or variable ID.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Identifier, ID</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(ID value)</p>
+<p>11bits value for Standard ID (2.0A).</p>
+<p>29bits value for Extended ID (2.0B)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specified ID value to transmit.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Specific Data Length Code (DLC)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Option to use specific DLC or variable DLC.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Data Length Code, DLC</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select data length to transmit.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Enable Status port</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Show/ Hide output status port.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Data Type</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>double | single | uint32 | int32 | uint16 | int16 | uint8 | int8</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select port data type.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Sample Time (Sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Sample time)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><br />
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">When to use this block?</span></h2>
+<p>Use this block to send a packet data to the bus and accept by other device. Useful for data network communication application.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">How does this block work?</span></h2>
+<p>This block transmit a packet data to out-going buffer (3 out mailbox). If transfer mode is Blocking, process will wait until message sent to the bus.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"></td></tr></table></div><p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

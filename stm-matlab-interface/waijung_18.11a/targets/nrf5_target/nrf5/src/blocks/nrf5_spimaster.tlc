@@ -1,0 +1,330 @@
+%implements nrf5_spimaster "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign module         = optionstring[0]
+  %assign direction      = optionstring[1]
+  %assign dataformat     = optionstring[2]
+  %assign clockfrequency = optionstring[3]
+  %assign cpolcpha       = optionstring[4]
+  %assign nsspin         = optionstring[5]
+  %assign sckpin         = optionstring[6]
+  %assign misopin        = optionstring[7]
+  %assign mosipin        = optionstring[8]
+  %assign nssdelay       = optionstring[9]
+  %assign framedelay     = optionstring[10]
+
+  %assign block = block + conf + sampletime + blockid \
+                 + module + direction + dataformat + clockfrequency \
+                 + cpolcpha + nsspin + sckpin + misopin + mosipin \
+                 + nssdelay + framedelay
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: SPI module
+    * ########################################################################
+    */
+    #include "nrf_drv_spi.h"
+/%
+   // Clock phase
+   #define CPHA_LEADING		((uint32_t)SPI_CONFIG_CPHA_Leading << SPI_CONFIG_CPHA_Pos)
+   #define CPHA_TRAILING		((uint32_t)SPI_CONFIG_CPHA_Trailing << SPI_CONFIG_CPHA_Pos)
+
+   // Clock polaruty
+   #define CPOL_ACTIVE_HIGH		((uint32_t)SPI_CONFIG_CPOL_ActiveHigh << SPI_CONFIG_CPOL_Pos)
+   #define CPOL_ACTIVE_LOW			((uint32_t)SPI_CONFIG_CPOL_ActiveLow << SPI_CONFIG_CPOL_Pos)
+
+   // Bit order
+   #define BIT_MSB_FIRST				((uint32_t)SPI_CONFIG_ORDER_MsbFirst << SPI_CONFIG_ORDER_Pos)
+   #define BIT_LSB_FIRST				((uint32_t)SPI_CONFIG_ORDER_LsbFirst << SPI_CONFIG_ORDER_Pos)
+
+   typedef void (*DATA_UPDATE_CALLBACK)(uint8_t *tx_enable, uint8_t *tx_byte, uint8_t rx_byte);
+
+   extern DATA_UPDATE_CALLBACK spi0_data_callback;
+   extern DATA_UPDATE_CALLBACK spi1_data_callback;
+%/
+
+   #define SPI_INSTANCE  0 /**< SPI instance index. */
+   extern const nrf_drv_spi_t m_spi_instance;
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: SPI module
+    * ########################################################################
+    */
+   const nrf_drv_spi_t m_spi_instance = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if nsspin != "Not used"
+#define %<blockid>_PIN_SS		%<nsspin>
+%endif
+#define %<blockid>_PIN_SCK		%<sckpin>
+%if direction == "Full-Duplex"
+#define %<blockid>_PIN_MISO		%<misopin>
+#define %<blockid>_PIN_MOSI		%<mosipin>
+%elseif direction == "Half-Duplex_Tx"
+#define %<blockid>_PIN_MISO     NRF_DRV_SPI_PIN_NOT_USED
+#define %<blockid>_PIN_MOSI		%<mosipin>
+%elseif direction == "Half-Duplex_Rx"
+#define %<blockid>_PIN_MISO		%<misopin>
+#define %<blockid>_PIN_MOSI     NRF_DRV_SPI_PIN_NOT_USED
+%endif
+
+%%#define %<blockid>_SPI   NRF_SPI%<module>
+
+%if conf == "Master"
+  void %<blockid>_Transfer(const uint8_t *txbuf, uint16_t txcnt, uint8_t *rxbuf, uint16_t rxcnt);
+%else
+  %% SD Card Setup
+%endif
+%if conf == "Master"
+%else
+  void SPI_SDCard_CSHIGH(void);
+  void SPI_SDCard_CSLOW(void);
+  uint8_t SPI_SDCard_Transfer(uint8_t txd);
+  void SPI_SDCard_Open(uint8_t hs);
+  void SPI_SDCard_Close(void);
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+static volatile bool %<blockid>_m_spi_xfer_done = false;  /**< Flag used to indicate that SPI instance completed the transfer. */
+void %<blockid>_spi_event_handler(nrf_drv_spi_evt_t const * p_event, void *    p_context)
+{
+  %<blockid>_m_spi_xfer_done = true;
+}
+  %assign clock_mode = ""
+  %switch cpolcpha
+    %case "CPOL_Low/ CPHA_Leading"
+      %% MODE 2: SCK active low, sample on leading edge of clock.
+      %assign clock_mode = "NRF_DRV_SPI_MODE_2"
+      %break
+    %case "CPOL_Low/ CPHA_Trailing"
+      %% MODE 3: SCK active low, sample on trailing edge of clock.
+      %assign clock_mode = "NRF_DRV_SPI_MODE_3"
+      %break
+    %case "CPOL_High/ CPHA_Leading"
+      %% MODE 0: SCK active high, sample on leading edge of clock.
+      %assign clock_mode = "NRF_DRV_SPI_MODE_0"
+      %break
+    %case "CPOL_High/ CPHA_Trailing"
+      %% MODE 1: SCK active high, sample on trailing edge of clock.
+      %assign clock_mode = "NRF_DRV_SPI_MODE_1"
+      %break
+  %endswitch  
+static nrf_drv_spi_config_t %<blockid>_spi_config = {
+  .sck_pin      = %<blockid>_PIN_SCK,
+  .mosi_pin     = %<blockid>_PIN_MOSI,
+  .miso_pin     = %<blockid>_PIN_MISO,
+  .ss_pin       = NRF_DRV_SPI_PIN_NOT_USED, // Manual nss
+  .irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY,
+  .orc          = 0xFF,
+  .frequency    = %<clockfrequency>,
+  .mode         = %<clock_mode>,
+  %if dataformat == "FirstBit_MSB"
+  .bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST,
+  %elseif dataformat == "FirstBit_LSB"
+  .bit_order    = NRF_DRV_SPI_BIT_ORDER_LSB_FIRST,
+  %endif
+};
+
+%if conf == "SDCard"
+void SPI_SDCard_CSHIGH(void)
+{
+  nrf_gpio_pin_set(%<blockid>_PIN_SS);
+}
+
+void SPI_SDCard_CSLOW(void)
+{
+  nrf_gpio_pin_clear(%<blockid>_PIN_SS);
+%if nssdelay != "0"
+  nrf_delay_us(%<nssdelay>); // delay %<nssdelay> uS for SS pin
+%endif
+}
+
+uint8_t SPI_SDCard_Transfer(uint8_t txd)
+{
+    int timeout_timer;
+
+    volatile uint8_t txdata = txd;
+    volatile uint8_t rxdata = 0;
+
+    /* SPI Transfer */
+    timeout_timer = 25000; ///< 25000 * 10uS = 250mS
+    %<blockid>_m_spi_xfer_done = false;
+    APP_ERROR_CHECK(nrf_drv_spi_transfer(&m_spi_instance, &txdata, 1, &rxdata, 1));
+    while (!%<blockid>_m_spi_xfer_done && (--timeout_timer > 0)) {nrf_delay_us(10);}
+    if (%<blockid>_m_spi_xfer_done)
+      ret = 0;
+
+    return rxdata;
+}
+%endif
+
+%if conf == "Master"
+void %<blockid>_Spi_Open(void)
+%else
+void SPI_SDCard_Open(uint8_t hs)
+%endif
+{
+  /* Pin configuration */
+  %if nsspin != "Not used"
+  // SS
+  nrf_gpio_pin_set(%<blockid>_PIN_SS);
+  nrf_gpio_cfg_output(%<blockid>_PIN_SS);
+  %endif
+
+  // Init SPI
+  APP_ERROR_CHECK(nrf_drv_spi_init(&m_spi_instance, &%<blockid>_spi_config, %<blockid>_spi_event_handler, 0));
+}
+
+%if conf == "Master"
+void %<blockid>_Spi_Close(void)
+%else
+void SPI_SDCard_Close(void)
+%endif
+{
+  // Uninit SPI
+  nrf_drv_spi_uninit(&m_spi_instance);
+
+  %if nsspin != "Not used"
+    /* Set Slave Select pin as input with pull-up. */
+    nrf_gpio_pin_set(%<blockid>_PIN_SS);
+  %endif
+}
+
+%if conf == "Master"
+void %<blockid>_Transfer(const uint8_t *txbuf, uint16_t txcnt, uint8_t *rxbuf, uint16_t rxcnt)
+{
+  int timeout_timer;
+
+  /* Open */
+  %<blockid>_Spi_Open();
+%if nsspin != "Not used"
+  nrf_gpio_pin_clear(%<blockid>_PIN_SS);
+%endif
+
+%if nssdelay != "0"
+  nrf_delay_us(%<nssdelay>); // delay %<nssdelay> uS for SS pin
+%endif
+
+  /* SPI Transfer */
+  timeout_timer = 25000; ///< 25000 * 10uS = 250mS
+  %<blockid>_m_spi_xfer_done = false;
+  APP_ERROR_CHECK(nrf_drv_spi_transfer(&m_spi_instance, txbuf, txcnt, rxbuf, rxcnt));
+  while (!%<blockid>_m_spi_xfer_done && (--timeout_timer > 0)) {nrf_delay_us(10);}
+  %%if (%<blockid>_m_spi_xfer_done)
+  %%  ret = 0;
+
+  /* Close */	
+  %<blockid>_Spi_Close();
+}
+%endif
+
+void enable_%<blockid>(void){
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%if conf == "Master"
+/* %<blockid>: '%<block.Name>' */
+{
+  %if LibBlockNumInputPorts(block) > 1
+    %<LibBlockInputSignalDataTypeName(0, tRealPart)> txbuf[%<LibBlockNumInputPorts(block)>];
+  %endif
+  %if LibBlockNumOutputPorts(block) > 1
+    %<LibBlockOutputSignalDataTypeName(0, tRealPart)> rxbuf[%<LibBlockNumOutputPorts(block)>];
+  %endif
+
+  %if LibBlockNumInputPorts(block) > 1
+    %foreach idx= LibBlockNumInputPorts(block)
+      txbuf[%<idx>] = %<LibBlockInputSignal(idx, "", "", 0)>;
+    %endforeach
+  %endif
+
+  %<blockid>_Transfer( \
+  %if LibBlockNumInputPorts(block) == 0
+  (uint8_t *)0, 0, \
+  %elseif LibBlockNumInputPorts(block) == 1
+  (uint8_t *)%<LibBlockInputSignalAddr(0, "", "", 0)>, sizeof(%<LibBlockInputSignalDataTypeName(0, tRealPart)>) * %<LibBlockInputSignalWidth(0)>, \
+  %else
+  (uint8_t *)&txbuf[0], sizeof(%<LibBlockInputSignalDataTypeName(0, tRealPart)>) * %<LibBlockNumInputPorts(block)>, \
+  %endif
+  %if LibBlockNumOutputPorts(block) == 0
+  (uint8_t *)0, 0);
+  %elseif LibBlockNumOutputPorts(block) == 1
+  (uint8_t *)%<LibBlockOutputSignalAddr(0, "", "", 0)>, sizeof(%<LibBlockOutputSignalDataTypeName(0, tRealPart)>) * %<LibBlockOutputSignalWidth(0)>);
+  %else
+  (uint8_t *)&rxbuf[0], sizeof(%<LibBlockOutputSignalDataTypeName(0, tRealPart)>) * %<LibBlockNumOutputPorts(block)>);
+  %endif
+
+  %if LibBlockNumOutputPorts(block) > 1
+    %foreach idx= LibBlockNumOutputPorts(block)
+    %<LibBlockOutputSignal(idx, "", "", 0)> = rxbuf[%<idx>];
+    %endforeach
+  %endif  
+}
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

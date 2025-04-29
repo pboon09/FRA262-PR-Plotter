@@ -1,0 +1,205 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Standard Peripherals Demos &gt; DCMI &gt; UDP IP Camera Demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="UDP IP Camera Demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "udp_ip_camera_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">UDP IP Camera Demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?udp_ip_camera_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="standard_peripherals_demos.htm">Standard Peripherals Demos</a> &gt; <a href="dcmi2.htm">DCMI</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">UDP IP Camera Demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="dcmi2.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="dcmi2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="moving_object_tracking_demo.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><span style="font-weight: bold;">demo File</span>: target_udpcam_demo.mdl</p>
+<p>Build and program the demo model below to target board.</p>
+<p><img src="dcmi_demo_model.png" width="950" height="602" alt="dcmi_demo_model" style="width:950px;height:602px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">(1) Ethernet Link Setup</span></h3>
+<p>This block is for setup MII interface, for Ethernet device.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">(2) Ethernet Application Setup</span></h3>
+<p>This block will include lwIP TCP/IP stack into the build, IP configuration for target board. In this demo, IP is 192.168.1.31 and Gate way is 192.168.1.1. &nbsp;The IP is static and must be change to meet network requirement.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">(3) Block: MCO</span></h3>
+<p>This block is for supply the clock to camera via MCU pin PA8. The clock is HSE 8MHz.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">(4) Block: I2C Master Setup</span></h3>
+<p>We need I2C bus interface to setting the DCMI camera register (picture size, camera clock, etc..). This demo use I2C1 pin B7/B6 for SDA and SCL.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">(5) Volatile Data Array</span></h3>
+<p>This block define the storage data for storing image from camera. In this demo, pixel type is RGB556 (which is 16bits) so we define uint16 for a pixel and size is 160*120.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">(6) Camera OV7670</span></h3>
+<p>This is mask subsystem, it I2C blocks for init camera and DCMI block for Capture data. To open the subsystem, right-click and select <span style="font-weight: bold;">Look Under Mask.</span></p>
+<p><img src="dcmi_demo_model2.png" width="950" height="426" alt="dcmi_demo_model2" style="width:950px;height:426px;border:none" /></p>
+<p><img src="dcmi_demo_model3.png" width="950" height="893" alt="dcmi_demo_model3" style="width:950px;height:893px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">(7) UDP Stream</span></h3>
+<p>Send the Data from buffer to the specified destination IP and Port. For this demo, destination IP is: 192.168.1.33 and port7.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<p>Hardware connection</p>
+<p><img src="dcmi_demo_testing.png" width="950" height="411" alt="dcmi_demo_testing" style="width:950px;height:411px;border:none" /></p>
+<p>Running the simulation demo model to receive picture from UDP.</p>
+<p>demo file: <span style="font-weight: bold;">host_udpcam_demo.mdl</span></p>
+<p><img src="dcmi_demo_model4.png" width="950" height="514" alt="dcmi_demo_model4" style="width:950px;height:514px;border:none" /></p>
+<p><img src="dcmi_demo_testing2.png" width="950" height="371" alt="dcmi_demo_testing2" style="width:950px;height:371px;border:none" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

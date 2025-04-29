@@ -1,0 +1,1104 @@
+%implements nrf5_ant "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %assign ant_channel        = optionstring[0]
+  %assign ant_channel_type   = optionstring[1]
+  %assign ant_channel_period = optionstring[2]
+  %assign channel_transtype  = optionstring[3]
+  %assign channel_devtype    = optionstring[4]
+  %assign channel_devnum     = optionstring[5]
+  %assign network_number     = optionstring[6]
+  %assign network_key1       = optionstring[7]
+  %assign network_key2       = optionstring[8]
+  %assign network_key3       = optionstring[9]
+  %assign network_key4       = optionstring[10]
+  %assign network_key5       = optionstring[11]
+  %assign network_key6       = optionstring[12]
+  %assign network_key7       = optionstring[13]
+  %assign network_key8       = optionstring[14]
+  %assign rf_frequency       = optionstring[15]
+  %assign buffercount        = optionstring[16]
+  %assign timeoutreset_enable= optionstring[17]
+  %assign timeoutreset_timer = optionstring[18]
+  %assign burst_rxbuffer_size = optionstring[19]
+  %assign load_devicenum_nvm = optionstring[20]
+  %assign share_address_bytes = optionstring[21]
+  %assign enablerssi          = optionstring[22]
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + ant_channel \
+                + ant_channel_type + ant_channel_period + channel_transtype \
+                + channel_devtype + channel_devnum + network_number + rf_frequency \
+                + network_key1 + network_key2 + network_key3 + network_key4 \
+                + network_key5 + network_key6 + network_key7 + network_key8 \
+                + buffercount + timeoutreset_enable + timeoutreset_timer \
+                + burst_rxbuffer_size + load_devicenum_nvm + share_address_bytes \
+                + enablerssi
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STDIO_LIB_H__) == 0)
+      %assign :: __STDIO_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_IO_H__) == 0)
+      %assign :: __STDIO_IO_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+     /* ###################################################################
+     * ANT protocol
+     * ####################################################################
+     */
+     #include "ant_interface.h"
+     #include "ant_parameters.h"
+     #include "ant_error.h"
+
+     /* ANT channel definition */
+     #define CHANNEL_0      0x00
+     #define CHANNEL_1      0x01
+     #define CHANNEL_2      0x02
+     #define CHANNEL_3      0x03
+     #define CHANNEL_4      0x04
+     #define CHANNEL_5      0x05
+     #define CHANNEL_6      0x06
+     #define CHANNEL_7      0x07
+
+     #define ANT_CHANNEL_DEFAULT_NETWORK     0x00   /**< ANT Channel Network. */
+
+     // Buffer Indices.
+     #define BUFFER_INDEX_MESG_SIZE             0x00u                         /**< ANT message buffer index length offset. */
+     #define BUFFER_INDEX_MESG_ID               0x01u                         /**< ANT message buffer index ID offset. */
+     #define BUFFER_INDEX_CHANNEL_NUM           0x02u                         /**< ANT message buffer index channel number offset. */
+     #define BUFFER_INDEX_MESG_DATA             0x03u                         /**< ANT message buffer index begin of data offset. */
+     #define BUFFER_INDEX_RESPONSE_CODE         0x04u                         /**< ANT message buffer index response code offset. */
+
+     // Burst configure
+     #define BURST_DATA_CONFIG_SIZE 8 /* Maximum is 11 */
+
+    typedef void (*ANT_EVENT_CALLBACK)(uint8_t channel, uint8_t event, uint8_t *buffer);
+    void ant_event_assign_handler(uint8_t ant_channel, ANT_EVENT_CALLBACK handler);
+    extern volatile uint8_t nrf5_ant_burst_wait;
+    void nrf5_ant_burst_configure(void);
+
+     // Use ANT S310 soft device
+     #define _USE_ANT_ 1
+
+     uint32_t ant_event_handler(void);
+     void ant_enale_rssi (void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+     /* ###################################################################
+     * ANT protocol
+     * ####################################################################
+     */
+     // ANT Burst Config
+     volatile uint8_t nrf5_ant_burst_wait = 0;
+     volatile uint8_t nrf5_ant_burst_setup[BURST_DATA_CONFIG_SIZE] = { ADV_BURST_MODE_ENABLE, ADV_BURST_MODES_SIZE_8_BYTES, 0/*ADV_BURST_MODES_FREQ_HOP*/, 0, 0, 0, 0, 0 };
+     void nrf5_ant_burst_configure(void)
+     {
+         static uint8_t burst_setup_rdy = 0;
+         uint32_t err_code;
+
+         if (burst_setup_rdy == 0) {
+             burst_setup_rdy = 1;    
+             
+             // Burst Setup
+             err_code = sd_ant_adv_burst_config_set((uint8_t *)nrf5_ant_burst_setup, sizeof(nrf5_ant_burst_setup));
+             APP_ERROR_CHECK(err_code);
+	         err_code = sd_ant_burst_handler_wait_flag_enable((uint8_t *)&nrf5_ant_burst_wait);
+	         APP_ERROR_CHECK(err_code);	
+         }
+     }
+    
+     #define ANT_CHANNEL_COUNT 8
+
+     #define ANT_EVENT_MSG_BUFFER_MIN_SIZE   32u    /**< Minimum size of ANT event message buffer. */
+     #define BROADCAST_DATA_BUFFER_SIZE      8u     /**< Size of the broadcast data buffer. */
+
+     // ANT event message buffer. 
+     static uint8_t event_message_buffer[ANT_EVENT_MSG_BUFFER_MIN_SIZE];
+
+     // ANT channel list
+     static ANT_EVENT_CALLBACK ant_channel_list[ANT_CHANNEL_COUNT] =
+     {
+         (void *)0, (void *)0,
+         (void *)0, (void *)0,
+         (void *)0, (void *)0,
+         (void *)0, (void *)0,
+     };
+
+     void ant_event_assign_handler(uint8_t ant_channel, ANT_EVENT_CALLBACK handler)
+     {
+       if (ant_channel < ANT_CHANNEL_COUNT)
+           ant_channel_list[ant_channel] = handler;
+     }
+
+     /* ANT event handler */
+     uint32_t ant_event_handler(void)
+     {
+         uint32_t err_code;
+         uint8_t event, ant_channel;
+
+         /* Fetch the event */
+         err_code = sd_ant_event_get(&ant_channel, &event, event_message_buffer);
+         if (err_code == NRF_SUCCESS) {
+             if ((ant_channel < ANT_CHANNEL_COUNT) && (ant_channel_list[ant_channel] != (void *)0))
+                 (ant_channel_list[ant_channel])(ant_channel, event, event_message_buffer);
+         }
+         return err_code;
+     }
+
+     /* Enable RSSI */
+     #ifdef ANT_ENABLE_RSSI
+     void ant_enale_rssi (void)
+     {
+       uint32_t err_code;
+       static uint8_t rssi_enabled = 0;
+       if (!rssi_enabled) {
+         rssi_enabled = 1;
+         err_code = sd_ant_lib_config_set(ANT_LIB_CONFIG_MESG_OUT_INC_RSSI);
+         APP_ERROR_CHECK(err_code);
+       }
+     }
+     #endif //ANT_ENABLE_RSSI
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define ANT_CHANNEL_%<ant_channel>_USED   1
+
+// Network configuration
+#define %<blockid>_NETWORK_NUMBER %<network_number>
+#define %<blockid>_NETWORK_KEY {%<network_key1>,%<network_key2>,%<network_key3>,%<network_key4>,%<network_key5>,%<network_key6>,%<network_key7>,%<network_key8>}
+
+// Channel configuration. 
+#define CHANNEL_%<ant_channel>_CHANNEL_FREQ       (%<rf_frequency>) /* 2400+%<rf_frequency> MHz */
+#define CHANNEL_%<ant_channel>_CHANNEL_PERIOD     %<ant_channel_period>
+#define CHANNEL_%<ant_channel>_ANT_EXT_ASSIGN        0x00
+
+// Channel ID configuration. 
+%if ant_channel_type == "Master (Tx only)"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x02u
+%endif
+%if ant_channel_type == "Slave (Rx only)"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x00u
+%endif
+%if ant_channel_type == "Shared Master"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x03u
+%endif
+%if ant_channel_type == "Shared Slave"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x03u
+%endif
+%if ant_channel_type == "Master"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x01u
+%endif
+%if ant_channel_type == "Slave"
+#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE      0x01u
+%endif
+
+//#define CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM       %<channel_devnum>
+#define CHANNEL_%<ant_channel>_CHAN_ID_TRANS_TYPE    0x01u /* Independent */
+
+%if (ant_channel_type == "Slave (Rx only)") || (ant_channel_type == "Slave")
+uint8_t %<blockid>_PENDING(void);
+void %<blockid>_GetBuffer(uint8_t *buffer);
+%endif
+%if (ant_channel_type == "Master (Tx only)") || (ant_channel_type == "Master")
+extern uint8_t %<blockid>_Buffer[];
+void %<blockid>_SetTxData(uint8_t *data);
+%endif
+
+%if (ant_channel_type == "Shared Master") || (ant_channel_type == "Shared Slave")
+extern uint8_t %<blockid>_Tx_Buffer[];
+extern uint8_t %<blockid>_Rx_Buffer[];
+uint8_t %<blockid>_Get_EVENT(void);
+%if (ant_channel_type == "Shared Slave")
+void %<blockid>_ShareID_Set(void);
+%endif
+%endif
+
+%if (burst_rxbuffer_size != "") && (burst_rxbuffer_size != "None")
+  /* Burst Rx buffer */
+  #define ANTCH%<ant_channel>_BURSTRX_BUFFER_SIZE %<burst_rxbuffer_size>
+  extern uint16_t antch%<ant_channel>_burstrx_count;
+  extern uint8_t antch%<ant_channel>_burstrx_buffer[];
+  uint32_t antch%<ant_channel>_burstdata_send (uint8_t *buffer, uint16_t size);
+  uint16_t antch%<ant_channel>_burstdata_get (uint8_t *buffer, uint16_t size);
+%endif
+
+%if enablerssi == "on"
+#ifndef ANT_ENABLE_RSSI
+  #define ANT_ENABLE_RSSI 1
+#endif
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+
+%if (burst_rxbuffer_size != "") && (burst_rxbuffer_size != "None")
+  uint16_t antch%<ant_channel>_burstrx_count = 0; // Data count
+  uint16_t antch%<ant_channel>_burstrx_index = 0; // Data index
+  uint16_t antch%<ant_channel>_burstrx_chk = 0; // Data sum
+  uint16_t antch%<ant_channel>_burstrx_sum = 0; // Data sum
+  uint16_t antch%<ant_channel>_burstrx_packet_id = 0; // Burst packet index
+  uint8_t antch%<ant_channel>_burstrx_buffer[ANTCH%<ant_channel>_BURSTRX_BUFFER_SIZE];
+
+  uint16_t antch%<ant_channel>_burstdata_get (uint8_t *buffer, uint16_t size)
+  {
+      uint16_t dlen;
+
+      // Read then Clear
+      if ((antch%<ant_channel>_burstrx_count > 0) 
+        && (antch%<ant_channel>_burstrx_count <= antch%<ant_channel>_burstrx_index))
+      {
+          // TODO:
+          // Validate check-sum
+
+          // Data available
+          dlen = size;
+          if (size > antch%<ant_channel>_burstrx_count) {
+              dlen = antch%<ant_channel>_burstrx_count;
+          }
+          memcpy(buffer, antch%<ant_channel>_burstrx_buffer, dlen);
+
+          // Clear
+          antch%<ant_channel>_burstrx_count = 0;
+          antch%<ant_channel>_burstrx_index = 0;
+          antch%<ant_channel>_burstrx_packet_id = 0;
+
+          // Return number of byte
+          return dlen;
+      }
+      else {
+          // No data available
+          return 0;
+      }
+  }
+
+  void antch%<ant_channel>_burstdata_receive (const uint8_t *buffer)
+  {
+      if (buffer[0] == 0)
+      {
+          antch%<ant_channel>_burstrx_sum = 0;
+          antch%<ant_channel>_burstrx_count = 0;
+          antch%<ant_channel>_burstrx_index = 0;
+          antch%<ant_channel>_burstrx_packet_id = 0;
+
+          // 0: PktIdx
+          // 1: DataCnt LSB
+          // 2: DataCnt MSB
+          antch%<ant_channel>_burstrx_count = (uint16_t)buffer[1] | (uint16_t)buffer[2]<<8;
+
+          // 3: DataSum LSB
+          // 4: DataSum MSB
+          antch%<ant_channel>_burstrx_chk = (uint16_t)buffer[3] | (uint16_t)buffer[4]<<8;
+
+          // 5: Reserved
+          // 6: Reserved
+          // 7: Reserved
+      }
+      else {
+          if ((antch%<ant_channel>_burstrx_packet_id  + 1) == (uint16_t)buffer[0])
+          {
+              antch%<ant_channel>_burstrx_packet_id ++;
+              memcpy (&antch%<ant_channel>_burstrx_buffer[antch%<ant_channel>_burstrx_index], &buffer[1], 7);
+              antch%<ant_channel>_burstrx_index += 7;
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[1];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[2];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[3];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[4];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[5];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[6];
+              antch%<ant_channel>_burstrx_sum += (uint16_t)buffer[7];
+          }
+      }
+  }
+
+  uint32_t antch%<ant_channel>_burstdata_send (uint8_t *buffer, uint16_t size)
+  {
+      uint8_t packet_idx, retry_count;
+      uint16_t data_idx, data_sum;
+      uint32_t err_code;
+      uint8_t burst_tx_packet[ANT_STANDARD_DATA_PAYLOAD_SIZE];
+
+      // Check if size if 0
+      if (size == 0) {
+          return NRF_SUCCESS;
+      }
+
+      // --- START ---
+      burst_tx_packet [0] = 0; // Indicate Packet Header
+      burst_tx_packet [1] = (uint8_t)(size & 0xFF);
+      burst_tx_packet [2] = (uint8_t)(size >> 8);
+      data_sum = 0;
+      for (data_idx = 0; data_idx < size; data_idx++)
+          data_sum += buffer[data_idx];
+      burst_tx_packet [3] = (uint8_t)(data_sum & 0xFF);
+      burst_tx_packet [4] = (uint8_t)(data_sum >> 8);
+      burst_tx_packet [5] = 0;
+      burst_tx_packet [6] = 0;
+      burst_tx_packet [7] = 0;
+
+      retry_count = 0;
+      do {
+          err_code = sd_ant_burst_handler_request(%<ant_channel>, 
+                            ANT_STANDARD_DATA_PAYLOAD_SIZE, 
+							burst_tx_packet,
+							BURST_SEGMENT_START);
+          if ((err_code != NRF_SUCCESS) && (err_code != NRF_ANT_ERROR_TRANSFER_IN_PROGRESS))
+          {
+              retry_count ++;
+          }
+      } while ((err_code != NRF_SUCCESS) && (retry_count < 8));
+      while (nrf5_ant_burst_wait != 0) {	}
+
+      // --- CONTINUE ---
+      data_idx = 0;
+      packet_idx = 1;
+      while ((err_code == NRF_SUCCESS) && (data_idx < size))
+      {
+          burst_tx_packet[0] = packet_idx;
+          if ((size - data_idx) >= 7) {
+              memcpy(&burst_tx_packet[1], &buffer[data_idx], 7);
+              data_idx += 7;
+          }
+          else {
+              memcpy(&burst_tx_packet[1], &buffer[data_idx], (size - data_idx));
+              data_idx += (size - data_idx);              
+          }
+
+          // Transmit packet
+          retry_count = 0;
+          do {
+		      err_code = sd_ant_burst_handler_request(%<ant_channel>, 
+                 ANT_STANDARD_DATA_PAYLOAD_SIZE, 
+                 burst_tx_packet, 
+                 BURST_SEGMENT_CONTINUE);
+              if ((err_code != NRF_SUCCESS) && (err_code != NRF_ANT_ERROR_TRANSFER_IN_PROGRESS))
+              {
+                  retry_count ++;
+              }
+          } while ((err_code != NRF_SUCCESS) && (retry_count < 8));
+          while (nrf5_ant_burst_wait != 0) {	}
+
+          // Increase packet index
+          packet_idx ++;
+      }
+
+      // --- END ---
+      retry_count = 0;
+      do {
+	      err_code = sd_ant_burst_handler_request(%<ant_channel>, 
+                 ANT_STANDARD_DATA_PAYLOAD_SIZE, 
+                 burst_tx_packet, 
+                 BURST_SEGMENT_END);
+          if ((err_code != NRF_SUCCESS) && (err_code != NRF_ANT_ERROR_TRANSFER_IN_PROGRESS))
+          {
+              retry_count ++;
+          }
+      } while ((err_code != NRF_SUCCESS) && (retry_count < 8));
+      while (nrf5_ant_burst_wait != 0) {	}
+
+      return err_code;
+  }
+%endif
+
+%if (ant_channel_type == "Shared Master") || (ant_channel_type == "Shared Slave")
+%if timeoutreset_enable == "1"
+uint8_t %<blockid>_Search_Timeout;
+SYS_TIMER_STRUCT %<blockid>_Timer = {0,0};
+%endif
+uint8_t %<blockid>_EVENT_RX = 0;
+uint8_t %<blockid>_EVENT_TX = 0;
+uint8_t %<blockid>_Tx_Buffer[8];
+uint8_t %<blockid>_Rx_Buffer[12];
+
+%if (ant_channel_type == "Shared Slave")
+static uint8_t %<blockid>_need_id_set = 1;
+void %<blockid>_ShareID_Set(void)
+{
+  uint32_t err_code;
+  if (%<blockid>_need_id_set != 0) {
+    %<blockid>_need_id_set = 0;
+    err_code = sd_ant_broadcast_message_tx(CHANNEL_%<ant_channel>, 8, %<blockid>_Tx_Buffer);
+    APP_ERROR_CHECK(err_code);
+  }
+}
+%endif
+
+uint8_t %<blockid>_Get_EVENT(void)
+{
+  uint32_t err_code;
+  uint8_t ev;
+
+  %if timeoutreset_enable == "1"
+  /* Search timout check */
+  if ((%<blockid>_Search_Timeout != 0) && (SysTimer_IsTimeout(&%<blockid>_Timer))) {
+    %<blockid>_Search_Timeout = 0;
+    err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+    APP_ERROR_CHECK(err_code);
+    %if (ant_channel_type == "Shared Slave")
+      %<blockid>_need_id_set = 1;
+    %endif
+  }
+  %endif
+
+  if (%<blockid>_EVENT_TX != 0) {
+    %<blockid>_EVENT_TX = 0;
+    ev = EVENT_TX;
+  }
+  else if (%<blockid>_EVENT_RX != 0) {
+    %<blockid>_EVENT_RX = 0;
+    ev = EVENT_RX;
+  }
+  else {
+    ev = 0;
+  }
+
+  //ev = %<blockid>_EVENT;
+  //%<blockid>_EVENT = 0; // Clear event
+  return ev;
+}
+%endif
+
+%if (ant_channel_type == "Master (Tx only)") || (ant_channel_type == "Master")
+  uint8_t %<blockid>_Buffer[8];
+%endif
+%if (ant_channel_type == "Slave (Rx only)") || (ant_channel_type == "Slave")
+  uint8_t %<blockid>_Buffer[8] = {0,0,0,0,0,0,0,0};
+  uint8_t %<blockid>_Pending = 0;
+
+  %if timeoutreset_enable == "1"
+  uint8_t %<blockid>_Search_Timeout;
+  SYS_TIMER_STRUCT %<blockid>_Timer = {0,0};
+  %endif
+  uint8_t %<blockid>_PENDING(void)
+  {
+    uint32_t err_code;
+
+    %if timeoutreset_enable == "1"   
+    /* Search timout check */
+    if ((%<blockid>_Search_Timeout != 0) && (SysTimer_IsTimeout(&%<blockid>_Timer))) {
+      %<blockid>_Search_Timeout = 0;
+      // Re-Open channel.
+      err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+      APP_ERROR_CHECK(err_code);
+    }
+    %endif
+
+    /* Return number pending status */
+    return %<blockid>_Pending;
+  }
+
+  void %<blockid>_GetBuffer(uint8_t *buffer)
+  {
+    if (%<blockid>_Pending == 0) {
+      return; // No buffer
+    }
+    else {
+      memcpy(buffer, &%<blockid>_Buffer[0], 8);
+      %<blockid>_Pending = 0;
+    }
+  }
+%endif
+
+%if enablerssi == "on"
+int %<blockid>_last_rssi = 0;
+%endif
+void %<blockid>_Event_Handler(uint8_t channel, uint8_t event, uint8_t *buffer)
+{
+    %% === Master Tx ===
+    %if ant_channel_type == "Master (Tx only)"
+    uint32_t err_code;
+    switch (event)
+    {
+        // ANT broadcast success.
+        // Send a new broadcast and increment the counter.
+        case EVENT_TX:
+            
+            // Broadcast the data. 
+            err_code = sd_ant_broadcast_message_tx(CHANNEL_%<ant_channel>, 
+                                                   8, 
+                                                   %<blockid>_Buffer);
+            APP_ERROR_CHECK(err_code);
+            break;
+    }
+    %endif
+    %% === Slave Rx ====
+    %if ant_channel_type == "Slave (Rx only)"
+    switch (event)
+    {
+        /* Data Rx */
+        case EVENT_RX:
+            switch (buffer[1])
+            {
+                /* Broadcast data recieved */
+                case MESG_BROADCAST_DATA_ID:
+                {
+                    %if enablerssi == "on"
+                    ANT_MESSAGE * p_ant_message = (ANT_MESSAGE*)buffer;
+                    // RSSI
+                    if (p_ant_message->ANT_MESSAGE_stExtMesgBF.bANTRssi)
+                    {
+                       %<blockid>_last_rssi = (int)((signed char)(p_ant_message->ANT_MESSAGE_aucExtData[1]));
+                    }
+                    %endif
+                    // Data
+                    memcpy(&%<blockid>_Buffer[0], &buffer[3], 8);
+                    %if enablerssi == "on"
+                    memcpy(&%<blockid>_Buffer[8], &%<blockid>_last_rssi, 4);
+                    %endif
+                    %<blockid>_Pending = 1;
+                    
+                    break;
+                 }
+           }
+           break;
+        /* Search timeout */
+        case EVENT_RX_SEARCH_TIMEOUT:
+            %if timeoutreset_enable == "1"
+            %<blockid>_Search_Timeout = 1; /* Activate timeout */
+            SysTimer_Start(&%<blockid>_Timer, %<timeoutreset_timer>); /* Start timer for timeout reset: %<timeoutreset_enable>ms */
+            %endif
+            break;
+    }
+    %endif
+
+    %% === Shared Master ===
+    %if (ant_channel_type == "Shared Master") || ant_channel_type == "Shared Slave"
+    uint32_t err_code;
+    switch (event)
+    {
+        case EVENT_TX:
+            // Broadcast the data. 
+            err_code = sd_ant_broadcast_message_tx(CHANNEL_%<ant_channel>, 8, %<blockid>_Tx_Buffer);
+            APP_ERROR_CHECK(err_code);
+            %<blockid>_EVENT_TX = 1;
+            break;
+
+        case EVENT_RX:
+            switch (buffer[1])
+            {
+                %%/* Broadcast data recieved */
+                %%case MESG_BROADCAST_DATA_ID:
+                %%    memcpy(&%<blockid>_Rx_Buffer[0], &buffer[3], 8);
+                %%    %<blockid>_EVENT_RX = 1;
+                %%    break;
+
+                /* Broadcast data recieved */
+                case MESG_BROADCAST_DATA_ID:
+                {
+                    %if enablerssi == "on"
+                    ANT_MESSAGE * p_ant_message = (ANT_MESSAGE*)buffer;
+                    // RSSI
+                    if (p_ant_message->ANT_MESSAGE_stExtMesgBF.bANTRssi)
+                    {
+                       %<blockid>_last_rssi = (int)((signed char)(p_ant_message->ANT_MESSAGE_aucExtData[1]));
+                    }
+                    %endif
+                    // Data
+                    memcpy(&%<blockid>_Rx_Buffer[0], &buffer[3], 8);
+                    %if enablerssi == "on"
+                    memcpy(&%<blockid>_Rx_Buffer[8], &%<blockid>_last_rssi, 4);
+                    %endif
+                    %<blockid>_EVENT_RX = 1;
+                    
+                    break;
+                 }
+            }
+            break;
+
+        case EVENT_CHANNEL_CLOSED:
+            %if timeoutreset_enable == "1"
+            %<blockid>_Search_Timeout = 1; /* Activate timeout */
+            SysTimer_Start(&%<blockid>_Timer, %<timeoutreset_timer>); /* Start timer for timeout reset: %<timeoutreset_enable>ms */
+            %endif
+            break; 
+    }
+
+    // Update event
+    //%<blockid>_EVENT = event;   
+    %endif
+
+    %% === Master/ Slave ===
+    %if (ant_channel_type == "Slave") || (ant_channel_type == "Master")
+    uint32_t err_code;
+	const uint8_t *rxdata = &buffer[BUFFER_INDEX_MESG_DATA];
+	
+	switch (buffer[BUFFER_INDEX_MESG_ID])
+	{
+		// 
+		case MESG_BROADCAST_DATA_ID:
+        {
+            %if (ant_channel_type == "Slave")
+              %if enablerssi == "on"
+              ANT_MESSAGE * p_ant_message = (ANT_MESSAGE*)buffer;
+              // RSSI
+              if (p_ant_message->ANT_MESSAGE_stExtMesgBF.bANTRssi) {
+                %<blockid>_last_rssi = (int)(p_ant_message->ANT_MESSAGE_aucExtData[5]);
+              }
+              %endif
+              // Data
+              memcpy(&%<blockid>_Buffer[0], &buffer[3], 8);
+              %if enablerssi == "on"
+              memcpy(&%<blockid>_Buffer[8], &%<blockid>_last_rssi, 4);
+              %endif
+              %<blockid>_Pending = 1;
+            %endif
+			break;
+		}
+		//
+		case MESG_ACKNOWLEDGED_DATA_ID:
+			break;
+		
+		//
+		case MESG_BURST_DATA_ID:
+        case MESG_ADV_BURST_DATA_ID:
+            %if (burst_rxbuffer_size != "") && (burst_rxbuffer_size != "None")
+            antch%<ant_channel>_burstdata_receive (rxdata);
+            %endif
+			break;
+		
+		// 
+		case MESG_RESPONSE_EVENT_ID:
+			switch (buffer[BUFFER_INDEX_RESPONSE_CODE])
+            {
+				case EVENT_TRANSFER_TX_FAILED:
+					break;
+					
+				case EVENT_TRANSFER_RX_FAILED:
+					break;
+					
+				case EVENT_TRANSFER_TX_COMPLETED:
+					break;
+					
+				case EVENT_TX:
+                    %if (ant_channel_type == "Master")
+                    // Broadcast the data. 
+                    err_code = sd_ant_broadcast_message_tx(CHANNEL_%<ant_channel>, 
+                                                       8, 
+                                                       %<blockid>_Buffer);
+                    APP_ERROR_CHECK(err_code);				
+                    %endif	
+					break;
+					
+				case EVENT_CHANNEL_CLOSED:
+                    %if (ant_channel_type == "Slave") && (timeoutreset_enable == "1")
+                    %<blockid>_Search_Timeout = 1; /* Activate timeout */
+                    SysTimer_Start(&%<blockid>_Timer, %<timeoutreset_timer>); /* Start timer for timeout reset: %<timeoutreset_enable>ms */
+                    %endif	
+					break;
+					
+				default:
+					break;
+			}
+			break;
+	 }
+    %endif
+}
+
+%if load_devicenum_nvm == "on"
+#define LOAD_DEVICE_NUMBER_NVM     1
+%else
+#define LOAD_DEVICE_NUMBER_NVM     0        
+%endif
+#define DEFAULT_CHANNEL%<ant_channel>_CHAN_ID_DEV_NUM   %<channel_devnum>
+uint8_t CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM = DEFAULT_CHANNEL%<ant_channel>_CHAN_ID_DEV_NUM;
+void %<blockid>_Update_Device_Number (void)
+{
+    if (LOAD_DEVICE_NUMBER_NVM)
+    {
+        uint32_t device_num_setting;
+
+        // Load setting value from Flash
+        device_num_setting = *((uint32_t *)0x3D800);
+        
+        // Validate setting
+        if ((device_num_setting & 0xFFFFFF00) == 0xAA550000)
+            CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM = (uint8_t)(device_num_setting & 0xFF);
+        else
+            CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM = DEFAULT_CHANNEL%<ant_channel>_CHAN_ID_DEV_NUM;
+    }
+    else
+    {
+        CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM = DEFAULT_CHANNEL%<ant_channel>_CHAN_ID_DEV_NUM;
+    }
+}
+
+static uint8_t %<blockid>_network_key[] = %<blockid>_NETWORK_KEY;
+void enable_%<blockid>(void){    
+    uint32_t err_code;
+
+    %if enablerssi == "on"
+    // Enable RSSI
+    ant_enale_rssi();
+    %endif
+
+    // Update device number setting
+    %<blockid>_Update_Device_Number ();
+
+    // Register Handler
+    ant_event_assign_handler(CHANNEL_%<ant_channel>, %<blockid>_Event_Handler);
+
+    err_code = sd_ant_network_address_set(%<blockid>_NETWORK_NUMBER, %<blockid>_network_key);
+    APP_ERROR_CHECK(err_code);  
+
+    %% === Master Tx ===
+    %if (ant_channel_type == "Master (Tx only)") || (ant_channel_type == "Master")
+      // Set Channel Number
+      err_code = sd_ant_channel_assign(CHANNEL_%<ant_channel>, 
+                                     %if (ant_channel_type == "Master (Tx only)")
+                                     CHANNEL_TYPE_MASTER_TX_ONLY, 
+                                     %else
+                                     CHANNEL_TYPE_MASTER,
+                                     %endif
+                                     %<blockid>_NETWORK_NUMBER, 
+                                     CHANNEL_%<ant_channel>_ANT_EXT_ASSIGN);
+    
+      APP_ERROR_CHECK(err_code);
+
+      // Set Channel ID. 
+      err_code = sd_ant_channel_id_set(CHANNEL_%<ant_channel>, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_TRANS_TYPE);
+      APP_ERROR_CHECK(err_code);
+
+      err_code = sd_ant_channel_radio_freq_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_FREQ);
+      APP_ERROR_CHECK(err_code);
+    
+      err_code = sd_ant_channel_period_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_PERIOD);
+      APP_ERROR_CHECK(err_code);
+
+      // Open channel.
+      err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+      APP_ERROR_CHECK(err_code);
+
+      // Initiate the broadcast loop by sending a packet on air, 
+      // then start waiting for an event on this broadcast message.
+      //err_code = sd_ant_broadcast_message_tx(CHANNEL_%<ant_channel>, 8, %<blockid>_Buffer);
+      //APP_ERROR_CHECK(err_code);
+   
+    %endif
+
+    %% === Slave Rx ====
+    %if (ant_channel_type == "Slave (Rx only)") || (ant_channel_type == "Slave")
+      // Reset pending status
+      %<blockid>_Pending = 0;
+      %if timeoutreset_enable == "1"
+      %<blockid>_Search_Timeout = 0;
+      %endif
+      // Set Channel Number.
+      err_code = sd_ant_channel_assign(CHANNEL_%<ant_channel>, 
+                                     %if (ant_channel_type == "Slave (Rx only)")
+                                     CHANNEL_TYPE_SLAVE_RX_ONLY, 
+                                     %else
+                                     CHANNEL_TYPE_SLAVE, 
+                                     %endif
+                                     ANT_CHANNEL_DEFAULT_NETWORK, 
+                                     CHANNEL_%<ant_channel>_ANT_EXT_ASSIGN);
+      APP_ERROR_CHECK(err_code);
+
+      // Set Channel ID.
+      err_code = sd_ant_channel_id_set(CHANNEL_%<ant_channel>, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE, 
+                                     CHANNEL_%<ant_channel>_CHAN_ID_TRANS_TYPE);
+      APP_ERROR_CHECK(err_code);
+
+      err_code = sd_ant_channel_radio_freq_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_FREQ);
+      APP_ERROR_CHECK(err_code);
+    
+      err_code = sd_ant_channel_period_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_PERIOD);
+      APP_ERROR_CHECK(err_code);
+
+      // Open channel.
+      err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+      APP_ERROR_CHECK(err_code); 
+    %endif
+
+    %% === Burst Mode Configure
+    %if (burst_rxbuffer_size != "") && (burst_rxbuffer_size != "None")
+      %%// Burst setup
+      %%nrf5_ant_burst_configure();
+      %%err_code = sd_ant_adv_burst_config_set(%<blockid>_burst_setup, sizeof(%<blockid>_burst_setup));
+      %%APP_ERROR_CHECK(err_code);
+	  %%err_code = sd_ant_burst_handler_wait_flag_enable(&%<blockid>_burst_wait);
+	  %%APP_ERROR_CHECK(err_code);	          
+    %endif       
+
+    %% === Shared Master ====
+    %if (ant_channel_type == "Shared Master")
+	  // Set Channel Number.
+	  err_code = sd_ant_channel_assign(CHANNEL_%<ant_channel>, 
+                                   CHANNEL_TYPE_SHARED_MASTER, 
+                                   ANT_CHANNEL_DEFAULT_NETWORK, 
+                                   0 /* CHANNEL_ANT_EXT_ASSIGN */ );
+      APP_ERROR_CHECK(err_code);
+
+      // Set Channel ID.
+      err_code = sd_ant_channel_id_set(CHANNEL_%<ant_channel>, 
+                                   CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM, 
+                                   CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE, 
+                                   %<share_address_bytes>);
+      APP_ERROR_CHECK(err_code);
+	
+      // Frequency
+      err_code = sd_ant_channel_radio_freq_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_FREQ);
+      APP_ERROR_CHECK(err_code);
+    
+      // Period
+      err_code = sd_ant_channel_period_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_PERIOD);
+      APP_ERROR_CHECK(err_code);	
+
+	  // Open channel.
+      err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+      APP_ERROR_CHECK(err_code);
+    %endif
+
+    %% === Shared Slave ====
+    %if ant_channel_type == "Shared Slave"
+	  // Set Channel Number.
+	  err_code = sd_ant_channel_assign(CHANNEL_%<ant_channel>, 
+                                   CHANNEL_TYPE_SHARED_SLAVE, 
+                                   ANT_CHANNEL_DEFAULT_NETWORK, 
+                                   0 /* CHANNEL_ANT_EXT_ASSIGN */ );
+      APP_ERROR_CHECK(err_code);
+
+      // Set Channel ID.
+      err_code = sd_ant_channel_id_set(CHANNEL_%<ant_channel>, 
+                                   CHANNEL_%<ant_channel>_CHAN_ID_DEV_NUM, 
+                                   CHANNEL_%<ant_channel>_CHAN_ID_DEV_TYPE, 
+                                   %<share_address_bytes>);
+      APP_ERROR_CHECK(err_code);
+	
+      // Frequency
+      err_code = sd_ant_channel_radio_freq_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_FREQ);
+      APP_ERROR_CHECK(err_code);
+    
+      // Period
+      err_code = sd_ant_channel_period_set(CHANNEL_%<ant_channel>, CHANNEL_%<ant_channel>_CHANNEL_PERIOD);
+      APP_ERROR_CHECK(err_code);	
+
+	  // Open channel.
+      err_code = sd_ant_channel_open(CHANNEL_%<ant_channel>);
+      APP_ERROR_CHECK(err_code);
+    %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+  %% === Master Tx ===
+  %if (ant_channel_type == "Master (Tx only)") || (ant_channel_type == "Master")
+  {
+      %assign buffer_index = 0
+      %foreach idx=LibBlockNumInputPorts(block)
+          %assign dtid = LibBlockInputSignalDataTypeId(idx)
+          %assign dtname = LibBlockInputSignalDataTypeName(idx,tRealPart)
+          memcpy(&%<blockid>_Buffer[%<buffer_index>],  %<LibBlockInputSignalAddr(idx, "", "", 0)>, sizeof(%<dtname>)); /* D%<idx>: %<dtname> */
+          %switch dtid
+            %case 0
+              %assign buffer_index = buffer_index + 8
+              %break
+            %case 1
+              %assign buffer_index = buffer_index + 4
+              %break
+            %case 2
+              %assign buffer_index = buffer_index + 1
+              %break
+            %case 3
+              %assign buffer_index = buffer_index + 1
+              %break
+            %case 4
+              %assign buffer_index = buffer_index + 2
+              %break
+            %case 5
+              %assign buffer_index = buffer_index + 2
+              %break
+            %case 6
+              %assign buffer_index = buffer_index + 4
+              %break
+            %case 7
+              %assign buffer_index = buffer_index + 4
+              %break
+          %endswitch
+      %endforeach
+  }
+  %endif
+
+  %% === Slave Rx ===
+  %if (ant_channel_type == "Slave (Rx only)") || (ant_channel_type == "Slave")
+  {
+    uint8_t pending = %<blockid>_PENDING();
+    uint8_t buffer[12];
+
+    %assign READY = LibBlockOutputSignal(0, "", "", 0)
+    %<READY> = pending; /* Read-clear 1 */
+    if (pending > 0) {
+      %<blockid>_GetBuffer(buffer);
+      %assign buffer_index = 0
+      %foreach idx=LibBlockNumOutputPorts(block)
+        %if idx > 0
+          %assign dtid = LibBlockOutputSignalDataTypeId(idx)
+          %assign dtname = LibBlockOutputSignalDataTypeName(idx,tRealPart)
+          memcpy(%<LibBlockOutputSignalAddr(idx, "", "", 0)>, &buffer[%<buffer_index>], sizeof(%<dtname>)); /* D%<idx>: %<dtname> */
+          %switch dtid
+            %case 0
+              %assign buffer_index = buffer_index + 8
+              %break
+            %case 1
+              %assign buffer_index = buffer_index + 4
+              %break
+            %case 2
+              %assign buffer_index = buffer_index + 1
+              %break
+            %case 3
+              %assign buffer_index = buffer_index + 1
+              %break
+            %case 4
+              %assign buffer_index = buffer_index + 2
+              %break
+            %case 5
+              %assign buffer_index = buffer_index + 2
+              %break
+            %case 6
+              %assign buffer_index = buffer_index + 4
+              %break
+            %case 7
+              %assign buffer_index = buffer_index + 4
+              %break
+          %endswitch
+        %endif
+      %endforeach
+    }
+  }
+  %endif
+
+  %% === Shared Master/ Shared Slave === 
+  %if (ant_channel_type == "Shared Master") || (ant_channel_type == "Shared Slave")
+  {
+    %% --- Input ---
+    // Input
+    %assign buffer_index = 0
+    %foreach idx=LibBlockNumInputPorts(block)
+        %assign dtid = LibBlockInputSignalDataTypeId(idx)
+        %assign dtname = LibBlockInputSignalDataTypeName(idx,tRealPart)
+        memcpy(&%<blockid>_Tx_Buffer[%<buffer_index>], %<LibBlockInputSignalAddr(idx, "", "", 0)>, sizeof(%<dtname>)); /* In D%<idx>: %<dtname> */
+        %if dtid == 0
+          %assign buffer_index = buffer_index + 8
+        %elseif (dtid == 1) || (dtid == 6) || (dtid == 7)
+          %assign buffer_index = buffer_index + 4
+        %elseif (dtid == 2) || (dtid == 3)
+          %assign buffer_index = buffer_index + 1
+        %elseif (dtid == 4) || (dtid == 5)
+          %assign buffer_index = buffer_index + 2
+        %endif
+    %endforeach
+    %% --- Output ---
+    // Output
+    %assign EVENT = LibBlockOutputSignal(0, "", "", 0)
+    %<EVENT> = %<blockid>_Get_EVENT();
+    %assign buffer_index = 0
+    %foreach idx=LibBlockNumOutputPorts(block)
+      %if idx > 0
+        %assign dtid = LibBlockOutputSignalDataTypeId(idx)
+        %assign dtname = LibBlockOutputSignalDataTypeName(idx,tRealPart)
+        memcpy(%<LibBlockOutputSignalAddr(idx, "", "", 0)>, &%<blockid>_Rx_Buffer[%<buffer_index>], sizeof(%<dtname>)); /* Out D%<idx>: %<dtname> */
+        %if dtid == 0
+          %assign buffer_index = buffer_index + 8
+        %elseif (dtid == 1) || (dtid == 6) || (dtid == 7)
+          %assign buffer_index = buffer_index + 4
+        %elseif (dtid == 2) || (dtid == 3)
+          %assign buffer_index = buffer_index + 1
+        %elseif (dtid == 4) || (dtid == 5)
+          %assign buffer_index = buffer_index + 2
+        %endif
+      %endif
+    %endforeach
+    %if (ant_channel_type == "Shared Slave")
+    // Setup slave ID
+    %<blockid>_ShareID_Set();
+    %endif
+  }
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

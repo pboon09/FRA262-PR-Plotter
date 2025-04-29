@@ -1,0 +1,192 @@
+%implements stm32f4_ps2j "C"
+
+%selectfile NULL_FILE
+
+%function AddParametersToBlock(block) void
+   %assign portstr = CAST("String",ParamSettings.portstr)
+   %assign pinstr = CAST("String",ParamSettings.pinstr)
+   %assign blockname = CAST("String",ParamSettings.blockname)
+
+   %assign block = block + portstr + pinstr + blockname
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<AddParametersToBlock(block)> %% define global parameters for each block instance
+
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+      void PS2J_%<blockname>_TransferData(SPI_Device* SPI_PS2, unsigned char* Data_Byte);
+      unsigned char PS2J_SPI_Transfer(SPI_Device* SPI_PS2, unsigned char Data_Transmit);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void PS2J_%<blockname>_TransferData(SPI_Device* SPI_PS2, unsigned char* Data_Byte) {
+        SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->ChipSelect_Pin + 16);
+        SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->MOSI_Pin + 16);
+
+        PS2J_SPI_Transfer(SPI_PS2, 0x01);
+        Data_Byte[6] = PS2J_SPI_Transfer(SPI_PS2, 0x42);
+        PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[0] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[1] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[2] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[3] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[4] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+        Data_Byte[5] = PS2J_SPI_Transfer(SPI_PS2, 0x00);
+
+        SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->MOSI_Pin);
+        SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->ChipSelect_Pin);
+      }
+
+      unsigned char PS2J_SPI_Transfer(SPI_Device* SPI_PS2, unsigned char Data_Transmit) {
+        unsigned char Data_Receive=0, Data_Bit=0, i=0;
+      
+        for(Data_Bit=0; Data_Bit<8; Data_Bit++) {
+          SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->Clock_Pin + 16);	  
+	      if(((Data_Transmit>>Data_Bit)&0x01) == 0x01) SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->MOSI_Pin);
+	      else SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->MOSI_Pin + 16);
+	      Wait(10);
+	      SPI_PS2->Port[BSRR] |= 1<<(SPI_PS2->Clock_Pin);	 
+	      if((SPI_PS2->Port[IDR]&(1<<(SPI_PS2->MISO_Pin))) == (1<<(SPI_PS2->MISO_Pin))) Data_Receive |= (unsigned char)(1<<Data_Bit);
+	      Wait(10);  
+        }
+
+        delay_usec(10);
+
+        return Data_Receive;
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<AddParametersToBlock(block)> %% define global parameters for each block instance
+
+   %openfile tmpBuf
+      /* SPI Object for PS2 %<blockname> */
+      SPI_Device PS2J_%<blockname>_Device;
+
+      /* Data buffer for PS2 %<blockname> */
+      PS2J_%<blockname>_buf_type PS2J_%<blockname>_buf;
+
+      void enable_%<blockid>(SPI_Device* SPI_PS2, unsigned long SPI_Port, unsigned char Clock, unsigned char MISO, unsigned char MOSI, unsigned char ChipSelect) { 
+         
+         *(unsigned long*)(RCC_BASE + 0x18) |= 1<<((SPI_Port&0xFFFF)>>10);
+
+         SPI_PS2->Port = (unsigned long*)SPI_Port;
+         SPI_PS2->Clock_Pin = Clock;
+         SPI_PS2->MISO_Pin = MISO;
+         SPI_PS2->MOSI_Pin = MOSI;
+         SPI_PS2->ChipSelect_Pin = ChipSelect;		  
+
+         SPI_PS2->Port[CRL] |= (Clock<8?3<<(Clock*4):0) | (MISO<8?8<<(MISO*4):0) | (MOSI<8?3<<(MOSI*4):0) | (ChipSelect<8?3<<(ChipSelect*4):0);
+         SPI_PS2->Port[CRH] |= (Clock<8?0:3<<(Clock-8)*4) | (MISO<8?0:8<<(MISO-8)*4) | (MOSI<8?0:3<<(MOSI-8)*4) | (ChipSelect<8?0:3<<(ChipSelect-8)*4);
+         SPI_PS2->Port[ODR] |= 1<<MISO;
+         SPI_PS2->Port[BSRR] = (1<<Clock) | (1<<MOSI) | (1<<ChipSelect);
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+      void disable_%<blockid>(SPI_Device* SPI_PS2, unsigned long SPI_Port, unsigned char Clock, unsigned char MISO, unsigned char MOSI, unsigned char ChipSelect) {          
+         *(unsigned long*)(RCC_BASE + 0x18) |= 1<<((SPI_Port&0xFFFF)>>10);
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      extern SPI_Device PS2J_%<blockname>_Device;
+
+      extern PS2J_%<blockname>_buf_type PS2J_%<blockname>_buf;
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+   %<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+   %openfile tmpBuf
+      #define Wait(x) for(i=0; i<x; i++)
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+   %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+   %openfile tmpBuf
+      enum {CRL, CRH, IDR, ODR, BSRR, BRR, LCKR};	 
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cEnums")>
+   %<LibSetSourceFileCustomSection(file,"cEnums",tmpBuf)>
+   
+   %openfile tmpBuf
+      typedef struct SPI_Device {
+         volatile unsigned long* Port;
+         unsigned char Clock_Pin, MISO_Pin, MOSI_Pin, ChipSelect_Pin;
+      }SPI_Device;
+
+      struct PS2J_%<blockname>_buf_struct {
+         unsigned char JoyStick_Byte[6];
+         unsigned char Info_Data;
+      };
+
+      typedef struct PS2J_%<blockname>_buf_struct PS2J_%<blockname>_buf_type;
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cTypes")>
+   %<LibSetSourceFileCustomSection(file,"cTypes",tmpBuf)>
+   
+   %openfile tmpBuf
+      void enable_%<blockid>(SPI_Device* SPI_PS2, unsigned long SPI_Port, unsigned char Clock, unsigned char MISO, unsigned char MOSI, unsigned char ChipSelect); /* %<blockid> */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+/* %<Type> Block: %<Name> */
+
+   /* Transfer PS2 Joystick Data to a temporary buffer */
+   PS2J_%<blockname>_TransferData(&PS2J_%<blockname>_Device, (unsigned char*)&PS2J_%<blockname>_buf);
+
+   /* Load data to output port */
+   %assign DeviceInfo = LibBlockOutputSignal(0, "", "", 0)
+   %<DeviceInfo> = PS2J_%<blockname>_buf.Info_Data;
+
+   %assign rollVars = ["Y"] %% roll output only
+   %roll Idx = [1:6], lcv = 20, block, "Roller", rollVars
+      %<LibBlockOutputSignal(Idx, "", lcv, 0)> = \
+      PS2J_%<blockname>_buf.JoyStick_Byte[%<lcv == "" ? Idx-1 : lcv-1>];
+   %endroll
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>(&PS2J_%<blockname>_Device, GPIO%<portstr>_BASE, %<pinstr>);
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>(&PS2J_%<blockname>_Device, GPIO%<portstr>_BASE, %<pinstr>);
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   /* terminate_%<blockid>(); */
+%endfunction

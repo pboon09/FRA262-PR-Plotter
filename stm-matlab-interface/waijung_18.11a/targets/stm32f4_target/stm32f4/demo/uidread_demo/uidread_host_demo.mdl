@@ -1,0 +1,817 @@
+Model {
+  Name			  "uidread_host_demo"
+  Version		  7.3
+  MdlSubVersion		  0
+  GraphicalInterface {
+    NumRootInports	    0
+    NumRootOutports	    0
+    ParameterArgumentNames  ""
+    ComputedModelVersion    "1.23"
+    NumModelReferences	    0
+    NumTestPointedSignals   0
+  }
+  SavedCharacterEncoding  "windows-874"
+  PreLoadFcn		  "waijung.modelPreload; % Required for working with Waijung Blockset. Do not remove."
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  CloseFcn		  "waijung.modelClose; % Required for working with Waijung Blockset. Do not remove."
+  Created		  "Sat Dec 08 13:01:29 2012"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Fri Mar 29 16:34:30 2013"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:23>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  on
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "all"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  on
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  BufferReuse		  on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "SingleTasking"
+	  Solver		  "FixedStepDiscrete"
+	  SolverName		  "FixedStepDiscrete"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode on
+	  LifeSpan		  "1"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "LittleEndian"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "LittleEndian"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  SystemTargetFile	  "stm32f4.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  off
+	  TemplateMakefile	  "ert_default_tmf"
+	  Description		  "STM32F4 Target"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ProcessScript		  "stm32f4_make_rtw_hook"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses off
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.STFCustomTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant off
+	      ParMdlRefBuildCompliant off
+	      CompOptLevelCompliant   off
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns on
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    on
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      off
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   off
+	      SupportNonInlinedSFcns  off
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      SystemTargetFile	      "stm32f4.tlc"
+	      DialogCategory	      0
+	      Array {
+		Type			"Handle"
+		Dimension		1
+		Simulink.ERTTargetCC {
+		  $BackupClass		  "Simulink.TargetCC"
+		  $ObjectID		  12
+		  Version		  "1.6.0"
+		  TargetFcnLib		  "ansi_tfl_table_tmw.mat"
+		  TargetLibSuffix	  ""
+		  TargetPreCompLibLocation ""
+		  TargetFunctionLibrary	  "ANSI_C"
+		  UtilityFuncGeneration	  "Auto"
+		  ERTMultiwordTypeDef	  "System defined"
+		  ERTMultiwordLength	  256
+		  MultiwordLength	  2048
+		  GenerateFullHeader	  on
+		  GenerateSampleERTMain	  off
+		  GenerateTestInterfaces  off
+		  IsPILTarget		  off
+		  ModelReferenceCompliant off
+		  ParMdlRefBuildCompliant off
+		  CompOptLevelCompliant	  off
+		  IncludeMdlTerminateFcn  on
+		  CombineOutputUpdateFcns on
+		  SuppressErrorStatus	  off
+		  ERTFirstTimeCompliant	  off
+		  IncludeFileDelimiter	  "Auto"
+		  ERTCustomFileBanners	  on
+		  SupportAbsoluteTime	  on
+		  LogVarNameModifier	  "rt_"
+		  MatFileLogging	  off
+		  MultiInstanceERTCode	  off
+		  SupportNonFinite	  on
+		  SupportComplex	  on
+		  PurelyIntegerCode	  off
+		  SupportContinuousTime	  off
+		  SupportNonInlinedSFcns  off
+		  EnableShiftOperators	  on
+		  ParenthesesLevel	  "Nominal"
+		  PortableWordSizes	  off
+		  ModelStepFunctionPrototypeControlCompliant off
+		  CPPClassGenCompliant	  off
+		  AutosarCompliant	  off
+		  GenerateErtSFunction	  off
+		  GenerateASAP2		  off
+		  ExtMode		  off
+		  ExtModeTransport	  0
+		  ExtModeStaticAlloc	  off
+		  ExtModeStaticAllocSize  1000000
+		  ExtModeTesting	  off
+		  ExtModeMexFile	  "noextcomm"
+		  ExtModeIntrfLevel	  "Level1"
+		  InlinedParameterPlacement "NonHierarchical"
+		  TargetOS		  "BareBoardExample"
+		  MultiInstanceErrorCode  "Error"
+		  RateGroupingCode	  on
+		  RootIOFormat		  "Individual arguments"
+		  RTWCAPISignals	  off
+		  RTWCAPIParams		  off
+		  RTWCAPIStates		  off
+		  ERTSrcFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTHdrFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTDataSrcFileTemplate  "stm32f4_code_template.cgt"
+		  ERTDataHdrFileTemplate  "stm32f4_code_template.cgt"
+		  ERTCustomFileTemplate	  "stm32f4_file_process.tlc"
+		  ModuleNamingRule	  "Unspecified"
+		  SignalDisplayLevel	  10
+		  ParamTuneLevel	  10
+		  GlobalDataDefinition	  "Auto"
+		  DataDefinitionFile	  "global.c"
+		  GlobalDataReference	  "Auto"
+		  DataReferenceFile	  "global.h"
+		  GRTInterface		  off
+		  PreserveExpressionOrder off
+		  PreserveIfCondition	  off
+		  EnableUserReplacementTypes off
+		  Array {
+		    Type		    "Struct"
+		    Dimension		    1
+		    MATStruct {
+		    double		    ""
+		    single		    ""
+		    int32		    ""
+		    int16		    ""
+		    int8		    ""
+		    uint32		    ""
+		    uint16		    ""
+		    uint8		    ""
+		    boolean		    ""
+		    int			    ""
+		    uint		    ""
+		    char		    ""
+		    }
+		    PropName		    "ReplacementTypes"
+		  }
+		  MemSecPackage		  "--- None ---"
+		  MemSecDataConstants	  "Default"
+		  MemSecDataIO		  "Default"
+		  MemSecDataInternal	  "Default"
+		  MemSecDataParameters	  "Default"
+		  MemSecFuncInitTerm	  "Default"
+		  MemSecFuncExecute	  "Default"
+		}
+		PropName		"Components"
+	      }
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "stm32f4_configset"
+      ExtraOptions	      "-aGenerateTraceInfo=0 -aIgnoreTestpoints=0 "
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 520, 225, 1400, 855 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  Simulink.ConfigSet {
+    $PropName		    "ActiveConfigurationSet"
+    $ObjectID		    1
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      Display
+      Format		      "short"
+      Decimation	      "10"
+      Floating		      off
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "uidread_host_demo"
+    Location		    [401, 379, 932, 750]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "COM Rx"
+      Ports		      [0, 3]
+      Position		      [75, 156, 215, 324]
+      FunctionName	      "amg_usbconverter_n_uart"
+      Parameters	      "id,port,setup_baudrate,setup_databits,setup_parity,setup_stopbits,setup_timeout,packetmode,asc"
+      "ii_printf_format,ascii_typecastarray,ascii_typecastcount,bin_headerarray,bin_headercount,bin_terminatorarray,bin"
+      "_terminatorcount,bin_datatypearray,bin_datatypecount,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "amg_usbconverter_n_uart"
+      MaskHelp		      "web(fullfile(waijungdocroot,'amg_usbconverter_n_uart.htm'), '-browser')"
+      MaskPromptString	      "id|Port|Baud Rate|Data Bits|Parity|Stop Bits|Timeout (mS)|Packet mode|Header (example: '"
+      "7E 7E')|Data length (bytes)|D1 Data Type|D2 Data Type|D3 Data Type|D4 Data Type|D5 Data Type|D6 Data Type|D7 Dat"
+      "a Type|D8 Data Type|D9 Data Type|D10 Data Type|D11 Data Type|D12 Data Type|D13 Data Type|D14 Data Type|D15 Data "
+      "Type|D16 Data Type|Terminator (example: '03 03')|Format|End of packet|Ascii print format|Ascii type cast array|A"
+      "scii type cast count|Header array|Header count|Terminator array|Terminator count|Data type array|Data type count"
+      "|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(setup|tx|rx),popup(COM3|COM10|COM11),edit,edit,popup(None|Odd|Even),popup(1|1.5|2),"
+      "edit,popup(Binary|Ascii),edit,edit,popup(double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|doub"
+      "le|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int"
+      "8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|"
+      "uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|doubl"
+      "e|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8"
+      "),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|u"
+      "int16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double"
+      "|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8)"
+      ",popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|ui"
+      "nt16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),edit,edit,popup(CR (0x"
+      "0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")|None),edit,edit,edit,edit,edit,edit,edit,edit,ed"
+      "it,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "amg_usbconverter_n_uart_callback('id');|amg_usbconverter_n_uart_callback('port');||||||"
+      "amg_usbconverter_n_uart_callback('packetmode');|amg_usbconverter_n_uart_callback('bin_header');||amg_usbconverte"
+      "r_n_uart_callback('d1datatype');|amg_usbconverter_n_uart_callback('d2datatype');|amg_usbconverter_n_uart_callbac"
+      "k('d3datatype');|amg_usbconverter_n_uart_callback('d4datatype');|amg_usbconverter_n_uart_callback('d5datatype');"
+      "|amg_usbconverter_n_uart_callback('d6datatype');|amg_usbconverter_n_uart_callback('d7datatype');|amg_usbconverte"
+      "r_n_uart_callback('d8datatype');|amg_usbconverter_n_uart_callback('d9datatype');|amg_usbconverter_n_uart_callbac"
+      "k('d10datatype');|amg_usbconverter_n_uart_callback('d11datatype');|amg_usbconverter_n_uart_callback('d12datatype"
+      "');|amg_usbconverter_n_uart_callback('d13datatype');|amg_usbconverter_n_uart_callback('d14datatype');|amg_usbcon"
+      "verter_n_uart_callback('d15datatype');|amg_usbconverter_n_uart_callback('d16datatype');|amg_usbconverter_n_uart_"
+      "callback('bin_terminator');|amg_usbconverter_n_uart_callback('ascii_format');|||||||||||amg_usbconverter_n_uart_"
+      "callback('sampletime');|amg_usbconverter_n_uart_callback('sampletimestr');|amg_usbconverter_n_uart_callback('blo"
+      "ckid');"
+      MaskEnableString	      "off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,off,off"
+      MaskVisibilityString    "off,on,off,off,off,off,off,on,on,off,on,on,on,on,off,off,off,off,off,off,off,off,off,of"
+      "f,off,off,on,off,off,off,off,off,off,off,off,off,off,off,on,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "id=&1;port=&2;setup_baudrate=@3;setup_databits=@4;setup_parity=&5;setup_stopbits=&6;setup_t"
+      "imeout=@7;packetmode=&8;bin_header=&9;bin_datalength=@10;d1datatype=&11;d2datatype=&12;d3datatype=&13;d4datatype"
+      "=&14;d5datatype=&15;d6datatype=&16;d7datatype=&17;d8datatype=&18;d9datatype=&19;d10datatype=&20;d11datatype=&21;"
+      "d12datatype=&22;d13datatype=&23;d14datatype=&24;d15datatype=&25;d16datatype=&26;bin_terminator=&27;ascii_format="
+      "&28;ascii_endofpacket=&29;ascii_printf_format=&30;ascii_typecastarray=&31;ascii_typecastcount=@32;bin_headerarra"
+      "y=@33;bin_headercount=@34;bin_terminatorarray=@35;bin_terminatorcount=@36;bin_datatypearray=@37;bin_datatypecoun"
+      "t=@38;sampletime=@39;sampletimestr=&40;blockid=&41;"
+      MaskInitialization      "amg_usbconverter_n_uart_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, '[COM10]\\nPacket: Binary\\nTs (sec): 0.02','ver','middle','hor','left')port_"
+      "label('output', 1,'uint32')port_label('output', 2,'uint32')port_label('output', 3,'uint32')"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "rx|COM10|115200|8|Odd|1|10000|Binary|'7E 7E'|12|uint32|uint32|uint32|not used|not used|no"
+      "t used|not used|not used|not used|not used|not used|not used|not used|not used|not used|not used|'03 03'|'Value="
+      "%d'|LF (0x0A - \"\\n\")|Value=%d\n|[ \"\",\"int32_t\"]|1|[126  126]|2|[3  3]|2|[7  7  7  1  0  0  0  1  0  0  0 "
+      " 1  0  0  0  0]|3|0.02|0.02|uidread_host_demoCOMRx"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "COM Setup"
+      Ports		      []
+      Position		      [77, 21, 220, 95]
+      FunctionName	      "amg_usbconverter_n_uart"
+      Parameters	      "id,port,setup_baudrate,setup_databits,setup_parity,setup_stopbits,setup_timeout,packetmode,asc"
+      "ii_printf_format,ascii_typecastarray,ascii_typecastcount,bin_headerarray,bin_headercount,bin_terminatorarray,bin"
+      "_terminatorcount,bin_datatypearray,bin_datatypecount,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "amg_usbconverter_n_uart"
+      MaskHelp		      "web(fullfile(waijungdocroot,'amg_usbconverter_n_uart.htm'), '-browser')"
+      MaskPromptString	      "id|Port|Baud Rate|Data Bits|Parity|Stop Bits|Timeout (mS)|Packet mode|Header (example: '"
+      "7E 7E')|Data length (bytes)|D1 Data Type|D2 Data Type|D3 Data Type|D4 Data Type|D5 Data Type|D6 Data Type|D7 Dat"
+      "a Type|D8 Data Type|D9 Data Type|D10 Data Type|D11 Data Type|D12 Data Type|D13 Data Type|D14 Data Type|D15 Data "
+      "Type|D16 Data Type|Terminator (example: '03 03')|Format|End of packet|Ascii print format|Ascii type cast array|A"
+      "scii type cast count|Header array|Header count|Terminator array|Terminator count|Data type array|Data type count"
+      "|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "popup(setup|tx|rx),popup(COM3|COM10|COM11),edit,edit,popup(None|Odd|Even),popup(1|1.5|2),"
+      "edit,popup(Binary|Ascii),edit,edit,popup(double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|doub"
+      "le|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int"
+      "8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|"
+      "uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|doubl"
+      "e|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8"
+      "),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|u"
+      "int16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double"
+      "|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8)"
+      ",popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),popup(not used|double|single|uint32|int32|ui"
+      "nt16|int16|uint8|int8),popup(not used|double|single|uint32|int32|uint16|int16|uint8|int8),edit,edit,popup(CR (0x"
+      "0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")|None),edit,edit,edit,edit,edit,edit,edit,edit,ed"
+      "it,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "amg_usbconverter_n_uart_callback('id');|amg_usbconverter_n_uart_callback('port');||||||"
+      "amg_usbconverter_n_uart_callback('packetmode');|amg_usbconverter_n_uart_callback('bin_header');||amg_usbconverte"
+      "r_n_uart_callback('d1datatype');|amg_usbconverter_n_uart_callback('d2datatype');|amg_usbconverter_n_uart_callbac"
+      "k('d3datatype');|amg_usbconverter_n_uart_callback('d4datatype');|amg_usbconverter_n_uart_callback('d5datatype');"
+      "|amg_usbconverter_n_uart_callback('d6datatype');|amg_usbconverter_n_uart_callback('d7datatype');|amg_usbconverte"
+      "r_n_uart_callback('d8datatype');|amg_usbconverter_n_uart_callback('d9datatype');|amg_usbconverter_n_uart_callbac"
+      "k('d10datatype');|amg_usbconverter_n_uart_callback('d11datatype');|amg_usbconverter_n_uart_callback('d12datatype"
+      "');|amg_usbconverter_n_uart_callback('d13datatype');|amg_usbconverter_n_uart_callback('d14datatype');|amg_usbcon"
+      "verter_n_uart_callback('d15datatype');|amg_usbconverter_n_uart_callback('d16datatype');|amg_usbconverter_n_uart_"
+      "callback('bin_terminator');|amg_usbconverter_n_uart_callback('ascii_format');|||||||||||amg_usbconverter_n_uart_"
+      "callback('sampletime');|amg_usbconverter_n_uart_callback('sampletimestr');|amg_usbconverter_n_uart_callback('blo"
+      "ckid');"
+      MaskEnableString	      "off,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,o"
+      "n,on,on,on,on,on,on,on,on,on,on,off,off"
+      MaskVisibilityString    "off,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "id=&1;port=&2;setup_baudrate=@3;setup_databits=@4;setup_parity=&5;setup_stopbits=&6;setup_t"
+      "imeout=@7;packetmode=&8;bin_header=&9;bin_datalength=@10;d1datatype=&11;d2datatype=&12;d3datatype=&13;d4datatype"
+      "=&14;d5datatype=&15;d6datatype=&16;d7datatype=&17;d8datatype=&18;d9datatype=&19;d10datatype=&20;d11datatype=&21;"
+      "d12datatype=&22;d13datatype=&23;d14datatype=&24;d15datatype=&25;d16datatype=&26;bin_terminator=&27;ascii_format="
+      "&28;ascii_endofpacket=&29;ascii_printf_format=&30;ascii_typecastarray=&31;ascii_typecastcount=@32;bin_headerarra"
+      "y=@33;bin_headercount=@34;bin_terminatorarray=@35;bin_terminatorcount=@36;bin_datatypearray=@37;bin_datatypecoun"
+      "t=@38;sampletime=@39;sampletimestr=&40;blockid=&41;"
+      MaskInitialization      "amg_usbconverter_n_uart_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[COM10]\\nBaud: 115200\\nFrame: 8-None-1\\nTs (sec): 0.02','ver','middle','ho"
+      "r','center')"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "setup|COM10|115200|8|None|1|1000|Binary|'7E 7E'|12|uint32|double|not used|not used|not us"
+      "ed|not used|not used|not used|not used|not used|not used|not used|not used|not used|not used|not used|'03 03'|'V"
+      "alue=%d'|LF (0x0A - \"\\n\")|Value=%d\n|[ \"\",\"int32_t\"]|1|[126  126]|2|[3  3]|2|[7  0  1  1  0  0  0  1  0  "
+      "0  0  1  0  0  0  0]|2|inf|0.02|uidread_host_demoCOMSetup"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      Display
+      Name		      "Display"
+      Ports		      [1]
+      Position		      [305, 170, 415, 200]
+      Format		      "hex (Stored Integer)"
+      Decimation	      "1"
+      Lockdown		      off
+    }
+    Block {
+      BlockType		      Display
+      Name		      "Display1"
+      Ports		      [1]
+      Position		      [305, 225, 415, 255]
+      Format		      "hex (Stored Integer)"
+      Decimation	      "1"
+      Lockdown		      off
+    }
+    Block {
+      BlockType		      Display
+      Name		      "Display2"
+      Ports		      [1]
+      Position		      [305, 280, 415, 310]
+      Format		      "hex (Stored Integer)"
+      Decimation	      "1"
+      Lockdown		      off
+    }
+    Line {
+      SrcBlock		      "COM Rx"
+      SrcPort		      1
+      DstBlock		      "Display"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "COM Rx"
+      SrcPort		      2
+      DstBlock		      "Display1"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "COM Rx"
+      SrcPort		      3
+      DstBlock		      "Display2"
+      DstPort		      1
+    }
+  }
+}

@@ -1,0 +1,133 @@
+%implements nrf5_wdt "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign timeout = optionstring[0] 
+
+  %assign block = block + conf + sampletime + blockid + timeout
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: Watchdog timer init
+    * ########################################################################
+    */
+   #define WAIJUNG_WATCHDOG 1
+   void waijung_wdt_init(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: Watchdog timer init
+    * ########################################################################
+    */
+   void waijung_wdt_init(void)
+   {
+	NRF_WDT->CONFIG = (WDT_CONFIG_HALT_Pause << WDT_CONFIG_HALT_Pos) | ( WDT_CONFIG_SLEEP_Run << WDT_CONFIG_SLEEP_Pos);
+	NRF_WDT->CRV = %<timeout>*32768;
+	NRF_WDT->RREN |= WDT_RREN_RR0_Msk;  //Enable reload register 0
+	NRF_WDT->TASKS_START = 1;     
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+/* %<blockid>: '%<block.Name>' */
+if (%<LibBlockInputSignal(0, "", "", 0)>)
+{
+  //Reload watchdog register 0
+  NRF_WDT->RR[0] = 0x6E524635;
+}
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

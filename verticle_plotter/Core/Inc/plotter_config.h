@@ -29,6 +29,8 @@
 /*-------Configure Signal Generator Start------*/
 extern SignalGenerator sine_sg_PWM;
 extern SignalGenerator square_sg_PWM;
+extern SignalGenerator sine_sg_cascade;
+extern SignalGenerator square_sg_cascade;
 extern SignalGenerator sine_sg_prismatic;
 extern SignalGenerator square_sg_prismatic;
 extern SignalGenerator sine_sg_revolute;
@@ -50,6 +52,16 @@ extern SignalGenerator square_sg_revolute;
 #define SQUARE_OFFSET        0.0f
 #define SQUARE_MIN_SETPOINT  -65535.0f
 #define SQUARE_MAX_SETPOINT  65535.0f
+
+// Sine wave configuration
+#define SINE_AMPLITUDE_CASCADE       62.8f
+#define SINE_MIN_SETPOINT_CASCADE    -62.8f
+#define SINE_MAX_SETPOINT_CASCADE    62.8f
+
+// Square wave configuration
+#define SQUARE_AMPLITUDE_CASCADE     62.8f
+#define SQUARE_MIN_SETPOINT_CASCADE  -62.8f
+#define SQUARE_MAX_SETPOINT_CASCADE  62.8f
 /*-------Configure Signal Generator End------*/
 
 /*-------Configure Prismatic Motor Start------*/

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+<!-- ADC Read function -->
+function fcn_adc_display()
+{
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "/varget.cgi?name=adc1");
+	xhr.onload = function() { document.getElementById("adc_display").innerHTML=this.responseText; }
+	xhr.send();  
+}
+
+function adc_periodic() {
+	var xmlHttp;
+	xmlHttp=new XMLHttpRequest();
+	xmlHttp.onreadystatechange=function(){		
+		if(xmlHttp.readyState==4){
+			var short=parseFloat(xmlHttp.responseText).toFixed(2);
+			document.getElementById('adc_display').innerHTML=short;
+		}
+	}
+	xmlHttp.open("GET","/varget.cgi?name=adc1",true);
+	xmlHttp.send(null);
+}
+
+window.onload=function(){
+	setInterval('adc_periodic()',500);
+}
+</script>
+</head>
+<body>
+<!-- ADC Display Demo -->
+<fieldset><legend>ADC Read Demo</legend><button onclick="fcn_adc_display()">Update</button> <b id="adc_display">0.00</b> volts </fieldset>
+<p><a href="/">home</a>
+</body>
+</html>

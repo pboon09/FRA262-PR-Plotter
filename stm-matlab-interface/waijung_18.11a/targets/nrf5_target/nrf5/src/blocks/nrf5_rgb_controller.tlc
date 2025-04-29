@@ -1,0 +1,307 @@
+%implements nrf5_rgb_controller "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %assign clockpin = optionstring[0]
+  %assign redpin = optionstring[1]
+  %assign greenpin = optionstring[2]
+  %assign bluepin = optionstring[3]
+  %assign latchpin = optionstring[4]
+  %assign rowselecta = optionstring[5]
+  %assign rowselectb = optionstring[6]
+  %assign panelcount = optionstring[7]
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + clockpin + \
+                  redpin + greenpin + bluepin + latchpin + rowselecta + \
+                  rowselectb + panelcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__NRF52_GPIO__) == 0)
+      %assign :: __NRF52_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: LED Controller
+    * ########################################################################
+   */
+   typedef struct {
+     uint32_t clk;
+     uint32_t r;
+     uint32_t g;
+     uint32_t b;
+     uint32_t latch;
+     uint32_t row_a;
+     uint32_t row_b;
+   } LED_CONTROLLER_PIN;
+   void _LED_RGB_Controller_SendBytes (LED_CONTROLLER_PIN *control_pin, uint8_t row, const uint8_t *RData, const uint8_t *GData, const uint8_t *BData, uint8_t count);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: LED Controller
+    * ########################################################################
+   */
+   void _LED_RGB_Controller_SendBytes (LED_CONTROLLER_PIN *control_pin, uint8_t row, const uint8_t *RData, const uint8_t *GData, const uint8_t *BData, uint8_t count)
+   {
+     // LE LOW (Just make sure)
+     nrf_gpio_pin_clear (control_pin->latch);
+
+     // Clock LOW
+     nrf_gpio_pin_clear (control_pin->clk);
+
+     // Delay 1uS
+     nrf_delay_us(1);
+
+     // Shift Bytes
+     for (uint8_t byte_idx=0; byte_idx<count; byte_idx++)
+     {
+       uint8_t r = RData[byte_idx];
+       uint8_t g = GData[byte_idx];
+       uint8_t b = BData[byte_idx];
+       
+       // Shift 8 bits, LOW bit first
+       for (uint8_t bit_idx=0; bit_idx<8; bit_idx++)
+       {
+         uint32_t port_to_set = 0;
+         uint32_t port_to_clear = 0;
+
+         // Get current port status
+         uint32_t port_sta = nrf_gpio_port_out_read(NRF_GPIO);
+
+         // Red
+         if ((r & (uint8_t)1<<bit_idx) > 0)
+            port_to_set |= ((uint32_t)1 << control_pin->r);
+         else
+            port_to_clear |= ((uint32_t)1 << control_pin->r);
+
+         // Green
+         if ((g & (uint8_t)1<<bit_idx) > 0)
+            port_to_set |= ((uint32_t)1 << control_pin->g);
+         else
+            port_to_clear |= ((uint32_t)1 << control_pin->g);
+
+         // Blue
+         if ((b & (uint8_t)1<<bit_idx) > 0)
+            port_to_set |= ((uint32_t)1 << control_pin->b);
+         else
+            port_to_clear |= ((uint32_t)1 << control_pin->b);
+
+         // Setup Data R,G,B
+         if (port_to_set)
+           nrf_gpio_port_out_set(NRF_GPIO, port_to_set);  //  port_sta |= port_to_set;
+         if (port_to_clear)
+           nrf_gpio_port_out_clear(NRF_GPIO, port_to_clear);  //  port_sta &= ~(uint32_t)port_to_clear;
+         
+         // Clock LOW
+         nrf_gpio_pin_clear (control_pin->clk);
+
+         // Delay 1uS
+         nrf_delay_us(1);
+
+         // Clock HIGH (Capture)
+         nrf_gpio_pin_set (control_pin->clk);
+  
+         // Delay 1uS
+         nrf_delay_us(1);
+       }
+     }
+
+     // Clock LOW
+     nrf_gpio_pin_clear (control_pin->clk);
+
+     // Delay 1uS
+     nrf_delay_us(1);
+
+     // LE HIGH
+     nrf_gpio_pin_set (control_pin->latch);
+
+     // Row Select
+     if (row == 1) {
+       nrf_gpio_pin_clear (control_pin->row_a);
+       nrf_gpio_pin_clear (control_pin->row_b);       
+     }
+     else if (row == 2) {
+       nrf_gpio_pin_clear (control_pin->row_a);
+       nrf_gpio_pin_set (control_pin->row_b);
+     }
+     else if (row == 3) {
+       nrf_gpio_pin_set (control_pin->row_a);
+       nrf_gpio_pin_clear (control_pin->row_b);
+     }
+     else {
+       nrf_gpio_pin_set (control_pin->row_a);
+       nrf_gpio_pin_set (control_pin->row_b);
+     }
+
+     // Delay 5uS
+     nrf_delay_us(10);
+
+     // LE LOW
+     nrf_gpio_pin_clear (control_pin->latch);
+
+     // Delay 1uS
+     nrf_delay_us(1);
+   }
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_CLK_PIN            %<clockpin>
+#define %<blockid>_RED_PIN            %<redpin>
+#define %<blockid>_GREEN_PIN          %<greenpin>
+#define %<blockid>_BLUE_PIN           %<bluepin>
+#define %<blockid>_LATCH_PIN          %<latchpin>
+#define %<blockid>_ROW_SEL_A_PIN      %<rowselecta>
+#define %<blockid>_ROW_SEL_B_PIN      %<rowselectb>
+
+void %<blockid>_LED_RGB_Controller_SendBytes (uint8_t row, const uint8_t *RData, const uint8_t *GData, const uint8_t *BData, uint8_t count);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+static LED_CONTROLLER_PIN %<blockid>_pinlist = {
+  .clk = %<blockid>_CLK_PIN,
+  .r = %<blockid>_RED_PIN,
+  .g = %<blockid>_GREEN_PIN,
+  .b = %<blockid>_BLUE_PIN,
+  .latch = %<blockid>_LATCH_PIN,
+  .row_a = %<blockid>_ROW_SEL_A_PIN,
+  .row_b = %<blockid>_ROW_SEL_B_PIN
+};
+
+void %<blockid>_LED_RGB_Controller_SendBytes (uint8_t row, const uint8_t *RData, const uint8_t *GData, const uint8_t *BData, uint8_t count)
+{
+  _LED_RGB_Controller_SendBytes (&%<blockid>_pinlist, row, RData, GData, BData, count);
+}
+
+void enable_%<blockid>(void)
+{
+  // clockpin
+  nrf_gpio_cfg_output (%<blockid>_CLK_PIN);
+  // redpin
+  nrf_gpio_cfg_output (%<blockid>_RED_PIN);
+  // greenpin
+  nrf_gpio_cfg_output (%<blockid>_GREEN_PIN);
+  // bluepin
+  nrf_gpio_cfg_output (%<blockid>_BLUE_PIN);
+  // latchpin
+  nrf_gpio_cfg_output (%<blockid>_LATCH_PIN);
+  // rowselecta
+  nrf_gpio_cfg_output (%<blockid>_ROW_SEL_A_PIN);
+  // rowselectb
+  nrf_gpio_cfg_output (%<blockid>_ROW_SEL_B_PIN);
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+/* %<blockid>: '%<block.Name>' */
+{
+  %assign portIdx_Row = 0
+  %assign portIdx_R = 1
+  %assign portIdx_G = 2
+  %assign portIdx_B = 3
+  %assign signal_width = LibBlockInputSignalWidth(portIdx_R)
+  uint8_t r_data[%<signal_width>];
+  uint8_t g_data[%<signal_width>];
+  uint8_t b_data[%<signal_width>];
+
+  %foreach sigIdx=signal_width
+    // D%<sigIdx>
+    r_data[%<sigIdx>] = %<LibBlockInputSignal(portIdx_R, "", "", sigIdx)>;
+    g_data[%<sigIdx>] = %<LibBlockInputSignal(portIdx_G, "", "", sigIdx)>;
+    b_data[%<sigIdx>] = %<LibBlockInputSignal(portIdx_B, "", "", sigIdx)>;
+  %endforeach
+
+  // Send
+  %<blockid>_LED_RGB_Controller_SendBytes (%<LibBlockInputSignal(portIdx_Row, "", "", 0)>, r_data, g_data, b_data, %<signal_width>);
+}
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

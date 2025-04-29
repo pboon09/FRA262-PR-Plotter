@@ -1,0 +1,56 @@
+%<LibAddToCommonIncludes("waijung_hwdrvlib.h")>
+
+%openfile tmpBuf
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "rtwtypes.h"
+#include "nrf.h"
+#include "nrf_soc.h"
+#include "nrf_sdm.h"
+#include "nrf_delay.h"
+#include "nrf_gpio.h"
+
+#include "app_error.h"
+#include "app_timer.h"
+
+%if softdevice == "s132"
+   #include "nrf_sdh.h"
+   #include "nrf_pwr_mgmt.h"
+%endif
+%if softdevice == "s310"
+#include "softdevice_handler.h"
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+%<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+%openfile tmpBuf
+   #define __SYSTICK_FREQUENCY         (%<systickreloadvalue>UL)   /**< Required RTC working clock SYSTICK_FREQUENCY Hertz. Changable. */
+%%   #if __SYSTICK_FREQUENCY > __MAX_SAMPLEFREQ
+%%      #error "Systick frequency too high!"
+%%   #endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+%<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%openfile tmpBuf
+   extern volatile uint32_t systick_count;
+   %%extern volatile unsigned int systick_count;
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+%<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+%openfile tmpBuf
+   void SysTick_Config_RTC(uint32_t prescaler);
+   void softdevice_assert_callback(uint32_t pc, uint16_t line_num, const uint8_t * p_file_name);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>

@@ -1,0 +1,137 @@
+%implements nrf5_temp_sensor "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: nrf5 Temperature Sensor
+    * ########################################################################
+    */
+   void nrf5_Temperature_Init(void);
+   float nrf5_Temperature_Read(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: nrf5 Temperature Sensor
+    * ########################################################################
+    */
+   void nrf5_Temperature_Init(void)
+   {
+     #if defined(NRF52)
+
+     #else
+     *(volatile uint32_t *) 0x4000C504 = 0;
+     #endif
+   }
+
+   float nrf5_Temperature_Read(void)
+   {
+      int32_t tmp;
+
+      #if defined(NRF52)
+         sd_temp_get(&tmp);
+      #else
+
+      #if USE_S310_SOFTDEVICE
+        uint32_t err_code;
+        err_code = sd_temp_get(&tmp);
+        APP_ERROR_CHECK(err_code);
+      #else
+        // Start the temperature measurement
+        NRF_TEMP->TASKS_START = 1;
+
+        // Wait while busy
+        while (NRF_TEMP->EVENTS_DATARDY == 0);
+        NRF_TEMP->EVENTS_DATARDY    = 0;  
+
+        // Get temperature
+        tmp = NRF_TEMP->TEMP;
+
+        // Stop
+        NRF_TEMP->TASKS_STOP = 1;
+
+        // Negative value
+        if ((tmp & 0x00000200) != 0) {
+        tmp = (tmp | 0xFFFFFC00);
+      }
+     #endif
+     #endif //NRF52
+
+      // Convert and return
+      return (float)((int32_t)tmp)/4;
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+  nrf5_Temperature_Init(); // Init
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%<LibBlockOutputSignal(0, "", "", 0)> = \
+  (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) nrf5_Temperature_Read();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

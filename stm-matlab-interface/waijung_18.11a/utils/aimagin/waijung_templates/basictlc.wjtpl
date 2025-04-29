@@ -1,0 +1,45 @@
+${section:implements}
+
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+   %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+   %assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign block = block +  sampletime + \
+         sampletimestr + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+   ${section:BlockTypeSetup}
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+   ${section:BlockInstanceSetup}
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   ${section:Outputs}
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+
+
+
+

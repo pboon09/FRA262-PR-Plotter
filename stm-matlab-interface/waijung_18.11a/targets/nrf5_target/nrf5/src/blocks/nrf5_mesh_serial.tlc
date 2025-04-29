@@ -1,0 +1,764 @@
+%implements nrf5_mesh_serial "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign enableisr = CAST("Number",SFcnParamSettings.enableisr)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + enableisr
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_LIB_H__) == 0)
+      %assign :: __STDIO_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_IO_H__) == 0)
+      %assign :: __STDIO_IO_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+     #include "log.h"
+     #include "nrf_mesh_serial.h"
+     #include "mesh_app_utils.h"
+     #include "simple_hal.h"
+     #include "mesh_stack.h"
+     #include "mesh_softdevice_init.h"
+     #include "mesh_provisionee.h"
+     #include "nrf_mesh_config_examples.h"
+     #include "nrf_sdh_soc.h"
+     #include "serial_evt.h"
+     #include "nrf_mesh_events.h" 
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Setup"
+  typedef enum {
+    MESH_SETUP_READY = 0,
+    MESH_SETUP_IDLE,
+    MESH_SETUP_BUSY,
+    MESH_SETUP_ERROR
+  } MESH_SETUP_STATE;
+
+  MESH_SETUP_STATE waijung_nrf5_mesh_setup(void);
+  uint32_t %<blockid>_Config(uint16_t nodeaddress,
+    uint16_t *publication, uint16_t publication_count,
+    uint8_t *app_key, uint16_t app_key_count,
+    uint8_t *subnet, uint16_t subnet_count,
+    uint8_t *authen, uint16_t authen_count);
+
+  uint8_t mesh_receive_buffer_get(serial_evt_mesh_message_received_t *received_package, uint16_t *last_received_index);
+  uint32_t waijung_nrf5_mesh_send(uint8_t *data, uint16_t length);
+  uint32_t waijung_nrf5_mesh_forward(uint8_t trigger, uint16_t src_addr, uint8_t ttl, uint16_t appkey_handle, uint16_t subnet_handle, uint8_t *data, uint16_t length);
+%endif
+
+%if conf == "Tx"
+  
+%endif
+%if conf == "Rx"
+  extern uint16_t %<blockid>_received_packet_index;
+  extern serial_evt_mesh_message_received_t %<blockid>_rx_package;
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if conf == "Setup"
+#define MESH_SOC_OBSERVER_PRIO 0
+
+static void mesh_soc_evt_handler(uint32_t evt_id, void * p_context)
+{
+  nrf_mesh_on_sd_evt(evt_id);
+}
+
+NRF_SDH_SOC_OBSERVER(m_mesh_soc_observer, MESH_SOC_OBSERVER_PRIO, mesh_soc_evt_handler, NULL);
+
+static uint32_t Mesh_Configured_Flag = 1;
+
+uint8_t Mesh_Configure_Ready(void)
+{
+  return (Mesh_Configured_Flag == 0);
+}
+
+//#define STATIC_AUTH_DATA {0x6E, 0x6F, 0x72, 0x64, 0x69, 0x63, 0x5F, 0x65, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65, 0x5F, 0x31}
+static uint8_t %<blockid>_DEFAULT_APP_KEY[16] = {0};
+static uint8_t %<blockid>_DEFAULT_SUBNET_KEY[16] = {0};
+static uint8_t %<blockid>_STATIC_AUTH_DATA[16] = {0};
+
+static uint16_t %<blockid>_NODE_ADDRESS = 0x00;
+static uint16_t %<blockid>_PUBLICATION_ADDRESS[DSM_NONVIRTUAL_ADDR_MAX] = {0};
+static uint16_t %<blockid>_PUBLICATION_COUNT = 0;
+
+static bool m_device_provisioned;
+static nrf_mesh_evt_handler_t m_evt_handler;
+static void serial_handler_mesh_evt_handle(const nrf_mesh_evt_t* p_evt);
+
+static void mesh_init(void)
+{
+    mesh_stack_init_params_t init_params =
+    {
+        .core.irq_priority = NRF_MESH_IRQ_PRIORITY_LOWEST,
+        .core.lfclksrc     = DEV_BOARD_LF_CLK_CFG
+    };
+    ERROR_CHECK(mesh_stack_init(&init_params, &m_device_provisioned));
+
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Enabling ECDH offloading...\n");
+    nrf_mesh_opt_t value = {.len = 4, .opt.val = 1 };
+    ERROR_CHECK(nrf_mesh_opt_set(NRF_MESH_OPT_PROV_ECDH_OFFLOADING, &value));
+
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Initializing serial interface...\n");
+    ERROR_CHECK(nrf_mesh_serial_init(NULL));
+}
+
+#ifndef BLE_BLOCK_PRESENT
+static uint32_t ble_enable(void)
+{
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Enabling BLE...\n");
+#if defined(_lint)
+    uint32_t ram_start = 0ul;
+#elif defined ( __CC_ARM )
+    extern uint32_t Image$$RW_IRAM1$$Base;
+    const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
+#elif defined   ( __GNUC__ )
+    extern uint32_t __data_start__;
+    volatile uint32_t ram_start = (uint32_t) &__data_start__;
+#endif
+    uint32_t app_ram_base = ram_start;
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Ram base: 0x%x\n", ram_start);
+
+#if NRF_SD_BLE_API_VERSION == 1
+    ble_enable_params_t ble_enable_params = {{0}};
+    uint32_t error_code = sd_ble_enable(&ble_enable_params);
+#elif (NRF_SD_BLE_API_VERSION >= 2) && (NRF_SD_BLE_API_VERSION < 5)
+    ble_enable_params_t ble_enable_params = {{0}};
+    uint32_t error_code = sd_ble_enable(&ble_enable_params, &app_ram_base);
+#elif NRF_SD_BLE_API_VERSION == 5 || NRF_SD_BLE_API_VERSION == 6
+    uint32_t error_code = sd_ble_enable(&app_ram_base);
+#else
+    #error Unsupported NRF_SD_BLE_API_VERSION
+#endif
+    if (app_ram_base != ram_start) 
+    {
+        __LOG(LOG_SRC_APP, LOG_LEVEL_WARN,
+              "sd_ble_enable: app_ram_base should be adjusted to 0x%0x\n", app_ram_base);
+    }
+    return error_code;
+}
+#endif // BLE_BLOCK_PRESENT
+
+static void initialize(void)
+{
+#if defined(NRF51) && defined(NRF_MESH_STACK_DEPTH)
+    stack_depth_paint_stack();
+#endif
+
+    __LOG_INIT(LOG_MSK_DEFAULT | LOG_SRC_ACCESS | LOG_SRC_SERIAL | LOG_SRC_APP, LOG_LEVEL_INFO, log_callback_rtt);
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "----- Bluetooth Mesh Serial Interface Application -----\n");
+
+
+    #ifndef BLE_BLOCK_PRESENT
+    nrf_clock_lf_cfg_t lfc_cfg = DEV_BOARD_LF_CLK_CFG;
+    %%ERROR_CHECK(mesh_softdevice_init(lfc_cfg));
+    
+    ERROR_CHECK(ble_enable());
+    #endif
+    mesh_init();
+
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Initialization complete!\n");
+}
+
+static void start(void)
+{
+    ERROR_CHECK(mesh_stack_start());
+
+    if (!m_device_provisioned)
+    {
+        //static const uint8_t static_auth_data[NRF_MESH_KEY_SIZE] = %<blockid>_STATIC_AUTH_DATA; //STATIC_AUTH_DATA;
+        mesh_provisionee_start_params_t prov_start_params =
+        {
+            .p_static_data = %<blockid>_STATIC_AUTH_DATA
+        };
+        ERROR_CHECK(mesh_provisionee_prov_start(&prov_start_params));
+    }
+    ERROR_CHECK(nrf_mesh_serial_enable());
+
+    m_evt_handler.evt_cb = serial_handler_mesh_evt_handle;
+    nrf_mesh_evt_handler_add(&m_evt_handler);
+
+    __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "Bluetooth Mesh Serial Interface Application started!\n");
+}
+
+static dsm_handle_t %<blockid>_subnet_handle;
+static dsm_handle_t %<blockid>_appkey_handle;
+static dsm_handle_t %<blockid>_publish_handle;
+
+uint32_t mesh_quick_setup(uint16_t address)
+{
+  uint32_t status;
+  
+  // dsm_subnet_add
+  status = dsm_subnet_add(0, %<blockid>_DEFAULT_SUBNET_KEY, &%<blockid>_subnet_handle);
+
+  // dsm_appkey_add
+  if (status == 0)
+    status = dsm_appkey_add(0, %<blockid>_subnet_handle, %<blockid>_DEFAULT_APP_KEY, &%<blockid>_appkey_handle);
+  
+  // dsm_local_unicast_addresses_set
+  dsm_local_unicast_address_t local = {
+    .address_start = address,//DEFAULT_LOCAL_UNICAST_ADRESS_START,
+    .count         = ACCESS_ELEMENT_COUNT
+  };
+  if (status == 0)
+    status = dsm_local_unicast_addresses_set(&local);
+ 
+              
+  return status;
+}
+
+uint32_t mesh_addr_publication_add(uint16_t address)
+{
+    uint32_t status = dsm_address_publish_add(address, &%<blockid>_publish_handle);
+    return status;
+}
+
+uint32_t mesh_packet_send(uint16_t src_addr, dsm_handle_t dst_addr_handle, uint8_t *data, uint16_t length)
+{
+    nrf_mesh_tx_params_t tx_params;
+    memset(&tx_params, 0, sizeof(tx_params));
+
+    uint32_t status = dsm_address_get(dst_addr_handle, &tx_params.dst);
+
+
+    if (status == NRF_SUCCESS)
+    {
+        dsm_local_unicast_address_t valid_src_addrs;
+        dsm_local_unicast_addresses_get(&valid_src_addrs);
+
+        if (src_addr <  valid_src_addrs.address_start || src_addr >= valid_src_addrs.address_start + valid_src_addrs.count)
+        {
+            status = NRF_ERROR_INVALID_ADDR;
+        }
+        else
+        {
+            status = dsm_tx_secmat_get(%<blockid>_subnet_handle/*DSM_HANDLE_INVALID*/, %<blockid>_appkey_handle, &tx_params.security_material);
+            if (status == NRF_SUCCESS)
+            {
+                tx_params.src       = src_addr;
+                tx_params.ttl       = 1;
+                tx_params.force_segmented  = 1;
+                tx_params.transmic_size = NRF_MESH_TRANSMIC_SIZE_DEFAULT;
+
+                tx_params.p_data    = data;
+                tx_params.data_len  = length;
+
+                status = nrf_mesh_packet_send(&tx_params, NULL);
+            }
+        }
+    }
+    return status;
+}
+
+uint32_t mesh_packet_forward(uint16_t src_addr, dsm_handle_t dst_addr_handle, uint8_t ttl, dsm_handle_t appkey_handle, dsm_handle_t subnet_handle, uint8_t *data, uint16_t length)
+{
+    nrf_mesh_tx_params_t tx_params;
+
+    memset(&tx_params, 0, sizeof(tx_params));
+
+    uint32_t status = dsm_address_get(dst_addr_handle, &tx_params.dst);
+
+    if (status == NRF_SUCCESS)
+    {
+        dsm_local_unicast_address_t valid_src_addrs;
+        dsm_local_unicast_addresses_get(&valid_src_addrs);
+
+        if (src_addr <  valid_src_addrs.address_start || src_addr >= valid_src_addrs.address_start + valid_src_addrs.count)
+        {
+            status = NRF_ERROR_INVALID_ADDR;
+        }
+        else
+        {
+            status = dsm_tx_secmat_get(subnet_handle, appkey_handle, &tx_params.security_material);
+            if (status == NRF_SUCCESS)
+            {
+                tx_params.src = src_addr;
+                tx_params.ttl = ttl;
+                tx_params.force_segmented  = 1;
+                tx_params.transmic_size = NRF_MESH_TRANSMIC_SIZE_DEFAULT;
+
+                tx_params.p_data    = data;
+                tx_params.data_len  = length;
+
+                status = nrf_mesh_packet_send(&tx_params, NULL);
+            }
+        }
+    }
+
+    return status;
+}
+
+#define SERIAL_EVT_MESH_BUFFER_COUNT     8 // 2^N
+static serial_evt_mesh_message_received_t mesh_received_buffer[SERIAL_EVT_MESH_BUFFER_COUNT];
+static uint16_t mesh_received_list_buffer_count = 0;
+
+uint8_t mesh_receive_buffer_get(serial_evt_mesh_message_received_t *received_package, uint16_t *last_received_index)
+{
+  if ((*last_received_index) >= SERIAL_EVT_MESH_BUFFER_COUNT) {
+    *last_received_index = 0;
+  }
+  
+  if (*last_received_index != mesh_received_list_buffer_count) {
+    // Data valid
+    memcpy(received_package, &mesh_received_buffer[*last_received_index], sizeof(serial_evt_mesh_message_received_t));
+    *last_received_index = ((*last_received_index) + 1);
+    *last_received_index = (*last_received_index) & (SERIAL_EVT_MESH_BUFFER_COUNT - 1);
+
+    return 1; // Valid
+  }
+  else {
+    return 0;
+  }
+}
+
+%%static void mesh_receive_buffer_set(const serial_evt_mesh_message_received_t *received_package)
+%%{
+%%  if ((mesh_received_list_buffer_count) >= SERIAL_EVT_MESH_BUFFER_COUNT) {
+%%    mesh_received_list_buffer_count = 0;
+%%  }
+%%  memcpy(&mesh_received_buffer[mesh_received_list_buffer_count], received_package, sizeof(serial_evt_mesh_message_received_t));
+%%  mesh_received_list_buffer_count ++;
+%%  mesh_received_list_buffer_count &= (SERIAL_EVT_MESH_BUFFER_COUNT - 1);
+%%}
+
+static void serial_handler_mesh_evt_handle(const nrf_mesh_evt_t* p_evt)
+{
+  if ((mesh_received_list_buffer_count) >= SERIAL_EVT_MESH_BUFFER_COUNT)
+    mesh_received_list_buffer_count = 0;
+  serial_evt_mesh_message_received_t* p_msg_rcvd  = &mesh_received_buffer[mesh_received_list_buffer_count];
+	
+  switch (p_evt->type)
+  {
+    case NRF_MESH_EVT_MESSAGE_RECEIVED:
+	{
+      uint32_t data_length = p_evt->params.message.length;
+      if (data_length > SERIAL_EVT_MESH_MESSAGE_RECEIVED_DATA_MAXLEN) {
+        data_length = SERIAL_EVT_MESH_MESSAGE_RECEIVED_DATA_MAXLEN;
+      }
+      p_msg_rcvd->actual_length = p_evt->params.message.length;
+      if (p_evt->params.message.dst.type == NRF_MESH_ADDRESS_TYPE_UNICAST) {
+        p_msg_rcvd->dst = p_evt->params.message.dst.value;
+      } else {
+
+        /* May safely cast away the packed attribute, as the rsp is word-aligned on stack: */
+        NRF_MESH_ASSERT(NRF_SUCCESS == dsm_address_handle_get
+                        (&p_evt->params.message.dst, (dsm_handle_t *)
+                         &p_msg_rcvd->dst));
+      }
+      p_msg_rcvd->src = p_evt->params.message.src.value;
+      p_msg_rcvd->appkey_handle = dsm_appkey_handle_get (p_evt->params.message.secmat.p_app);
+      p_msg_rcvd->subnet_handle = dsm_subnet_handle_get (p_evt->params.message.secmat.p_net);
+      p_msg_rcvd->ttl = p_evt->params.message.ttl;
+      p_msg_rcvd->adv_addr_type = p_evt->params.message.p_metadata->params.scanner.adv_addr.addr_type;
+      memcpy(p_msg_rcvd->adv_addr, p_evt->params.message.p_metadata->params.scanner.adv_addr.addr, BLE_GAP_ADDR_LEN);
+      p_msg_rcvd->rssi = p_evt->params.message.p_metadata->params.scanner.rssi;
+      if (data_length > 0) {
+        memcpy(p_msg_rcvd->data,
+               p_evt->params.message.p_buffer,
+               data_length);
+
+        // Increase count
+        mesh_received_list_buffer_count ++;
+        mesh_received_list_buffer_count &= (SERIAL_EVT_MESH_BUFFER_COUNT - 1);
+
+        // TODO:
+        // Generate Irq for Rx here!
+        
+      }
+	  break;
+	}
+
+    default:
+      break;
+  }
+}
+
+static uint8_t waijung_nrf5_mesh_config_updated = 0; // Not updated at beginning
+
+MESH_SETUP_STATE waijung_nrf5_mesh_setup(void)
+{
+  static MESH_SETUP_STATE setup_state = MESH_SETUP_IDLE;
+
+  uint32_t status;
+
+  switch (setup_state) {
+    case MESH_SETUP_IDLE:
+      // Capture and store setting
+      if (waijung_nrf5_mesh_config_updated) {
+        setup_state = MESH_SETUP_BUSY;
+      }
+      break;
+
+    case MESH_SETUP_BUSY:
+      initialize();
+      execution_start(start); 
+
+      // quick_setup
+      status = mesh_quick_setup( %<blockid>_NODE_ADDRESS);
+      __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "quick_setup: %u\n", status);
+
+      // cmd_addr_publication_add
+      for (int i=0; i<%<blockid>_PUBLICATION_COUNT; i++) {
+        status = mesh_addr_publication_add(%<blockid>_PUBLICATION_ADDRESS[i]);
+        __LOG(LOG_SRC_APP, LOG_LEVEL_INFO, "handle_cmd_addr_publication_add: %u\n", status); 
+      }
+
+      setup_state = MESH_SETUP_READY;
+      break;
+
+    case MESH_SETUP_READY:
+      // MESH is ready
+      break;
+
+    case MESH_SETUP_ERROR:
+      // MESH is error
+      break;
+  }
+
+  // Return current state
+  return setup_state;
+}
+
+uint32_t %<blockid>_Config(uint16_t nodeaddress, 
+    uint16_t *publication, uint16_t publication_count,
+    uint8_t *app_key, uint16_t app_key_count,
+    uint8_t *subnet, uint16_t subnet_count,
+    uint8_t *authen, uint16_t authen_count)
+{
+  if (!waijung_nrf5_mesh_config_updated) {
+    waijung_nrf5_mesh_config_updated = 1;
+    
+    /* Node Address */
+    %<blockid>_NODE_ADDRESS = nodeaddress;
+
+    /* Publication Address */
+    %<blockid>_PUBLICATION_COUNT = (publication_count < DSM_NONVIRTUAL_ADDR_MAX)?publication_count:DSM_NONVIRTUAL_ADDR_MAX;
+    for (int i=0; i<%<blockid>_PUBLICATION_COUNT; i++) {
+      %<blockid>_PUBLICATION_ADDRESS[i] = publication[i];
+    }
+    
+    /* App Key */
+    for (int i=0; i<16; i++) {
+      if (i<app_key_count)
+        %<blockid>_DEFAULT_APP_KEY[i] = app_key[i];
+      else %<blockid>_DEFAULT_APP_KEY[i] = 0;
+    }
+
+    /* Subnet Key*/
+    for (int i=0; i<16; i++) {
+      if (i<subnet_count)
+        %<blockid>_DEFAULT_SUBNET_KEY[i] = subnet[i];
+      else %<blockid>_DEFAULT_SUBNET_KEY[i] = 0;
+    }    
+
+    /* Authentication */
+    for (int i=0; i<16; i++) {
+      if (i<authen_count)
+        %<blockid>_STATIC_AUTH_DATA[i] = authen[i];
+      else %<blockid>_STATIC_AUTH_DATA[i] = 0;
+    }
+  }
+
+  return waijung_nrf5_mesh_setup();
+}
+
+uint32_t waijung_nrf5_mesh_send(uint8_t *data, uint16_t length)
+{
+  if ((waijung_nrf5_mesh_setup() == MESH_SETUP_READY) && (length > 0)){
+    return  mesh_packet_send(%<blockid>_NODE_ADDRESS, %<blockid>_publish_handle, data, length);
+  }
+  return 0xFFFFFFFF;
+}
+
+uint32_t waijung_nrf5_mesh_forward(uint8_t trigger, uint16_t src_addr, uint8_t ttl, uint16_t appkey_handle, uint16_t subnet_handle, uint8_t *data, uint16_t length)
+{
+  uint32_t status;
+  if (trigger) {
+    return mesh_packet_forward(src_addr, %<blockid>_publish_handle, ttl, (dsm_handle_t) appkey_handle, (dsm_handle_t) subnet_handle, data, length);
+  }
+  else {
+    // No trigger
+    // No error
+    status = 0;
+  }
+  // uint32_t mesh_packet_forward(uint16_t src_addr, dsm_handle_t dst_addr_handle, 
+  // uint8_t ttl, dsm_handle_t appkey_handle, dsm_handle_t subnet_handle, uint8_t *data, uint16_t length)
+
+  return 0;
+}
+
+%endif
+
+%if conf == "Rx"
+  // Received packet track index
+  uint16_t %<blockid>_received_packet_index = 0;
+  serial_evt_mesh_message_received_t %<blockid>_rx_package;
+%endif
+
+void enable_%<blockid>(void){
+  %if conf == "Rx"
+    memset(&%<blockid>_rx_package, 0, sizeof(serial_evt_mesh_message_received_t));
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+/* %<blockid>: '%<block.Name>' */
+%if conf == "Setup"
+do {
+  %assign uid_address_idx = 0
+  %assign publication_idx = 1
+  %assign appkey_idx = 2
+  %assign subnet_idx = 3
+  %assign authen_idx = 4
+
+  %assign uid_address = LibBlockInputSignal(uid_address_idx, "", "", 0)
+  %assign publication = LibBlockInputSignalAddr(publication_idx, "", "", 0)
+  %assign publication_count = LibBlockInputSignalWidth(publication_idx)
+  %assign appkey = LibBlockInputSignalAddr(appkey_idx, "", "", 0)
+  %assign appkey_count = LibBlockInputSignalWidth(appkey_idx)
+  %assign subnet = LibBlockInputSignalAddr(subnet_idx, "", "", 0)
+  %assign subnet_count = LibBlockInputSignalWidth(subnet_idx)
+  %assign authen = LibBlockInputSignalAddr(authen_idx, "", "", 0)
+  %assign authen_count = LibBlockInputSignalWidth(authen_idx)
+  %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_Config(%<uid_address>, \
+    %<publication>, %<publication_count>, %<appkey>, %<appkey_count>, %<subnet>, %<subnet_count>, %<authen>, %<authen_count>);
+} while (0);
+%endif
+
+%if conf == "Tx"
+  %assign len_idx = 0
+  %assign data_idx = 1
+
+  %assign len = LibBlockInputSignal(len_idx, "", "", 0)
+  %assign data = LibBlockInputSignalAddr(data_idx, "", "", 0)
+  %<LibBlockOutputSignal(0, "", "", 0)> = waijung_nrf5_mesh_send(%<data>, %<len>);
+%endif
+
+%% --- Rx ---
+%if conf == "Rx"
+  {
+    %assign ready_idx = 0
+    %assign src_idx = 1
+    %assign dst_idx = 2
+    %assign appkey_idx = 3
+    %assign subnet_idx = 4
+    %assign ttl_idx = 5
+    %assign rssi_idx = 6
+    %assign len_idx = 7
+    %assign data_idx = 8
+
+    %assign ready = LibBlockOutputSignal(ready_idx, "", "", 0)
+    %assign src = LibBlockOutputSignal(src_idx, "", "", 0)
+    %assign dst = LibBlockOutputSignal(dst_idx, "", "", 0)
+    %assign appkey = LibBlockOutputSignal(appkey_idx, "", "", 0)
+    %assign subnet = LibBlockOutputSignal(subnet_idx, "", "", 0)
+    %assign ttl = LibBlockOutputSignal(ttl_idx, "", "", 0)
+    %assign rssi = LibBlockOutputSignal(rssi_idx, "", "", 0)
+    %assign len = LibBlockOutputSignal(len_idx, "", "", 0)
+    %assign data = LibBlockOutputSignalAddr(data_idx, "", "", 0)
+    %assign data_len = LibBlockOutputSignalWidth(data_idx)
+    
+    %<ready> = mesh_receive_buffer_get(&%<blockid>_rx_package, &%<blockid>_received_packet_index);
+    %<src> = %<blockid>_rx_package.src;
+    %<dst> = %<blockid>_rx_package.dst;
+    %<appkey> = %<blockid>_rx_package.appkey_handle;
+    %<subnet> = %<blockid>_rx_package.subnet_handle;
+    %<ttl> = %<blockid>_rx_package.ttl;
+    %<rssi> = %<blockid>_rx_package.rssi;
+    %<len> = %<blockid>_rx_package.actual_length;
+    if (%<ready>) {
+      memcpy(%<data>, %<blockid>_rx_package.data, %<data_len>); //  %<data_len> size must less than SERIAL_EVT_MESH_MESSAGE_RECEIVED_DATA_MAXLEN
+    }
+  }
+%endif
+
+%% --- Forward ---
+%if conf == "Forward"
+    %assign trigger_idx = 0
+    %assign src_idx = 1
+    %assign appkey_idx = 2
+    %assign subnet_idx = 3
+    %assign ttl_idx = 4
+    %assign len_idx = 5
+    %assign data_idx = 6
+
+    %assign trigger = LibBlockInputSignal(trigger_idx, "", "", 0)
+    %assign src = LibBlockInputSignal(src_idx, "", "", 0)
+    %assign appkey = LibBlockInputSignal(appkey_idx, "", "", 0)
+    %assign subnet = LibBlockInputSignal(subnet_idx, "", "", 0)
+    %assign ttl = LibBlockInputSignal(ttl_idx, "", "", 0)
+    %assign len = LibBlockInputSignal(len_idx, "", "", 0)
+    %assign data = LibBlockInputSignalAddr(data_idx, "", "", 0)
+    %assign data_len = LibBlockInputSignalWidth(data_idx)
+    %<LibBlockOutputSignal(0, "", "", 0)> =  waijung_nrf5_mesh_forward(%<trigger>, %<src>, %<ttl>, %<appkey>, %<subnet>, %<data>, (%<len> <= %<data_len>)?%<len>:%<data_len>);
+%endif
+
+%% --- RxIrq ---
+%if conf == "RxIrq"
+      %addtorecord block AsyncCallerGenCode TLC_TRUE
+
+      %if LibBlockOutputSignalConnected(0)
+        %% Get the downstream block
+        %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+        %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+        %if !block.GenCodeForTopAsyncSS     
+          %%Don't generate code for downstream f-c subsystem
+          %%if GenCodeForTopAsyncSS is not set yet.
+          %return
+        %endif
+
+        %% Call the downstream function call subsystem
+        %openfile tmpBuf
+          %<LibBlockExecuteFcnCall(block, callIdx)>\
+        %closefile tmpBuf   
+
+        %% Always create the ISR function
+        %openfile funcbuf
+          #include "waijung_hwdrvlib.h"
+          #include "%<LibGetMdlPubHdrBaseName()>.h"
+          #include "rtwtypes.h" /* MathWorks types */
+          
+          /* ########################################################################
+           * Block Name: %<block.Name>
+           * Block ID: %<blockid>
+           * ########################################################################
+           * Function call: %<blockid> IRQ
+           */
+          void %<blockid>_rx_isr(void) {
+          %if WHITE_SPACE(tmpBuf)
+            /* Nothing to do for system: %<ssBlock.Name> */
+          %else
+            /* Call the system: %<ssBlock.Name> */
+            %<tmpBuf>
+          %endif
+          }
+        %closefile funcbuf
+        %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_mesh_rx_isr")
+        %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+        %<LibSetSourceFileCustomSection(file,"cFunctions",funcbuf)> 
+
+      %else
+        %openfile tmpBuf
+
+          /* ########################################################################
+           * Block Name: %<block.Name>
+           * Block ID: %<blockid>
+           * ########################################################################
+           * Function call: %<blockid> IRQ
+           */
+          void %<blockid>_rx_isr(void) {
+            /* Ouput ISR block is not connected */
+          }
+        %closefile tmpBuf
+        %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_mesh_rx_isr")
+        %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+        %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+      %endif  
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

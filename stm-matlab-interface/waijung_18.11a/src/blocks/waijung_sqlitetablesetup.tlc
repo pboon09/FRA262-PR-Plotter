@@ -1,0 +1,851 @@
+%implements waijung_sqlitetablesetup "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign port = CAST("String",SFcnParamSettings.port)
+%assign filename = CAST("String",SFcnParamSettings.filename)
+%assign tablename = CAST("String",SFcnParamSettings.tablename)
+%assign columns = CAST("String",SFcnParamSettings.columns)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign block = block + sampletime + sampletimestr + blockid \
+              + port + filename + tablename + columns
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+%openfile tmpBuf
+/* ########################################################################
+ * SQLite interface
+ * ########################################################################
+*/
+
+#include "sqliteconn.h"
+extern volatile unsigned int systick_count;
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%if (EXISTS(::__SQLITE_CONNECTOR_DRIVER_) == 0)
+   %assign :: __SQLITE_CONNECTOR_DRIVER_ = 1
+
+%openfile tmpBuf
+#ifndef __SQLITE_CONN_H
+#define __SQLITE_CONN_H
+
+typedef enum {
+	CONN_OK = 0,
+	CONN_TIMEOUT,
+	CONN_INVALID_QUERY,
+  CONN_INVALID_RESPONSE,
+	CONN_FAILED	
+} SQLITE_CONN_STA;
+
+typedef enum {
+	MODE_DEFAULT,
+	MODE_JSON,
+	MODE_CSV,
+	MODE_HTML,
+	MODE_RAW
+} SQLITE_CONN_OUTPUTMODE;
+
+/* Interface */
+typedef void (*SQLITE_WRITE    )(uint8_t *buffer, uint16_t buffer_size);
+typedef void (*SQLITE_READ     )(uint8_t *buffer, uint16_t buffer_size, uint16_t* reading_count);
+typedef void (*SQLITE_GETTICK  )(uint32_t *tick);
+typedef void (*SQLITE_MESSAGE  )(char *msg);
+
+typedef struct {
+  SQLITE_WRITE Write;
+  SQLITE_READ Read;
+  SQLITE_GETTICK GetTickCount;
+  SQLITE_MESSAGE OutMsg;
+  double TickStep;
+} SQLITE_INF;
+
+#define SQLITE_OUTPUT_BUFFER_SIZE			(5*1024)	/* Limit 5kBytes output */
+#define SQLITE_INPUT_BUFFER_SIZE      (1*1024)  /* Limit 1kBytes input */
+extern char SQliteOutputBuffer[];
+extern char SQliteInputBuffer[];
+
+/* Internal */
+SQLITE_CONN_STA SQLite_Execute(SQLITE_INF *inf);
+SQLITE_CONN_STA SQLite_WriteStr(SQLITE_INF *inf, char *s);
+SQLITE_CONN_STA SQLite_GetPrompt(SQLITE_INF *inf, char* buffer, int buffer_len);
+SQLITE_CONN_STA SQLite_GetResult(SQLITE_INF *inf, char* buffer, int buffer_len);
+SQLITE_CONN_STA SQLite_SelectMainPrompt(SQLITE_INF *inf);
+SQLITE_CONN_STA SQLite_SelectQueryPrompt(SQLITE_INF *inf, char* dbname);
+/* Interface */
+SQLITE_CONN_STA SQLite_Submit(SQLITE_INF *inf, char *dbname, char *querystr);
+SQLITE_CONN_STA SQLite_SelectMode(SQLITE_INF *inf, char *mode);
+SQLITE_CONN_STA SQLite_Query(SQLITE_INF *inf, char *dbname, char* querystr, SQLITE_CONN_OUTPUTMODE mode);
+SQLITE_CONN_STA SQLite_CreateTable(SQLITE_INF *inf, char *dbname, char *crete_string);
+SQLITE_CONN_STA SQLite_GetInteger(SQLITE_INF *inf, char *dbname, char *query, int *output);
+	
+#endif /* __SQLITE_CONN_H */
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "sqliteconn")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include "Sqliteconn.h"
+
+#define SQLITE_BYTE_TIMEOUT       1000
+
+char SQliteOutputBuffer[SQLITE_OUTPUT_BUFFER_SIZE];
+char SQliteTempBuffer[SQLITE_OUTPUT_BUFFER_SIZE];
+char SQliteInputBuffer[SQLITE_INPUT_BUFFER_SIZE];
+static char prompt[512];
+
+/* Timer */
+static uint32_t _Timer_Start = 0;
+static uint32_t _Timer_Length = 0;
+
+void SQLiteTimer_Start(SQLITE_INF *inf, uint32_t ms)
+{
+  /* Calculate amount of tick count */
+  _Timer_Length = (uint32_t)((double)ms/(1000*inf->TickStep));
+
+  /* Capture current tick */
+  inf->GetTickCount(&_Timer_Start);
+}
+
+int SQLiteTimer_IsTimeout(SQLITE_INF *inf)
+{
+  uint32_t Capture;
+
+  /* Capture current tick */
+  inf->GetTickCount(&Capture);
+
+  /* Check */
+  if (Capture >= _Timer_Start) {
+    if ((Capture - _Timer_Start) >= _Timer_Length)
+      return 1;
+    else
+      return 0;
+  } else {
+    if (((0xFFFFFFFF - _Timer_Start)+Capture) >= _Timer_Length)
+      return 1;
+    else
+      return 0;
+  }
+}
+
+/* Clear input */
+void SQLite_ClearInput(SQLITE_INF *inf) {
+  uint16_t reading_count;
+  uint8_t tmp[8];
+  do {
+    inf->Read(tmp, 8, &reading_count);
+  } while(reading_count>0);
+}
+
+SQLITE_CONN_STA SQLite_Execute(SQLITE_INF *inf) {
+  uint8_t c;
+	uint8_t buffer[8];
+  uint16_t reading_count;
+	
+	/* Transmit */
+	c = 0x0A;
+	inf->Write(&c, 1);
+	
+#if 0
+	/* Start time for timeout check durng read */
+  SQLiteTimer_Start(inf, SQLITE_BYTE_TIMEOUT);
+  
+  /* Read 1 byte */
+  do {
+    inf->Read(buffer, 1, &reading_count);
+    if(SQLiteTimer_IsTimeout(inf)) {
+      inf->OutMsg("[SQLite] Connection timed out.");
+      return CONN_TIMEOUT;
+    }
+  } while (reading_count == 0);    
+  
+	/* Check receive byte */
+	if(buffer[0] != 0x0A) {
+		inf->OutMsg("[SQLite] Invalid response.");
+		return CONN_INVALID_RESPONSE;
+	}
+	else
+		return CONN_OK; /* Success */	
+#endif //0
+
+	return CONN_OK; /* Success */	
+}
+
+SQLITE_CONN_STA SQLite_GetPrompt(SQLITE_INF *inf, char* buffer, int buffer_len) {
+	uint8_t tmp_buffer[8];
+	int data_index;
+  uint16_t reading_count;
+	
+	data_index = 0;
+	do {
+		/* Check buffer len */		
+		if(data_index >= (buffer_len-1)) { /* Reserved last byte for NULL */
+			inf->OutMsg("[SQLite] Buffer is overflow.");			
+			return CONN_INVALID_QUERY;
+		}
+		
+		/* Get byte */
+		SQLiteTimer_Start(inf, SQLITE_BYTE_TIMEOUT);
+    
+    /* Read 1 byte */
+    do {
+      inf->Read(tmp_buffer, 1, &reading_count);
+      if(SQLiteTimer_IsTimeout(inf)) {
+        inf->OutMsg("[SQLite] Connection timed out.");
+        return CONN_TIMEOUT;
+      }
+    } while (reading_count == 0); 
+    
+		buffer[data_index] = *(char*)tmp_buffer;
+		data_index ++;		
+	}
+	while(*tmp_buffer != (uint8_t)'>');
+	/* Append NULL */
+	buffer[data_index] = (uint8_t)'\0';	
+	
+	/* Get Space */
+	if(strstr(buffer, "sqlite>")) {
+		SQLiteTimer_Start(inf, SQLITE_BYTE_TIMEOUT);
+    do {
+      inf->Read(tmp_buffer, 1, &reading_count);
+      if(SQLiteTimer_IsTimeout(inf)) {
+        inf->OutMsg("[SQLite] Connection timed out.");
+        return CONN_TIMEOUT;
+      }
+    } while (reading_count == 0);
+	}
+	
+	return CONN_OK;
+}
+
+SQLITE_CONN_STA SQLite_WriteStr(SQLITE_INF *inf, char *s)
+{
+	uint8_t tmp_buffer[8];
+	int data_index;
+	int count;
+	int verify_failed;
+	uint16_t reading_count;
+
+	/* Write */
+	count = strlen(s);
+	inf->Write((uint8_t*)s, count);
+
+#if 0
+	/* Verify */
+	verify_failed = 0; /* Assume at start */
+	data_index = 0;
+	while(data_index < count) {
+		/* Echo */
+		SQLiteTimer_Start(inf, SQLITE_BYTE_TIMEOUT);
+		do {
+		  inf->Read(tmp_buffer, 1, &reading_count);
+		  if(SQLiteTimer_IsTimeout(inf)) {
+			inf->OutMsg("[SQLite] Connection timed out.");
+			return CONN_TIMEOUT;
+		  }
+		} while (reading_count == 0);  
+
+		/* Compare */
+		if(tmp_buffer[0] != (uint8_t)s[data_index]) {
+			verify_failed = 1;
+		}
+		data_index ++;
+	}
+
+	/* Check if failed during process */
+	if(verify_failed) {
+		inf->OutMsg("[SQLite] Invalid response.");
+		return CONN_INVALID_RESPONSE;
+	}
+#endif //0
+	/* Success */
+	return CONN_OK;	
+}
+
+SQLITE_CONN_STA SQLite_GetResult(SQLITE_INF *inf, char* buffer, int buffer_len) {
+	uint8_t tmp_buffer[8];
+	int data_index;
+	int eop;
+  uint16_t reading_count;
+	
+	eop = 0;
+	data_index = 0;
+	do {
+		/* Check buffer len */
+		if(data_index >= (buffer_len-1)) { /* Reserved last byte for NULL */
+			inf->OutMsg("[SQLite] Buffer is overflow.");
+			return CONN_INVALID_QUERY;
+		}
+		
+		/* Get byte */
+		SQLiteTimer_Start(inf, SQLITE_BYTE_TIMEOUT);
+    do {
+      inf->Read(tmp_buffer, 1, &reading_count);
+      if(SQLiteTimer_IsTimeout(inf)) {
+        inf->OutMsg("[SQLite] Connection timed out.");
+        return CONN_TIMEOUT;
+      }
+    } while (reading_count == 0); 
+    
+		buffer[data_index] = *(char*)tmp_buffer;
+		data_index ++;
+		
+		if(data_index >= 8) { /* "sqlite> " */
+			if(strncmp(&buffer[data_index-8], "sqlite> ", 8) == 0) {
+				eop = 1;
+			}
+		}
+	}
+	while(eop == 0);	
+	
+	/* Append NULL */
+	buffer[data_index-8] = (uint8_t)'\0';	
+	
+	return CONN_OK;
+}
+
+SQLITE_CONN_STA SQLite_SelectMainPrompt(SQLITE_INF *inf) {
+	const char *prompt_str = ">";
+	uint8_t retry;
+	SQLITE_CONN_STA sta;	
+	
+	/* Clear Input */
+	SQLite_ClearInput(inf);
+	
+	/* Sent execute cmd */
+	if((sta = SQLite_Execute(inf)) != CONN_OK) {
+		/* Clear Input */
+		SQLite_ClearInput(inf);		
+		/* Retry */
+		if((sta = SQLite_Execute(inf)) != CONN_OK) {
+			inf->OutMsg("[SQLite] Failed to sent execute command.");
+			return sta;
+		}
+	}
+	
+	retry = 0;
+__retry:	
+	/* Get prompt */
+	if((sta = SQLite_GetPrompt(inf, prompt, sizeof(prompt))) != CONN_OK)
+		return sta;
+
+	/* Sqlite is already operate in Main console mode? */
+	if(strcmp(prompt, prompt_str) == 0) {
+		return CONN_OK;
+	}
+	else {
+		if(retry++ == 0) {
+			/* Clear Input */
+			SQLite_ClearInput(inf);
+			
+			/* Sent Quit command to exit from current mode */
+			if((sta = SQLite_WriteStr(inf, ".quit\n")) != CONN_OK)
+				return sta;
+			goto __retry;
+		}
+		else {
+			SQLite_WriteStr(inf, ".reset\n");
+			return CONN_FAILED;
+		}
+	}
+}
+
+SQLITE_CONN_STA SQLite_SelectQueryPrompt(SQLITE_INF *inf, char* dbname) {
+	const char *prompt_str = "sqlite>";
+	SQLITE_CONN_STA sta;
+	
+	/* Start at Main prompt */
+	if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+		return sta;
+	
+	/* Select Sqlite prompt */
+	if((sta = SQLite_WriteStr(inf, "sqlite ")) != CONN_OK)
+		return sta;
+	if(dbname) {
+		if((sta = SQLite_WriteStr(inf, dbname)) != CONN_OK)
+			return sta;
+	}
+	
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;
+	
+	/* Get prompt */
+	if((sta = SQLite_GetPrompt(inf, &prompt[0], sizeof(prompt))) != CONN_OK)
+		return sta;
+	
+	//if(strstr(prompt,prompt_str)) {
+  if(strcmp(prompt,prompt_str)) {
+		return CONN_OK;
+	}
+	
+	return CONN_FAILED;
+}
+
+/* No return value require */
+SQLITE_CONN_STA SQLite_Submit(SQLITE_INF *inf, char *dbname, char *querystr) {
+	SQLITE_CONN_STA sta;
+	
+	/* Enter Sqlite prompt */
+	if((sta = SQLite_SelectQueryPrompt(inf, dbname)) != CONN_OK)
+		return sta;
+	
+	/* Summit str */
+	if((sta = SQLite_WriteStr(inf, querystr)) != CONN_OK)
+		return sta;	
+	
+	/* Sent ";" if it doesn't appear at the end of statement  */
+	if(querystr[strlen(querystr)-1] != ';') {
+		if((sta = SQLite_WriteStr(inf, ";")) != CONN_OK)
+			return sta;	
+	}	
+	
+	/* Execute */
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;	
+	
+	/* Get prompt */
+	if((sta = SQLite_GetPrompt(inf, prompt, sizeof(prompt))) != CONN_OK)
+		return sta;
+	
+	/* Return Sqlite prompt */
+	if(strcmp(prompt, "sqlite>") != 0)
+		return CONN_INVALID_RESPONSE;
+	
+	/* Exit Sqlite, return to main prompt */
+	if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+		return sta;
+	
+	/* Success */
+	return sta;	
+}
+
+SQLITE_CONN_STA SQLite_SelectMode(SQLITE_INF *inf, char *mode) {
+	SQLITE_CONN_STA sta;
+	
+	if((sta = SQLite_WriteStr(inf, mode)) != CONN_OK)
+		return sta;
+	/* Execute */
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;	
+	
+	/* Get prompt */
+	if((sta = SQLite_GetPrompt(inf, &prompt[0], sizeof(prompt))) != CONN_OK)
+		return sta;
+	
+	if(strcmp(prompt,"sqlite>") == 0) {
+		return CONN_OK;
+	}
+
+	return CONN_FAILED;
+}
+
+SQLITE_CONN_STA SQLite_GetJSONColCount(char* buffer, int *output)
+{
+	int i;
+	char *s;
+	
+	i = 0;
+	s = buffer;
+	while((s=strstr(s, ","))) {
+		i++;
+		s++;
+		if(*s == '\n') {
+			*output = i;
+			return CONN_OK;
+		}
+	}
+	return CONN_FAILED;
+}
+
+SQLITE_CONN_STA SQLite_GetJSONElement(char* buffer, int index, char** output, int* output_count, char** rest)
+{
+	int i;
+	char *s;
+	char *s1;
+
+	s1 = buffer;
+	i = 0;
+	do {
+		s = s1;
+		if((s1=strstr(s1, ",")) != 0) {
+			s1++;
+		}
+		else {
+			return CONN_FAILED;
+		}
+	}
+	while (i++ < index);
+		
+	*output = s;
+	*output_count = (s1 - s)-1;
+	
+	while(*s1) {
+		if(*s1++ == '\n') { /* Move to EOL */
+			*rest = s1;
+			return CONN_OK;
+		}
+	}
+	
+	return CONN_INVALID_QUERY;
+}
+
+SQLITE_CONN_STA SQLite_JSON_Convert(char* in_buffer, char* out_buffer, int out_buffer_size)
+{
+	int i;
+	int col;
+	int row;
+	int index;
+	int count;
+	int len;
+	int size;
+	char* s;
+	char* tmp_str;
+	char* output;
+	SQLITE_CONN_STA sta;
+	
+	/* Get number of column */
+	if((sta = SQLite_GetJSONColCount(in_buffer, &col)) != CONN_OK)
+		return sta;
+	
+	size = strlen(in_buffer);
+	if(size <= 0)
+		return CONN_INVALID_QUERY;
+		
+	index = 0;
+	out_buffer[index++] = '[';
+	
+	strncpy(&out_buffer[index], "{\"label\":\"message\",\"data\":\"OK\"},", 
+          (len=strlen("{\"label\":\"message\",\"data\":\"OK\"},")));
+	index += len;
+	
+	/* Processing by column */
+	for(i=0; i<col; i++) {
+		/* ( 2) ->{ */
+		out_buffer[index++] = '{';
+		row = 0;
+		tmp_str = in_buffer;	
+		while(*tmp_str) {
+			s = tmp_str;
+			/* Get element */
+			if((sta = SQLite_GetJSONElement(s, i, &output, &count, &tmp_str)) != CONN_OK)
+				return sta;
+
+			if(row == 0) {
+				/* "label":"%s","data":[ */
+				if((len=strlen("\"label\":")) < out_buffer_size) {
+					strncpy(&out_buffer[index], "\"label\":", len);
+					index += len;
+				}
+				else
+					return CONN_INVALID_QUERY;
+				/*  */
+				strncpy(&out_buffer[index], output, count);
+				index += count;				
+				strncpy(&out_buffer[index], ",\"data\":[", (len=strlen(",\"data\":[")));
+				index += len;
+			}
+			else {
+				strncpy(&out_buffer[index], output, count);
+				index += count;					
+				if(*tmp_str) {
+					strncpy(&out_buffer[index], ",", (len=strlen(",")));
+					index += len;
+				}
+				else { /* Last item */
+					
+				}			
+			}
+			row++;
+		}
+		strncpy(&out_buffer[index], "]}", (len=strlen("]}")));
+		index += len;
+		if(i <(col-1)) {			
+			strncpy(&out_buffer[index], ",", (len=strlen(",")));
+			index += len;
+		}		
+	}
+	
+	strncpy(&out_buffer[index], "]", (len=strlen("]")));
+	index += len;
+	
+	/* Add NULL terminated string */
+	out_buffer[index] = '\0';	
+	
+	return CONN_OK;
+}
+
+
+SQLITE_CONN_STA SQLite_Query(SQLITE_INF *inf, char *dbname, char* querystr, SQLITE_CONN_OUTPUTMODE mode) {
+	SQLITE_CONN_STA sta;
+	
+	/* Ignore if query string is empty */
+	
+	/* Clear output buffer */
+	SQliteOutputBuffer[0] = '\0';
+	
+	/* Enter Sqlite prompt */
+	if((sta = SQLite_SelectQueryPrompt(inf, dbname)) != CONN_OK)
+		return sta;
+	
+	/* Select mode */
+	switch(mode) {
+		case MODE_JSON:
+			if((sta = SQLite_SelectMode(inf, ".separator ,")) != CONN_OK)
+				return sta;
+			if((sta = SQLite_SelectMode(inf, ".mode tcl")) != CONN_OK)
+				return sta;
+			if((sta = SQLite_SelectMode(inf, ".headers on")) != CONN_OK)
+				return sta;
+			break;
+		case MODE_CSV:
+			if((sta = SQLite_SelectMode(inf, ".mode csv")) != CONN_OK)
+				return sta;
+			break;
+		case MODE_HTML:
+			if((sta = SQLite_SelectMode(inf, ".mode html")) != CONN_OK)
+				return sta;
+			break;		
+		default:
+			if((sta = SQLite_SelectMode(inf, ".headers on")) != CONN_OK) // Test only
+				return sta;
+			break;
+	}	
+	
+	/* Summit query str */
+	if((sta = SQLite_WriteStr(inf, querystr)) != CONN_OK)
+		return sta;	
+	
+	/* Sent ";" if it doesn't appear at the end of statement  */
+	if(querystr[strlen(querystr)-1] != ';') {
+		if((sta = SQLite_WriteStr(inf, ";")) != CONN_OK)
+			return sta;	
+	}
+	
+	/* Execute */
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;	
+
+	/* Get result */
+	if(mode == MODE_JSON) {
+		/* Store into temporary buffer for JSON format */
+		if((sta = SQLite_GetResult(inf, SQliteTempBuffer, SQLITE_OUTPUT_BUFFER_SIZE)) != CONN_OK)
+			return sta;
+	}
+	else {
+		if((sta = SQLite_GetResult(inf, SQliteOutputBuffer, SQLITE_OUTPUT_BUFFER_SIZE)) != CONN_OK)
+			return sta;
+	}
+	
+	/* Exit Sqlite, return to main prompt */
+	if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+		return sta;
+	
+	/* Translate result, JSON mode */
+	if(mode == MODE_JSON) {
+		if((sta=SQLite_JSON_Convert(SQliteTempBuffer, SQliteOutputBuffer, SQLITE_OUTPUT_BUFFER_SIZE)) != CONN_OK)
+			return sta;
+	}
+	
+	/* Success */
+	return sta;	
+}
+
+/* No return value require */
+SQLITE_CONN_STA SQLite_CreateTable(SQLITE_INF *inf, char *dbname, char *crete_string) {
+	SQLITE_CONN_STA sta;
+	
+	/* Enter Sqlite prompt */
+	if((sta = SQLite_SelectQueryPrompt(inf, dbname)) != CONN_OK)
+		return sta;
+  
+  /* Write statement */
+	if((sta = SQLite_WriteStr(inf, crete_string)) != CONN_OK)
+		return sta;	
+  if(*crete_string && (crete_string[strlen(crete_string)-1] != ';')) {
+    if((sta = SQLite_WriteStr(inf, ";")) != CONN_OK)
+      return sta;	    
+  }
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;	
+  
+  if((sta = SQLite_GetResult(inf, SQliteTempBuffer, SQLITE_OUTPUT_BUFFER_SIZE)) != CONN_OK)
+    return sta;
+  
+  if(SQliteTempBuffer[0] != 0) { /* NULL if success, otherwise fail error message */
+    /* Did not receive the correct prompt, check if it is already existing */
+    if(strstr(SQliteTempBuffer, "already exists") == 0) {
+      sta = CONN_INVALID_QUERY;
+    }
+  }
+  
+	/* Exit Sqlite, return to main prompt */
+	if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+		return sta;  
+	
+	/* Success */
+	return sta;	
+}
+
+
+/* No return value require */
+SQLITE_CONN_STA SQLite_GetInteger(SQLITE_INF *inf, char *dbname, char *query, int *output) {
+	SQLITE_CONN_STA sta;
+  int tmp;
+	
+	/* Enter Sqlite prompt */
+	if((sta = SQLite_SelectQueryPrompt(inf, dbname)) != CONN_OK)
+		return sta;
+  
+  /* Write statement */
+	if((sta = SQLite_WriteStr(inf, query)) != CONN_OK)
+		return sta;	
+  if(*query && (query[strlen(query)-1] != ';')) {
+    if((sta = SQLite_WriteStr(inf, ";")) != CONN_OK)
+      return sta;
+  }
+	if((sta = SQLite_Execute(inf)) != CONN_OK)
+		return sta;	
+  
+  if((sta = SQLite_GetResult(inf, SQliteTempBuffer, SQLITE_OUTPUT_BUFFER_SIZE)) != CONN_OK)
+    return sta;
+  
+  if(sscanf(SQliteTempBuffer, "%d\n", &tmp)==1) {
+    *output = tmp;
+    /* Exit Sqlite, return to main prompt */
+    if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+      return sta;
+  }
+  else {
+    /* Exit Sqlite, return to main prompt */
+    if((sta = SQLite_SelectMainPrompt(inf)) != CONN_OK)
+      return sta;
+    
+    return CONN_INVALID_QUERY;
+  }  
+	
+	/* Success */
+	return sta;	
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "sqliteconn")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endif
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Block Name: %<block.Name>
+ * Block ID: %<blockid>
+ * ########################################################################
+*/
+/*
+** Database file: %<filename>
+** Table name: %<tablename>
+** Create string: CREATE TABLE %<tablename>(%<columns>)
+** Communication port: UART%<port>
+*/
+void enable_%<blockid>(void);
+void %<blockid>_CreateTable(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Block Name: %<block.Name>
+ * Block ID: %<blockid>
+ * ########################################################################
+*/
+
+SQLITE_INF %<blockid>_inf;
+UARTRX_BUFFER_READ_STRUCT %<blockid>_readstruct;
+/* Read */
+void %<blockid>_Read(uint8_t *buffer, uint16_t buffer_size, uint16_t*reading_count) {
+  /* Read from UART DMA Buffer with specified size */
+  UART%<port>_ReadEx(&%<blockid>_readstruct, buffer, buffer_size, reading_count);
+}
+/* Write */
+void %<blockid>_Write(uint8_t *buffer, uint16_t buffer_size) {
+  UART%<port>_Write(buffer, buffer_size);
+  UART%<port>_FlushTxBuffer();
+}
+/* Get system tick count */
+void %<blockid>_GetTick(uint32_t *tick)
+{
+  *tick = systick_count;
+}
+/* Output logging message */
+void %<blockid>_OutMsg(char *msg)
+{
+  (void)msg; /* Unused */
+}
+/* Create SQLite table */
+void %<blockid>_CreateTable(void) {
+  static uint8_t table_creation_sta = 0; /* 0: Not create yet, 1: Created */
+  if(table_creation_sta == 0) {
+    if(SQLite_CreateTable(&%<blockid>_inf, "%<filename>", "create table %<tablename>(%<columns>)") == CONN_OK)
+      table_creation_sta = 1;
+  }
+}
+
+/* Enable module */
+void enable_%<blockid>(void){
+  /* UART interface */
+  %<blockid>_readstruct.ndtr = URX%<port>_BUFFER_SIZE;
+  /* SQLite interface */
+  %<blockid>_inf.Write = %<blockid>_Write;
+  %<blockid>_inf.Read = %<blockid>_Read;
+  %<blockid>_inf.GetTickCount = %<blockid>_GetTick;
+  %<blockid>_inf.OutMsg = %<blockid>_OutMsg;
+  %<blockid>_inf.TickStep = %<SampleTime[0].ClockTickStepSize>; /* Time step per tick count  */
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* Create SQLite data table if not existing */
+%<blockid>_CreateTable();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

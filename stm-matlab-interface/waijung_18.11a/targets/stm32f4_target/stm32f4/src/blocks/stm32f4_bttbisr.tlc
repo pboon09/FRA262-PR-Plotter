@@ -1,0 +1,272 @@
+%implements stm32f4_bttbisr "C"
+
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+   %assign timer = CAST("String",SFcnParamSettings.timer)
+   %assign nvicprioritygroup = CAST("String",SFcnParamSettings.nvicprioritygroup)
+   %assign irqpreemptionpriority = CAST("String",SFcnParamSettings.irqpreemptionpriority)
+   %assign irqsubpriority = CAST("String",SFcnParamSettings.irqsubpriority)
+   %assign autoreload = CAST("String",SFcnParamSettings.autoreload)
+   %assign prescaler = CAST("String",SFcnParamSettings.prescaler)
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+   %assign block = block + timer + nvicprioritygroup + irqpreemptionpriority \
+                   + irqsubpriority + autoreload + prescaler + blockid
+
+   %switch (timer)
+     %case "1"
+       %assign timer_irqn = "TIM1_UP_TIM10_IRQn"
+       %assign timer_irq_handler = "TIM1_UP_TIM10_IRQHandler"
+       %break
+
+     %case "2"
+       %assign timer_irqn = "TIM2_IRQn"
+       %assign timer_irq_handler = "TIM2_IRQHandler"
+       %break
+
+     %case "3"
+       %assign timer_irqn = "TIM3_IRQn"
+       %assign timer_irq_handler = "TIM3_IRQHandler"
+       %break
+
+     %case "4"
+       %assign timer_irqn = "TIM4_IRQn"
+       %assign timer_irq_handler = "TIM4_IRQHandler"
+       %break
+
+     %case "5"
+       %assign timer_irqn = "TIM5_IRQn"
+       %assign timer_irq_handler = "TIM5_IRQHandler"
+       %break
+
+     %case "6"
+       %assign timer_irqn = "TIM6_DAC_IRQn"
+       %assign timer_irq_handler = "TIM6_DAC_IRQHandler"
+       %break
+
+     %case "7"
+       %assign timer_irqn = "TIM7_IRQn"
+       %assign timer_irq_handler = "TIM7_IRQHandler"
+       %break
+
+     %case "8"
+       %assign timer_irqn = "TIM8_UP_TIM13_IRQn"
+       %assign timer_irq_handler = "TIM8_UP_TIM13_IRQHandler"
+       %break
+
+     %case "9"
+       %assign timer_irqn = "TIM1_BRK_TIM9_IRQn"
+       %assign timer_irq_handler = "TIM1_BRK_TIM9_IRQHandler"
+       %break
+
+     %case "10"
+       %assign timer_irqn = "TIM1_UP_TIM10_IRQn"
+       %assign timer_irq_handler = "TIM1_UP_TIM10_IRQHandler"
+       %break
+
+     %case "11"
+       %assign timer_irqn = "TIM1_TRG_COM_TIM11_IRQn"
+       %assign timer_irq_handler = "TIM1_TRG_COM_TIM11_IRQHandler"
+       %break
+
+     %case "12"
+       %assign timer_irqn = "TIM8_BRK_TIM12_IRQn"
+       %assign timer_irq_handler = "TIM8_BRK_TIM12_IRQHandler"
+       %break
+
+     %case "13"
+       %assign timer_irqn = "TIM8_UP_TIM13_IRQn"
+       %assign timer_irq_handler = "TIM8_UP_TIM13_IRQHandler"
+       %break
+
+     %case "14"
+       %assign timer_irqn = "TIM8_TRG_COM_TIM14_IRQn"
+       %assign timer_irq_handler = "TIM8_TRG_COM_TIM14_IRQHandler"
+       %break
+   %endswitch   
+
+   %assign block = block + timer_irqn +timer_irq_handler
+%endfunction
+
+%% See LibBlockExecuteFcnCall(block, callIdx) in Matlab help for more information.
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F4XX_TIM_H__) == 0)
+      %assign :: __STM32F4XX_TIM_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %addtorecord block AsyncCallerGenCode TLC_TRUE %% required if async block also generate code
+
+   %<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+      void enable_%<blockid>(void){ 
+         /* Block: %<blockid> */
+
+         NVIC_InitTypeDef NVIC_InitStructureTimeBaseIRQ_TIM%<timer>;
+
+         /* Configure Timer Clock */
+         %assign timernum = CAST("Number",timer)
+         %if ((timernum == 9) || (timernum == 10)  || (timernum == 11))
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM%<timer>, ENABLE);
+         %else
+            RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM%<timer>, ENABLE);
+         %endif
+
+         %%/* Setup Interrupt Priority */
+         %%#ifdef  VECT_TAB_RAM  
+         %%   /* Set the Vector Table base location at 0x20000000 */ 
+         %%   NVIC_SetVectorTable(NVIC_VectTab_RAM, 0x0); 
+         %%#else  /* VECT_TAB_FLASH  */
+         %%   NVIC_SetVectorTable(0x8000000, 0x0);
+         %%#endif 
+
+         /* Configure the NVIC Preemption Priority Bits */  
+         NVIC_PriorityGroupConfig(NVIC_PriorityGroup_%<nvicprioritygroup>);
+
+         %%NVIC_InitStructureTimeBaseIRQ_TIM%<timer>.NVIC_IRQChannel = TIM%<timer>_IRQn;
+         NVIC_InitStructureTimeBaseIRQ_TIM%<timer>.NVIC_IRQChannel = %<timer_irqn>;
+         NVIC_InitStructureTimeBaseIRQ_TIM%<timer>.NVIC_IRQChannelPreemptionPriority = %<irqpreemptionpriority>;
+         NVIC_InitStructureTimeBaseIRQ_TIM%<timer>.NVIC_IRQChannelSubPriority = %<irqsubpriority>;
+         NVIC_InitStructureTimeBaseIRQ_TIM%<timer>.NVIC_IRQChannelCmd = ENABLE;
+         NVIC_Init(&NVIC_InitStructureTimeBaseIRQ_TIM%<timer>);
+
+         /* TIM%<timer> Configuration */
+         TIM_PrescalerConfig(TIM%<timer>, %<prescaler>, TIM_PSCReloadMode_Update);
+         TIM_SetAutoreload(TIM%<timer>, %<autoreload>);     
+
+         /* TIM IT enable */
+         TIM_ITConfig(TIM%<timer>, TIM_IT_Update, ENABLE);
+
+         /* TIM%<timer> enable counter */
+         TIM_Cmd(TIM%<timer>, ENABLE);
+       }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void enable_%<blockid>(void); /* %<blockid> */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void disable_%<blockid>(void){ 
+         /* Block: %<blockid> */
+
+         /* TIM IT enable */
+         TIM_ITConfig(TIM%<timer>, TIM_IT_Update, DISABLE);
+
+         /* TIM%<timer> enable counter */
+         TIM_Cmd(TIM%<timer>, DISABLE);
+       }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void disable_%<blockid>(void); /* %<blockid> */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+/* %<Type> Block: %<Name> */
+
+   %% Get the downstream block
+   %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+   %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+   %if !block.GenCodeForTopAsyncSS
+     %% Don't generate code for downstream f-c subsystem
+     %% if GenCodeForTopAsyncSS is not set yet.
+     %return
+   %endif
+
+   %% Always create the ISR function
+   %openfile tmpBuf
+      void TIM%<timer>_IRQHandler(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_it")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* Timer %<timer> IRQ Block: '%<Name>' */
+      extern void %<blockid>_irq(void);
+      %%void TIM%<timer>_IRQHandler(void) {
+      void %<timer_irq_handler>(void) {      
+         /* Clear the interrupt pending bit */
+         TIM_ClearITPendingBit(TIM%<timer>, TIM_IT_Update);
+
+         /* Call the system: %<ssBlock.Name> */
+         %<blockid>_irq();
+         %% Call the downstream function call subsystem
+         %%%<LibBlockExecuteFcnCall(block, callIdx)>\
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "stm32f4xx_it")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %% Call the downstream function call subsystem
+   %openfile tmpBuf
+     %<LibBlockExecuteFcnCall(block, callIdx)>\
+   %closefile tmpBuf 
+
+   %% Always create the ISR function
+   %openfile funcbuf
+     /* ########################################################################
+      * Block Name: %<block.Name>
+      * Block ID: %<blockid>
+      * ########################################################################
+      * Function call: %<blockid> IRQ
+      */
+     void %<blockid>_irq(void) {
+        %if WHITE_SPACE(tmpBuf)
+           /* Nothing to do for system: %<ssBlock.Name> */
+        %else
+           /* Call the system: %<ssBlock.Name> */
+           %<tmpBuf>
+        %endif
+     }
+   %closefile funcbuf
+
+   %assign filename = LibGetMdlSrcBaseName()
+   %assign file = LibCreateSourceFile("Source", "Simulink", filename)
+   %<LibSetSourceFileSection(file,"Functions",funcbuf)>
+
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   /* terminate_%<blockid>(); */
+%endfunction
+

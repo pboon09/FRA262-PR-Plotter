@@ -1,0 +1,588 @@
+%implements stm32f0_eep_emulation "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+%if (conf == "Write") || (conf == "Read")
+  %assign varname  = optionstring[0]
+  %assign varindex = optionstring[1]
+  %assign typeid   = optionstring[2]
+  %assign debuginfo = optionstring[3]
+  %assign varcount = CAST("Number",optionstring[10])
+
+  %assign block = block + varname + varindex + typeid + debuginfo + varcount
+
+%endif
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_FLASH__) == 0)
+      %assign :: __STM32F0XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+     /* ########################################################################
+      * Name: EEProm emulation
+      * ########################################################################
+      */
+     #define EEPEMU_DTYPE_DOUBLE      0
+     #define EEPEMU_DTYPE_SINGLE      1
+     #define EEPEMU_DTYPE_INT8        2
+     #define EEPEMU_DTYPE_UINT8       3
+     #define EEPEMU_DTYPE_INT16       4
+     #define EEPEMU_DTYPE_UINT16      5
+     #define EEPEMU_DTYPE_INT32       6
+     #define EEPEMU_DTYPE_UINT32      7
+     
+     void EEP_Emu_GetDebugInfo(int32_t *value);
+     int EEP_Emu_Read(uint8_t dataindex, uint8_t datatype, void *value);
+     int EEP_Emu_Write(uint8_t dataindex, uint8_t datatype, void *value);
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%if (conf == "Read") || (conf == "Write")
+  %if (EXISTS(::__EEPROM_EMULATION_UTILS__) == 0)
+    %assign :: __EEPROM_EMULATION_UTILS__ = 1
+    %openfile tmpBuf
+      /* ########################################################################
+       * Name: EEProm emulation
+       * ########################################################################
+       */
+      #define EEPROM_EMU_SECTOR_COUNT 3
+      #define EEPROM_EMU_SECTOR_SIZE  1024 /* Sector size 2k: STM32F072 */
+
+      const uint16_t *EEPROM_Emu_Buffer = (const uint16_t *)0x801E800;
+
+      //#if defined (__GNUC__) /*!< GNU Compiler */
+      //  const uint16_t EEPROM_Emu_Buffer[EEPROM_EMU_SECTOR_COUNT*EEPROM_EMU_SECTOR_SIZE] __attribute__ ((aligned (EEPROM_EMU_SECTOR_SIZE*2)));
+      //#elif defined ( __ICCARM__ ) /*!< IAR Compiler */
+      //  #pragma data_alignment=EEPROM_EMU_SECTOR_SIZE*2
+      //  const uint16_t EEPROM_Emu_Buffer[EEPROM_EMU_SECTOR_COUNT*EEPROM_EMU_SECTOR_SIZE];
+      //#else
+      //  __align(EEPROM_EMU_SECTOR_SIZE*2)
+      //  const uint16_t EEPROM_Emu_Buffer[EEPROM_EMU_SECTOR_COUNT*EEPROM_EMU_SECTOR_SIZE];
+      //#endif 
+
+      /* EEProm Status */
+      static int EEProm_Sector_Index = -1;
+      static int EEProm_Sector_Offset = 32; // Sector +64
+
+      /* Default value */
+      #define EEPROM_DATA_COUNT %<varcount> //Max 48
+      const double EEProm_Data_Default[EEPROM_DATA_COUNT] = 
+      {
+      %assign sep = ""
+      %foreach idx=varcount
+        %<sep>%<optionstring[13+idx*3]> /* %<optionstring[11+idx*3]> */\
+        %assign sep = ","
+      %endforeach
+      };
+
+      const uint8_t EEProm_Data_Type[EEPROM_DATA_COUNT] =
+      {
+      %assign sep = ""
+      %foreach idx=varcount
+        %<sep>%<optionstring[12+idx*3]> /* %<optionstring[11+idx*3]> */\
+        %assign sep = ","
+      %endforeach
+      };
+
+      void EEP_FLASH_ProgramHalfWord(uint32_t Address, uint16_t Data)
+      {
+        volatile FLASH_Status status;
+
+        status = FLASH_ProgramHalfWord(Address, Data);
+        if (status != FLASH_COMPLETE) {
+          //while (1);
+        }
+      }
+
+      void EEP_FLASH_ProgramWord(uint32_t Address, uint16_t Data)
+      {
+        volatile FLASH_Status status;
+
+        status = FLASH_ProgramWord(Address, Data);
+        if (status != FLASH_COMPLETE) {
+          //while (1);
+        }        
+      }
+
+      void EEP_FLASH_ErasePage(uint32_t Page_Address)
+      {
+        volatile FLASH_Status status;
+
+        status = FLASH_ErasePage(Page_Address);
+        if (status != FLASH_COMPLETE) {
+          //while (1);
+        }        
+      }
+
+      void EEPromFormatSector(uint32_t Sector_Index, uint32_t cycle_count)
+      {
+        int i;
+        const uint16_t *pBuffer, *pDataType;        
+
+        // Active buffer pointer
+        pBuffer = &EEPROM_Emu_Buffer[Sector_Index*EEPROM_EMU_SECTOR_SIZE];
+
+        // Erase sector, if needed
+        if ((pBuffer[0] != 0xFFFF) && (pBuffer[1] != 0xFFFF) && (pBuffer[2] != 0xFFFF)) {
+          EEP_FLASH_ErasePage((uint32_t)pBuffer);
+        }
+
+        // Write 0xAA 0x55 keys
+        EEP_FLASH_ProgramHalfWord((uint32_t)(&pBuffer[0]), 0x55AA); // Sector +0
+
+        // Cycle count
+        EEP_FLASH_ProgramWord((uint32_t)(&pBuffer[1]), cycle_count); // Sector +2
+
+        // Data count
+        EEP_FLASH_ProgramHalfWord((uint32_t)(&pBuffer[3]), EEPROM_DATA_COUNT); // Sector +6
+        
+        // Data type
+        pDataType = (uint16_t *)(&EEProm_Data_Type[0]);
+        for (i=0; i<(EEPROM_DATA_COUNT>>1); i++)
+          EEP_FLASH_ProgramHalfWord((uint32_t)(&pBuffer[4+i]), pDataType[i]);
+      }
+
+      int EEPromSearchActiveSector(void)
+      {
+        int i;
+        const uint16_t *pBuffer;
+
+        // Looking for active sector
+        for (i=0; i<EEPROM_EMU_SECTOR_COUNT; i++) {
+          pBuffer = &EEPROM_Emu_Buffer[i*EEPROM_EMU_SECTOR_SIZE];
+
+          // Check sector header key
+          if (pBuffer[0] == 0x55AA)
+            return i;
+        }
+    
+        // No active sector
+        return -1;
+      }
+
+      int EEPromGetDataHalfWordCount(uint8_t datatype)
+      {
+        // Number of bytes for specified data type
+        switch (datatype) {
+          case EEPEMU_DTYPE_SINGLE:
+          case EEPEMU_DTYPE_INT32:
+          case EEPEMU_DTYPE_UINT32:
+            return 2; /* 4 bytes */
+
+          case EEPEMU_DTYPE_INT8:
+          case EEPEMU_DTYPE_UINT8:
+          case EEPEMU_DTYPE_INT16:
+          case EEPEMU_DTYPE_UINT16:
+            return 1; /* 2 bytes */
+
+          case EEPEMU_DTYPE_DOUBLE:
+          default:
+            break;
+        }
+        return 4;
+      }
+
+      // Return debug information
+      void EEP_Emu_GetDebugInfo(int32_t *value)
+      {
+        const uint16_t *pBuffer;
+        int cycle;
+
+        if (EEProm_Sector_Index >= 0) {
+          pBuffer = &EEPROM_Emu_Buffer[EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE];
+          memcpy(&cycle, &pBuffer[1], 4);
+
+          value[0] = EEProm_Sector_Index;
+          value[1] = EEProm_Sector_Offset;
+          value[2] = cycle;
+        }
+        else {
+          value[0] = -1;
+          value[1] = -1;
+          value[2] = -1;
+        }
+      }
+
+      // Read Data from EEP Emulation
+      // 0-Valid value, 1-Default value, -1 ro Otherwise failed.
+      int EEP_Emu_Read(uint8_t dataindex, uint8_t datatype, void *value)
+      {
+        uint16_t key, tmp_varindex;
+        const uint16_t *pBuffer;
+        int search_index, data_count;
+        const int data_count_list[8] = {4, 2, 1, 1, 1, 1, 2, 2}; 
+        
+        // Number of bytes for specified data type
+        data_count = EEPromGetDataHalfWordCount(datatype);
+
+        // Flash sector is not active ?
+        if ((EEProm_Sector_Index < 0) || (EEProm_Sector_Index >= EEPROM_EMU_SECTOR_COUNT)) {
+          // Search for active sector
+          EEProm_Sector_Index = EEPromSearchActiveSector();   
+          // Search for offset
+          if (EEProm_Sector_Index >= 0) {
+            const uint16_t *pBuffer = &(EEPROM_Emu_Buffer[EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE]);
+            EEProm_Sector_Offset = EEPROM_EMU_SECTOR_SIZE-1;
+            while ((EEProm_Sector_Offset > 32) && (pBuffer[EEProm_Sector_Offset-1] == 0xFFFF))
+              EEProm_Sector_Offset --;
+          }
+        }
+        
+        if (EEProm_Sector_Index >= 0) {
+          pBuffer = &EEPROM_Emu_Buffer[EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE];
+          // Search for data index
+          search_index = EEProm_Sector_Offset;
+          key = (0xAA00 | (uint16_t)dataindex);
+
+          // Search for var key
+          while ((search_index > 32) && ((pBuffer[search_index] & key) != key)) {
+            tmp_varindex = (pBuffer[search_index] & 0x00FF);
+            if (((pBuffer[search_index] & 0xFF00) == 0xAA00) && (tmp_varindex <= 7)) {
+              search_index -= data_count_list[tmp_varindex];
+            }
+            else { search_index --; }
+          }
+          // Move to Data pos
+          search_index --;
+
+          if (search_index > 32) {
+            const uint8_t *pData;
+            pData = (const uint8_t *)&(pBuffer[search_index-data_count]);
+            memcpy(value, pData, data_count*2);
+            return 0;
+          }
+        }
+
+        // Return the default value
+        if (dataindex < EEPROM_DATA_COUNT) {
+          double   default_type_double;
+          float    default_type_single;
+          int16_t   default_type_int8;
+          uint16_t  default_type_uint8;
+          int16_t  default_type_int16;
+          uint16_t default_type_uint16;
+          int32_t  default_type_int32;
+          uint32_t default_type_uint32;
+          
+          switch (datatype) {
+            case EEPEMU_DTYPE_DOUBLE:
+              default_type_double = EEProm_Data_Default[dataindex];
+              memcpy(value, &default_type_double, 8);
+              break;
+            case EEPEMU_DTYPE_SINGLE:
+              default_type_single = (float)(EEProm_Data_Default[dataindex]);
+              memcpy(value, &default_type_single, 4);
+              break;
+            case EEPEMU_DTYPE_INT8:
+              default_type_int8 = (int8_t)((int32_t)(EEProm_Data_Default[dataindex]));
+              memcpy(value, &default_type_int8, 2);
+              break;
+            case EEPEMU_DTYPE_UINT8:
+              default_type_uint8 = (uint8_t)((uint32_t)(EEProm_Data_Default[dataindex]));
+              memcpy(value, &default_type_uint8, 2);
+              break;
+            case EEPEMU_DTYPE_INT16:
+              default_type_int16 = (int16_t)((int32_t)(EEProm_Data_Default[dataindex]));
+              memcpy(value, &default_type_int16, 2);
+              break;
+            case EEPEMU_DTYPE_UINT16:
+              default_type_uint16 = (uint16_t)((uint32_t)(EEProm_Data_Default[dataindex]));
+              memcpy(value, &default_type_uint16, 2);
+              break;
+            case EEPEMU_DTYPE_INT32:
+              default_type_int32 = (int32_t)(EEProm_Data_Default[dataindex]);
+              memcpy(value, &default_type_int32, 4);
+              break;
+            case EEPEMU_DTYPE_UINT32:
+              default_type_uint32 = (uint32_t)(EEProm_Data_Default[dataindex]);
+              memcpy(value, &default_type_uint32, 4);
+              break;
+            default:
+              return -1;
+          }
+
+          // Indicate a default value
+          return 1;
+        }
+
+        // Some Error
+        return -1;
+      }      
+
+      // Write Data to EEP Emulation
+      int EEP_Emu_Write(uint8_t dataindex, uint8_t datatype, void *value)
+      {
+        int i, data_count;
+        uint16_t data_buffer[5];
+        uint16_t pre_data_buffer[5];
+
+        // Flash sector is not active ?
+        if ((EEProm_Sector_Index < 0) || (EEProm_Sector_Index >= EEPROM_EMU_SECTOR_COUNT)) {
+          // Search for active sector
+          EEProm_Sector_Index = EEPromSearchActiveSector();   
+          // Search for offset
+          if (EEProm_Sector_Index >= 0) {
+            const uint16_t *pBuffer = &(EEPROM_Emu_Buffer[EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE]);
+            EEProm_Sector_Offset = EEPROM_EMU_SECTOR_SIZE-1;
+            while ((EEProm_Sector_Offset > 32) && (pBuffer[EEProm_Sector_Offset-1] == 0xFFFF))
+              EEProm_Sector_Offset --;
+          }
+          // TODO:
+          // Verify data type information
+          if (EEProm_Sector_Index >= 0) {
+            // Compare data type list with the actual on Flash
+
+          }
+        }
+
+        /* Format if no active sector */
+        if (EEProm_Sector_Index < 0) {
+          EEProm_Sector_Index = 0;
+          EEPromFormatSector(EEProm_Sector_Index, 0);
+          EEProm_Sector_Offset = 32; // +64
+        }
+
+        /* Need switch to new sector ? */
+        if ((EEProm_Sector_Offset + 5) >= EEPROM_EMU_SECTOR_SIZE) {
+          int new_sector_index;
+          uint32_t cycle_count;
+
+          // Find new sector
+          new_sector_index = EEProm_Sector_Index + 1;
+          if (new_sector_index >= EEPROM_EMU_SECTOR_COUNT)
+            new_sector_index = 0;
+
+          // Format new sector
+          memcpy((void *)&cycle_count, (void *)&EEPROM_Emu_Buffer[EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE+1], 4);
+          EEPromFormatSector(new_sector_index, cycle_count+1);
+
+          // Move to new active sector
+          {
+            int new_sector_offset, old_sector_index;
+
+            new_sector_offset = 32;
+            for (i=0; i<EEPROM_DATA_COUNT; i++) {
+              if (EEP_Emu_Read((uint8_t)i, EEProm_Data_Type[i], &data_buffer[0]) == 0)  {
+                // Number of write bytes
+                data_count = EEPromGetDataHalfWordCount(datatype);
+                
+                // Write
+                data_buffer[data_count] = (uint16_t)i | 0xAA00;
+                data_count ++;                
+                for (i=0; i<data_count; i++) {
+                  EEP_FLASH_ProgramHalfWord((uint32_t)&EEPROM_Emu_Buffer[(uint32_t)new_sector_index*EEPROM_EMU_SECTOR_SIZE + new_sector_offset], data_buffer[i]);
+                  new_sector_offset += 1;
+                }
+              }
+            }
+
+            // Switch active sector
+            old_sector_index = EEProm_Sector_Index;
+            EEProm_Sector_Index = new_sector_index;
+            EEProm_Sector_Offset = new_sector_offset;
+
+            // Erase old sector
+            FLASH_ErasePage((uint32_t)&EEPROM_Emu_Buffer[(uint32_t)old_sector_index * EEPROM_EMU_SECTOR_SIZE]);
+          }
+        }
+
+        // Validate previous data          
+        if (EEP_Emu_Read(dataindex, datatype, &pre_data_buffer[0]) != 0) {
+          // Failed, or no storage on flash
+          memset(&pre_data_buffer[0], 0xFF, 10);
+        }
+
+        /* Number of bytes for specified data type */
+        data_count = EEPromGetDataHalfWordCount(datatype);
+
+        /* Data buffer */
+        memcpy(&data_buffer[0], value, data_count*2);           // Data
+        
+        // Compare to current data
+        if (memcmp(&data_buffer[0], &pre_data_buffer[0], data_count*2) != 0) {
+          data_buffer[data_count] = (uint16_t)dataindex | 0xAA00; // Key/ Index
+          data_count ++;
+
+          /* Write buffer into active flash sector */
+          for (i=0; i<data_count; i++) {
+            EEP_FLASH_ProgramHalfWord((uint32_t)&EEPROM_Emu_Buffer[(uint32_t)EEProm_Sector_Index*EEPROM_EMU_SECTOR_SIZE+EEProm_Sector_Offset], data_buffer[i]);
+            EEProm_Sector_Offset += 1;
+          }
+        }
+
+        /* No Error */
+        return 0;
+      }      
+
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+  %endif
+%endif
+
+%openfile tmpBuf
+%if (conf == "Read") || (conf == "Write")
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid>
+   * ########################################################################
+  */
+  void enable_%<blockid>(void);
+%endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%if (conf == "Read") || (conf == "Write")
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid> 
+   * ########################################################################
+  */
+  void enable_%<blockid>(void){
+    %if conf == "Write"
+    /* Unlock flash */
+    FLASH_Unlock();
+    %endif
+  }
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if (conf == "Read")
+    /* %<blockid>: '%<block.Name>' */
+    %if (typeid == "2")
+      {
+        int16_T value;
+        EEP_Emu_Read(%<varindex>, %<typeid>, &value);
+        %<LibBlockOutputSignal(0, "", "", 0)> = (int8_T)value;
+      }
+    %elseif  (typeid == "3")
+      {
+        uint16_T value;
+        EEP_Emu_Read(%<varindex>, %<typeid>, &value);
+        %<LibBlockOutputSignal(0, "", "", 0)> = (uint8_T)value;        
+      }
+    %else
+      EEP_Emu_Read(%<varindex>, %<typeid>, %<LibBlockOutputSignalAddr(0, "", "", 0)>);
+    %endif
+    %if debuginfo == "on"
+    EEP_Emu_GetDebugInfo(%<LibBlockOutputSignalAddr(1, "", "", 0)>);
+    %endif
+  %endif
+
+  %if (conf == "Write")
+    /* %<blockid>: '%<block.Name>' */
+    {
+      %switch typeid
+        %case "0"
+          real_T value = (real_T)\
+          %break
+        %case "1"
+          real32_T value = (real32_T)\
+          %break
+        %case "2"
+          int16_T value = (int16_T)\
+          %break
+        %case "3"
+          uint16_T value = (uint16_T)\
+          %break
+        %case "4"
+          int16_T value = (int16_T)\
+          %break
+        %case "5"
+          uint16_T value = (uint16_T)\
+          %break
+        %case "6"
+          int32_T value = (int32_T)\
+          %break
+        %case "7"
+          uint32_T value = (uint32_T)\
+          %break
+      %endswitch
+      %<LibBlockInputSignal(0, "", "", 0)>;
+      EEP_Emu_Write(%<varindex>, %<typeid>, &value);
+      %if debuginfo == "on"
+      EEP_Emu_GetDebugInfo(%<LibBlockOutputSignalAddr(0, "", "", 0)>);
+      %endif
+    }
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%if (conf == "Read") || (conf == "Write")
+  enable_%<blockid>();
+%endif
+
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

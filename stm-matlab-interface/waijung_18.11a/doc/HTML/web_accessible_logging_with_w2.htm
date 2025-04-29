@@ -1,0 +1,301 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Waijung Demos &gt; Network Monitoring and Control &gt; Web Accessible Logging with W2D</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Web Accessible Logging with W2D">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "web_accessible_logging_with_w2.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Web Accessible Logging with W2D</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?web_accessible_logging_with_w2.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="waijung_demos.htm">Waijung Demos</a> &gt; <a href="network_monitoring_and_control.htm">Network Monitoring and Control</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Web Accessible Logging with W2D</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="web_adc_wtih_w2d.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="network_monitoring_and_control.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="network_firmware_upgrade.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Description</span></h2>
+<p>Using <span style="font-weight: bold;">Waijung WebPage Designer (W2D)</span> tool to make a web interface for displaying the <span style="font-weight: bold;">SQLite Data Logging </span>on Browser. </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">The demo show how you can read Date/Time/Temperature from DS3232 (aMG High Precision Real Time Clock) via I2C</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Store Date/Time/Temperature for quick w2b access</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Store Date/Time/Temperature into SQLite Database Logging</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Accessing Database Table from W2D using SQLite Statement</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Building W2D interface for Date/Time setting via browser (W2D)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Design the web interface using many tools available on W2D</td></tr></table></div><h2 class="p_Heading2"><span class="f_Heading2">Youtube Clip for this DEMO</span></h2>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/6cNU_m2LJLs?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/6cNU_m2LJLs?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip1"></a>Clip 01. Introduction, Hardware, Software and Waijung Installation</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/EU_70Ejp270?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/EU_70Ejp270?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip2"></a>Clip 02. Building plain Webserver model and W2D Installation</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/F2LrizWgAS8?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/F2LrizWgAS8?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip3"></a>Clip 03. Building model for reading Temperature and Time from I2C DS3231</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/8hROmuazjRU?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/8hROmuazjRU?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip4"></a>Clip 04. Writing Temperature and Time into SQLite Table accessible via SQLite statement</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/qG3GcBrFOtU?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/qG3GcBrFOtU?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip5"></a>Clip 05. Adding W2D time interface function for Setting Clock on RTC using Browser Time</p>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/C_OB53tKF4I?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/C_OB53tKF4I?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p><a id="clip6"></a>Clip 06. Design Web Interface for displaying Time and Temperature into Gauges and Chart using W2D</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Detail Description</span></h2>
+<p><span class="f_Heading4">1.Introduction</span> (<a href="web_accessible_logging_with_w2.htm#clip1" class="topiclink">Clip01</a>)</p>
+<p>This demo shows how you can log temperature and time into SQLite database and allows you to access it via Internet. You can access table via SQLite statement (Manual) and a custom Web Interface (Auto) designed with web design tool coming with W2D.</p>
+<p>The whole process doesn't require any C-Coding nor HTML+javascript Coding, but there are some SQLite Statements involved.</p>
+<p>&nbsp;</p>
+<p><span class="f_Heading4">2.Hardware Requirement</span> (<a href="web_accessible_logging_with_w2.htm#clip1" class="topiclink">Clip01</a>)</p>
+<p>-aMG Labkit F4N (<a href="https://www.aimagin.com/amg-labkit-f4n.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">https://www.aimagin.com/amg-labkit-f4n.html</a>)</p>
+<p>-aMG High Precision Real Time Clock (<a href="https://www.aimagin.com/amg-high-precision-real-time-clock.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">https://www.aimagin.com/amg-high-precision-real-time-clock.html</a>)</p>
+<p>&nbsp;</p>
+<p><span class="f_Heading4">3.Software Requirement</span> (<a href="web_accessible_logging_with_w2.htm#clip1" class="topiclink">Clip01</a>)</p>
+<p>-Waijung 13.08 (Release Early August 2013) (<a href="https://www.aimagin.com/download" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">https://www.aimagin.com/download</a>)</p>
+<p>-Waijung Webpage Designer (W2D) 1.9g (<a href="w2d_disk_image.htm" class="topiclink">http://waijung.aimagin.com/index.htm?w2d_disk_image.htm</a>)</p>
+<p>&nbsp;</p>
+<p><span class="f_Heading4">4.Installing Waijung and W2D</span> (<a href="web_accessible_logging_with_w2.htm#clip2" class="topiclink">Clip02</a>)</p>
+<p>We show the installation of Waijung onto Matlab then we build a plain Webserver model for installing W2D followed by quick tour of W2D. </p>
+<p>&nbsp;</p>
+<h4 class="p_Heading4"><span class="f_Heading4">5.Building the Demo (Waijung Side + W2D Side)</span></h4>
+<p>In <a href="web_accessible_logging_with_w2.htm#clip3" class="topiclink">Clip03</a>, we build model for reading Temperature and Time from I2C (DS3231 chip) into data storages (also write them in our custom format) then we check and access them with browser via varget.cgi. The RTC wasn't set to current time yet.</p>
+<p>In <a href="web_accessible_logging_with_w2.htm#clip4" class="topiclink">Clip04</a>, we write Temperature and Time data into SQLite database table, then check/access with SQLite statement on W2D</p>
+<p>In <a href="web_accessible_logging_with_w2.htm#clip5" class="topiclink">Clip05</a>, we add a subsystem for W2D time interface, which will allow W2D to read and write time into MCU using current time of the browser. The mcutime is always UTC, but W2D (by Default) will display Locale time per device/location accessing.</p>
+<p>&nbsp;</p>
+<p><span class="f_Heading4">6.Running the Demo</span> (<a href="web_accessible_logging_with_w2.htm#clip6" class="topiclink">Clip06</a>)</p>
+<p>We show SQLite Statement ability on W2D (the manual way), then we design Web Interface (the automatic way) for displaying Time and Temperature into Labels, Text outputs, Gauges and Chart using W2D. The clip concluded with a quick summary. </p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo Model File</span></h2>
+<p><span style="font-weight: bold;">demo File</span>: web_log.mdl</p>
+<p>This model is for target <span style="font-weight: bold;">STM32F4 Discovery</span>, update model then build to program to target board. See here for <a href="w2d_model_setting_up.htm#setup_model" class="topiclink">Setup Blocks information</a>.</p>
+<p><img src="w2d_web_log_detail.png" width="950" height="930" alt="w2d_web_log_detail" style="width:950px;height:930px;border:none" /></p>
+<p><img src="w2d_setup_detail.png" width="950" height="395" alt="w2d_setup_detail" style="width:950px;height:395px;border:none" /></p>
+<p>The sub-system below show the required time variable for interfacing with W2D (both name and string format)</p>
+<p><img src="w2d_web_log_detail_sub1.png" width="950" height="901" alt="w2d_web_log_detail_sub1" style="width:950px;height:901px;border:none" /></p>
+<p><img src="w2d_web_log_detail_sub2.png" width="950" height="555" alt="w2d_web_log_detail_sub2" style="width:950px;height:555px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware Setup</span></h2>
+<p><img src="w2d_hardware_log.png" width="950" height="633" alt="w2d_hardware_log" style="width:950px;height:633px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Web Interface Setup</span></h2>
+<p>Drag &amp; Drop 3 Frames, 1 Gauge, 1 Bar Gauge, 2 Display, 2 Text Input, 1 Chart into drop target. </p>
+<p><img src="w2d_web_log_design.png" width="950" height="1044" alt="w2d_web_log_design" style="width:950px;height:1044px;border:none" /></p>
+<p> Configure each item using the following information. Notice the order of each item id. <a href="w2d_web_interface_setting_up.htm#detail_item_prop" class="topiclink">More details here</a>.</p>
+<p><img src="w2d_web_log_sqlite.png" width="950" height="808" alt="w2d_web_log_sqlite" style="width:950px;height:808px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">What should be happening?</span></h2>
+<p>Date/Time and Temperature are shown using two Text Input boxes(as output). In addition, Temperature is shown in Dial Gauge and Bar Gauge. Logged data from SQLite table is plotted on a Chart (x-axis = time and y-axis = Temperature).</p>
+<p><img src="w2d_web_log_page.png" width="950" height="920" alt="w2d_web_log_page" style="width:950px;height:920px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2" style="text-decoration: underline;">The Appearance on Chome for Android</span></h2>
+<p><img src="w2d_web_log_page_mobile.png" width="950" height="1247" alt="w2d_web_log_page_mobile" style="width:950px;height:1247px;border:none" /></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

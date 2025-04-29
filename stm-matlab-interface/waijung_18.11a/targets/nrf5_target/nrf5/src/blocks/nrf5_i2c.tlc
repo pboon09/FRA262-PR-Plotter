@@ -1,0 +1,327 @@
+%implements nrf5_i2c "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %%assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + sampletime + blockid
+
+  %assign module        = optionstring[0]
+  %assign clkspeed      = optionstring[1]
+  %assign timeout       = optionstring[2]
+  %assign sdapin        = optionstring[3]
+  %assign sclpin        = optionstring[4]
+  %assign waitwritetime = optionstring[5]
+  %assign writecount = optionstring[6]
+  %assign readcount = optionstring[7]
+  %assign forcestop = optionstring[8]
+
+  %assign block = block + module + clkspeed + timeout + sdapin + sclpin \
+                + waitwritetime + writecount + readcount + forcestop
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * I2C
+    * ########################################################################
+    */
+   #include "nrf_drv_twi.h"
+
+   typedef enum {
+	 I2C_OK = 0,
+	 I2C_ANAK,
+	 I2C_DNAK,
+	 I2C_TIMEOUT
+   } I2C_RESULT;
+
+   #define I2C0 NRF_TWI0
+   #define I2C1 NRF_TWI1
+
+   #define PPI_CHENSET_CH_MASK PPI_CHENSET_CH0_Msk
+   #define PPI_CHENCLR_CH_MASK PPI_CHENCLR_CH0_Msk
+   #define PPI_CHENSET_CH      0
+
+   I2C_RESULT waijung_i2c_transaction(uint8_t slvaddr, uint8_t sda_pin, uint8_t scl_pin, nrf_twi_frequency_t freq, uint8_t clear_bus, uint8_t *write_buffer, uint16_t write_count, uint8_t *read_buffer, uint16_t read_count, uint8_t stop_befor_restart);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * I2C
+    * ########################################################################
+    */
+   /* TWI instance ID. */
+   #define TWI_INSTANCE_ID     0
+
+   /* Indicates if operation on TWI has ended. */
+   static volatile bool m_i2c_xfer_done = false;
+   static volatile bool m_i2c_xfer_anak = false;
+   static volatile bool m_i2c_xfer_dnak = false;
+
+   /* TWI instance. */
+   static const nrf_drv_twi_t m_i2c = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
+
+   /**
+   * I2C events handler.
+   */
+   static void i2c_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
+   {
+     switch (p_event->type)
+     {
+       case NRF_DRV_TWI_EVT_DONE:
+         if (p_event->xfer_desc.type == NRF_DRV_TWI_XFER_RX) {
+           // Rx Ready
+         }
+         m_i2c_xfer_done = true;
+         break;
+
+       case NRF_DRV_TWI_EVT_ADDRESS_NACK:
+         m_i2c_xfer_anak = true;
+         break;
+
+       case NRF_DRV_TWI_EVT_DATA_NACK:
+         m_i2c_xfer_dnak = true;
+         break;
+    
+       default:
+         break;
+     }
+   }
+
+   /**
+   * I2C initialization.
+   */
+   
+   static void i2c_init (uint8_t sda_pin, uint8_t scl_pin, nrf_twi_frequency_t freq, uint8_t clear_bus)
+   {
+     ret_code_t err_code;
+  
+     const nrf_drv_twi_config_t twi_config = {
+      .scl                = (uint32_t)scl_pin,
+      .sda                = (uint32_t)sda_pin,
+      .frequency          = freq, //NRF_TWI_FREQ_100K,
+      .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
+      .clear_bus_init     = clear_bus //false
+     };
+  
+	// Init Timeout check
+	i2c_hw_timeout_timeout_start = systick_count;	
+
+     err_code = nrf_drv_twi_init(&m_i2c, &twi_config, i2c_handler, NULL);
+     APP_ERROR_CHECK(err_code);
+  
+     nrf_drv_twi_enable(&m_i2c);
+   }
+
+   I2C_RESULT waijung_i2c_transaction(uint8_t slvaddr, uint8_t sda_pin, uint8_t scl_pin, nrf_twi_frequency_t freq, uint8_t clear_bus, uint8_t *write_buffer, uint16_t write_count, uint8_t *read_buffer, uint16_t read_count, uint8_t stop_befor_restart)
+   {
+     I2C_RESULT ret = I2C_OK;
+     int timeout_counter;
+
+     // Init
+     i2c_init(sda_pin, scl_pin, freq, clear_bus);
+
+     // --- WRITE ---
+     if ((write_count > 0) || (read_count == 0)) {
+       m_i2c_xfer_done = false;
+       m_i2c_xfer_anak = false;
+       m_i2c_xfer_dnak = false;
+       ret_code_t err_code = nrf_drv_twi_tx(&m_i2c, slvaddr, write_buffer, write_count, ((read_count > 0) && !stop_befor_restart));
+       if (err_code == NRF_SUCCESS) {
+         // Wait (blocking)
+         timeout_counter = 2500; // 5000*10uS = 50mS
+         while (!m_i2c_xfer_done && !m_i2c_xfer_anak && !m_i2c_xfer_dnak && (--timeout_counter > 0)) {nrf_delay_us(10);}
+
+         if (m_i2c_xfer_done) { // Success
+           // Continue
+         }
+         else if (m_i2c_xfer_anak) {
+           ret = I2C_ANAK;
+           goto __return_result;
+         }
+         else if (m_i2c_xfer_dnak) {
+           ret = I2C_DNAK;
+           goto __return_result;
+         }
+         else { //if (timeout_counter <= 0) 
+           ret = I2C_TIMEOUT;
+           goto __return_result;
+         }
+       }
+       else {
+          ret = I2C_TIMEOUT;
+          goto __return_result;
+       }
+     }
+
+     // --- WAIT ---
+     // TODO:
+
+     // --- READ ---
+     if (read_count > 0) {
+       m_i2c_xfer_done = false;
+       m_i2c_xfer_anak = false;
+       m_i2c_xfer_dnak = false;
+
+       ret_code_t err_code = nrf_drv_twi_rx(&m_i2c, slvaddr, read_buffer, read_count);
+       if (err_code == NRF_SUCCESS) {
+         // Wait (blocking)
+         timeout_counter = 2500; // 5000*10uS = 50mS
+         while (!m_i2c_xfer_done && !m_i2c_xfer_anak && !m_i2c_xfer_dnak && (--timeout_counter > 0)) {nrf_delay_us(10);}
+
+         if (m_i2c_xfer_done) { // Success
+           // Continue
+         }
+         else if (m_i2c_xfer_anak) {
+           ret = I2C_ANAK;
+           goto __return_result;
+         }
+         else if (m_i2c_xfer_dnak) {
+           ret = I2C_DNAK;
+           goto __return_result;
+         }
+         else { //if (timeout_counter <= 0)
+           ret = I2C_TIMEOUT;         
+           goto __return_result;
+         }
+       }
+       else {
+         ret = I2C_TIMEOUT;
+         goto __return_result;
+       }
+     }
+
+__return_result:
+
+     // Uninit
+     nrf_drv_twi_disable(&m_i2c);
+     
+     nrf_drv_twi_uninit(&m_i2c);
+
+     // No error
+     return ret;
+   }
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+extern uint8_t %<blockid>_status;
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+uint8_t %<blockid>_status = 0;
+void enable_%<blockid>(void){
+
+}
+
+void disable_%<blockid>(void)
+{
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+  /* %<blockid>: '%<block.Name>' 
+   * Read: %<readcount> bytes, Write: %<writecount> bytes
+   */
+  {
+    uint8_t write_buffer[%<writecount>+1];
+    uint8_t read_buffer[%<readcount>+1];
+
+    %assign slvaddr = LibBlockInputSignal(0, "", "", 0)
+    %% Write
+    %foreach portIdx=LibBlockNumInputPorts(block)
+      %% Skip slave addr
+      %if portIdx > 0
+        write_buffer[%<portIdx-1>] = %<LibBlockInputSignal(portIdx, "", "", 0)>; /* Wr%<portIdx-1> */
+      %endif
+    %endforeach
+    %<blockid>_status = (uint8_t) waijung_i2c_transaction(\
+           (%<slvaddr> >> 1)/* Slave Address */, %<sdapin> /* sda_pin */, %<sclpin> /* scl_pin */, \
+           NRF_TWI_FREQ_%<clkspeed>K /* Clock speed */, (%<blockid>_status != 0) /* Clear bus? */, \
+           write_buffer /* Write Buffer */, %<writecount> /* Write Buffer count */, read_buffer /* Read Buffer */, %<readcount> /* Read Buffer count */, %<forcestop> /* STOP before Re-START-READ? */);
+    %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_status;
+    %if LibBlockNumOutputPorts(block) > 1
+    if( %<blockid>_status == 0) {
+      %foreach portIdx=LibBlockNumOutputPorts(block)
+        %% Skip status
+        %if portIdx > 0
+          %<LibBlockOutputSignal(portIdx, "", "", 0)> = read_buffer[%<portIdx-1>]; /* Rd%<portIdx-1> */
+        %endif
+      %endforeach
+    }
+    %endif
+  }
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

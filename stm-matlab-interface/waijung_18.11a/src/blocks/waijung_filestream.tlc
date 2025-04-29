@@ -1,0 +1,548 @@
+%implements waijung_filestream "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign section = optionstring[0]
+  %assign maxstring = CAST("Number",optionstring[1])
+  %assign dynamicdatalength = optionstring[2]
+  %assign target = optionstring[3]
+
+  %assign block = block + section + maxstring + dynamicdatalength + target
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+  %if target == "stm32f4"
+    %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+    %if (EXISTS(::__STM32F4XX_SDIO__) == 0)
+      %assign :: __STM32F4XX_SDIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_sdio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+    %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+    %if (EXISTS(::__STM32F4XX_EXTI__) == 0)
+      %assign :: __STM32F4XX_EXTI__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_exti.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+    %endif
+  %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_LIB_H__) == 0)
+      %assign :: __STDIO_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: FileStream
+    * ########################################################################
+   */
+   #include "ff.h"
+   %if target == "stm32f4"
+   #include "amg_sdio.h"
+   %endif
+   #include "amg_utils.h"
+
+   extern const char FileStream_EmptyStr[];
+   extern int FileStream_IOResult;
+   extern const char *FileStream_GetString(uint32_t pStr);
+
+   FIL *FileStream_OpenWrite(const char *filepath, const uint32_t append);
+   FIL *FileStream_OpenRead(const char *filepath, const uint32_t seekpos);
+   void FileStream_Write(FIL *f, const uint8_t *data, uint32_t count);
+   void FileStream_WriteINI_Key(FIL *f, const char *key, const char *value);
+   void FileStream_Read(FIL *f, uint8_t *buffer, uint32_t count, uint32_t *fsize, uint32_t *fcurrpos);   
+   void FileStream_Close(FIL *f);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: FileStream
+    * ########################################################################
+   */
+   const char FileStream_EmptyStr[] = "";
+   const char *FileStream_GetString(uint32_t pStr)
+   {
+     %if target == "stm32f4"
+     /* Validate file name pointer
+      * Note: For STM32F4 target only
+      */
+	 if(((uint32_t)pStr > 0x20000000) && ((uint32_t)pStr < 0x20040000)) { /* Internal RAM 256k */ }
+     else if(((uint32_t)pStr > 0x08000000) && ((uint32_t)pStr < 0x08200000)) { /* Internal Flash 2M */ }
+	 else if((uint32_t)pStr >= 0x64000000) { /* External RAM */ }
+     else {
+       return FileStream_EmptyStr;       
+     }
+     %endif
+     return (const char *)pStr;
+   }
+
+   int FileStream_IOResult = 0;
+   FIL *FileStream_OpenWrite(const char *filepath, const uint32_t append)
+   {
+     int namepos;
+     char dir[_MAX_LFN+1];
+     FIL *f = (void *)0; /* Initial NULL file */
+
+%if target == "stm32f4"
+     /* Validate file name pointer
+      * Note: For STM32F4 target only
+      */
+	 if(((uint32_t)filepath > 0x20000000) && ((uint32_t)filepath < 0x20040000)) { /* Internal RAM 256k */ }
+     else if(((uint32_t)filepath > 0x08000000) && ((uint32_t)filepath < 0x08200000)) { /* Internal Flash 2M */ }
+	 else if((uint32_t)filepath >= 0x64000000) { /* External RAM */ }
+     else {
+       FileStream_IOResult = (int)FR_INVALID_NAME;
+       return (void *)0;       
+     }
+%endif
+     /* Reject invalid file length */
+     if(strlen(filepath) > _MAX_LFN) {
+       FileStream_IOResult = (int)FR_INVALID_NAME;
+       return (void *)0;
+     }
+
+     /* Create dir if not existing */
+     namepos = _fname_pos(filepath);
+     if(namepos > 0) {
+       memcpy(&dir[0], filepath, namepos);
+       dir[namepos] = '\0';
+       if(_dir_create(dir) != 0) {
+         FileStream_IOResult = (int)FR_DISK_ERR;
+         return (void *)0;
+       }
+     }
+
+     /* Create file for Write */
+     if(append)
+       f = _fopen(filepath,"a");
+     else
+       f = _fopen(filepath,"w");
+     FileStream_IOResult = (int)get_last_io_error();
+
+     /* Return file */
+     return f;
+   }
+
+   FIL *FileStream_OpenRead(const char *filepath, const uint32_t seekpos)
+   {
+     FIL *f = (void *)0;
+
+     /* Create file for Write */
+     f = _fopen(filepath, "r");
+     FileStream_IOResult = (int)get_last_io_error();
+     if(f == (void *)0) {
+       return f;
+     }
+
+     /* Seek */
+     if(f_size(f) > 0) {
+       if(seekpos > f_size(f))
+         FileStream_IOResult = (int)f_lseek(f, f_size(f));
+       else
+         FileStream_IOResult = (int)f_lseek(f, seekpos);
+     }
+
+     /* Return file */
+     return f;
+   }
+
+   void FileStream_Close(FIL *f)
+   {
+     /* Close only a valid pointer file. */
+     if(f)
+       _fclose(f);
+   }
+
+   void FileStream_Write(FIL *f, const uint8_t *data, uint32_t count)
+   {
+     UINT written;
+     FileStream_IOResult = (int)f_write (f, data, count, &written);
+   }
+
+   void FileStream_WriteINI_Key(FIL *f, const char *key, const char *value)
+   {
+     UINT written;
+     FRESULT sta = FR_OK;
+
+     if(sta == FR_OK)
+       sta = f_write (f, key, strlen(key), &written);
+     if(sta == FR_OK)
+       sta = f_write (f, "=", 1, &written);
+     if(sta == FR_OK)
+       sta = f_write (f, value, strlen(value), &written);
+     if(sta == FR_OK)
+       sta = f_write (f, "\r\n", 2, &written);
+
+     /* Update status */
+     FileStream_IOResult = (int)sta;
+   }
+
+   void FileStream_Read(FIL *f, uint8_t *buffer, uint32_t count, uint32_t *fsize, uint32_t *fcurrpos)
+   {
+     UINT bytes_read;
+
+     /* Read */
+     FileStream_IOResult = (int)f_read (f, buffer, count, &bytes_read);
+
+     /* Size/ Pos */
+     *fsize = f_size(f);
+     *fcurrpos = f_tell(f);
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "INIRead"
+  %if SIZE(inikeys)[1] > 0
+    void %<blockid>_ReadIni(FIL *f);
+    %foreach idx=SIZE(inikeys)[1]
+      extern char %<blockid>_key%<idx>_VAL[]; /* %<inikeys[idx]> */
+    %endforeach
+  %endif
+%endif
+
+%if (conf == "ReadFromFile") || (conf == "WriteToFile")
+#include "ff.h"
+extern FIL *%<blockid>_File;
+%endif
+
+void %<blockid>_Setup(void);
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if conf == "INIRead"
+  %if SIZE(inikeys)[1] > 0
+    /* String size */
+    #define %<blockid>_STR_SIZE %<maxstring>
+    %assign sep = ""
+    /* Key */
+    %foreach idx=SIZE(inikeys)[1]
+      const char %<blockid>_key%<idx>_STR[] = "%<inikeys[idx]>=";
+    %endforeach
+    /* Value */
+    %foreach idx=SIZE(inikeys)[1]
+      char %<blockid>_key%<idx>_VAL[%<blockid>_STR_SIZE+1];
+    %endforeach
+
+    void %<blockid>_ReadIni(FIL *f) {
+      FRESULT sta = FR_OK;
+      char buffer[%<blockid>_STR_SIZE+1];
+
+      %foreach idx=SIZE(inikeys)[1]
+      %<blockid>_key%<idx>_VAL[0] = '\0'; /* NULL */
+      %endforeach
+      while (!f_eof(f) && (sta == FR_OK)) {
+	    if(_freadln(f, buffer, %<blockid>_STR_SIZE, "\n") == 0) {
+		  _sstr_rtrim(buffer); /* To accept "\n", "\r\n" */
+
+          /* Search */
+          %foreach idx=SIZE(inikeys)[1]            
+            %if idx == 0
+            if\
+            %else
+            else if\
+            %endif
+            (!strncmp(buffer, %<blockid>_key%<idx>_STR, strlen(%<blockid>_key%<idx>_STR))) { /* %<inikeys[idx]> */
+              strcpy(%<blockid>_key%<idx>_VAL, &buffer[strlen(%<blockid>_key%<idx>_STR)]);
+            }
+          %endforeach
+	    }
+        sta = get_last_io_error();
+      }
+
+     %% ///* Return data */
+     %% //if(sta == FR_OK) {
+     %% %foreach idx=SIZE(inikeys)[1]
+     %% //    strcpy(key%<idx>, &key%<idx>_VAL[0]); /* %<inikeys[idx]> */
+     %% %endforeach
+     %% //}
+
+      /* Operation status */
+      FileStream_IOResult = (int)sta;
+    }
+  %endif
+%endif
+
+uint8_t %<blockid>_setup_done = 0; /* Track for Low-level setup */
+void %<blockid>_Setup(void)
+{
+  if(%<blockid>_setup_done == 0) {
+    %<blockid>_setup_done = 1;
+    stdio_init();
+  }
+}
+
+%if (conf == "ReadFromFile") || (conf == "WriteToFile")
+FIL *%<blockid>_File = (FIL *)0;
+%endif
+void enable_%<blockid>(void){
+  %<blockid>_Setup();
+}
+
+void disable_%<blockid>(void){
+  %if (conf == "ReadFromFile") || (conf == "WriteToFile")
+  if(%<blockid>_File) {
+    _fclose(%<blockid>_File);
+    %<blockid>_File = (FIL *)0;
+  }
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%% === INI Create ===
+%if conf == "INICreate"
+/* %<blockid>: '%<block.Name>' 
+ * Mode: INI file create
+ */
+{
+  %if LibBlockInputSignalConnected(0)
+  const char *fpath;
+  const char *s;
+  FIL *f;
+  
+  %<blockid>_Setup(); /* Setup */
+  
+  %% Filename
+  %if LibBlockInputSignalWidth(0) == 1
+    fpath = FileStream_GetString((uint32_t)%<LibBlockInputSignal(0, "", "", 0)>);
+  %else
+    fpath = (const char *)%<LibBlockInputSignalAddr(0, "", "", 0)>;
+  %endif
+  f = FileStream_OpenWrite(fpath, (uint32_t)%<LibBlockInputSignal(1, "", "", 0)>); /* Open file */
+  if(f) { /* Valid file */
+    /* Section */
+    if (FileStream_IOResult == 0) {
+      s = "[%<section>]\r\n";
+      FileStream_Write(f, (uint8_t *)s, strlen(s));
+    }
+    %foreach idx=SIZE(inikeys)[1]
+      /* Key: %<inikeys[idx]> */
+      %if LibBlockInputSignalWidth(idx+2) == 1
+      s = FileStream_GetString((uint32_t)%<LibBlockInputSignal(idx+2, "", "", 0)>);
+      %else
+      s = (const char *)%<LibBlockInputSignalAddr(idx+2, "", "", 0)>;
+      %endif
+      if (FileStream_IOResult == 0)
+        FileStream_WriteINI_Key(f, "%<inikeys[idx]>", s);    
+    %endforeach
+  }
+  FileStream_Close(f); /* Close file */
+  %else
+    /* Invalid filename */
+  %endif  
+  %<LibBlockOutputSignal(0, "", "", 0)> = FileStream_IOResult; /* Status */
+}
+%endif
+
+%% === INI Read ===
+%if conf == "INIRead"
+/* %<blockid>: '%<block.Name>' 
+ * Mode: INI file read
+ */
+{
+  const char *fpath;
+  FIL *f;
+
+  /* Setup */
+  %<blockid>_Setup();
+  %% Filename
+  %if LibBlockInputSignalWidth(0) == 1
+    fpath = FileStream_GetString((uint32_t)%<LibBlockInputSignal(0, "", "", 0)>);
+  %else
+    fpath = (const char *)%<LibBlockInputSignalAddr(0, "", "", 0)>;
+  %endif  
+  f = FileStream_OpenRead(fpath, 0); /* Open file */
+  if(f) { /* Valid file */
+    %<blockid>_ReadIni(f);
+    %foreach idx=LibBlockNumOutputPorts(block)
+      %if idx == 0
+        %% Ignore, Status port
+      %else
+        %if LibBlockOutputSignalConnected(idx)
+          %if LibBlockOutputSignalWidth(idx) > 1
+            %% Buffer
+            strcpy((char *)%<LibBlockOutputSignalAddr(idx, "", "", 0)>, &%<blockid>_key%<idx-1>_VAL[0]); /* %<inikeys[idx-1]> */
+          %else
+            %% String pointer
+            %<LibBlockOutputSignal(0, "", "", 0)> = (uint32_t)&%<blockid>_key%<idx-1>_VAL[0];
+          %endif
+        %else
+          %% Ignore, due to port is not connected          
+        %endif
+      %endif
+    %endforeach
+  }
+  
+  FileStream_Close(f); /* Close file */  
+  %<LibBlockOutputSignal(0, "", "", 0)> = FileStream_IOResult; /* Status */
+}
+%endif
+
+%% === Read From FIle ===
+%if conf == "ReadFromFile"
+/* %<blockid>: '%<block.Name>' 
+ * Mode: Read from file
+ */
+{
+  const char *fpath;
+  
+  %<blockid>_Setup(); /* Setup */
+  %% Filename
+  %if LibBlockInputSignalWidth(0) == 1
+    fpath = FileStream_GetString((uint32_t)%<LibBlockInputSignal(0, "", "", 0)>);
+  %else
+    fpath = (const char *)%<LibBlockInputSignalAddr(0, "", "", 0)>;
+  %endif
+  if(%<blockid>_File == (FIL *)0)
+    %<blockid>_File = FileStream_OpenRead(fpath, (uint32_t)%<LibBlockInputSignal(1, "", "", 0)>); /* Open file for read */
+  %% Read data
+  if(%<blockid>_File)
+    FileStream_Read(%<blockid>_File, (uint8_t *)%<LibBlockOutputSignalAddr(3, "", "", 0)>, %<LibBlockOutputSignalWidth(3)>*sizeof(%<LibBlockOutputSignalDataTypeName(3,tRealPart)>), %<LibBlockOutputSignalAddr(1, "", "", 0)>, %<LibBlockOutputSignalAddr(2, "", "", 0)>); /* Read from file */
+  if(%<LibBlockInputSignal(2, "", "", 0)> != 0) {
+    FileStream_Close(%<blockid>_File); /* Close file */
+    %<blockid>_File = (FIL *)0;
+  }
+  %<LibBlockOutputSignal(0, "", "", 0)> = FileStream_IOResult; /* Status */
+}
+%endif
+
+%% === Write To File ===
+%if conf == "WriteToFile"
+/* %<blockid>: '%<block.Name>' 
+ * Mode: Write to file
+ */
+{
+  int fname_size;
+  char fpath[_MAX_LFN+1]; // Limit max filename length
+  %<blockid>_Setup(); /* Setup */
+
+  %% Filename
+  %assign fn_size = LibBlockInputSignalWidth(0)
+  if (_MAX_LFN < %<fn_size>)
+    fname_size = _MAX_LFN;
+  else
+    fname_size = %<fn_size>;
+  strncpy(fpath, (const char *)%<LibBlockInputSignalAddr(0, "", "", 0)>, fname_size);
+  fpath[fname_size] = '\0';
+
+  %% Open file  
+  if(%<blockid>_File == (FIL *)0)
+    %<blockid>_File = FileStream_OpenWrite(fpath, %<LibBlockInputSignal(1, "", "", 0)>); /* Open file for write */
+
+  %% Data
+  %assign data = LibBlockInputSignalAddr(2, "", "", 0)
+  %assign data_type = LibBlockInputSignalDataTypeName(2,tRealPart)
+  %if dynamicdatalength == "on"
+    %assign data_length = LibBlockInputSignal(3, "", "", 0)
+    %assign closefile = LibBlockInputSignal(4, "", "", 0)
+  %else
+    %assign data_length = LibBlockInputSignalWidth(2)
+    %assign closefile = LibBlockInputSignal(3, "", "", 0)
+  %endif
+  
+  if(%<blockid>_File)
+    FileStream_Write(%<blockid>_File, %<data>, %<data_length>*sizeof(%<data_type>)); /* Write to file */ 
+  if(%<closefile> != 0) {
+    FileStream_Close(%<blockid>_File); /* Close file */
+    %<blockid>_File = (FIL *)0;
+  }
+  %<LibBlockOutputSignal(0, "", "", 0)> = FileStream_IOResult; /* Status */
+}
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

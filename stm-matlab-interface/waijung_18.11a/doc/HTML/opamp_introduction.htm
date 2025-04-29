@@ -1,0 +1,227 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Hardware Modules &gt; aMG SIGCON-A &gt; Signal Conditioning Design Guidline &gt; Introduction</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Introduction">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "opamp_introduction.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Introduction</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?opamp_introduction.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="amg_related_hardware.htm">Hardware Modules</a> &gt; <a href="amg_sigcon_a.htm">aMG SIGCON-A</a> &gt; <a href="signal_conditioning_design_gui.htm">Signal Conditioning Design Guidline</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Introduction</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="signal_conditioning_design_gui.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="signal_conditioning_design_gui.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="understnading_op-amp_specs.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>Although this decade commonly known as the digital age, analog circuits are still used in many cases. In order to use them most effectively, &nbsp;circuit designers need to understand analog signals, methodologies to use or apply them, as well as analog components.</p>
+<p>This article introduces basic aspects of operational amplifier (Op-Amp) which designers need to know to be able to use them from the most basic to advanced applications.</p>
+<p>The operational amplifier (Op-Amp) is one of the most fundamentally useful and important components of analog electronics devices. They are used in a vast array of consumer, industrial, and scientific devices, as shown below.</p>
+<p>&nbsp;</p>
+<p><img src="electronics.png" width="950" height="460" alt="electronics" style="width:950px;height:460px;border:none" /></p>
+<p style="text-align: center;">&nbsp;</p>
+<p>Op-Amp was first invented during the time of the Second World War. So, Op-Amps are not new. The Op-Amp have many package type such as DIP, SOIC, SOT-23, etc. </p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p style="margin: 0px 0px 0px 0px;"><img src="741package.png" width="950" height="191" alt="741package" style="width:950px;height:191px;border:none" /></p>
+<p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p style="margin: 0px 0px 0px 0px;">For examples, the following picture shows one of the most popular op-amp, LM741 with 8 pins dip package and its internal schematic.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 12pt; font-family: 'TH SarabunPSK';">  &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span></p>
+<p style="margin: 0px 0px 0px 0px;"><img src="741sch.png" width="950" height="180" alt="741sch" style="width:950px;height:180px;border:none" /> &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+<p>The internal circuitry of LM741 consists of many type electronics device, passive, active, and semiconductor, all integrated together. </p>
+<p>&nbsp;</p>
+<p style="margin: 0px 0px 0px 0px;"><img src="741circuitry.png" width="950" height="253" alt="741circuitry" style="width:950px;height:253px;border:none" /></p>
+<p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p>The following picture shows symbol for Op-Amp, composing two differential input, one output, positive and negative power supply.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p style="margin: 0px 0px 0px 0px;"><img src="opamp_symbol.png" width="950" height="169" alt="opamp_symbol" style="width:950px;height:169px;border:none" /></p>
+<p style="text-align: center; margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p>Conceptually, Op-Amp is used to produces an output voltage that is the difference between the two input terminals multiply by the gain.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">IDEAL OP-AMP ATTRIBUTES</span></h3>
+<p>1) The input impedance is infinite - i.e. no current ever flows into either input of the op-amp.</p>
+<p>2) The output impedance is zero - i.e. the op-amp can drive any load impedance to any voltage.</p>
+<p>3) The open-loop gain (A) is infinite.</p>
+<p>4) The bandwidth is infinite.</p>
+<p>5) The output voltage is zero when the input voltage difference is zero.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">REAL OP-AMP ATTRIBUTES</span></h3>
+<p>1) The input impedance is about 10<span style="font-size: 7pt; vertical-align: super;">6</span> to 10<span style="font-size: 7pt; vertical-align: super;">13</span> <span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span>.</p>
+<p>2) The output impedance is about 10 to 100 <span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span>.</p>
+<p>3) The open-loop gain (A) is 10<span style="font-size: 7pt; vertical-align: super;">5</span> to 10<span style="font-size: 7pt; vertical-align: super;">8</span>.</p>
+<p>4) The bandwidth is limited.</p>
+<p>5) The output voltage is not zero although the input voltage difference is zero.</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+<p><span class="f_Heading3">OP-AMP POWER SUPPLY</span></p>
+<p>All Op-Amp have two power pins. In most cases, they are labeled VCC and VSS, but sometimes they are labeled VCC and GND. Most analog designers must know how to use Op-Amp with a dual or single power supply. A brief summary, the single-power supply circuit is for DC input signal, and the dual-power supply circuit is suit for AC signal.</p>
+<p>A single-supply circuit connects the Op-Amp power pins to a positive voltage and ground. The positive voltage is connected to VCC and ground is connected to VSS or GND. </p>
+<p>&nbsp;</p>
+<p><img src="single_supply.png" width="950" height="200" alt="single_supply" style="width:950px;height:200px;border:none" /></p>
+<p>&nbsp;</p>
+<p>A dual power supply consists of a positive supply and an equal and opposite negative supply . The most common values are ±15 V, but ±12 V and ±5 V are also used. The input and output voltages are referenced to ground. The output voltage is swing both positive and negative but limited to either the upper or lower power supply rail. </p>
+<p>&nbsp;</p>
+<p><img src="dual_supply.png" width="950" height="259" alt="dual_supply" style="width:950px;height:259px;border:none" /></p>
+<p>&nbsp;</p>
+<p><span style="font-weight: bold; text-decoration: underline;">Tip</span> For dual power supply, it is possible to adapt from the following single power supply circuit. This circuit helps to save components and cost. Normally, the value of R1 = R2, and C1 = C2. The current is limited by the value of R1 and R2 where Iout = V1/(R1+R2).</p>
+<p>&nbsp;</p>
+<p style="margin: 0px 0px 0px 0px;"><img src="dual_supply2.png" width="950" height="192" alt="dual_supply2" style="width:950px;height:192px;border:none" /></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: Arial; color: #000000;">&nbsp;</span></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

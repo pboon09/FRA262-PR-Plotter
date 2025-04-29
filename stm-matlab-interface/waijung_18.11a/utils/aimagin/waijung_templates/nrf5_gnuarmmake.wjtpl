@@ -1,0 +1,97 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".mk"
+# Make file generated with Waijung Blockset
+
+PROJECT = %<LibGetModelName()>
+DEBUG = 0
+${section:toolchain}
+${section:stackHeapSize}
+LD_SCRIPT = nrf5_xxaa.ld
+
+ELF = $(PROJECT).elf
+HEX = $(PROJECT).hex
+BIN = $(PROJECT).bin
+LST = $(PROJECT).lss
+DMP = $(PROJECT).dmp
+MAP = $(PROJECT).map
+
+# Tool chain definition
+CXX = "$(TOOLCHAIN)g++"
+CC = "$(TOOLCHAIN)gcc"
+AS = "$(TOOLCHAIN)gcc" -x assembler-with-cpp
+OBJCOPY = "$(TOOLCHAIN)objcopy"
+OBJDUMP = "$(TOOLCHAIN)objdump"
+SIZE = "$(TOOLCHAIN)size"
+
+# Compiler and linker flags
+${section:controlString}
+
+AS_SRCS = $(wildcard *.s)
+AS_OBJS = $(AS_SRCS:.s=.o)
+C_SRCS = $(wildcard *.c)
+C_OBJS = $(C_SRCS:.c=.o)
+
+OBJS = $(AS_OBJS) $(C_OBJS)
+
+ifeq ($(DEBUG), 1)
+	AFLAGS += -g -ggdb3
+	CFLAGS += -g -ggdb3
+	LFLAGS += -g -ggdb3
+endif
+
+#LFLAGS += -nostartfiles
+LIBS = 
+
+##############################################
+# Make all
+##############################################
+all : $(ELF) $(HEX) $(BIN) $(LST) $(DMP) report
+
+%assign str = "%.o : %.s"
+%<str>
+	@echo Assembling file: $<
+	$(AS) -c $(AFLAGS) $< -o $@
+
+%assign str = "%.o : %.c"
+%<str>
+	@echo Compiling: $<
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(ELF) : $(OBJS)
+	@echo Linking target: $(ELF)
+	$(CXX) $(OBJS) $(LFLAGS) $(LIBS) -o $@
+
+$(HEX) : $(ELF)
+	@echo Creating HEX: $(HEX)
+	$(OBJCOPY) -O ihex $< $@
+
+$(BIN) : $(ELF)
+	@echo Creating binary image: $(BIN)
+	$(OBJCOPY) -O binary $< $@
+
+$(LST) : $(ELF)
+	@echo Creating listing: $(LST)
+	$(OBJDUMP) -S $< > $@
+
+$(DMP) : $(ELF)
+	@echo Creating memory dump: $(DMP)
+	$(OBJDUMP) -x --syms $< > $@
+
+report :
+	@echo.
+	@echo ===================================================================
+	@echo Target size:
+	$(SIZE) -B $(ELF)
+	@echo.
+	@echo Objects size:
+	$(SIZE) -B -t --common $(OBJS) $(USER_OBJS)
+	@echo ===================================================================
+
+clean :
+	del /Q /F *.o
+	del /Q /F *.lst
+
+clean-obj:
+	del /Q /F *.o
+	del /Q /F *.lst
+
+%closefile tmpBuf

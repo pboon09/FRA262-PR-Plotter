@@ -1,0 +1,77 @@
+%implements waijung_printf "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign storagename = CAST("String",SFcnParamSettings.storagename)
+%assign printfformat = CAST("String",SFcnParamSettings.printfformat)
+%assign formatcode = CAST("String",SFcnParamSettings.formatcode)
+%assign varname = CAST("String",SFcnParamSettings.varname)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign block = block + storagename + printfformat + formatcode + varname + sampletime + sampletimestr + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_STRING__) == 0)
+      %assign :: __STM32F4XX_STRING__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STD_IO__) == 0)
+      %assign :: __STM32F4XX_STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+%%void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+
+%assign nbrofinport = LibBlockNumInputPorts(block)
+%assign argin = ""
+%foreach sigIdx = nbrofinport
+%assign u = LibBlockInputSignal(sigIdx, "", "", 0)
+%assign argin =  argin + ", %<u>"
+%endforeach
+
+sprintf(%<varname>, "%<printfformat>" %<argin>);
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

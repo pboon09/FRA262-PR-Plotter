@@ -1,0 +1,296 @@
+﻿<!DOCTYPE HTML>
+<html><head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+   <!-- This line includes the general project style sheet (not required) -->
+   <link type="text/css" href="default.css" rel="stylesheet">
+
+   <style type="text/css">
+       a { color: black; text-decoration: none }
+       a:visited {color: black}
+       a:hover { text-decoration: underline }
+       .navtitle    { font-size: 14pt; font-weight: bold; margin-bottom: 16px; }
+       .navbar      { font-size: 10pt; }
+       .idxsection  { font-family: Arial,Helvetica; font-weight: bold; font-size: 21px; color: #000000; text-decoration: none;
+                    margin-top: 15px; margin-bottom: 0px; }
+       .idxkeyword  { font-family: Arial,Helvetica; font-weight: normal; font-size: 15px; color: #000000; text-decoration: none }
+       .idxkeyword2 { font-family: Arial,Helvetica; font-weight: normal; font-size: 15px; color: #000000; text-decoration: none }
+       .idxlink     { font-family: Arial,Helvetica; font-weight: normal; font-size: 14px; color: #000000; text-decoration: none }
+       TABLE.idxtable { background: #F4F4F4; border-width: 1px; border-color: #000000; border-collapse: collapse;
+                        filter: progid:DXImageTransform.Microsoft.Shadow(color=B0B0B0, Direction=135, Strength=4) }
+       TD.idxtable    { background: #F4F4F4; }
+       span#navsearch {display: none;}
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+html { overflow-x: hidden;} 
+</style> 
+<![endif]-->
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="waijung_contextids.js"></script>
+</head>
+<body style="background:#FFFFFF url('lines.gif')">
+<p class="navtitle">Waijung Blockset</p>
+<p class="navbar">
+<a href="waijung_content.htm">Contents</a>&nbsp;
+|&nbsp;<b>Index</b>&nbsp;
+<span id="navsearch">|&nbsp;<a href="waijung_ftsearch.htm">Search</a></span>
+</p><hr size="1" />
+
+<br/><a href="#A">A</a>
+  <a href="#B">B</a>
+  <a href="#C">C</a>
+  <a href="#D">D</a>
+  <a href="#E">E</a>
+  <a href="#F">F</a>
+  <a href="#G">G</a>
+  <a href="#H">H</a>
+  <a href="#I">I</a>
+  <a href="#J">J</a>
+  <a href="#K">K</a>
+  <a href="#L">L</a>
+  <a href="#M">M</a>
+  <a href="#N">N</a>
+  <a href="#O">O</a>
+  <a href="#P">P</a>
+  <a href="#Q">Q</a>
+  <a href="#R">R</a>
+  <a href="#S">S</a>
+  <a href="#T">T</a>
+  <a href="#U">U</a>
+  <a href="#V">V</a>
+  <a href="#W">W</a>
+  <a href="#X">X</a>
+  <a href="#Y">Y</a>
+  <a href="#Z">Z</a>
+
+<!-- Placeholder for the keyword index - this variable is REQUIRED! -->
+<script type="text/javascript">
+
+  function hmInitHideLinks(cssCode) {
+  	var styleElement = document.createElement("style");
+  	styleElement.type = "text/css";
+  	if (styleElement.styleSheet) {
+    	styleElement.styleSheet.cssText = cssCode;
+  	}
+  	else {
+    	styleElement.appendChild(document.createTextNode(cssCode));
+  	}
+  	document.getElementsByTagName("head")[0].appendChild(styleElement);
+  }
+
+  hmInitHideLinks("#idx div { display: none }");
+
+  var currentdiv = null;
+  var canhidelinks = true;
+
+  function hmshowLinks(divID) {
+    var thisdiv = document.getElementById(divID);
+    canhidelinks = true;
+    hmhideLinks();
+    if (thisdiv) {
+      currentdiv = thisdiv;
+      $(currentdiv).show();
+      $(currentdiv).mouseover(hmdivMouseOver).mouseout(hmdivMouseOut);
+      $(document).mouseup(hmhideLinks);
+    }
+  }
+  function hmdivMouseOver() { canhidelinks = false; };
+  function hmdivMouseOut() { canhidelinks = true; };
+  function hmhideLinks() {
+    if (canhidelinks) {
+      if (currentdiv) {
+        $(currentdiv).hide();
+        $(currentdiv).unbind("onmouseover", "onmouseout");
+      }
+      currentdiv = null;
+      $(document).unbind("onmouseup");
+    }
+  }
+function getText(obj) {
+  return (obj.innerText ? obj.innerText : obj.textContent);
+}
+function trackidx(obj) {
+  var akeyword = "";
+  while (obj.className != "idxkeyword") {
+    if (obj.previousSibling == null)
+      { obj = obj.parentNode; }
+    else
+      { obj = obj.previousSibling; }
+    if (obj.className == "idxkeyword2") { akeyword = getText(obj); }
+    if (obj.className == "idxkeyword") { akeyword = ((akeyword=="") ? getText(obj) : getText(obj) + ":" + akeyword); }
+  }
+  if (parent.frames.length>0) {
+    if (parent.gaaccount) { parent.track("index", akeyword); }
+  }
+}
+
+</script>
+<div id="idx" style="margin:0;padding:0;border:none">
+<a name="A" id="A"></a><p class="idxsection">- A -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_regular_adc.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">ADC</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_advanced_pwm.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Advanced PWM</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="amg_usbconverter_n2.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">aMG USB Converter-N</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_dmadac.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Arbitrary Waveform Generator</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="amg_sigcon_attenuation_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Attenuation</span></a></p>
+<a name="B" id="B"></a><p class="idxsection">- B -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k6')"><span class="idxkeyword">background tasks</span></a></p>
+<div id="k6" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_basicpwm.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Basic PWM</span></a></p>
+<a name="C" id="C"></a><p class="idxsection">- C -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k8')"><span class="idxkeyword">CAN</span></a></p>
+<div id="k8" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_can.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">CAN</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_can_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">CAN Setup</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="can2.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">CAN BUS</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="amg_clcd2.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Character LCD</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k11')"><span class="idxkeyword">Clock Configuration</span></a></p>
+<div id="k11" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_crc32.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">CRC</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_crc32.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">CRC-32</span></a></p>
+<a name="D" id="D"></a><p class="idxsection">- D -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k14')"><span class="idxkeyword">DAC</span></a></p>
+<div id="k14" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_regulardac.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Regular DAC</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="dac.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">DAC</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_delayus.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Delay</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="demo_home.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Demos</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k17')"><span class="idxkeyword">Digital Input</span></a></p>
+<div id="k17" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_input.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Input</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_input_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Input Demo</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k18')"><span class="idxkeyword">Digital Output</span></a></p>
+<div id="k18" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_output.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Output</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_output_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Output Demo</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="E" id="E"></a><p class="idxsection">- E -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="hardware_in_the_loop_tests_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Enable initial value (Closed loop HIL test)</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_encoderread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Encoder Read</span></a></p>
+<a name="F" id="F"></a><p class="idxsection">- F -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="minimum_requirements.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">flash programming</span></a></p>
+<a name="I" id="I"></a><p class="idxsection">- I -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k22')"><span class="idxkeyword">I2C</span></a></p>
+<div id="k22" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="i2c2.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">I2C</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_i2c_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">I2C Master Setup</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="L" id="L"></a><p class="idxsection">- L -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k23')"><span class="idxkeyword">Logic</span></a></p>
+<div id="k23" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_output.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Output</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_input.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Input</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_input_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Input Demo</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_digital_output_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Digital Output Demo</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="M" id="M"></a><p class="idxsection">- M -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k24')"><span class="idxkeyword">Multirate Single Tasking</span></a></p>
+<div id="k24" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="N" id="N"></a><p class="idxsection">- N -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k25')"><span class="idxkeyword">non real-time critical</span></a></p>
+<div id="k25" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="O" id="O"></a><p class="idxsection">- O -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k26')"><span class="idxkeyword">Op-Amp</span></a></p>
+<div id="k26" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="amg_sigcon_a.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">aMG SIGCON-A</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="amg_sigcon_a_sample_applications.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Sample Applications</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="voltage_follower_circuit.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Voltage Follower</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="amg_sigcon_attenuation_demo.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Attenuation</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="P" id="P"></a><p class="idxsection">- P -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k27')"><span class="idxkeyword">Profiler</span></a></p>
+<div id="k27" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="waijung_profiler.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Profiler</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="execution_time_profiler.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Execution Time Profiler</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="R" id="R"></a><p class="idxsection">- R -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k28')"><span class="idxkeyword">real-time critical</span></a></p>
+<div id="k28" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k29')"><span class="idxkeyword">RTC</span></a></p>
+<div id="k29" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="rtc.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">RTC</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_rtc_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">RTC Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="rtc2.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">RTC</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="S" id="S"></a><p class="idxsection">- S -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k30')"><span class="idxkeyword">Scheduling</span></a></p>
+<div id="k30" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_hssdcard_write.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">SD Card</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k32')"><span class="idxkeyword">SPI</span></a></p>
+<div id="k32" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="spi.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">SPI</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_spimaster_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">SPI Master Setup</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k33')"><span class="idxkeyword">SQLite</span></a></p>
+<div id="k33" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_web_interface_setting_up.htm#tweak_it" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Web Interface Setting up</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_web_other_components.htm#reset_page" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Web Other Components</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="amg_sqlite_data_server.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">aMG SQLite Data Server</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="amg_sqlite.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">aMG SQLite Database Server</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k34')"><span class="idxkeyword">STM3241G</span></a></p>
+<div id="k34" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="supportedmcu.htm#stm32f405xxandstm32f407xx" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F405xxandSTM32F407xx</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="peripherals_summary.htm#stm32f405xx-stm32f407xx" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F405xx-STM32F407xx</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xlqfp100pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x LQFP100 pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xlqfp144pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x LQFP144pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xlqfp176pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x LQFP176pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xlqfp64pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x LQFP64 pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xufbga176ballout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x UFBGA176ballout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f40xwlcsp90ballout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F40x WLCSP90ballout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="supportedmcu.htm#stm32f415xxandstm32f417xx" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F415xxandSTM32F417xx</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="peripherals_summary.htm#stm32f415xx-stm32f417xx" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F415xx-STM32F417xx</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xlqfp100pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x LQFP100pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xlqfp144pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x LQFP144pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xlqfp176pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x LQFP176pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xlqfp64pinout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x LQFP64pinout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xufbga176ballout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x UFBGA176ballout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="package_footprint.htm#stm32f41xwlcsp90ballout" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">STM32F41x WLCSP90ballout</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k51')"><span class="idxkeyword">STM32F4DISCOVERY</span></a></p>
+<div id="k51" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k52')"><span class="idxkeyword">system_stm32f4xx.c</span></a></p>
+<div id="k52" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="T" id="T"></a><p class="idxsection">- T -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k53')"><span class="idxkeyword">Target Setup</span></a></p>
+<div id="k53" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k54')"><span class="idxkeyword">Task Scheduling</span></a></p>
+<div id="k54" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_target_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Target Setup</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Read Unique ID</span></a></td></tr></table></td></tr></table>
+</div>
+<a name="U" id="U"></a><p class="idxsection">- U -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k55')"><span class="idxkeyword">UART</span></a></p>
+<div id="k55" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="uart.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">UART</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="stm32f4_usart_setup.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">UART Setup</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="stm32f4_uidread.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Unique Device ID</span></a></p>
+<a name="V" id="V"></a><p class="idxsection">- V -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="sigcon_attenuation1.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Vin = 0 – 5 V, Vout = 0 – 3 V</span></a></p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="sigcon_attenuation1.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxkeyword">Vin = 0 V – 5 V, Vout = 0 V – 3 V</span></a></p>
+<a name="W" id="W"></a><p class="idxsection">- W -</p>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k59')"><span class="idxkeyword">W2D</span></a></p>
+<div id="k59" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="waijung_webpage_designer_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Waijung WebPage Designer (W2D)</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_disk_image.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Disk Image</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_model_setting_up.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Model Setting up</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_web_interface_setting_up.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Web Interface Setting up</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="w2d_web_other_components.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">W2D Web Other Components</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_monitoring_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web Monitoring wtih W2D</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_control_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web Control wtih W2D</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_adc_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web ADC wtih W2D</span></a></td></tr></table></td></tr></table>
+</div>
+<p class="idxkeyword" style="margin:0 0 0 0px"><a href="javascript:void(0)" onclick="return hmshowLinks('k60')"><span class="idxkeyword">Web Monitor and Control</span></a></p>
+<div id="k60" style="position:relative;margin:0 0 0 20px;top:-3px">
+<table class="idxtable" style="padding:4px"><tr><td class="idxtable"><table style="border:none;padding0"><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="waijung_webpage_designer_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Waijung WebPage Designer (W2D)</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_monitoring_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web Monitoring wtih W2D</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_control_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web Control wtih W2D</span></a></td></tr><tr style="vertical-align:baseline"><td><img src="ciconidx.gif" style="border:none" alt="Icon"></td><td><a href="web_adc_wtih_w2d.htm" target="hmcontent" onclick="return trackidx(this);"><span class="idxlink">Web ADC wtih W2D</span></a></td></tr></table></td></tr></table>
+</div>
+</div>
+
+<script type="text/javascript">
+document.getElementById("navsearch").style.display="inline";
+</script> 
+</body>
+</html>
+
+
+
+
+

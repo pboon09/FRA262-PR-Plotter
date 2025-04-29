@@ -1,0 +1,329 @@
+%implements stm32f4_pwm_capture "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign timer = CAST("Number",optionstring[0])
+  %assign apbclk = CAST("Number",optionstring[1])
+  %assign port = optionstring[2]
+  %assign pin = optionstring[3]
+  %assign channel = CAST("Number",optionstring[4])
+  %assign bitsize = CAST("Number",optionstring[5])
+  %assign edge = CAST("String",optionstring[6])
+  %assign pintype = CAST("String",optionstring[7])
+  %assign datatype = CAST("String",optionstring[8])
+
+  %assign block = block + timer + apbclk + port + pin + channel + bitsize \
+                + edge + pintype + datatype
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_TIM__) == 0)
+      %assign :: __STM32F4XX_TIM__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void %<blockid>_GetCaptured(%<datatype> *pos_width, %<datatype> *pos_duty, %<datatype> *freq, uint8_t *ready);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+SYS_TIMER_STRUCT %<blockid>_timer = {0,0};
+/* Value */
+__IO uint32_t %<blockid>_PositiveWidth = 0;
+__IO uint32_t %<blockid>_Period = 0;
+__IO uint8_t %<blockid>_Ready = 0;
+
+%if bitsize == 16
+/* Overrun counter */
+__IO uint32_t %<blockid>_OverrunReset = 1;
+__IO uint32_t %<blockid>_OverrunCounter = 0;
+%endif
+
+/* CC */
+__IO uint32_t %<blockid>_CC1 = 0;
+__IO uint32_t %<blockid>_CC2 = 0;
+
+%if (timer == 1) || (timer == 8)
+void TIM%<timer>_CC_IRQHandler(void)
+%else
+void TIM%<timer>_IRQHandler(void)
+%endif
+{
+  %if channel == 1
+    %assign width_ccx = 2
+    %assign period_ccx = 1
+  %else
+    %assign width_ccx = 1
+    %assign period_ccx = 2
+  %endif
+
+%if bitsize == 32
+  /* === 32 bit timer === */
+  if (TIM_GetITStatus(TIM%<timer>, TIM_IT_CC%<period_ccx>) == SET) { 
+    %<blockid>_CC%<width_ccx> = TIM_GetCapture%<width_ccx>(TIM%<timer>);
+    %<blockid>_CC%<period_ccx> = TIM_GetCapture%<period_ccx>(TIM%<timer>);
+
+    /* Capture: %<edge> edge */
+    %<blockid>_Period = %<blockid>_CC%<period_ccx>;
+    %if edge == "Rising"
+    %<blockid>_PositiveWidth = %<blockid>_CC%<width_ccx>;
+    %else
+    %<blockid>_PositiveWidth = %<blockid>_CC%<period_ccx> - %<blockid>_CC%<width_ccx>;
+    %endif
+    if(%<blockid>_Period > 0)
+      %<blockid>_Ready = 1; /* Activate capture is ready */
+
+    /* Clear interrupt */
+    TIM_ClearITPendingBit(TIM%<timer>, TIM_IT_CC%<period_ccx>);
+  }
+%else
+  /* === 16 bit timer === */
+  /* CC%<width_ccx>: +Width */
+  if (TIM_GetITStatus(TIM%<timer>, TIM_IT_CC%<width_ccx>) == SET) {
+    %<blockid>_CC%<width_ccx> = (%<blockid>_OverrunCounter * 0x10000) + TIM_GetCapture%<width_ccx>(TIM%<timer>);
+
+    /* Clear interrupt */
+    TIM_ClearITPendingBit(TIM%<timer>, TIM_IT_CC%<width_ccx>);
+  }
+  /* CC%<period_ccx>: Period */
+  if (TIM_GetITStatus(TIM%<timer>, TIM_IT_CC%<period_ccx>) == SET) {
+    %<blockid>_CC%<period_ccx> = (%<blockid>_OverrunCounter * 0x10000) + TIM_GetCapture%<period_ccx>(TIM%<timer>);
+    
+    /* Capture: %<edge> edge */    
+    %<blockid>_Period = %<blockid>_CC%<period_ccx>;
+    %if edge == "Rising"
+    %<blockid>_PositiveWidth = %<blockid>_CC%<width_ccx>;
+    %else
+    %<blockid>_PositiveWidth = %<blockid>_CC%<period_ccx> - %<blockid>_CC%<width_ccx>;
+    %endif
+    %<blockid>_Ready = 1; /* Activate capture is ready */
+
+    /* Reset overrun counter */
+    %<blockid>_OverrunReset = 1;
+    %<blockid>_OverrunCounter = 0; /* Clear overrun value */
+
+    /* Reset capture */
+    %<blockid>_CC1 = 0;
+    %<blockid>_CC2 = 0;
+
+    /* Clear interrupt */
+    TIM_ClearITPendingBit(TIM%<timer>, TIM_IT_CC%<period_ccx>);
+  }
+  /* CC3: Overrun */
+  if (TIM_GetITStatus(TIM%<timer>, TIM_IT_CC3) == SET) {
+    if(%<blockid>_OverrunReset) {
+      %<blockid>_OverrunReset = 0;
+      %<blockid>_OverrunCounter = 0;
+    }
+    else {
+      if(%<blockid>_OverrunCounter < 0xFFFF) /* Limit overrun count */
+        %<blockid>_OverrunCounter ++;
+    }
+    /* Clear interrupt */
+    TIM_ClearITPendingBit(TIM%<timer>, TIM_IT_CC3);		
+  }
+%endif
+}
+
+void %<blockid>_GetCaptured(%<datatype> *pos_width, %<datatype> *pos_duty, %<datatype> *freq, uint8_t *ready)
+{
+  RCC_ClocksTypeDef RCC_Clocks;
+  uint32_t capture_clock;
+  
+  __IO uint32_t width;
+  __IO uint32_t period;
+  __IO uint32_t tmp_ready;
+
+  /* Critical section */
+  __disable_irq();
+  tmp_ready = %<blockid>_Ready;
+  width = %<blockid>_PositiveWidth;
+  period = %<blockid>_Period;
+  %<blockid>_Ready = 0; /* Clear Ready state */
+  __enable_irq();
+
+  /* Get clock */
+  RCC_GetClocksFreq(&RCC_Clocks);
+  if(RCC_Clocks.HCLK_Frequency == RCC_Clocks.PCLK%<apbclk>_Frequency) /* Prescale = 1, then x1 */
+    capture_clock = RCC_Clocks.PCLK%<apbclk>_Frequency;
+  else /* Prescale != 1, then x2 */
+    capture_clock = RCC_Clocks.PCLK%<apbclk>_Frequency * 2;
+
+  if(tmp_ready) {
+    /* Calculation */
+    *freq = (%<datatype>)capture_clock/ period; /* Frequency in unit Hz */
+    *pos_width = (%<datatype>)width/ capture_clock; /* Positive pulse width in unit seconds */
+    *pos_duty = (%<datatype>)width * 100 / period; /* Positive duty cycle, 0-100% */
+
+    /* Reset timer */
+    SysTimer_Start(&%<blockid>_timer, 4000); /* 4 sec */
+
+    /* Ready */
+    *ready = 1;
+  }
+  else { /* Estimation */    
+    if(SysTimer_IsTimeout(&%<blockid>_timer)) {
+      if(GPIO_ReadInputDataBit(GPIO%<port>, GPIO_Pin_%<pin>)) { /* Held High */
+        *pos_duty = 99.99;
+        %if bitsize == 32
+        *pos_width = (%<datatype>)TIM_GetCapture%<channel>(TIM%<timer>)/ capture_clock;
+        %else
+        *pos_width = (%<datatype>)%<blockid>_OverrunCounter * 0x10000/ capture_clock;
+        %endif
+      }
+      else { /* Held Low */
+        *pos_duty = 0.0; *pos_width = 0.0;
+      }
+      *freq = 0.0; *ready = 1;
+    }
+    else { /* Keep last captured value */
+      *ready = 0;
+    }
+  }
+}
+
+void enable_%<blockid>(void){
+  TIM_ICInitTypeDef  TIM_ICInitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  /* TIM%<timer> clock enable */
+  RCC_APB%<apbclk>PeriphClockCmd(RCC_APB%<apbclk>Periph_TIM%<timer>, ENABLE);
+
+  /* GPIOB clock enable */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<port>, ENABLE);
+  
+  /* TIM%<timer> chennel2 configuration : P%<port>%<pin> */
+  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_%<pin>;
+  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_%<pintype> ;
+  GPIO_Init(GPIO%<port>, &GPIO_InitStructure);
+  
+  /* Connect TIM pin to AF */
+  GPIO_PinAFConfig(GPIO%<port>, GPIO_PinSource%<pin>, GPIO_AF_TIM%<timer>);
+
+  /* Enable the TIM%<timer> global Interrupt */
+  %if (timer == 1) || (timer == 8)
+  NVIC_InitStructure.NVIC_IRQChannel = TIM%<timer>_CC_IRQn;
+  %else
+  NVIC_InitStructure.NVIC_IRQChannel = TIM%<timer>_IRQn;
+  %endif
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  /* Input capture channel */
+  TIM_ICInitStructure.TIM_Channel = TIM_Channel_%<channel>;
+  TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_%<edge>;
+  TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
+  TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+  TIM_ICInitStructure.TIM_ICFilter = 0x0;
+
+  TIM_PWMIConfig(TIM%<timer>, &TIM_ICInitStructure);
+
+  /* Select the TIM%<timer> Input Trigger: TI%<channel>FP%<channel> */
+  TIM_SelectInputTrigger(TIM%<timer>, TIM_TS_TI%<channel>FP%<channel>);
+
+  /* Select the slave Mode: Reset Mode */
+  TIM_SelectSlaveMode(TIM%<timer>, TIM_SlaveMode_Reset);
+  TIM_SelectMasterSlaveMode(TIM%<timer>,TIM_MasterSlaveMode_Enable);
+
+  /* TIM enable counter */
+  TIM_Cmd(TIM%<timer>, ENABLE);
+
+  /* Enable the CCx Interrupt Request */
+  %if bitsize == 32
+  TIM_ITConfig(TIM%<timer>, TIM_IT_CC%<channel>, ENABLE);
+  %else
+  TIM_ITConfig(TIM%<timer>, TIM_IT_CC1 | TIM_IT_CC2 | TIM_IT_CC3, ENABLE);
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+  %<blockid>_GetCaptured( \
+         %<LibBlockOutputSignalAddr(1, "", "", 0)>, \
+         %<LibBlockOutputSignalAddr(2, "", "", 0)>, \
+         %<LibBlockOutputSignalAddr(3, "", "", 0)>, \
+         %<LibBlockOutputSignalAddr(0, "", "", 0)>);
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

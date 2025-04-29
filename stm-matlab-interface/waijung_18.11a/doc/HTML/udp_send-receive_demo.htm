@@ -1,0 +1,199 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Hardware Modules Demos &gt; aMG EthernetINF &gt; UDP Send-Receive Demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="UDP Send-Receive Demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "udp_send-receive_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">UDP Send-Receive Demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?udp_send-receive_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="add-on_hardware_modules_demos.htm">Hardware Modules Demos</a> &gt; <a href="amg_ethernetinf2.htm">aMG EthernetINF</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">UDP Send-Receive Demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="start_webserver_first_page.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="amg_ethernetinf2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="onewire_master.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><span style="font-weight: bold;">Demo File</span>: target_udp_demo.mdl</p>
+<p><img src="udp_demo_target_model.png" width="950" height="578" alt="udp_demo_target_model" style="width:950px;height:578px;border:none" /></p>
+<p>&nbsp;</p>
+<p><img src="udp_demo_target_model2.png" width="950" height="339" alt="udp_demo_target_model2" style="width:950px;height:339px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware setup</span></h2>
+<p>1. <a href="hardware_setup3.htm" class="topiclink">Hardware setup</a></p>
+<p>2. <a href="waijung_ethernet_inf.htm" class="topiclink">Ethernet Link Setup</a>, the interface between Ethernet transceiver. Select profile pins corresponding to the board using, or specify by using pins (Manual).</p>
+<h2 class="p_Heading2"><span class="f_Heading2">IP address and Port setup</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Target</span></h3>
+<p>- IP address of target is configured in Ethernet Application Block. In this demo, IP address of Target board is 192.168.1.31.</p>
+<p>- UDP Receive configure only port number to accept (IP of block is same as IP of Target board). In this demo using port 7.</p>
+<p>- UDP Send, must specify both IP address and Port of Host PC. For this demo use IP address from &quot;Remote IP&quot; received by UDP Receive block.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Host PC</span></h3>
+<p>- IP address is assigned by network connecting, use ipconfig software to get the IP address of Host PC. In this demo, IP address of Host PC is 192.168.1.33.</p>
+<p>- UDP Receive configure only port number. In this demo using port 7.</p>
+<p>- UDP Send must specify IP address and port of destination (Target board) to send data to.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<p><span style="font-weight: bold;">Demo File</span>: host_udp_demo.mdl</p>
+<p><img src="udp_demo_host_model.png" width="950" height="490" alt="udp_demo_host_model" style="width:950px;height:490px;border:none" /></p>
+<p>&nbsp;</p>
+<p>1. Target board must running first, it is wait for receiving data, then response the counter value back to Host PC.</p>
+<p>2. Start simulation, this simulation model running on Host PC.</p>
+<p>3. Please make sure the Firewall is not block UDP connection. Instruction:  <a href="http://windows.microsoft.com/en-us/windows7/allow-a-program-to-communicate-through-windows-firewall" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Allow a program to communicate through Windows Firewall</a>.</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

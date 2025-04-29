@@ -1,0 +1,106 @@
+%implements waijung_systimer "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign mode = optionstring[0]
+
+  %assign block = block + mode
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+uint8_t %<blockid>_UPDATE(uint8_t reset, uint32_t ms);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if mode == "Blocking"
+  %% Do nothing
+%else
+  SYS_TIMER_STRUCT %<blockid>_STRUCT = {0, 0};
+  uint8_t %<blockid>_UPDATE(uint8_t reset, uint32_t ms){
+    if (reset)
+      SysTimer_Start(&%<blockid>_STRUCT, ms);
+    return (uint8_t)(SysTimer_IsTimeout(&%<blockid>_STRUCT) != 0);
+  }
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' 
+* Mode: %<mode>
+*/
+%if mode == "Blocking"
+  %assign ms = LibBlockInputSignal(0, "", "", 0)
+  %assign timeout = LibBlockOutputSignal(0, "", "", 0)
+  SysTimer_delay_ms((uint32_t)%<ms>);
+  %<timeout> = 1;
+%else
+  %assign reset = LibBlockInputSignal(0, "", "", 0)
+  %assign ms = LibBlockInputSignal(1, "", "", 0)
+  %assign timeout = LibBlockOutputSignal(0, "", "", 0)
+  %<timeout> = %<blockid>_UPDATE((uint8_t)(%<reset> != 0), (uint32_t)%<ms>);
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

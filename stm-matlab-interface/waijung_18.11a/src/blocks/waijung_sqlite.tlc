@@ -1,0 +1,503 @@
+%implements waijung_sqlite "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+%assign transfer = CAST("String",SFcnParamSettings.transfer)
+%assign statement = CAST("String",SFcnParamSettings.statement)
+%assign filename = CAST("String",SFcnParamSettings.filename)
+%assign tablename = CAST("String",SFcnParamSettings.tablename)
+%assign condition = CAST("String",SFcnParamSettings.condition)
+%assign filenameoption = CAST("String",SFcnParamSettings.filenameoption)
+%assign tablenameoption = CAST("String",SFcnParamSettings.tablenameoption)
+%assign column = CAST("String",SFcnParamSettings.column)
+%assign columncount = CAST("Number",SFcnParamSettings.columncount)
+%assign enablestatus = CAST("Number",SFcnParamSettings.enablestatus)
+
+%assign preview = CAST("String",SFcnParamSettings.preview)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign block = block + statement + sampletime + blockid \
+              + filename + tablename + condition + transfer + column \
+              + columncount + preview + filenameoption + tablenameoption \
+              + enablestatus
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#include "sprintf_s.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if statement != "CREATE"
+  typedef struct {
+  %foreach idx=columncount
+    %switch columntypes[idx]
+      %case "string"
+        char %<columnnames[idx]>[33]; /* Limit 32 char + 1 NULL */
+        %break
+      %case "single"
+        float %<columnnames[idx]>;
+        %break
+      %case "int32"
+        int32_t %<columnnames[idx]>;
+        %break
+      %case "uint32"
+        uint32_t %<columnnames[idx]>;
+        %break
+      %default
+        %<columntypes[idx]> %<columnnames[idx]>;
+        %break
+    %endswitch
+  %endforeach
+  } %<blockid>_DATA_STRUCT;    
+  extern %<blockid>_DATA_STRUCT %<blockid>_data;  
+%endif
+%if transfer == "Blocking"
+  %if (filenameoption == "Variable") && (tablenameoption == "Variable")
+  uint32_t %<blockid>_blocking(char *pfilename, char *ptablename);
+  %elseif (filenameoption == "Variable")
+  uint32_t %<blockid>_blocking(char *pfilename);
+  %elseif (tablenameoption == "Variable")
+  uint32_t %<blockid>_blocking(char *ptablename);
+  %else
+  uint32_t %<blockid>_blocking(void);
+  %endif
+%else
+  %if (filenameoption == "Variable") && (tablenameoption == "Variable")
+  uint32_t %<blockid>_nonblocking(char *pfilename, char *ptablename);
+  %elseif (filenameoption == "Variable")
+  uint32_t %<blockid>_nonblocking(char *pfilename);
+  %elseif (tablenameoption == "Variable")
+  uint32_t %<blockid>_nonblocking(char *ptablename);
+  %else    
+  uint32_t %<blockid>_nonblocking(void);
+  %endif
+%endif
+
+%if filenameoption == "Variable"
+extern char %<blockid>_filename[];
+%endif
+%if tablenameoption == "Variable"
+extern char %<blockid>_tablename[];
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid>
+   * ########################################################################
+  */
+  %if filenameoption == "Variable"
+  char %<blockid>_filename[33] = {0}; /* For dynamic database file name */
+  %endif
+  %if tablenameoption == "Variable"
+  char %<blockid>_tablename[33] = {0}; /* For dynamic table name */
+  %endif
+
+  void %<blockid>_cntrl(uint8_t id, uint8_t sub_id, char *buffer, uint16_t size, uint8_t *valid);
+  void %<blockid>_result(char *result, uint32_t sub_id);
+  SQLITE_QUERY_STRUCT %<blockid>_Query_Struct = 
+  {
+    %<blockid>_cntrl,
+    %<blockid>_result,      
+    0, /* In queue ? */      
+    SQLITE_Init, /* State */      
+    (void*)0 /* Link list */
+  };
+  %if statement != "CREATE"
+  %<blockid>_DATA_STRUCT %<blockid>_data;
+  %endif
+  %if (statement == "SELECT")
+  %<blockid>_DATA_STRUCT %<blockid>_tmpdata;
+  %endif
+  void %<blockid>_cntrl(uint8_t id, uint8_t sub_id, char *buffer, uint16_t size, uint8_t *valid)
+  {
+    *valid = 0; /* Assume */
+    switch(id) {
+      /* Enter SQLite prompt string */
+      case SQLITE_CNTRL_ARGUMENT:
+        if(sub_id == 0) { /* 1st argument */
+          %if (statement == "SELECT")
+            %if filenameoption == "Variable"
+              sprintf_s(buffer, size, "sqlite %s -separator ,\n", %<blockid>_filename);              
+            %else
+              sprintf_s(buffer, size, "sqlite %s -separator ,\n", "%<filename>");
+            %endif
+          %else
+            %if filenameoption == "Variable"
+              sprintf_s(buffer, size, "sqlite %s\n", %<blockid>_filename);
+            %else
+              sprintf_s(buffer, size, "sqlite %s\n", "%<filename>");
+            %endif
+          %endif
+          *valid = 1; /* Indicate a valid */
+        }
+        break;
+
+      /* Query string */
+      case SQLITE_CNTRL_QUERYSTR:
+        if(sub_id == 0) { /* 1 argument */
+          %if (statement == "CREATE") || (statement == "SELECT")
+            %if tablenameoption == "Variable"
+              sprintf_s(buffer, size, "%<preview>\n", %<blockid>_tablename);
+            %else
+              sprintf_s(buffer, size, "%<preview>\n", "%<tablename>");              
+            %endif
+          %endif
+          %if (statement == "INSERT") || (statement == "UPDATE")
+            %if tablenameoption == "Variable"
+              sprintf_s(buffer, size, "%<preview>\n", %<blockid>_tablename
+            %else
+              sprintf_s(buffer, size, "%<preview>\n", "%<tablename>"
+            %endif
+          %foreach idx=columncount
+            %switch columntypes[idx]
+              %case "string"
+                ,(char*)%<blockid>_data.%<columnnames[idx]>
+                %break
+              %default
+                ,%<blockid>_data.%<columnnames[idx]>
+                %break
+            %endswitch
+          %endforeach
+          );
+          %endif
+          %%%if (statement == "SELECT")
+          %%strcpy(buffer, "%<preview>\n");
+          %%%endif
+          *valid = 1; /* Indicate a valid */
+        }
+        break;
+    }
+  }
+
+  void %<blockid>_result(char *result, uint32_t sub_id)
+  {
+    if((sub_id == 0) && (%<blockid>_Query_Struct.state == SQLITE_GetResult)) { /* Success */
+%if (statement == "SELECT")
+    %assign int_exp = "%d"
+    %assign float_exp = "%f"
+    %assign str_exp = "%32s" 
+    %assign uint_exp = "%u" 
+
+    %assign str = ""
+    %assign sep = ""
+
+    %foreach idx=columncount
+      %switch columntypes[idx]
+        %case "string"          
+          %assign str = str + sep + str_exp
+          %break
+        %case "single"
+          %assign str = str + sep + float_exp
+          %break
+        %case "int32"
+          %assign str = str + sep + int_exp
+          %break
+        %case "uint32"
+          %assign str = str + sep + uint_exp
+          %break
+        %default
+          %assign str = str + sep + float_exp
+          %break
+      %endswitch
+      %assign sep = ","
+    %endforeach
+      if(sscanf(result, "%<str>\n"
+        %foreach idx=columncount
+          %switch columntypes[idx]
+            %case "string"
+              ,%<blockid>_tmpdata.%<columnnames[idx]>
+              %break
+            %default
+              ,&%<blockid>_tmpdata.%<columnnames[idx]>
+              %break
+          %endswitch
+        %endforeach
+        ) == %<columncount>) {
+        /* Success */
+        %foreach idx=columncount
+          %switch columntypes[idx]
+            %case "string"
+              memcpy(%<blockid>_data.%<columnnames[idx]>, %<blockid>_tmpdata.%<columnnames[idx]>, 33);
+              %break
+            %default
+              %<blockid>_data.%<columnnames[idx]> = %<blockid>_tmpdata.%<columnnames[idx]>;
+              %break
+          %endswitch
+        %endforeach
+      }
+%endif
+    }
+  }
+
+  %if transfer == "Blocking"
+    %if (filenameoption == "Variable") && (tablenameoption == "Variable")
+    uint32_t %<blockid>_blocking(char *pfilename, char *ptablename)
+    %elseif (filenameoption == "Variable")
+    uint32_t %<blockid>_blocking(char *pfilename)
+    %elseif (tablenameoption == "Variable")
+    uint32_t %<blockid>_blocking(char *ptablename)
+    %else
+    uint32_t %<blockid>_blocking(void)
+    %endif
+    {
+      %% Statement
+      %if statement == "CREATE"
+        /* Only when not success */
+        if((%<blockid>_Query_Struct.state != SQLITE_Success)\
+           %if (tablenameoption == "Variable")
+             || (strcmp(ptablename, %<blockid>_tablename) != 0)\
+           %endif        
+           %if (filenameoption == "Variable")
+             || (strcmp(pfilename, %<blockid>_filename) != 0)\
+           %endif        
+          ) {
+          %% Filename
+          %if (filenameoption == "Variable")
+            /* Store file name */
+            sprintf_s(%<blockid>_filename, sizeof(%<blockid>_filename), "%s", pfilename);        
+          %endif
+          %% Tablename
+          %if (tablenameoption == "Variable")
+            /* Store table name */
+            sprintf_s(%<blockid>_tablename, sizeof(%<blockid>_tablename), "%s", ptablename);
+          %endif
+          %% Execute
+          /* Register new request */
+            SQLiteDataQuery_Registerqueue(&%<blockid>_Query_Struct);
+        }
+      %else
+        %% Filename
+        %if (filenameoption == "Variable")
+          /* Store file name */
+          sprintf_s(%<blockid>_filename, sizeof(%<blockid>_filename), "%s", pfilename);        
+        %endif
+        %% Tablename
+        %if (tablenameoption == "Variable")
+          /* Store table name */
+          sprintf_s(%<blockid>_tablename, sizeof(%<blockid>_tablename), "%s", ptablename);
+        %endif
+        %% Execute
+        /* Register new request */
+        SQLiteDataQuery_Registerqueue(&%<blockid>_Query_Struct);
+      %endif
+
+      %% Blocking
+      /* Wait */
+      while(%<blockid>_Query_Struct.Inqueue != 0) {
+        SQLiteDataQuery_Background();
+      }
+
+      /* Return status */
+      return (uint32_t)%<blockid>_Query_Struct.state;
+    }
+  %else
+    %if (filenameoption == "Variable") && (tablenameoption == "Variable")
+    uint32_t %<blockid>_nonblocking(char *pfilename, char *ptablename)
+    %elseif (filenameoption == "Variable")
+    uint32_t %<blockid>_nonblocking(char *pfilename)
+    %elseif (tablenameoption == "Variable")
+    uint32_t %<blockid>_nonblocking(char *ptablename)
+    %else    
+    uint32_t %<blockid>_nonblocking(void)
+    %endif
+    {
+      uint32_t sta;
+
+      /* Last Query status */
+      sta = (uint32_t)%<blockid>_Query_Struct.state;
+
+      /* Register new query */
+      if(%<blockid>_Query_Struct.Inqueue == 0) {
+        %if statement == "CREATE"
+        /* Only when not success */
+        if((%<blockid>_Query_Struct.state != SQLITE_Success)
+           %if (tablenameoption == "Variable")
+             || (strcmp(ptablename, %<blockid>_tablename) != 0)\
+           %endif        
+           %if (filenameoption == "Variable")
+             || (strcmp(pfilename, %<blockid>_filename) != 0)\
+           %endif 
+          ) {
+          %% Filename
+          %if (filenameoption == "Variable")
+            /* Store file name */
+            sprintf_s(%<blockid>_filename, sizeof(%<blockid>_filename), "%s", pfilename);        
+          %endif
+          %% Tablename
+          %if (tablenameoption == "Variable")
+            /* Store table name */
+            sprintf_s(%<blockid>_tablename, sizeof(%<blockid>_tablename), "%s", ptablename);
+          %endif
+
+          SQLiteDataQuery_Registerqueue(&%<blockid>_Query_Struct);
+        }
+        %else
+          %% Filename
+          %if (filenameoption == "Variable")
+            /* Store file name */
+            sprintf_s(%<blockid>_filename, sizeof(%<blockid>_filename), "%s", pfilename);        
+          %endif
+          %% Tablename
+          %if (tablenameoption == "Variable")
+            /* Store table name */
+            sprintf_s(%<blockid>_tablename, sizeof(%<blockid>_tablename), "%s", ptablename);
+          %endif
+
+          /* Register new request */
+          SQLiteDataQuery_Registerqueue(&%<blockid>_Query_Struct);
+        %endif
+      }  
+      return sta;
+    }
+  %endif %%Blocking/Non-Blocking
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+/* Status: %<enablestatus> */
+
+/* %<block.Identifier>: '%<block.Name>'
+ *  Statement: '%<preview>'
+ *  Transfer: '%<transfer>'
+ */
+
+%assign input_port_idx = 0
+%% ========================================================================
+%% Collect filename/tablename
+%if (filenameoption == "Variable") && (tablenameoption == "Variable")
+  %% Get file pFilename from input port
+  %assign dyn_filename = LibBlockInputSignal(input_port_idx, "", "", 0)  
+  %assign input_port_idx = input_port_idx + 1
+  %assign dyn_tablename = LibBlockInputSignal(input_port_idx, "", "", 0)  
+  %assign input_port_idx = input_port_idx + 1
+%elseif (filenameoption == "Variable")
+  %assign dyn_filename = LibBlockInputSignal(input_port_idx, "", "", 0)  
+  %assign input_port_idx = input_port_idx + 1
+%elseif (tablenameoption == "Variable")
+  %assign dyn_tablename = LibBlockInputSignal(input_port_idx, "", "", 0)  
+  %assign input_port_idx = input_port_idx + 1
+%else
+%endif
+
+%% ========================================================================
+%% Insert or Update
+%if (statement == "INSERT") || (statement == "UPDATE")
+  %foreach idx=columncount
+    %assign y = LibBlockInputSignal(input_port_idx, "", "", 0)
+    %assign input_port_idx = input_port_idx + 1
+
+    %switch columntypes[idx]
+      %case "string"
+        sprintf_s(%<blockid>_data.%<columnnames[idx]>, 33, "%s", (char*)%<y>);
+        %break
+      %default
+        %<blockid>_data.%<columnnames[idx]> = %<y>;
+        %break
+    %endswitch
+  %endforeach
+%endif
+
+%% ========================================================================
+
+%% Status port
+%if enablestatus == 1
+%<LibBlockOutputSignal(0, "", "", 0)> = \
+%endif
+%% Blocking/ Non-Blocking
+%if transfer == "Blocking"
+  %% Process blocking query
+  %<blockid>_blocking(\
+%else
+  %% Process non-blocking query
+  %<blockid>_nonblocking(\
+%endif
+%if (filenameoption == "Variable") && (tablenameoption == "Variable")
+  (char*)%<dyn_filename>, (char*)%<dyn_tablename>);
+%elseif (filenameoption == "Variable")
+  (char*)%<dyn_filename>);
+%elseif (tablenameoption == "Variable")
+(char*)%<dyn_tablename>);
+%else
+);
+%endif
+
+%% ========================================================================
+%% Select
+%if (statement == "SELECT")
+  %foreach idx=columncount
+    %if enablestatus == 1
+      %assign y = LibBlockOutputSignal(idx+1, "", "", 0)
+    %else
+      %assign y = LibBlockOutputSignal(idx, "", "", 0)
+    %endif
+    %switch columntypes[idx]
+      %case "string"
+        %<y> = (uint32_t)%<blockid>_data.%<columnnames[idx]>;
+        %break
+      %default
+        %<y> = %<blockid>_data.%<columnnames[idx]>;
+        %break
+    %endswitch
+  %endforeach
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

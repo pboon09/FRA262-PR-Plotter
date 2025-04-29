@@ -1,0 +1,568 @@
+%implements waijung_sqlite_setup "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+%assign port = CAST("Number",SFcnParamSettings.port)
+%assign timeout_us = CAST("Number",(SFcnParamSettings.timeout * 1000000))
+%assign buffersize = CAST("String",SFcnParamSettings.buffersize)
+%assign resetcntrl = CAST("String",SFcnParamSettings.resetcntrl)
+%assign resetport = CAST("String",SFcnParamSettings.resetport)
+%assign resetpin = CAST("String",SFcnParamSettings.resetpin)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign block = block + timeout_us + buffersize + sampletime + blockid \
+              + port + resetcntrl + resetport + resetpin
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if resetcntrl == "Hardware"
+     %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+       %assign :: __STM32F4XX_GPIO__ = 1
+       %openfile tmpBuf
+       #include "stm32f4xx_gpio.h"
+       %closefile tmpBuf
+       %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+       %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+       %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+     %endif
+   %endif
+   %if (EXISTS(::__STM32F4XX_STRING__) == 0)
+      %assign :: __STM32F4XX_STRING__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+%openfile tmpBuf
+/* ########################################################################
+ * SQLite Database
+ * ########################################################################
+*/
+#define SQLITE_BUFFER_SIZE    %<buffersize>
+#define  SQLITE_TIMEOUT    (uint32_t)%<timeout_us> /* %<timeout_us> uS */
+%if resetcntrl == "Software"
+/* SQLite software reset */
+#define SQLITE_RESET()  { SQLiteDataQuery_write(".reset\n", 7); }
+%else
+/* SQLite hardware reset, pin: P%<resetport>%<resetpin> */
+#define SQLITE_RESET()  { \
+              GPIO_WriteBit(GPIO%<resetport>, GPIO_Pin_%<resetpin>, Bit_RESET);\
+              SysTimer_delay_us(100); \
+              GPIO_WriteBit(GPIO%<resetport>, GPIO_Pin_%<resetpin>, Bit_SET);\
+              }
+%endif
+#define SQLITE_ASK_PROMPT_STR "\nPress Enter to continue   ...> "
+#define SQLITE_CONTINUE_PROMPT_STR "   ...> "
+#define SQLITE_PROMPT_STR   "sqlite> "
+#define SQLITE_RESET_WAIT       1000000UL /* 1 Second */
+
+#define SQLITE_CNTRL_ARGUMENT 0
+#define SQLITE_CNTRL_QUERYSTR 1
+
+/* Interface */
+typedef void (*SQLITE_CNTRL        )(uint8_t id, uint8_t sub_id, char *buffer, uint16_t size, uint8_t *valid);
+typedef void (*SQLITE_QUERY_RESULT  )(char *result, uint32_t code);
+
+/* Process state */
+typedef enum {
+  SQLITE_Success = 0,
+  SQLITE_Init,
+  SQLITE_GetPrompt,
+  SQLITE_EnterSQLitePrompt,
+  SQLITE_WaitSQLitePrompt,
+  SQLITE_WriteQueryString,
+  SQLITE_GetResult,
+  SQLITE_Finallize,
+  SQLITE_Timeout,
+  SQLITE_IO_Error,
+  SQLITE_Query_Error,
+  SQLITE_Buffer_Error	
+} SQLITE_PROCESS_STATE;
+
+/* Struct */
+typedef struct SQLITE_QUERY_STRUCT SQLITE_QUERY_STRUCT;
+struct SQLITE_QUERY_STRUCT {
+  /* I/O */
+  SQLITE_CNTRL cntrl;
+  SQLITE_QUERY_RESULT query_result;
+
+  /* In queue */
+  uint8_t Inqueue; /* 0: Free, Otherwise: Waiting for processing */
+
+  /* State */
+  SQLITE_PROCESS_STATE state;
+
+  /* Link list */
+  SQLITE_QUERY_STRUCT *next;
+};
+int SQLiteDataQuery_Background(void);
+int SQLiteDataQuery_Registerqueue(SQLITE_QUERY_STRUCT *query);
+
+/* SQLite lock state */
+void SQLiteDataQuery_Lock(void);
+void SQLiteDataQuery_Lock_Release(void);
+int SQLiteDataQuery_Lock_Check(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * SQLite Database
+ * ########################################################################
+*/
+
+/* ---------------------------------- */
+/* SQLite lock state */
+#define LOCK_STATE_TIMEOUT_MS       5000
+int sqlite_lock_state = 0;
+SYS_TIMER_STRUCT SQLite_Lock_Timer; /* Timer to check timeout for lock state */
+
+void SQLiteDataQuery_Lock(void)
+{
+  if(sqlite_lock_state == 0) {
+    /* Wait for current busy transaction to complete. */
+    while(SQLiteDataQuery_Background() != 0) {
+      /* Wait */
+    }
+
+    /* Set lock status */
+    sqlite_lock_state = 1;
+  }
+
+  /* Activate timer for lock state timeout */
+  SysTimer_Start(&SQLite_Lock_Timer, LOCK_STATE_TIMEOUT_MS);
+}
+
+void SQLiteDataQuery_Lock_Release(void)
+{
+  /* Set lock status to unlock */
+  sqlite_lock_state = 0;
+}
+
+int SQLiteDataQuery_Lock_Check(void)
+{
+  /* Check timer if it is currently locked */
+  if(sqlite_lock_state != 0) {    
+    /* Check if lock state is timed out */
+    if(SysTimer_IsTimeout(&SQLite_Lock_Timer)) {
+      sqlite_lock_state = 0;
+    }
+  }
+
+  /* Return current lock state */
+  return sqlite_lock_state;
+}
+
+/* ---------------------------------- */
+
+SYS_TIMER_uS_STRUCT SQLite_uS_Timer;
+SYS_TIMER_uS_STRUCT SQLite_uS_ResetTimer; /* For reset state */
+
+char SQLITE_Buffer[SQLITE_BUFFER_SIZE];
+uint16_t SQLite_Buffer_Index = 0; 
+
+SQLITE_QUERY_STRUCT *SQLite_Query_Node = (void*)0; /* NULL */
+int SQLiteDataQuery_Registerqueue(SQLITE_QUERY_STRUCT *query)
+{
+  SQLITE_QUERY_STRUCT *tmp;
+
+  /* Activate query status */
+  query->Inqueue = 1;
+  query->state = SQLITE_Init;
+  query->next = (void*)0;
+
+  /* First entry? */
+  if(SQLite_Query_Node == (void*)0) {
+    SQLite_Query_Node = query;
+  }
+  else {
+    tmp = SQLite_Query_Node;
+    while(tmp->next != (void*)0) {
+      tmp = tmp->next;
+    }
+    tmp->next = query;
+  }
+  return 0;
+}
+
+void SQLiteDataQuery_write(char *data, uint16_t count)
+{
+  /* Write to UART */
+  UART%<port>_Write((uint8_t*)data, count);
+}
+
+UARTRX_BUFFER_READ_STRUCT SQLITE_read_struct;
+void SQLiteDataQuery_read(char *buffer, uint16_t buffer_size, uint16_t* reading_count)
+{
+  UART%<port>_ReadEx(&SQLITE_read_struct, (uint8_t *)buffer, buffer_size, reading_count);
+}
+
+static uint8_t __SQLITE_Startup = 1;
+static uint8_t __SQLITE_ArgSubId = 0;
+static uint8_t __SQLITE_ArgValid = 0;
+SQLITE_PROCESS_STATE SQLiteDataQuery_Processing(SQLITE_QUERY_STRUCT *query)
+{
+  char *s;
+  uint16_t reading_count;
+  char tmp_buffer[8];
+
+  /* Start SQLite reset timer */
+  if(__SQLITE_Startup != 0) {  
+     __SQLITE_Startup = 0;
+    SysTimer_uS_Start(&SQLite_uS_ResetTimer, SQLITE_RESET_WAIT);
+  }
+ 
+  /* Wait for SQLite start-up */
+  if (SysTimer_uS_IsTimeout(&SQLite_uS_ResetTimer) == 0) {
+    return query->state;
+  }
+
+  /* State */
+  switch (query->state) {
+    /* Init prompt */
+    case SQLITE_Init:
+      /* Clean Rx buffer */
+      do {
+        SQLiteDataQuery_read(SQLITE_Buffer, SQLITE_BUFFER_SIZE, &reading_count);
+      } while (reading_count > 0);
+
+      /* Send "\n" */
+      SQLiteDataQuery_write("\n", 1);
+      SysTimer_uS_Start(&SQLite_uS_Timer, SQLITE_TIMEOUT);
+      query->state = SQLITE_GetPrompt;
+
+      /* Buffer */
+      SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';    
+      break;
+
+    /* Wait for Prompt */
+    case SQLITE_GetPrompt:
+      do {
+        SQLiteDataQuery_read(&SQLITE_Buffer[SQLite_Buffer_Index], 1, &reading_count);
+        SQLite_Buffer_Index += reading_count;
+        SQLITE_Buffer[SQLite_Buffer_Index] = '\0';
+      } while ((reading_count > 0) && (SQLite_Buffer_Index < SQLITE_BUFFER_SIZE));
+
+      /* Check buffer */
+	  if(SQLite_Buffer_Index >= SQLITE_BUFFER_SIZE) {
+	    query->state = SQLITE_Buffer_Error;
+		break;
+	  }
+
+      /* Main prompt ? */
+      if (!strncmp(SQLITE_Buffer, ">", 1)) { /* Main prompt: for compatibility with SQLite_FW0 */
+        SQLite_Buffer_Index = 0;
+        __SQLITE_ArgSubId = 0; /* Reset Sub Id index */
+        query->state = SQLITE_EnterSQLitePrompt;
+        break;
+      }
+
+      /* SQLite prompt ? */
+      else if (!strcmp(SQLITE_Buffer, SQLITE_PROMPT_STR)) {/* SQLite prompt */
+        /* Exit from SQLite prompt */
+        SQLiteDataQuery_write(".quit\n", 6);
+        SQLite_Buffer_Index = 0;
+        break;
+      }
+      
+      /* Continue prompt */
+      else if (!strcmp(SQLITE_Buffer, SQLITE_CONTINUE_PROMPT_STR)) {/* Continue prompt */
+        /* Exit */
+        SQLiteDataQuery_write(".reset\n", 7);
+        SQLite_Buffer_Index = 0;
+        break;
+      }
+
+      /* Timeout check */
+      if (SysTimer_uS_IsTimeout(&SQLite_uS_Timer)) {
+        /* Timeout */
+        query->state = SQLITE_Timeout;
+
+        /* Reset control */
+        SQLITE_RESET();
+
+        /* Wait for Reset */
+        SysTimer_uS_Start(&SQLite_uS_ResetTimer, SQLITE_RESET_WAIT);
+      }
+      break;
+
+    /* Enter SQLite prompt */
+    case SQLITE_EnterSQLitePrompt:
+      /* Clean Rx buffer */
+      do {
+        SQLiteDataQuery_read(SQLITE_Buffer, SQLITE_BUFFER_SIZE, &reading_count);
+      } while (reading_count > 0);
+
+      /* Write "sqlite <filename> -option\n" */
+      SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';
+      query->cntrl(SQLITE_CNTRL_ARGUMENT, __SQLITE_ArgSubId++, SQLITE_Buffer, SQLITE_BUFFER_SIZE, &__SQLITE_ArgValid);
+      if(__SQLITE_ArgValid != 0) {    
+        SQLiteDataQuery_write(SQLITE_Buffer, strlen(SQLITE_Buffer));
+
+        /* Change state */
+        SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';
+        SysTimer_uS_Start(&SQLite_uS_Timer, SQLITE_TIMEOUT);
+        query->state = SQLITE_WaitSQLitePrompt;
+      }
+      else {
+        query->state = SQLITE_WriteQueryString;
+        __SQLITE_ArgSubId = 0;
+      }
+      break;
+
+    /* Wait string return when entering sqlite prompt */
+    case SQLITE_WaitSQLitePrompt:
+      do {
+        SQLiteDataQuery_read(&SQLITE_Buffer[SQLite_Buffer_Index], 1, &reading_count);
+        SQLite_Buffer_Index += reading_count;
+        SQLITE_Buffer[SQLite_Buffer_Index] = '\0';
+      } while ((reading_count > 0) && (SQLite_Buffer_Index < SQLITE_BUFFER_SIZE));
+
+      /* Check buffer */
+	  if(SQLite_Buffer_Index >= SQLITE_BUFFER_SIZE) {
+	    query->state = SQLITE_Buffer_Error;
+		break;
+	  }
+      
+      /* If prompt appear */
+      if ((s=strstr(SQLITE_Buffer, SQLITE_PROMPT_STR)) != (void*)0) {/* SQLite prompt */
+        if (!strcmp(s, SQLITE_PROMPT_STR)) {
+          /* Clean Rx buffer */
+          do {
+            SQLiteDataQuery_read(SQLITE_Buffer, SQLITE_BUFFER_SIZE, &reading_count);
+          } while (reading_count > 0);
+          SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';
+          query->state = SQLITE_EnterSQLitePrompt;
+		  break;
+        }
+      }
+
+      /* Timeout? */
+      if (SysTimer_uS_IsTimeout(&SQLite_uS_Timer)) {
+	    if(strstr(SQLITE_Buffer, "Error:") != (void*)0) {
+		  query->state = SQLITE_IO_Error;
+	    }
+	    else {
+	      query->state = SQLITE_Timeout;
+	    }
+      }
+      break;
+
+    case SQLITE_WriteQueryString:
+      /* Sent Query string */
+      SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';
+      query->cntrl(SQLITE_CNTRL_QUERYSTR, __SQLITE_ArgSubId, SQLITE_Buffer, SQLITE_BUFFER_SIZE, &__SQLITE_ArgValid);
+      if(__SQLITE_ArgValid != 0) {
+	    SQLiteDataQuery_write(SQLITE_Buffer, strlen(SQLITE_Buffer));
+	    /* Goto get result */
+        SQLITE_Buffer[SQLite_Buffer_Index = 0] = '\0';
+	    SysTimer_uS_Start(&SQLite_uS_Timer, SQLITE_TIMEOUT);
+	    query->state = SQLITE_GetResult;
+      }
+      else {
+        /* Finiallize */              
+        SQLiteDataQuery_write(".quit\n", 6);
+        SysTimer_uS_Start(&SQLite_uS_Timer, SQLITE_TIMEOUT);
+        query->state = SQLITE_Finallize;
+      }
+      break;
+	
+	case SQLITE_GetResult:
+      do {
+        SQLiteDataQuery_read(&SQLITE_Buffer[SQLite_Buffer_Index], 1, &reading_count);
+        SQLite_Buffer_Index += reading_count;
+        SQLITE_Buffer[SQLite_Buffer_Index] = '\0';
+	    if(reading_count>0) { /* Check timeout, between byte to byte */
+		  SysTimer_uS_Start(&SQLite_uS_Timer, SQLITE_TIMEOUT);
+        }
+      } while ((reading_count > 0) && (SQLite_Buffer_Index < SQLITE_BUFFER_SIZE));
+
+      /* Check buffer */
+	  if(SQLite_Buffer_Index >= SQLITE_BUFFER_SIZE) {
+	    query->state = SQLITE_Buffer_Error;
+		break;
+	  }
+
+      /* SQLite result */
+      if(SQLite_Buffer_Index >= strlen(SQLITE_PROMPT_STR)) {
+        if ((s=strstr(SQLITE_Buffer, SQLITE_PROMPT_STR)) != (void*)0) {/* SQLite prompt */
+          if (!strcmp(s, SQLITE_PROMPT_STR)) {
+            if(strstr(SQLITE_Buffer, "Error:") != (void*)0) {
+              SQLITE_Buffer[SQLite_Buffer_Index-strlen(SQLITE_PROMPT_STR)] = '\0';  /* Append NULL */
+		      query->state = SQLITE_Query_Error;
+              query->query_result(SQLITE_Buffer, (uint32_t)__SQLITE_ArgSubId);
+	        }
+	        else {
+              /* Success */
+              SQLITE_Buffer[SQLite_Buffer_Index-strlen(SQLITE_PROMPT_STR)] = '\0'; /* Append NULL */              
+              query->query_result(SQLITE_Buffer, (uint32_t)__SQLITE_ArgSubId);
+              __SQLITE_ArgSubId ++;
+              query->state = SQLITE_WriteQueryString;
+	        }
+            break;
+          }
+        }
+        else if ((s=strstr(SQLITE_Buffer, "\n>")) != (void*)0) {/* SQLite prompt */
+          SQLITE_Buffer[SQLite_Buffer_Index-strlen("\n>")] = '\0'; /* Append NULL */
+		  query->state = SQLITE_IO_Error;
+          query->query_result(SQLITE_Buffer, (uint32_t)__SQLITE_ArgSubId);
+        }
+      }
+
+      /* Timeout? */
+      if (SysTimer_uS_IsTimeout(&SQLite_uS_Timer)) {
+	    if(strstr(SQLITE_Buffer, "Error:") != (void*)0) {
+		  query->state = SQLITE_IO_Error;
+	    }
+	    else {
+	      query->state = SQLITE_Timeout;
+	    }
+      }
+	  break;
+
+    case SQLITE_Finallize:
+      /* Wait a byte */
+      SQLiteDataQuery_read(tmp_buffer, 1, &reading_count);
+      /* Byte receive or timeout */
+      if(SysTimer_uS_IsTimeout(&SQLite_uS_Timer) || (reading_count>0)) {
+        /* Remove from Queue */
+        query->state = SQLITE_Success;
+      }
+      else {
+        break;
+      }
+    case SQLITE_Success:
+    case SQLITE_Timeout:	 
+    case SQLITE_IO_Error:	 
+    case SQLITE_Query_Error:	 
+    case SQLITE_Buffer_Error:
+    default:
+      /* Remove from Queue */
+      query->Inqueue = 0;
+      break;
+  }
+
+  return query->state;
+}
+
+/* 0 - Done first in Queue */
+int SQLiteDataQuery_Background(void)
+{
+  /* All done? */
+  if(SQLite_Query_Node == (void*)0) {
+    return 0; /* No processing queue */
+  }
+
+  /* Process first in queue */
+  SQLiteDataQuery_Processing(SQLite_Query_Node);
+
+  /* Check if process is done? */
+  if(SQLite_Query_Node->Inqueue == 0) {
+    /* Next */
+    SQLite_Query_Node = SQLite_Query_Node->next;
+    /* First Queue is done */
+    return 0;
+  }
+
+  /* First in queue processing */
+  return 1;
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid>
+   * ########################################################################
+  */
+  /* %<blockid> */
+  void enable_%<blockid>(void)
+  {
+    %if resetcntrl == "Hardware"
+    GPIO_InitTypeDef GPIO_InitStructure;
+    %endif
+
+    /* Init UART Read struct */ 
+    SQLITE_read_struct.index = URX%<port>_BUFFER_SIZE;
+    SQLITE_read_struct.count = 0;
+    %if resetcntrl == "Hardware"
+      /* Init SQLite hardware reset, pin: P%<resetport>%<resetpin>*/
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<resetport>, ENABLE);
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<resetpin>;
+      GPIO_Init(GPIO%<resetport>, &GPIO_InitStructure);
+      /* Reset pin: High */
+      GPIO_WriteBit(GPIO%<resetport>, GPIO_Pin_%<resetpin>, Bit_SET);
+    %endif
+  }
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<block.Identifier>: '%<block.Name>'
+ *  Port: 'COM%<port>'
+ *  Timeout: %<SFcnParamSettings.timeout> Seconds
+ *  Buffer: %<buffersize> Bytes
+ */
+ if(SQLiteDataQuery_Lock_Check() == 0) {
+   SQLiteDataQuery_Background();
+ }
+
+
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

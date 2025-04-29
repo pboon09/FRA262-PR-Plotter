@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+   <waijung>
+      <mode>user</mode>
+      <path>
+         <root>D:\\subversion\\rapidstm32f4\\trunk\\waijung</root>
+         <project>D:\\subversion\\rapidstm32f4\\trunk\\rapidstm32f4_target\\rapidstm32f4</project>
+      </path>
+   </waijung>
+   <target>
+      <name>nrf51822</name>
+      <description>nRF51822 Target</description>
+      <path>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\targets\\nrf5_target\\nrf5</root>
+         <source>${target/path/root}\src</source>
+         <sourceBlocks>${target/path/source}\blocks</sourceBlocks>
+         <utils>${target/path/root}\utils</utils>
+         <stlinkutilitybin>C:\\Program Files (x86)\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK Utility</stlinkutilitybin>
+      </path>
+      <customization>
+         <name>cortexm0</name>
+         <vendor>ARM Compatible</vendor>
+         <type>Cortex - M0</type>
+         <endianess>LittleEndian</endianess>
+      </customization>
+   </target>
+   <compilers>
+      <mdkarm>
+         <binpath>ARMCC\\BIN</binpath>
+         <incpath>ARMCC\\include;</incpath>
+      </mdkarm>
+      <ewarm>
+         <binpath>arm\\bin</binpath>
+         <incpath>arm\\CMSIS\\Include;arm\\inc\\c</incpath>
+      </ewarm>
+      <gnuarm>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded</root>
+         <binpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded\\bin</binpath>
+         <incpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\aimagin\\gnuarminc;</incpath>
+         <version>gcc version 7.2.1 20170904 (release) [ARM/embedded-7-branch revision 255204] (GNU Tools for Arm Embedded Processors 7-2017-q4-major)  
+</version>
+      </gnuarm>
+   </compilers>
+   <tables type="waijung_dat">
+      <table name="waijung_mcu_resources">
+         <mcu id="nRF51822QFAA25616kBQFN48" name="nRF51822-QFAA (256/16kB QFN48)">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x040000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x004000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x00000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00040000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00004000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x00000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00040000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00004000</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="nRF51422QFACS310V300ANTBLE25632kB" name="nRF51422-QFAC-S310-v300 (ANT/BLE 256/32kB)">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x5C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00005C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00005C00</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="nRF51422QFAAS310V200ANTBLE25616kB" name="nRF51422-QFAA-S310-v200 (ANT/BLE 256/16kB)">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x1C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x01D000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="nRF51422QFAAS310V100ANTBLE25616kB" name="nRF51422-QFAA-S310-v100 (ANT/BLE 256/16kB)">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="nRF51422QFAAANT25616kBQFN48" name="nRF51422-QFAA (ANT 256/16kB QFN48)">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002400</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001C00</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="nRF51422QFAA" name="nRF51422-QFAA">
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20002008</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00002000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000008</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00003FFC</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x01C800</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00003FFC</value>
+                  </VALUES>
+               </module>
+            </function>
+         </mcu>
+      </table>
+   </tables>
+</configuration>

@@ -1,0 +1,210 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Hardware Modules &gt; aMG SIGCON-A &gt; Signal Conditioning Design Guidline &gt; Sample Applications &gt; Zero-Span &gt; Vin 0-3V, Vout -12 to +12 V</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Vin 0-3 V, Vout -12 to +12 V">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "sigcon_zerospan2.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Vin 0-3 V, Vout -12 to +12 V</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?sigcon_zerospan2.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="amg_related_hardware.htm">Hardware Modules</a> &gt; <a href="amg_sigcon_a.htm">aMG SIGCON-A</a> &gt; <a href="signal_conditioning_design_gui.htm">Signal Conditioning Design Guidline</a> &gt; <a href="amg_sigcon_a_sample_applications.htm">Sample Applications</a> &gt; <a href="zerospan_circuit.htm">Zero-Span</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Vin 0-3 V, Vout -12 to +12 V</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="sigcon_zerospan1.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="zerospan_circuit.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="amg_sigcon_a_active_filter.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>The set of data points, Vout = -12 V @ Vin = 0 V, Vout = +12 V @ Vin = +3 V, see the transfer curve below.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Transfer Curve</span></h3>
+<p><img src="case2graph.png" width="950" height="288" alt="case2Graph" style="width:950px;height:288px;border:none" /></p>
+<p>&nbsp;</p>
+<p><span style="width:48px">&nbsp;</span>-12 &nbsp;= m(0) + b  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp;12 &nbsp;= m(3) + b  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>
+<p>&nbsp;</p>
+<p>After algebraic manipulation, yield the solution, m = 8 and b = -12, rewrite m and b to new equation.</p>
+<p>&nbsp;</p>
+<p class="p_Code"><span style="width:48px">&nbsp;</span><span class="f_Code">Vout = 8Vin - 12  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span></p>
+<p>&nbsp;</p>
+<p>The equation above similar to &nbsp;the CASE2: Vout = +mVin - b circuit. </p>
+<p>&nbsp;</p>
+<p><img src="span_case2.png" width="950" height="178" alt="span_case2" style="width:950px;height:178px;border:none" /></p>
+<p>&nbsp;</p>
+<p>We can calculate the value of R1, R2, RF and RG by the following equations:</p>
+<p>&nbsp;</p>
+<p><img src="span_case2_eq.png" width="950" height="102" alt="span_case2_eq" style="width:950px;height:102px;border:none" /></p>
+<p>&nbsp;</p>
+<p>The circuit configuration which yields a solution is shown below.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Circuit Diagram</span></h3>
+<p>&nbsp;</p>
+<p><img src="span_case2_ex1.png" width="950" height="425" alt="span_case2_ex1" style="width:950px;height:425px;border:none" /></p>
+<p>&nbsp;</p>
+<p><span class="f_Heading3">Configuration of aMG SIGCON-A: </span>Soldering to Jump J5, J7, X2 and X3. Place 5 k<span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span> resistor to X6, 20 k<span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span> to X7, 150 k<span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span> to X8 and 820 <span style="font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial';">&Omega;</span> to X9 .</p>
+<p>&nbsp;</p>
+<p><img src="zspancase2_config.png" width="589" height="263" alt="zspanCase2_config" style="width:589px;height:263px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">&nbsp;</span></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">Demo</span></h3>
+<h3 class="p_Heading3"><img src="span12012_demo.png" width="950" height="543" alt="span12012_demo" style="width:950px;height:543px;border:none" /></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">Input VS Output Signal</span></h3>
+<h3 class="p_Heading3"><img src="3to12_scope.png" width="950" height="295" alt="3to12_scope" style="width:950px;height:295px;border:none" /></h3>
+<h2 class="p_Heading2"><span class="f_Heading2">Summary</span></h2>
+<p>The recommended design procedure for zero-span op-amp design is:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">Substitute the data set into linear equations to obtain m and b (the slope and intercept of a straight line).</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none">Determine the form of the circuit by m and b then choose the circuit configuration that fits the form.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none">Using the circuit equations which selected, calculate the resistor values.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none">Build the circuit using aMG SIGCON-A.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">5.</span></td><td style="border:none">Test the circuit, take data and verification.</td></tr></table></div>
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

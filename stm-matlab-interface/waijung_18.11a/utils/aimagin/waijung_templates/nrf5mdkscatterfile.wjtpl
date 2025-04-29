@@ -1,0 +1,12 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".sct"
+${section:flash}
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+${section:ram}  
+   .ANY (+RW +ZI)
+  }
+}
+
+%closefile tmpBuf

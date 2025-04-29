@@ -1,0 +1,89 @@
+%implements waijung_vdata_storage "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign storagetype = CAST("String",SFcnParamSettings.storagetype)
+%assign storagename = CAST("String",SFcnParamSettings.storagename)
+%assign initval = CAST("Real",SFcnParamSettings.initval)
+%assign varname = CAST("String",SFcnParamSettings.varname)
+%assign buffersize = CAST("Number",SFcnParamSettings.buffersize)
+%assign initvalstring = CAST("String",SFcnParamSettings.initvalstring)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign storagetypestr = CAST("String",SFcnParamSettings.storagetypestr)
+%assign block = block + storagetype + storagename + initval \
+     + varname + sampletime + sampletimestr + blockid + storagetypestr \
+     + initvalstring + buffersize
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* %<Type> Block: %<Name> */
+%if storagetype == "string"
+#define %<varname>_SIZE %<buffersize> /* Size of buffer */
+extern %<storagetypestr> %<varname>[];
+%else
+extern %<storagetypestr> %<varname>;
+%endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+%<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+%openfile tmpBuf
+/* %<Type> Block: %<Name> */
+%if storagetype == "string"
+%<storagetypestr> %<varname>[%<varname>_SIZE];
+%else
+%<storagetypestr> %<varname>;
+%endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+%<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+%openfile tmpBuf
+%%void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Start(block, system) Output
+/* %<Type> Block: %<Name> */
+%if storagetype == "string"
+strcpy(%<varname>,"%<initvalstring>");
+%else
+%<varname> = %<initval>;
+%endif
+%endfunction %% Start
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

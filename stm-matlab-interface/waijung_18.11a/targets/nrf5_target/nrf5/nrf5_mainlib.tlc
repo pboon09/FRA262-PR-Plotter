@@ -1,0 +1,177 @@
+%% Core library for nRF51 code generation e.g. for main.c and system initialization
+%selectfile NULL_FILE
+%% Setup main.c
+%% Only bareboard is supported (No OS). 
+%% Currently only Singletasking - Multi-Rate is support at present.
+%% 3 Options scheduling options
+%% 1. Singletasking - Single-Rate (sample times of all blocks in the model and the model's fixed step size are the same)
+%% 2. Singletasking - Multi-Rate (sample times of all blocks in the model and the model's fixed step size are not the same
+%%                                all sample times in the model must be an integer multiple of the model's fixed step size.)
+%% 3. Multitasking - Multi-Rate
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%function FcnSingleTaskingMain() void
+   %%openfile tmpBuf
+   %%assign srcFile = LibGetModelDotCFile()
+   %%closefile tmpBuf
+   %%<LibSetSourceFileSection(srcFile, "Includes", tmpBuf)>
+   %openfile tmpBuf
+      %<SLibDeclareFcnProtoCtlGlobalVariables()>\
+      %<LibWriteModelData()>\
+   %closefile tmpBuf 
+   %assign file  = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDefinitions")>
+   %<LibSetSourceFileCustomSection(file,"cDefinitions",tmpBuf)>
+
+   %openfile tmpBuf
+      #include "waijung_hwdrvlib.h"
+      #include "%<LibGetMdlPubHdrBaseName()>.h"
+      #include "rtwtypes.h" /* MathWorks types */
+   %closefile tmpBuf
+   %assign file  = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+   %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+   %openfile tmpBuf
+      /* System counter */
+      volatile uint32_t systick_count = 0;
+      volatile uint32_t systick_active = 0;
+	  volatile uint32_t err_code;
+	  
+	#ifdef WAIJUNG_WATCHDOG
+	uint8_t ext_watchdog_reset_state = 0;
+	#endif
+	
+	#ifdef LOW_POWER_MANAGEMENT	
+	static void power_management_init(void)
+	{
+		ret_code_t err_code;
+		err_code = nrf_pwr_mgmt_init();
+		APP_ERROR_CHECK(err_code);
+	}
+
+	static void idle_state_handle(void)
+	{
+		//UNUSED_RETURN_VALUE(NRF_LOG_PROCESS());
+		nrf_pwr_mgmt_run();
+	}	
+	#endif
+
+    /* Main program */
+    int_T main(void) { 
+
+		/* Init Tick */
+		TimerTick_Init ();
+		
+		#ifdef LOW_POWER_MANAGEMENT	
+		/* Power Managetment */
+		power_management_init();
+		#endif
+		
+		/* SoftDevice */
+		SoftDevice_Init();
+       
+        /* Initialize model */
+        %<LibCallModelInitialize()>\
+
+        %%if ISEQUAL(%<StopTime>, rtInf)
+		
+		/* Start Tick */
+		TimerTick_Start();
+		
+		#ifdef LOW_POWER_MANAGEMENT	
+		// DC/DC Enable
+		sd_power_dcdc_mode_set (NRF_POWER_DCDC_ENABLE);
+		#endif // LOW_POWER_MANAGEMENT
+
+		/* Continue indefinitely */
+        while(1) {
+            if (systick_active != systick_count) {
+               systick_active ++;
+               %<LibCallModelStep(0)>\
+            }
+			#ifdef LOW_POWER_MANAGEMENT		
+              /* Put CPU in sleep if possible */
+              //err_code = sd_app_evt_wait();        
+              //APP_ERROR_CHECK(err_code);
+			  idle_state_handle();
+			#endif // LOW_POWER_MANAGEMENT
+			
+			#ifdef BLE_SUPPORT_FIRMWARE_UPGRADE
+			// BLE FW Upgrade
+			ble_fw_upgrade_main();
+			#endif
+        }
+    }
+   %closefile tmpBuf
+   %assign file  = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* 
+       * rt_Onestep is called from a timer ISR at the base sample time of %<SampleTime[0].ClockTickStepSize> sec.
+       */
+      void rt_OneStep(void * p_context);
+   %closefile tmpBuf  
+   %assign file  = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+   %<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+   %openfile tmpBuf
+      void rt_OneStep(void * p_context) {   
+		//UNUSED_PARAMETER(p_context);
+         %assign varsbuf = LibWriteModelInputs()
+         %if varsbuf != ""
+            /* Remove conditional, and set model inputs here */
+            %<varsbuf>\
+         %endif
+         %assign varsbuf = LibWriteModelOutputs()
+         %if varsbuf != ""
+            /* Remove conditional, and get model outputs here */
+            %<varsbuf>\
+         %endif
+		 /* Tick counter */
+         %%if (NRF_RTC1->EVENTS_TICK != 0) {    /* Event on COUNTER increament */
+         %%  NRF_RTC1->EVENTS_TICK = 0;
+		   
+		   #ifdef WAIJUNG_WATCHDOG
+		   /* External watchdog reset */
+		   nrf_gpio_pin_write(30, (++ext_watchdog_reset_state & 1));
+		   #endif
+
+           /* Activate systick */
+           /* systick_active = 1; */
+		   
+		   /* Tick counter */
+		   systick_count++;		 
+         %%}
+      }
+   %closefile tmpBuf  
+   %assign file  = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /**
+       * @brief  This function handles SysTick Handler.
+       * @param  None
+       * @retval None
+       */
+       //void RTC1_IRQHandler(void){
+       //    rt_OneStep();
+       //}
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "main")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%% Generate Code
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%function SLibGenerateCode() void
+   %if LibIsSingleRateModel() || LibIsSingleTasking()
+      %<FcnSingleTaskingMain()>
+   %else
+      %error None Single Tasking Non Single Rate Not allow
+   %endif
+%endfunction

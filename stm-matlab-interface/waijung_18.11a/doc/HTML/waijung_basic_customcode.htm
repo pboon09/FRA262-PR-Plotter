@@ -1,0 +1,233 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Waijung Blockset &gt; Block References &gt; Custom Code &gt; Basic Custom Code</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Basic Custom Code">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "waijung_basic_customcode.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Basic Custom Code</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?waijung_basic_customcode.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="waijung.htm">Waijung Blockset</a> &gt; <a href="waijung_block_references.htm">Block References</a> &gt; <a href="custom_code.htm">Custom Code</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Basic Custom Code</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="custom_code.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="custom_code.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="waijung_irq_customcode.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<h1 class="p_Heading1"><img src="basiccustomcodeblock.png" width="950" height="106" alt="basiccustomcodeblock" style="width:950px;height:106px;border:none" /></h1>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="basic_custom_code_mask.png" width="913" height="1071" alt="basic_custom_code_mask" style="width:913px;height:1071px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">When to use this block?</span></h2>
+<p>When you want to add your own custom C code to the system.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">How does this block work?</span></h2>
+<h3 class="p_Heading3">To use the Basic Custom Code Block you need to complete the following steps.</h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">Define input / output ports for the Block.</td></tr></table></div><p>2. Define include and source paths/files for the custom code.</p>
+<p>3. Define three function prototypes: enable, output, disable.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Define input / output ports for the Basic Custom Code Block</span></h3>
+<p>The number of ports equal the number of elements defined in the &quot;<span style="font-weight: bold;">Input port definition (data type) separated by comma e.g. double, single, double, uint8</span>&quot; and &quot;<span style="font-weight: bold;">Output port definition &nbsp;(data type) separated by comma e.g. double, single, double, uint8</span>&quot; editbox. Separate each element with a comma. The top port correspond to the first defined data type.</p>
+<p>Leave the editbox empty if ports are not required.</p>
+<p>Support signal data types are </p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">double</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">single</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">uint32</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">int32</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">uint16</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">int16</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">uint8</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">int8</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Courier New';color:#000000;">o</span></td><td style="border:none">boolean</td></tr></table></div><p>Port labels can be defined in the Custom input / output port labels editboxes i.e. &quot;<span style="font-weight: bold;">Custom input port labels (Ex. In1, In2, In3)</span>&quot; and &quot;<span style="font-weight: bold;">Custom output port labels (Ex. Out1, Out2, Out3)</span>&quot;.</p>
+<p>Input and Output signals can be either scalar, vector, or 2-D matrix type.</p>
+<p>The dimensions of input signals are automatically inherited from the supplied input signals.</p>
+<p>The dimensions of output signals must be implicitly defined using the following format.</p>
+<p style="margin: 5px 0px 5px 24px;"><span style="font-weight: bold;">DataType:nRowsxnCols</span></p>
+<p>For examples: double:4x5,int8,int16:3x1. If dimensions are not defined, scalar signal (1x1) is assumed. See the following for <a href="basiccustomcodenon-scalarinputoutputtype.htm" class="topiclink">using the Basic Custom Code Block with non-scalar signals</a>.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Define include and source paths/files for the custom code</span></h3>
+<h4 class="p_Heading4"><span class="f_Heading4">2.1 Include Path</span></h4>
+<p>&quot;<span style="font-weight: bold;">Path for include files (*.h), defined as cell array of string.</span>&quot; editbox accepts Matlab row cell array of string. All header files (*.h) present in the declared include path will be used during the build process. This parameter tells Matlab where to look for header files.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.2 Source Path</span></h4>
+<p>&quot;<span style="font-weight: bold;">Path for source files (*.c), defined as cell array of string.</span>&quot; editbox accepts Matlab row cell array of string. All source files (*.c) present in the declared include path will be used during the build process. This parameter tells Matlab where to look for source files.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.2 Source Path</span></h4>
+<p>&quot;<span style="font-weight: bold;">Path for source files (*.c), defined as cell array of string.</span>&quot; editbox accepts Matlab row cell array of string. All source files (*.c) present in the declared include path will be used during the build process. This parameter tells Matlab where to look for source files.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.3 Header Files</span></h4>
+<p>&quot;<span style="font-weight: bold;">Included header file names with extension (.h), defined as cell array of string.</span>&quot; editbox accepts Matlab row cell array of string. Header files (*.h) present in this editbox will added in <span style="font-weight: bold;">waijung_hwdrvlib.h</span> as <span style="font-weight: bold;">#include</span> statement. Declare each source file name with and extension .h.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.4 Source Files</span></h4>
+<p>&quot;<span style="font-weight: bold;">Included source file names with extension (.c), defined as cell array of string.</span>&quot; editbox accepts Matlab row cell array of string. Source files (*.c) present in this editbox will be included in the build process. Declare each source file name with and extension .c.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">3. Define three function prototypes: enable, output, disable.</span></h3>
+<p>After code generation, each Simulink block must have at least three functions that are called at different point of time during target system execution. These are:</p>
+<h4 class="p_Heading4"><span class="f_Heading4">3.1 Initial function</span></h4>
+<p>An initial function will be called once at MCU start-up.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">3.2 Enable function</span></h4>
+<p>An enable function will be called at system initialization and every time the block is enabled, e.g. in a case where a block is located in an <a href="http://www.mathworks.com/help/simulink/ug/enabled-subsystems.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Enabled Subsystem</a>.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">3.3 Output function</span></h4>
+<p>An output function will be called every time step to compute output values.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">3.4 Disable function</span></h4>
+<p>A disable function will be called at system termination and every time the block is disabled, e.g. in a case where a block is located in an <a href="http://www.mathworks.com/help/simulink/ug/enabled-subsystems.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Enabled Subsystem</a>.</p>
+<p>The code generation mechanism generates correct function prototypes and function calls for each block automatically. Your job is to define function prototypes that are wrapped inside these automatically-generated Matlab function calls.</p>
+<p>The Enable function can be defined in &quot;<span style="font-weight: bold;">Enable function call string</span>&quot; editbox.</p>
+<p>The Disable function can be defined in &quot;<span style="font-weight: bold;">Disable function call string</span>&quot; editbox.</p>
+<p>The Enable function and Disable function must not have any parameters. These function will be called every time &nbsp;the system is initialized/terminated and enabled/disabled.</p>
+<p>The output function require input and output (scalar) signal to be declared as parameter of the output function.</p>
+<p><span style="text-decoration: underline;">Name convention for custom code output function parameters</span></p>
+<p>The parameters for custom code output function must follow the following requirements.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 16px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">a.</span></td><td style="border:none">Always start with input (if any) and follow by output (if any).</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 16px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">b.</span></td><td style="border:none">Use in### and out### for input and output signal respectively, where ### represent digits starting from 1.</td></tr></table></div><p>For examples</p>
+<p>The block has 2 inputs and 3 outputs, output function prototype is <span style="font-style: italic;">void custom_output_function_name(in1,in2,out1,out2,out3);</span></p>
+<p>The block has 0 inputs and 3 outputs, output function prototype is <span style="font-style: italic;">void custom_output_function_name(out1,out2,out3);</span></p>
+<p>The block has 2 inputs and 0 outputs, output function prototype is <span style="font-style: italic;">void custom_output_function_name(in1,in2);</span></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<p><a href="basic_custom_code.htm" class="topiclink">Basic Custom Code Block Demo</a></p>
+<p><a href="basiccustomcodenon-scalarinputoutputtype.htm" class="topiclink">Basic Custom Code (Non-Scalar Signal)</a></p>
+<p><a href="uart_wifi_customcodedemo.htm" class="topiclink">Basic Custom Code demo for UART-WiFi module</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

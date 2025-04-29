@@ -1,0 +1,2072 @@
+%implements waijung_gsmgprs "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign confx         = optionstring[0]
+  %assign module        = optionstring[1]
+  %assign uart_module   = optionstring[2]
+  %assign connectiontype= optionstring[3]
+  %assign apn           = optionstring[4]
+  %assign shortstringsize= optionstring[5]
+  %assign largestringsize= optionstring[6]
+  %assign dummy3        = optionstring[7]
+  %assign pwrkey_port   = optionstring[8]
+  %assign pwrkey_pin    = optionstring[9]
+  %assign reset_port    = optionstring[10]
+  %assign reset_pin     = optionstring[11]
+  %assign port_a_used   = optionstring[12]
+  %assign port_b_used   = optionstring[13]
+  %assign port_c_used   = optionstring[14]
+  %assign port_d_used   = optionstring[15]
+  %assign port_e_used   = optionstring[16]
+  %assign port_f_used   = optionstring[17]
+  %assign port_g_used   = optionstring[18]
+  %assign port_h_used   = optionstring[19]
+  %assign port_i_used   = optionstring[20]
+  %assign ssl_enable    = optionstring[21]
+  %assign servername    = optionstring[22]
+  %assign serverport    = optionstring[23]
+  %assign loginname     = optionstring[24]
+  %assign loginpassword = optionstring[25]
+  %assign sendername    = optionstring[26]
+  %assign senderaddress = optionstring[27]
+  %assign recipient_to  = optionstring[28]
+  %assign recipient_address_to = optionstring[29]
+  %assign recipient_cc1 = optionstring[30]
+  %assign recipient_cc2 = optionstring[31]
+  %assign recipient_cc3 = optionstring[32]
+  %assign recipient_cc4 = optionstring[33]
+  %assign recipient_cc5 = optionstring[34]
+  %assign recipient_cc6 = optionstring[35]
+  %assign recipient_cc7 = optionstring[36]
+  %assign recipient_cc8 = optionstring[37]
+  %assign subject       = optionstring[38]
+  %assign variable_msg  = optionstring[39]
+  %assign body_sms      = optionstring[40]
+  %assign retrieve_periodic = optionstring[41]
+  %assign sms_dest_number = optionstring[42]
+  %assign timezone = optionstring[43]
+
+  %assign block = block + module + uart_module + connectiontype + apn + shortstringsize \
+               + largestringsize + pwrkey_port + pwrkey_pin + reset_port + reset_pin \
+               + port_a_used + port_b_used + port_c_used + port_d_used + port_e_used \
+               + port_f_used + port_g_used + port_h_used + port_i_used + ssl_enable \
+               + servername + serverport + loginname + loginpassword + sendername \
+               + senderaddress + recipient_to + recipient_address_to + recipient_cc1 \
+               + recipient_cc2 + recipient_cc3 + recipient_cc4 + recipient_cc5 \
+               + recipient_cc6 + recipient_cc7 + recipient_cc8 + subject \
+               + variable_msg + body_sms + retrieve_periodic + sms_dest_number \
+               + timezone
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+   * GSM/ GPRS
+   * ########################################################################
+   */
+   typedef struct { /* Synchronize object to access UART port */
+	 uint8_t InQueue;
+	 uint8_t Set; /* Active status of Locker */
+	 uint8_t Index; /* Max count of object is 256 */
+   } GSM_GPRS_LOCK_STRUCT;
+
+   typedef enum {
+     /* Common */
+	 GSM_GPRS_DONE = 0,
+	 GSM_GPRS_IDLE,
+     GSM_GPRS_RESET,
+	 GSM_GPRS_POWER_UP,
+	 GSM_GPRS_CONFIG_CONTYPE,
+	 GSM_GPRS_CONFIG_APN,
+	 GSM_GPRS_GET_BEARER,
+	 GSM_GPRS_CONFIG_BEARER,
+	 GSM_GPRS_CONFIG_SSL,
+     /* Send Email */
+	 GSM_GPRS_SENDEMAIL_CID = 16, // 0x10
+	 GSM_GPRS_SENDEMAIL_TO, /* Timeout */
+	 GSM_GPRS_SENDEMAIL_SERVER, /* SMTP server and port */
+	 GSM_GPRS_SENDEMAIL_AUTH, /* Username and password */
+	 GSM_GPRS_SENDEMAIL_SENDER, /* Sender address and name */	
+	 GSM_GPRS_SENDEMAIL_RECIPIENT_TO, /* TO */	
+	 GSM_GPRS_SENDEMAIL_RECIPIENT_CC, /* CC */	
+     GSM_GPRS_SENDEMAIL_RECIPIENT_CCx, /* CCx */	
+	 GSM_GPRS_SENDEMAIL_SUBJECT, /* Subject */	
+ 	 GSM_GPRS_SENDEMAIL_BODY_START, /* Body */	
+ 	 GSM_GPRS_SENDEMAIL_BODY_CONTENT, /* Body */	
+	 GSM_GPRS_SENDEMAIL_SEND, /* Send out */
+     /* Read Email */
+     GSM_GPRS_READEMAIL_CID = 32, // 0x20
+	 GSM_GPRS_READEMAIL_TO, /* Timeout */
+     GSM_GPRS_READEMAIL_SERVER_AUTH,
+     GSM_GPRS_READEMAIL_LOGIN,
+     GSM_GPRS_READEMAIL_COUNT, /* Get number of mail message */
+     GSM_GPRS_READEMAIL_SIZE1, /* Get size of Email message #1 */
+     GSM_GPRS_READEMAIL_CMD,
+     GSM_GPRS_READEMAIL_DATA,
+     GSM_GPRS_READEMAIL_DATAx,
+     GSM_GPRS_READEMAIL_DELETE,
+     GSM_GPRS_READEMAIL_LOGOUT_WERROR,
+     GSM_GPRS_READEMAIL_LOGOUT_WEMPTYMAIL,
+     GSM_GPRS_READEMAIL_LOGOUT_WSUCCESS,
+     /* Send SMS */
+     GSM_GPRS_FORMAT_TEXT = 48, // 0x30
+     GSM_GPRS_DESTINATION_NUMBER,
+     GSM_GPRS_TEXTMESSAGE,
+     /* HTTP POST */
+     GSM_GPRS_HTTPINIT = 64, // 0x40
+     GSM_GPRS_HTTPSSL_ENA,
+     GSM_GPRS_HTTPPARA_CID,
+     GSM_GPRS_HTTPPARA_URL,
+     GSM_GPRS_HTTPPARA_CONTENT,
+     GSM_GPRS_HTTPDATA_SIZE,
+     GSM_GPRS_HTTPDATA_POST,
+     GSM_GPRS_HTTP_ACTION,
+     GSM_GPRS_HTTP_READ,
+     GSM_GPRS_HTTP_TERMINATE,     
+     /* Get Status */
+     GSM_GPRS_GETDATETIME = 80, // 0x50
+     GSM_GPRS_GETOPERATOR,
+     GSM_GPRS_GETSIGNALSTRENGTH,
+     /* Set Date/Time */
+     GSM_GPRS_SETDATETIME = 96, // 0x60
+     /* Error */
+	 GSM_GPRS_ERROR = 0xFF
+
+   } GSM_GPRS_STATE;
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Setup"
+  #define GSM_GPRS%<module>_TX_BUFFER_SIZE UTX%<uart_module>_BUFFER_SIZE
+  #define GSM_GPRS%<module>_RX_BUFFER_SIZE URX%<uart_module>_BUFFER_SIZE
+  #define GSM_GPRS%<module>_UART_Write UART%<uart_module>_Write
+  #define GSM_GPRS%<module>_UART_TxFlush UART%<uart_module>_FlushTxBuffer
+  #define GSM_GPRS%<module>_UART_Read UART%<uart_module>_ReadEx
+  #define GSM_GPRS%<module>_TmpBuffer ((char*)UART%<uart_module>_Temp_Buffer)
+  #define GSM_GPRS%<module>_RestoreBytes UART%<uart_module>_RestoreBytes
+
+  /* Power Key and Reset control */
+  #define GSM_GPRS%<module>_PWRKEY_HIGH()   {GPIO_SetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);}
+  #define GSM_GPRS%<module>_PWRKEY_LOW()   {GPIO_ResetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);}
+  #define GSM_GPRS%<module>_RESET_HIGH()    {GPIO_SetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);}
+  #define GSM_GPRS%<module>_RESET_LOW()    {GPIO_ResetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);}
+
+  /* Internet connection */
+  #define GSM_GPRS%<module>_CONTYPE "%<connectiontype>"
+  #define GSM_GPRS%<module>_APN "%<apn>"
+
+  /* Lock */
+  uint8_t GSM_GPRS%<module>_Resource_Lock(GSM_GPRS_LOCK_STRUCT *lock);
+  void GSM_GPRS%<module>_Resource_UnLock(GSM_GPRS_LOCK_STRUCT *lock);
+  
+  /* Prototype */
+  void GSM_GPRS%<module>_StartTimer(uint32_t ms);
+  int GSM_GPRS%<module>_IsTimerTimeout(void);
+  uint16_t GSM_GPRS%<module>_ReadOldData(char *buffer, uint16_t count);
+  uint16_t GSM_GPRS%<module>_ReadLine(char *buffer, uint16_t buffer_size, const char *terminator_str);
+  uint16_t GSM_GPRS%<module>_Read(char *buffer, uint16_t buffer_size);
+  void GSM_GPRS%<module>_RX_Flush(void);
+  void GSM_GPRS%<module>_Write(const char *buffer, uint16_t buffer_size);
+  uint8_t GSM_GPRS%<module>_PowerUP(void);
+  void GSM_GPRS%<module>_Reset(void);
+  
+%endif
+
+%if conf == "SendEMail"
+  %if variable_msg == "off" 
+    #define %<blockid>_MESSAGE_BODY "%<body_sms>"
+    uint8_t %<blockid>_SendEMail(uint8_t trigger);
+  %else
+    /* String buffer size */
+    #define %<blockid>_BODYMESSAGE_SIZE  %<largestringsize>
+    uint8_t %<blockid>_SendEMail(uint8_t trigger, char *body);
+  %endif  
+%endif
+
+%if conf == "SendSMS"
+  %if variable_msg == "off" 
+    #define %<blockid>_MESSAGE_BODY "%<body_sms>"
+    uint8_t %<blockid>_SendSMS(uint8_t trigger);
+  %else
+    /* String buffer size */
+    #define %<blockid>_BODYMESSAGE_SIZE  %<largestringsize>
+    uint8_t %<blockid>_SendSMS(uint8_t trigger, char *body);
+  %endif
+%endif
+
+%if conf == "GetStatus"
+  extern uint8_t %<blockid>_DateTime[];
+  extern uint8_t %<blockid>_Operator[];
+  extern uint32_t %<blockid>_SignalStrength;
+  uint8_t %<blockid>_GetStatus(uint8_t trigger);
+%endif
+
+%if conf =="SetDateTime"
+  uint8_t %<blockid>_SetDateTime(uint8_t trigger, uint8_t *datetime);
+%endif
+
+%if conf == "ReceiveEMail"
+  extern char %<blockid>_from[];
+  extern char %<blockid>_subject[];
+  extern char %<blockid>_body[];
+  uint8_t %<blockid>_ReadEMail(void);
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%% ========================================================================
+%% Setup
+%% ========================================================================
+%if conf == "Setup"
+    /* UART Read interface
+    */
+    static UARTRX_BUFFER_READ_STRUCT %<blockid>_read_struct = {0,0,0};
+
+    /* Timer utility */
+    static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+    static SYS_TIMER_STRUCT %<blockid>_powerup_timer_ms = {0UL,0UL};
+
+    void GSM_GPRS%<module>_StartTimer(uint32_t ms)
+    {
+      SysTimer_Start(&%<blockid>_timer_ms, ms);
+    }
+
+    int GSM_GPRS%<module>_IsTimerTimeout(void)
+    {
+      return SysTimer_IsTimeout(&%<blockid>_timer_ms);
+    }
+
+    /* Read old data */
+    uint16_t GSM_GPRS%<module>_ReadOldData(char *buffer, uint16_t count)
+    {
+      GSM_GPRS%<module>_RestoreBytes(&%<blockid>_read_struct, count);
+      return GSM_GPRS%<module>_Read(buffer, count);
+    }
+
+    /* UART Tx/Rx interface
+     */
+    uint16_t GSM_GPRS%<module>_ReadLine(char *buffer, uint16_t buffer_size, const char *terminator_str)
+    {
+      uint16_t size;
+
+      size = UART%<uart_module>_ReadLine(&%<blockid>_read_struct, terminator_str, strlen(terminator_str), (uint8_t *)buffer, buffer_size);
+      return size;
+    }
+
+    uint16_t GSM_GPRS%<module>_Read(char *buffer, uint16_t buffer_size)
+    {
+        uint16_t reading_count = 0;
+        GSM_GPRS%<module>_UART_Read(&%<blockid>_read_struct, (uint8_t *)buffer, buffer_size-1, &reading_count);
+        buffer[reading_count] = '\0';
+        return reading_count;
+    }
+
+    void GSM_GPRS%<module>_RX_Flush(void)
+    {
+        uint16_t reading_count;
+        do { GSM_GPRS%<module>_UART_Read(&%<blockid>_read_struct, (uint8_t *)GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE, &reading_count);
+        } while (reading_count > 0);
+    }
+
+    void GSM_GPRS%<module>_Write(const char *buffer, uint16_t buffer_size) {
+        GSM_GPRS%<module>_RX_Flush(); /* Flush Rx before write */	
+        GSM_GPRS%<module>_UART_Write((uint8_t*)buffer, buffer_size);
+        GSM_GPRS%<module>_UART_TxFlush();
+    }
+
+    /* Resource access Lock control
+    */
+    static uint8_t GSM_GPRS%<module>_current_locked_index = 0;
+    static uint8_t GSM_GPRS%<module>_current_locked_count = 0;
+
+    /* Return non-zero if access allowed */
+    uint8_t GSM_GPRS%<module>_Resource_Lock(GSM_GPRS_LOCK_STRUCT *lock)
+    {
+        /* Check if first access */
+        if(lock->InQueue == 0) {
+           lock->InQueue = 1; /* Indicate it is already in queue */
+           lock->Index = GSM_GPRS%<module>_current_locked_count;
+           GSM_GPRS%<module>_current_locked_count ++;
+        }
+
+        /* Lock? */
+        if(lock->Index == GSM_GPRS%<module>_current_locked_index) {
+            return 1; /* Allow to access resource */
+        }
+
+        /* Resource did not accquired */
+        return 0;
+    }
+
+    void GSM_GPRS%<module>_Resource_UnLock(GSM_GPRS_LOCK_STRUCT *lock)
+    {
+        if(lock->Index == GSM_GPRS%<module>_current_locked_index) {
+            GSM_GPRS%<module>_current_locked_index ++;
+            lock->InQueue = 0;
+        }
+    }
+
+    /* Power sequence for GSM/GPRS module
+    */
+    uint8_t GSM_GPRS%<module>_PowerUP(void)
+    {
+        static uint8_t %<blockid>_powerup_sequence = 0;
+        static uint8_t retry_count = 0;
+
+        /* Delay */
+        if(!SysTimer_IsTimeout(&%<blockid>_powerup_timer_ms))
+            return 0;
+
+        /* --- Power up sequence --- */
+
+        /* Setup */
+        if(%<blockid>_powerup_sequence == 0) {
+            retry_count = 0;
+            %<blockid>_powerup_sequence ++;
+        }
+
+        /* 1: Synchronize-1 */	
+        if (%<blockid>_powerup_sequence == 1) {
+            GSM_GPRS%<module>_Write("AT\r", strlen("AT\r"));
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 200UL); /* 200mS */
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 2: Get response synchronize status */
+        else if (%<blockid>_powerup_sequence == 2) {
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            if(!strcmp(GSM_GPRS%<module>_TmpBuffer, "AT\r\r\nOK\r\n")) {		
+                %<blockid>_powerup_sequence += 6; /* Next state */
+            }
+            else {
+                if(retry_count++ < 3)
+                    %<blockid>_powerup_sequence --; /* Retry */
+                else
+                    %<blockid>_powerup_sequence ++; /* Out of retry, reset module. */
+            }
+        }
+        /* 3: Reset Low, PwrKey High */
+        else if (%<blockid>_powerup_sequence == 3) {
+            retry_count = 0;
+
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 100); /* Reset Low for 100mS, the minumum defined in the spec is 50uS */
+            GSM_GPRS%<module>_RESET_LOW();
+            GSM_GPRS%<module>_PWRKEY_HIGH();
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 4: Reset High */
+        else if (%<blockid>_powerup_sequence == 4) {
+            GSM_GPRS%<module>_RESET_HIGH();
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 2000UL); /* Reset High for 2 Seconds */
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 5: PWRKEY Low*/
+        else if (%<blockid>_powerup_sequence == 5) {
+            GSM_GPRS%<module>_PWRKEY_LOW();
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 1500UL); /* Reset High for 1.5 Seconds */
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 6: PWRKEY High */
+        else if (%<blockid>_powerup_sequence == 6) {
+            GSM_GPRS%<module>_PWRKEY_HIGH();
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 3000UL); /* Reset High for 3 Seconds */
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 7: Check power down status */
+        else if (%<blockid>_powerup_sequence == 7) {
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            %<blockid>_powerup_sequence = 0; /* Retry check */
+        }	
+        /* 8: Register to the network */
+        else if (%<blockid>_powerup_sequence == 8) {
+            GSM_GPRS%<module>_Write("AT+CGREG?\r", strlen("AT+CGREG?\r"));
+            SysTimer_Start(&%<blockid>_powerup_timer_ms, 1000UL); /* 1 Second */
+            %<blockid>_powerup_sequence ++; /* Next state */
+        }
+        /* 9: Get network registration status */
+        else if (%<blockid>_powerup_sequence == 9) {
+            int n = -1, sta = -1;
+            char *s;
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            if (((s = strstr(GSM_GPRS%<module>_TmpBuffer, "+CGREG: ")) != (char *)0) \
+                && (sscanf(s, "+CGREG: %d,%d\r\n", &n, &sta) == 2) \
+                && (n == 0) && (sta == 1)) {
+                    /* Success */
+                    %<blockid>_powerup_sequence = 0;
+                    return 1;
+            }
+            else {
+                if((retry_count > 4) && (!s))
+                    %<blockid>_powerup_sequence = 3; /* Not response */
+                else if(retry_count++ < 120) /* 2 minutes */
+                    %<blockid>_powerup_sequence --; /* Retry */
+                else
+                    %<blockid>_powerup_sequence = 3; /* Out of retry, re-start from beginning. */
+            }
+        }	
+
+        /* Module power up is not yet ready */
+        return 0;
+    }
+
+    void GSM_GPRS%<module>_Reset(void)
+    {
+      GSM_GPRS%<module>_RESET_LOW();
+      SysTimer_delay_us(1000);
+      GSM_GPRS%<module>_RESET_HIGH();
+      SysTimer_delay_us(1000);
+    }
+%endif
+
+%% ========================================================================
+%% Send Email
+%% ========================================================================
+%if conf == "SendEMail"  
+  static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+  static GSM_GPRS_LOCK_STRUCT %<blockid>_lock = {0,0,0};
+  static GSM_GPRS_STATE %<blockid>_state = GSM_GPRS_IDLE;
+  static GSM_GPRS_STATE %<blockid>_state_last = GSM_GPRS_IDLE;
+  static void %<blockid>_ChangeState(GSM_GPRS_STATE state) {
+     %<blockid>_state = state;
+  }
+  
+  /* Configuration string */
+  %if ssl_enable == "on"
+    #define ENABLE_SSL 1 /* Enable or disable SSL support */
+  %else
+    #define ENABLE_SSL 0 /* Enable or disable SSL support */
+  %endif
+  #define %<blockid>_SMTP_SERVER_NAME "%<servername>"  /* SMTP Server name, example: "smtp.gmail.com" */
+  #define %<blockid>_SMTP_SERVER_PORT %<serverport>  /* SMTP Server port, example: 465 */
+  #define %<blockid>_SMTP_LOGIN_NAME "%<loginname>"  /* Login user name, example: "Waijung.Sense@gmail.com" */
+  #define %<blockid>_SMTP_LOGIN_PASS "%<loginpassword>"  /* Login password, example: "*********" */
+  #define %<blockid>_SENDER_NAME "%<sendername>"  /* Sender name, example: xxxx */  
+  #define %<blockid>_SENDER_ADDR "%<senderaddress>"  /* Sender name, example: xxxx@gmail.com */    
+  #define %<blockid>_SUBJECT "%<subject>"  /* Email subject */
+  #define %<blockid>_RECIPIENT_NAME_TO "%<recipient_to>"  /* Recipient TO, example: xx*/
+  #define %<blockid>_RECIPIENT_ADDR_TO "%<recipient_address_to>"  /* Recipient TO, example: xx@gmail.com */
+
+  #define %<blockid>_CC_COUNT 8
+
+  #define %<blockid>_BUFF_SIZE 256
+  static char %<blockid>_buff[%<blockid>_BUFF_SIZE];  
+  static uint16_t %<blockid>_buff_idx = 0;
+  static uint16_t %<blockid>_emailcc_idx = 0;
+  static uint16_t %<blockid>_emailcc_valididx = 0;
+
+  static const char * %<blockid>_CC_LIST[%<blockid>_CC_COUNT] = \
+  {\
+    "%<recipient_cc1>", /* recipient CC1 */
+    "%<recipient_cc2>", /* recipient CC2 */
+    "%<recipient_cc3>", /* recipient CC3 */
+    "%<recipient_cc4>", /* recipient CC4 */
+    "%<recipient_cc5>", /* recipient CC5 */
+    "%<recipient_cc6>", /* recipient CC6 */
+    "%<recipient_cc7>", /* recipient CC7 */
+    "%<recipient_cc8>" /* recipient CC8 */
+  };
+
+  %if variable_msg == "off" 
+  uint8_t %<blockid>_SendEMail(uint8_t trigger)
+  %else
+  /* Message body */
+  static char %<blockid>_message_body[%<blockid>_BODYMESSAGE_SIZE];
+  uint8_t %<blockid>_SendEMail(uint8_t trigger, char *body)
+  %endif
+  {
+    static uint8_t OnEnterState = 1;
+
+	/* OnEnterState */
+	if(%<blockid>_state_last != %<blockid>_state) {
+		OnEnterState = 1;
+		%<blockid>_state_last = %<blockid>_state;
+        %<blockid>_buff_idx = 0; /* Reset working buffer index */        
+	} else { OnEnterState = 0; }	
+
+    /* Determine trigger */
+    if((%<blockid>_state == GSM_GPRS_IDLE) && (trigger != 0)) {
+      %if variable_msg == "off"
+      %else
+      uint16_t body_len;
+      /* Capture information */
+      body_len = strlen(body);
+      if(body_len >= %<blockid>_BODYMESSAGE_SIZE) {
+        strncpy(%<blockid>_message_body, body, %<blockid>_BODYMESSAGE_SIZE);
+        %<blockid>_message_body[%<blockid>_BODYMESSAGE_SIZE-1] = '\0';
+      }
+      else {
+        strcpy(%<blockid>_message_body, body);
+      }
+      %endif
+
+      /* Start EMAIL send process with power up module */
+      %<blockid>_state = GSM_GPRS_POWER_UP;
+    }
+
+    /* Aquire resource */
+    if(GSM_GPRS%<module>_Resource_Lock(&%<blockid>_lock)) {
+      switch(%<blockid>_state)
+      {
+        case GSM_GPRS_IDLE:
+          GSM_GPRS%<module>_Resource_UnLock(&%<blockid>_lock);
+          break;
+
+        case GSM_GPRS_RESET:
+          GSM_GPRS%<module>_Reset();
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+          break;
+
+        case GSM_GPRS_POWER_UP:
+          /* Reset EMail CC index */
+          %<blockid>_emailcc_idx = 0;
+
+          if(GSM_GPRS%<module>_PowerUP()) {
+            %<blockid>_ChangeState(GSM_GPRS_CONFIG_CONTYPE);
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_CONTYPE:
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SAPBR=3,1,\"Contype\",\"%s\"\r", GSM_GPRS%<module>_CONTYPE);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */            
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_CONFIG_APN);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_APN:
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SAPBR=3,1,\"APN\",\"%s\"\r", GSM_GPRS%<module>_APN);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_GET_BEARER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_GET_BEARER:
+          if(OnEnterState) {
+            const char *s = "AT+SAPBR=2,1\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n")) {
+              int cid = -1, sta = -1;
+              char *s = &%<blockid>_buff[0];
+			  if (((s = strstr(%<blockid>_buff, "+SAPBR: ")) != (char *)0) \
+					&& (sscanf(s, "+SAPBR: %d,%d\r\n", &cid, &sta) == 2)) {
+				if(sta == 1) /* Connected */
+					%<blockid>_ChangeState(GSM_GPRS_CONFIG_SSL);
+				else if (sta == 3) /* Disconnected */
+					%<blockid>_ChangeState(GSM_GPRS_CONFIG_BEARER);
+				else
+					%<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+			  }
+			  else { /* Re-check network connection */
+				%<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+			  }
+            }
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+            }
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_BEARER:
+		  if(OnEnterState) {
+			const char *str = "AT+SAPBR=1,1\r"; /* Enable */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 5000UL); /* 5S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_GET_BEARER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_SSL:
+		  if(OnEnterState) {
+			sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+EMAILSSL=%u\r", (unsigned int)ENABLE_SSL);
+			GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_CID);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_CID:
+		  if(OnEnterState) {
+			const char *str = "AT+EMAILCID=1\r"; /* CID */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_TO);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_RESET);
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_TO: /* Timeout */
+		  if(OnEnterState) {
+			const char *str = "AT+EMAILTO=60\r"; /* Timeout 60S */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_SERVER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+ 
+	    case GSM_GPRS_SENDEMAIL_SERVER: /* SMTP server and port */
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPSRV=\"%s\",%u\r", %<blockid>_SMTP_SERVER_NAME, %<blockid>_SMTP_SERVER_PORT);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_AUTH);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_AUTH: /* Username and password */
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPAUTH=1,\"%s\",", %<blockid>_SMTP_LOGIN_NAME);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "\"%s\"\r", %<blockid>_SMTP_LOGIN_PASS);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_SENDER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_SENDER: /* Sender address and name */
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPFROM=\"%s\",", %<blockid>_SENDER_ADDR);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "\"%s\"\r", %<blockid>_SENDER_NAME);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_RECIPIENT_TO);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+	
+	    case GSM_GPRS_SENDEMAIL_RECIPIENT_TO: /* TO */
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPRCPT=0,0,\"%s\",", %<blockid>_RECIPIENT_ADDR_TO);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "\"%s\"\r", %<blockid>_RECIPIENT_NAME_TO);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_RECIPIENT_CC);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_RECIPIENT_CC: /* CC */
+          if(OnEnterState) {
+            const char *s;
+            if(%<blockid>_emailcc_idx == 0)
+              %<blockid>_emailcc_valididx = 0;
+            /* Change state when all CC address configuration is done */          
+            if(%<blockid>_emailcc_idx >= %<blockid>_CC_COUNT) {
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_SUBJECT);
+            }
+            else {
+              s = (const char *)%<blockid>_CC_LIST[%<blockid>_emailcc_idx];
+              if((s == 0) || (*s == '\0')) {
+                %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_RECIPIENT_CCx);
+              }
+              else {
+                /* CC address */
+                sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPRCPT=1,%u", %<blockid>_emailcc_valididx);
+                %<blockid>_emailcc_valididx ++;
+                sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",\"%s\"", s); /* CC address */
+                sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",\"%s\"\r", s); /* CC name */
+                GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			    SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */              
+              }
+            }
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_RECIPIENT_CCx);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_SENDEMAIL_RECIPIENT_CCx:
+          %<blockid>_emailcc_idx ++;        
+          %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_RECIPIENT_CC);
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_SUBJECT: /* Subject */
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SMTPSUB=\"%s\"\r", %<blockid>_SUBJECT);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_BODY_START);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+ 	    case GSM_GPRS_SENDEMAIL_BODY_START: /* Body */
+          if(OnEnterState) {
+            const char *s = "AT+SMTPBODY\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\n>"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_BODY_CONTENT);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+ 	    case GSM_GPRS_SENDEMAIL_BODY_CONTENT: /* Body */
+          if(OnEnterState) {
+            %if variable_msg == "off"
+            GSM_GPRS%<module>_Write(%<blockid>_MESSAGE_BODY, strlen(%<blockid>_MESSAGE_BODY));
+            %else
+            GSM_GPRS%<module>_Write(%<blockid>_message_body, strlen(%<blockid>_message_body));
+            %endif
+            GSM_GPRS%<module>_Write("\x1A", 1);
+			SysTimer_Start(&%<blockid>_timer_ms, 4000UL); /* 4S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_SENDEMAIL_SEND);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+	    case GSM_GPRS_SENDEMAIL_SEND: /* Send out */
+          if(OnEnterState) {
+            const char *s = "AT+SMTPSEND\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 60000UL); /* 60S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\n+SMTPSEND: 1\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_DONE);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_ERROR:  
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          break;
+
+        case GSM_GPRS_DONE:  
+          if(OnEnterState) {
+            const char *s = "AT+SAPBR=0,1\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          }
+          break;
+
+        default:
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+      }
+    }
+    
+    /* Return current operation status */
+    return (uint8_t)%<blockid>_state_last;
+  }
+%endif
+
+%% ========================================================================
+%% Send SMS
+%% ========================================================================
+%if conf == "SendSMS"  
+  static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+  static GSM_GPRS_LOCK_STRUCT %<blockid>_lock = {0,0,0};
+  static GSM_GPRS_STATE %<blockid>_state = GSM_GPRS_IDLE;
+  static GSM_GPRS_STATE %<blockid>_state_last = GSM_GPRS_IDLE;
+  static void %<blockid>_ChangeState(GSM_GPRS_STATE state) {
+     %<blockid>_state = state;
+  }
+
+  #define %<blockid>_BUFF_SIZE 64
+  static char %<blockid>_buff[%<blockid>_BUFF_SIZE];  
+  static uint16_t %<blockid>_buff_idx = 0;
+
+  %if variable_msg == "off" 
+  uint8_t %<blockid>_SendSMS(uint8_t trigger)
+  %else
+  /* Message body */
+  static char %<blockid>_message_body[%<blockid>_BODYMESSAGE_SIZE];
+  uint8_t %<blockid>_SendSMS(uint8_t trigger, char *body)
+  %endif
+  {
+    static uint8_t OnEnterState = 1;
+
+	/* OnEnterState */
+	if(%<blockid>_state_last != %<blockid>_state) {
+		OnEnterState = 1;
+		%<blockid>_state_last = %<blockid>_state;
+        %<blockid>_buff_idx = 0; /* Reset working buffer index */        
+	} else { OnEnterState = 0; }	
+
+    /* Determine trigger */
+    if((%<blockid>_state == GSM_GPRS_IDLE) && (trigger != 0)) {
+      %if variable_msg == "off"
+      %else
+      uint16_t body_len;
+      /* Capture information */
+      body_len = strlen(body);
+      if(body_len >= %<blockid>_BODYMESSAGE_SIZE) {
+        strncpy(%<blockid>_message_body, body, %<blockid>_BODYMESSAGE_SIZE);
+        %<blockid>_message_body[%<blockid>_BODYMESSAGE_SIZE-1] = '\0';
+      }
+      else {
+        strcpy(%<blockid>_message_body, body);
+      }
+      %endif
+
+      /* Start SMS send process with power up module */
+      %<blockid>_state = GSM_GPRS_POWER_UP;
+    }
+
+    /* Aquire resource */
+    if(GSM_GPRS%<module>_Resource_Lock(&%<blockid>_lock)) {
+      switch(%<blockid>_state) {
+        case GSM_GPRS_IDLE:
+          GSM_GPRS%<module>_Resource_UnLock(&%<blockid>_lock);
+          break;
+
+        case GSM_GPRS_RESET:
+          GSM_GPRS%<module>_Reset();
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+          break;
+
+        case GSM_GPRS_POWER_UP:
+          if(GSM_GPRS%<module>_PowerUP()) {
+            %<blockid>_ChangeState(GSM_GPRS_FORMAT_TEXT);
+          }
+          break;
+
+        case GSM_GPRS_FORMAT_TEXT:
+          if(OnEnterState) {
+            strcpy(GSM_GPRS%<module>_TmpBuffer, "AT+CMGF=1\r");
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */            
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_DESTINATION_NUMBER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_DESTINATION_NUMBER: // sms_dest_number
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+CMGS=\"%s\"\r", "%<sms_dest_number>");
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */            
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\n>"))
+              %<blockid>_ChangeState(GSM_GPRS_TEXTMESSAGE);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }          
+          break;
+
+        case GSM_GPRS_TEXTMESSAGE:
+          if(OnEnterState) {
+            %if variable_msg == "off"
+            GSM_GPRS%<module>_Write(%<blockid>_MESSAGE_BODY, strlen(%<blockid>_MESSAGE_BODY));
+            %else
+            GSM_GPRS%<module>_Write(%<blockid>_message_body, strlen(%<blockid>_message_body));
+            %endif
+            GSM_GPRS%<module>_Write("\x1A", 1);
+			SysTimer_Start(&%<blockid>_timer_ms, 8000UL); /* 8S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_DONE);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_ERROR:  
+          //%<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          break;
+
+        case GSM_GPRS_DONE:
+          if(OnEnterState) {
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          }
+          break;
+
+        default:
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+      }
+    }
+
+    /* Return current operation status */
+    return (uint8_t)%<blockid>_state_last;
+  }
+%endif
+
+%% ========================================================================
+%% Set Date/Time
+%% ========================================================================
+%if conf == "SetDateTime"  
+  static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+  static GSM_GPRS_LOCK_STRUCT %<blockid>_lock = {0,0,0};
+  static GSM_GPRS_STATE %<blockid>_state = GSM_GPRS_IDLE;
+  static GSM_GPRS_STATE %<blockid>_state_last = GSM_GPRS_IDLE;
+  static void %<blockid>_ChangeState(GSM_GPRS_STATE state) {
+     %<blockid>_state = state;
+  }
+
+  #define %<blockid>_BUFF_SIZE 64
+  static char %<blockid>_buff[%<blockid>_BUFF_SIZE];  
+  static uint16_t %<blockid>_buff_idx = 0;
+
+  void %<blockid>_EncodeDateTime(uint8_t value, char *output)
+  {
+    if(value < 10) {
+      output[0] = '0';
+      output[1] = (char)((uint8_t)'0'+ value);
+      output[2] = '\0';
+    }
+    else {
+      sprintf(output, "%u", (uint32_t)value);
+    }
+  }
+
+  static uint8_t %<blockid>_datetime[6];
+  uint8_t %<blockid>_SetDateTime(uint8_t trigger, uint8_t *datetime)
+  {
+    static uint8_t OnEnterState = 1;
+
+	/* OnEnterState */
+	if(%<blockid>_state_last != %<blockid>_state) {
+		OnEnterState = 1;
+		%<blockid>_state_last = %<blockid>_state;
+        %<blockid>_buff_idx = 0; /* Reset working buffer index */        
+	} else { OnEnterState = 0; }	
+
+    /* Determine trigger */
+    if((%<blockid>_state == GSM_GPRS_IDLE) && (trigger != 0)) {
+      memcpy(&%<blockid>_datetime[0], datetime, 6);
+
+      /* Start SMS send process with power up module */
+      %<blockid>_state = GSM_GPRS_POWER_UP;
+    }
+
+    /* Aquire resource */
+    if(GSM_GPRS%<module>_Resource_Lock(&%<blockid>_lock)) {
+      switch(%<blockid>_state) {
+        case GSM_GPRS_IDLE:
+          GSM_GPRS%<module>_Resource_UnLock(&%<blockid>_lock);
+          break;
+
+        case GSM_GPRS_RESET:
+          GSM_GPRS%<module>_Reset();
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+          break;
+
+        case GSM_GPRS_POWER_UP:
+          if(GSM_GPRS%<module>_PowerUP()) {
+            %<blockid>_ChangeState(GSM_GPRS_SETDATETIME);
+          }
+          break;
+
+        case GSM_GPRS_SETDATETIME:
+          /* AT+CCLK="14/02/27,22:39:00+28"<CR> */
+          if(OnEnterState) {
+            uint8_t year,month,day,hour,minute,second;
+            char *s;
+
+            year   = %<blockid>_datetime[0];
+            month  = %<blockid>_datetime[1];
+            day    = %<blockid>_datetime[2];
+            hour   = %<blockid>_datetime[3];
+            minute = %<blockid>_datetime[4];
+            second = %<blockid>_datetime[5];
+
+            /* Header */
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[0], "AT+CCLK=\"");
+            /* Year */
+            %<blockid>_EncodeDateTime(year, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "/");
+            /* Month */
+            %<blockid>_EncodeDateTime(month, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "/");
+            /* Day */
+            %<blockid>_EncodeDateTime(day, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",");
+            /* Hour */
+            %<blockid>_EncodeDateTime(hour, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ":");
+            /* Minute */
+            %<blockid>_EncodeDateTime(minute, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ":");
+            /* Second */
+            %<blockid>_EncodeDateTime(second, &GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)]);
+            /* Timezone */
+            strcpy(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], "%<timezone>\"\r");
+
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 2000UL); /* 2S */            
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_DONE);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_ERROR:  
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          break;
+
+        case GSM_GPRS_DONE:  
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          break;
+
+        default:
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+      }
+    }
+
+    /* Return current operation status */
+    return (uint8_t)%<blockid>_state_last;
+  }
+%endif
+
+%% ========================================================================
+%% Get Status
+%% ========================================================================
+%if conf == "GetStatus"
+
+  static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+  static GSM_GPRS_LOCK_STRUCT %<blockid>_lock = {0,0,0};
+  static GSM_GPRS_STATE %<blockid>_state = GSM_GPRS_IDLE;
+  static GSM_GPRS_STATE %<blockid>_state_last = GSM_GPRS_IDLE;
+  static void %<blockid>_ChangeState(GSM_GPRS_STATE state) {
+     %<blockid>_state = state;
+  }
+
+  #define %<blockid>_BUFF_SIZE 128
+  static char %<blockid>_buff[%<blockid>_BUFF_SIZE];  
+  static uint16_t %<blockid>_buff_idx = 0;
+
+  uint8_t %<blockid>_DateTime[6] = {0,0,0,0,0,0};
+  uint8_t %<blockid>_Operator[32] = {0};
+  uint32_t %<blockid>_SignalStrength = 0;
+
+  uint8_t %<blockid>_GetStatus(uint8_t trigger)
+  {
+    static uint8_t OnEnterState = 1;
+
+	/* OnEnterState */
+	if(%<blockid>_state_last != %<blockid>_state) {
+		OnEnterState = 1;
+		%<blockid>_state_last = %<blockid>_state;
+        %<blockid>_buff_idx = 0; /* Reset working buffer index */        
+	} else { OnEnterState = 0; }	
+
+    /* Determine trigger */
+    if((%<blockid>_state == GSM_GPRS_IDLE) && (trigger != 0)) {
+
+      /* Start SMS send process with power up module */
+      %<blockid>_state = GSM_GPRS_POWER_UP;
+    }
+
+    /* Aquire resource */
+    if(GSM_GPRS%<module>_Resource_Lock(&%<blockid>_lock)) {
+      switch(%<blockid>_state) {
+        case GSM_GPRS_IDLE:
+          GSM_GPRS%<module>_Resource_UnLock(&%<blockid>_lock);
+          break;
+
+        case GSM_GPRS_RESET:
+          GSM_GPRS%<module>_Reset();
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+          break;
+
+        case GSM_GPRS_POWER_UP:
+          if(GSM_GPRS%<module>_PowerUP()) {
+            %<blockid>_ChangeState(GSM_GPRS_GETDATETIME);
+          }
+          break;
+
+        /* --- Date/ Time --- */
+        case GSM_GPRS_GETDATETIME:
+          if(OnEnterState) {
+            const char *str = "AT+CCLK?\r";          
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 2000UL); /* 2 */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n")) {              
+              char *s;
+              int yy,mo,dd,hh,mm,ss,timezone;
+              if((s = strstr(%<blockid>_buff, "CCLK:")) != 0) {  
+                int str_len;
+                int str_idx;
+
+                /* Replace '/', ':', '+', '-' with ',' */
+                str_len = strlen(s);                
+                for(str_idx = 0; str_idx<str_len; str_idx++) {
+                  switch(s[str_idx]) {
+                    case '/': case ':': case '+': case '-':
+                      s[str_idx] = ',';
+                      break;
+                  }
+                }
+                if(sscanf(s, "CCLK, \"%d,%d,%d,%d,%d,%d,%d\"", &yy,&mo,&dd,&hh,&mm,&ss,&timezone) >= 6) { /* +CCLK: "14/02/27,23:53:12+28" */
+                  %<blockid>_DateTime[0] = (uint8_t)yy;
+                  %<blockid>_DateTime[1] = (uint8_t)mo;
+                  %<blockid>_DateTime[2] = (uint8_t)dd;
+                  %<blockid>_DateTime[3] = (uint8_t)hh;
+                  %<blockid>_DateTime[4] = (uint8_t)mm;
+                  %<blockid>_DateTime[5] = (uint8_t)ss;
+                  %<blockid>_ChangeState(GSM_GPRS_GETOPERATOR);
+                }
+                else { %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */ }
+              }
+              else { %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */ }
+            }
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+            }
+          }     
+          break;
+
+        /* --- Operator name --- */
+        case GSM_GPRS_GETOPERATOR:
+          if(OnEnterState) {
+            const char *str = "AT+COPS?\r";          
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 2000UL); /* 2 */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n")) {              
+              char *s, *str_start=0, *str_end=0;
+              if((s = strstr(%<blockid>_buff, "COPS:")) != 0) {
+                str_start = strstr(s, "\"");
+                if(str_start) {
+                  str_start ++;
+                  str_end = strstr(str_start, "\"");
+                }
+                if(str_start && str_end && ((uint32_t)str_end > (uint32_t)str_start)) {                
+                  memcpy(&%<blockid>_Operator[0], str_start, ((uint32_t)str_end - (uint32_t)str_start)); /* +COPS: 0,0,"TH GSM"<CR><LF> */
+                  %<blockid>_Operator[((uint32_t)str_end - (uint32_t)str_start)] = '\0';
+                  %<blockid>_ChangeState(GSM_GPRS_GETSIGNALSTRENGTH);
+                }
+                else { %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */ }
+              }
+              else { %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */ }
+            }
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+            }
+          }          
+          break;
+
+        /* --- Signal Strength --- */
+        case GSM_GPRS_GETSIGNALSTRENGTH:
+          if(OnEnterState) {
+            const char *str = "AT+CSQ\r";          
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 2000UL); /* 2 */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n")) {              
+              char *s;
+              int32_t tmp;
+              if((s = strstr(%<blockid>_buff, "CSQ:")) != 0) {                
+                if(sscanf(s, "CSQ: %d,%d\r\n", &%<blockid>_SignalStrength, &tmp) == 2) { /* +CSQ: 18,0<CR><LF> */
+                  %<blockid>_ChangeState(GSM_GPRS_DONE);
+                }
+                else { %<blockid>_ChangeState(GSM_GPRS_ERROR); /* Re-check network connection */ }
+              }
+              else { %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */ }
+            }
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+            }
+          }
+          break;
+
+        case GSM_GPRS_ERROR:  
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          break;
+
+        case GSM_GPRS_DONE:  
+          if(OnEnterState) {
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          }
+          break;
+
+        default:
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+      }
+    }
+
+    /* Return current operation status */
+    return (uint8_t)%<blockid>_state_last;
+  }
+%endif
+
+%% ========================================================================
+%% Read Email
+%% ========================================================================
+%if conf == "ReceiveEMail"
+  void %<blockid>_Extract_MailMessage(const char *msg)
+  {
+    uint8_t sta = 0; /*  Intial as success */
+    
+    int len;
+    char *s;
+    char *pSubject;
+    char *pFrom;
+    char *pContent;
+    int Subject_len;
+    int From_len;
+    int Content_len;
+
+    /* --- Subject --- */
+    pSubject = strstr(msg, "\r\nSubject: ");
+    if(!pSubject)
+     pSubject = strstr(msg, "\r\nsubject: "); // Try lower case
+    if(pSubject) {
+      pSubject += 11;
+      s = strstr(pSubject, "\r\n");
+      len = s - pSubject;
+      if(len >= 128)
+        len = 127;
+      strncpy(%<blockid>_subject, pSubject, len);
+      %<blockid>_subject[127] = '\0';
+    }
+    else {
+     strcpy(%<blockid>_subject, "");
+    }
+
+    /* --- From --- */
+    pFrom = strstr(msg, "\r\nFrom: ");
+    if(!pFrom)
+     pFrom = strstr(msg, "\r\nfrom: "); // Try lower case
+    if(pFrom) {
+      pFrom += 8;
+      s = strstr(pFrom, "\r\n");
+      len = s - pFrom;
+      if(len >= 128)
+        len = 127;
+      strncpy(%<blockid>_from, pFrom, len);
+      %<blockid>_from[127] = '\0';
+    }
+    else {
+     strcpy(%<blockid>_from, "");
+    }
+    /* --- Body --- */
+    pContent = strstr(msg, "\r\nRemote: ");
+    if(!pContent)
+     pContent = strstr(msg, "\r\nremote: "); // Try lower case
+    if(pContent) {
+      pContent += 10;
+      s = strstr(pContent, "\r\n");
+      len = s - pContent;
+      if(len >= 256)
+        len = 255;
+      strncpy(%<blockid>_body, pContent, len);
+      %<blockid>_body[127] = '\0';
+    }
+    else {
+     strcpy(%<blockid>_body, "");
+    }
+  }
+
+  static SYS_TIMER_STRUCT %<blockid>_periodic_timer = {0UL,0UL};
+  static SYS_TIMER_STRUCT %<blockid>_timer_ms = {0UL,0UL};
+  static SYS_TIMER_STRUCT %<blockid>_wait_ms = {0UL,0UL};
+  static GSM_GPRS_LOCK_STRUCT %<blockid>_lock = {0,0,0};
+  static GSM_GPRS_STATE %<blockid>_state = GSM_GPRS_IDLE;
+  static GSM_GPRS_STATE %<blockid>_state_last = GSM_GPRS_IDLE;
+  static void %<blockid>_ChangeState(GSM_GPRS_STATE state) {
+     %<blockid>_state = state;
+      SysTimer_Start(&%<blockid>_timer_ms, 500UL); // 500ms
+  }
+  
+  /* Configuration string */
+  %if ssl_enable == "on"
+    #define ENABLE_SSL 1 /* Enable or disable SSL support */
+  %else
+    #define ENABLE_SSL 0 /* Enable or disable SSL support */
+  %endif
+  #define %<blockid>_SMTP_SERVER_NAME "%<servername>"
+  #define %<blockid>_SMTP_SERVER_PORT %<serverport>
+  #define %<blockid>_SMTP_LOGIN_NAME "%<loginname>"
+  #define %<blockid>_SMTP_LOGIN_PASS "%<loginpassword>"
+
+  #define %<blockid>_BUFF_SIZE 256
+  static char %<blockid>_buff[%<blockid>_BUFF_SIZE];  
+  static uint16_t %<blockid>_buff_idx = 0;
+
+  static int %<blockid>_email_size = 0;
+  char %<blockid>_from[128];
+  char %<blockid>_subject[128];
+  char %<blockid>_body[256];
+  uint8_t %<blockid>_ReadEMail(void)
+  {
+    static uint8_t OnEnterState = 1;
+
+    /* Wait */
+    if(!SysTimer_IsTimeout(&%<blockid>_wait_ms))
+      return (uint8_t)%<blockid>_state_last;
+
+	/* OnEnterState */
+	if(%<blockid>_state_last != %<blockid>_state) {
+		OnEnterState = 1;
+
+		%<blockid>_state_last = %<blockid>_state;
+        %<blockid>_buff_idx = 0; /* Reset working buffer index */        
+	} else { OnEnterState = 0; }	
+
+    /* Determine trigger */
+    if((%<blockid>_state == GSM_GPRS_IDLE) && SysTimer_IsTimeout(&%<blockid>_periodic_timer)) {
+
+      /* Start EMAIL send process with power up module */
+      %<blockid>_state = GSM_GPRS_POWER_UP;
+    }
+
+    /* Aquire resource */
+    if(GSM_GPRS%<module>_Resource_Lock(&%<blockid>_lock)) {      
+      switch(%<blockid>_state)
+      {
+        case GSM_GPRS_IDLE:
+          GSM_GPRS%<module>_Resource_UnLock(&%<blockid>_lock);
+          break;
+
+        case GSM_GPRS_RESET:
+          GSM_GPRS%<module>_Reset();
+          %<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+          break;
+
+        case GSM_GPRS_POWER_UP:
+          if(GSM_GPRS%<module>_PowerUP()) {
+            %<blockid>_ChangeState(GSM_GPRS_CONFIG_CONTYPE);
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_CONTYPE:
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SAPBR=3,1,\"Contype\",\"%s\"\r", GSM_GPRS%<module>_CONTYPE);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */            
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_CONFIG_APN);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_APN:
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+SAPBR=3,1,\"APN\",\"%s\"\r", GSM_GPRS%<module>_APN);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_GET_BEARER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+          }
+          break;
+
+        case GSM_GPRS_GET_BEARER:
+          if(OnEnterState) {
+            const char *s = "AT+SAPBR=2,1\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n")) {
+              int cid = -1, sta = -1;
+              char *s = &%<blockid>_buff[0];
+			  if (((s = strstr(%<blockid>_buff, "+SAPBR: ")) != (char *)0) \
+					&& (sscanf(s, "+SAPBR: %d,%d\r\n", &cid, &sta) == 2)) {
+				if(sta == 1) /* Connected */
+					%<blockid>_ChangeState(GSM_GPRS_CONFIG_SSL);
+				else if (sta == 3) /* Disconnected */
+					%<blockid>_ChangeState(GSM_GPRS_CONFIG_BEARER);
+				else
+					%<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+			  }
+			  else { /* Re-check network connection */
+				%<blockid>_ChangeState(GSM_GPRS_POWER_UP);
+			  }
+            }
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */
+            }
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_BEARER:
+		  if(OnEnterState) {
+			const char *str = "AT+SAPBR=1,1\r"; /* Enable */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 5000UL); /* 5S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_GET_BEARER);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_CONFIG_SSL:
+		  if(OnEnterState) {
+			sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+EMAILSSL=%u\r", (unsigned int)ENABLE_SSL);
+			GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_READEMAIL_CID);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_CID:
+		  if(OnEnterState) {
+			const char *str = "AT+EMAILCID=1\r"; /* CID */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_READEMAIL_TO);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_RESET);
+          }          
+          break;
+
+        case GSM_GPRS_READEMAIL_TO:
+		  if(OnEnterState) {
+			const char *str = "AT+EMAILTO=60\r"; /* Timeout 60S */
+			GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+		  }
+		  else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_READEMAIL_SERVER_AUTH);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_SERVER_AUTH:
+          if(OnEnterState) {
+            sprintf(GSM_GPRS%<module>_TmpBuffer, "AT+POP3SRV=\"%s\"", %<blockid>_SMTP_SERVER_NAME);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",\"%s\"", %<blockid>_SMTP_LOGIN_NAME);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",\"%s\"", %<blockid>_SMTP_LOGIN_PASS);
+            sprintf(&GSM_GPRS%<module>_TmpBuffer[strlen(GSM_GPRS%<module>_TmpBuffer)], ",%u\r", %<blockid>_SMTP_SERVER_PORT);
+            GSM_GPRS%<module>_Write(GSM_GPRS%<module>_TmpBuffer, strlen(GSM_GPRS%<module>_TmpBuffer));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if(strstr(%<blockid>_buff, "\r\nOK\r\n"))
+              %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGIN);
+            else if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_LOGIN:
+          if(OnEnterState) {
+            const char *str = "AT+POP3IN\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 60000UL); /* 60S */
+          }
+          else {
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3IN")) != 0) {
+              int code = 0;   
+              if((sscanf(s, "\r\n+POP3IN: %d\r\n", &code) == 1) && (code == 1)){
+                %<blockid>_ChangeState(GSM_GPRS_READEMAIL_COUNT);  
+              }              
+            }
+             
+            /* Timeout check */
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_COUNT:
+          if(OnEnterState) {
+            const char *str = "AT+POP3NUM\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 30000UL); /* 30S */
+          }
+          else {
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3NUM")) != 0) {
+              int status = 0, count = 0, size = 0;
+
+              /* Format: +POP3NUM: <status>,<count>,<size> */
+              if(sscanf(s, "\r\n+POP3NUM: %d,%d,%d\r\n", &status, &count, &size) == 3) {
+                if(status == 1) {
+                  if(count > 0)
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_SIZE1);
+                  else
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WEMPTYMAIL);
+                }
+                else {
+                  %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WERROR);
+                }
+              }
+            }
+            
+            /* Timeout check */
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        /* Email size */
+        case GSM_GPRS_READEMAIL_SIZE1:
+          if(OnEnterState) {
+            const char *str = "AT+POP3LIST=1\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 10000UL); /* 10S */
+          }
+          else {
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3LIST")) != 0) {
+              int code = 0, id = 0, size = 0;
+              if(sscanf(s, "\r\n+POP3LIST: %d,%d,%d\r\n", &code, &id, &size) == 3) {
+                if ((code == 1) && (id == 1)) {
+                  %<blockid>_email_size = size;
+                  if(%<blockid>_email_size > 10240) /* 10k */
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_DELETE);
+                  else
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_CMD);
+                }
+                else
+                 %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WERROR);
+              }
+            }
+            
+            /* Timeout check */
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        /* Read message #1 */
+        case GSM_GPRS_READEMAIL_CMD:
+          if(OnEnterState) {
+            const char *str = "AT+POP3CMD=4,1\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 60000UL); /* 60S */
+          }
+          else {
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3CMD")) != 0) {
+              int code = 0;
+              if(sscanf(s, "\r\n+POP3CMD: %d\r\n", &code) == 1) {
+                if (code == 1)
+                 %<blockid>_ChangeState(GSM_GPRS_READEMAIL_DATA);
+                else
+                 %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WERROR);
+              }
+            }
+            
+            /* Timeout check */
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_POWER_UP); /* Re-check network connection */            
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_DATA:
+          if(OnEnterState) {
+            const char *str = "AT+POP3READ=1460\r";
+            //sprintf(GSM_GPRS%<module>_TmpBuffer, str, 1460);
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 20000UL); /* 20S */
+          }
+          else {
+            char *s;     
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              /* Read Large buffer data */
+              GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+              if((s = strstr(GSM_GPRS%<module>_TmpBuffer, "\r\n+POP3READ")) != 0) {
+                int code = 0, size = 0;
+                if((sscanf(s, "\r\n+POP3READ: %d,%d\r\n", &code, &size) == 2) && ((code == 1) || (code == 2))) {
+                  if(code == 2) { /* Done */
+                    if(%<blockid>_email_size > 1460)
+                      %<blockid>_email_size = 1460;
+                    GSM_GPRS%<module>_ReadOldData(GSM_GPRS%<module>_TmpBuffer, %<blockid>_email_size);
+                    %<blockid>_Extract_MailMessage((const char *)GSM_GPRS%<module>_TmpBuffer);
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_DELETE);
+                  }
+                  else {
+                    %<blockid>_ChangeState(GSM_GPRS_READEMAIL_DATAx);
+                  }                  
+                }
+                else {
+                  /* Invalid */
+                  %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WERROR);
+                }
+              }
+              else {
+                /* Error */
+                %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WERROR);
+              }
+            }
+          }
+          break;
+
+        case GSM_GPRS_READEMAIL_DATAx:
+          %<blockid>_ChangeState(GSM_GPRS_READEMAIL_DATA);
+          break;
+
+        case GSM_GPRS_READEMAIL_DELETE:
+          if(OnEnterState) {
+            const char *str = "AT+POP3DEL=1\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 10000UL); /* 10S */
+          }
+          else {
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3DEL")) != 0) {
+              int code = 0;   
+              if((sscanf(s, "\r\n+POP3DEL: %d\r\n", &code) == 1) && (code == 1)){
+                %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WSUCCESS);  
+              }              
+            }
+             
+            /* Timeout check */
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_READEMAIL_LOGOUT_WSUCCESS);
+          }          
+          break;
+
+        case GSM_GPRS_READEMAIL_LOGOUT_WEMPTYMAIL: /* Mail box is empty */
+        case GSM_GPRS_READEMAIL_LOGOUT_WERROR: /* Error */
+        case GSM_GPRS_READEMAIL_LOGOUT_WSUCCESS: /* Read mail success */
+          if(OnEnterState) {
+            const char *str = "AT+POP3OUT\r";
+            GSM_GPRS%<module>_Write(str, strlen(str));
+			SysTimer_Start(&%<blockid>_timer_ms, 5000UL); /* 5S */
+          }
+          else {
+            int ready = 0;
+            char *s;
+            %<blockid>_buff_idx += \
+              GSM_GPRS%<module>_Read(&%<blockid>_buff[%<blockid>_buff_idx], %<blockid>_BUFF_SIZE-%<blockid>_buff_idx);
+            if((s = strstr(%<blockid>_buff, "\r\n+POP3OUT")) != 0) {
+              int code = 0;
+              if(sscanf(s, "\r\n+POP3OUT: %d\r\n", &code) == 1)
+                ready = 1;
+            }
+            
+            /* Exit state */
+            if(ready || SysTimer_IsTimeout(&%<blockid>_timer_ms)) {
+              if(%<blockid>_state == GSM_GPRS_READEMAIL_LOGOUT_WERROR) {
+                /* Reset periodic timer */
+                SysTimer_Start(&%<blockid>_periodic_timer, 60000UL);       
+
+                %<blockid>_ChangeState(GSM_GPRS_ERROR);
+              }
+              else if(%<blockid>_state == GSM_GPRS_READEMAIL_LOGOUT_WSUCCESS) {
+                /* Reset periodic timer */
+                SysTimer_Start(&%<blockid>_periodic_timer, 60000UL);
+
+                %<blockid>_ChangeState(GSM_GPRS_DONE);
+              }
+              else {
+                /* Reset periodic timer */
+                SysTimer_Start(&%<blockid>_periodic_timer, %<retrieve_periodic>UL);
+
+                %<blockid>_ChangeState(GSM_GPRS_IDLE);
+              }
+            }
+          }          
+          break;
+
+        case GSM_GPRS_ERROR:  
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+
+        case GSM_GPRS_DONE:  
+          if(OnEnterState) {
+            const char *s = "AT+SAPBR=0,1\r";
+            GSM_GPRS%<module>_Write(s, strlen(s));
+			SysTimer_Start(&%<blockid>_timer_ms, 1000UL); /* 1S */
+          }
+          else {
+            if(SysTimer_IsTimeout(&%<blockid>_timer_ms))
+              %<blockid>_ChangeState(GSM_GPRS_IDLE);  
+          }
+          break;
+
+        default:
+          %<blockid>_ChangeState(GSM_GPRS_IDLE);
+          break;
+      }
+    }
+    
+    /* Return current operation status */
+    return (uint8_t)%<blockid>_state_last;    
+  }
+%endif
+
+void enable_%<blockid>(void){
+%if conf == "Setup"
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* GPIO Init for Power and Reset control */
+		
+  /* GPIO Clock */
+  %if port_a_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+  %endif
+  %if port_b_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+  %endif
+  %if port_c_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  %endif
+  %if port_d_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+  %endif
+  %if port_e_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+  %endif
+  %if port_f_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+  %endif
+  %if port_g_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+  %endif
+  %if port_h_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+  %endif
+  %if port_i_used == "1"
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+  %endif
+
+  /* Set output pin to high, prevent glitch */
+  GPIO_SetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);
+  GPIO_SetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);
+
+  /* # %<pwrkey_port>%<pwrkey_pin> - PWR_KEY (OUT_OD)	*/	
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pwrkey_pin>;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		
+  GPIO_Init(GPIO%<pwrkey_port>, &GPIO_InitStructure);		
+
+  /* # %<reset_port>%<reset_pin> - RESET (OUT_OD)	*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<reset_pin>;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIO%<reset_port>, &GPIO_InitStructure);  
+%endif
+
+%if conf == "ReceiveEMail"
+  SysTimer_Start(&%<blockid>_periodic_timer, 1000); /* 1S */
+%endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%if conf == "Setup"
+%else
+  /* %<blockid>: '%<block.Name>' */
+  %% ======================================================================
+  %% SendEMail
+  %if conf == "SendEMail"
+    %assign portIdx = 0
+    %<LibBlockOutputSignal(portIdx, "", "", 0)> = \
+    %<blockid>_SendEMail((uint8_t)%<LibBlockInputSignal(0, "", "", 0)> \
+    %if variable_msg == "off" 
+      );
+    %else
+      %if LibBlockInputSignalConnected(1)
+      ,(char *)%<LibBlockInputSignal(1, "", "", 0)>); /* Variable message */
+      %else
+      ,"");
+      %endif
+    %endif
+  %endif
+  %% ======================================================================
+  %% SendSMS
+  %if conf == "SendSMS"
+    %assign portIdx = 0
+    %<LibBlockOutputSignal(portIdx, "", "", 0)> = \
+    %<blockid>_SendSMS((uint8_t)%<LibBlockInputSignal(0, "", "", 0)> \
+    %if variable_msg == "off" 
+      );
+    %else
+      %if LibBlockInputSignalConnected(1)
+      ,(char *)%<LibBlockInputSignal(1, "", "", 0)>); /* Variable message */
+      %else
+      ,"");
+      %endif
+    %endif
+  %endif
+
+  %% ======================================================================
+  %% GetStatus
+  %if conf == "GetStatus"
+    %assign portIdx = 0
+    %<LibBlockOutputSignal(portIdx, "", "", 0)> = \
+    %<blockid>_GetStatus((uint8_t)%<LibBlockInputSignal(0, "", "", 0)> );
+    %<LibBlockOutputSignal(1, "", "", 0)> = %<blockid>_DateTime[0]; /* YY */
+    %<LibBlockOutputSignal(1, "", "", 1)> = %<blockid>_DateTime[1]; /* MM */
+    %<LibBlockOutputSignal(1, "", "", 2)> = %<blockid>_DateTime[2]; /* DD */
+    %<LibBlockOutputSignal(1, "", "", 3)> = %<blockid>_DateTime[3]; /* HH */
+    %<LibBlockOutputSignal(1, "", "", 4)> = %<blockid>_DateTime[4]; /* MM */
+    %<LibBlockOutputSignal(1, "", "", 5)> = %<blockid>_DateTime[5]; /* SS */
+    %<LibBlockOutputSignal(2, "", "", 0)> = (uint32_t)(&%<blockid>_Operator[0]);
+    %<LibBlockOutputSignal(3, "", "", 0)> = %<blockid>_SignalStrength;
+  %endif
+
+  %% ======================================================================
+  %% SetDateTime
+  %if conf =="SetDateTime"
+    %assign datetime = LibBlockInputSignalAddr(1, "", "", 0)
+    %<LibBlockOutputSignal(0, "", "", 0)> = \                               
+    %<blockid>_SetDateTime((uint8_t)%<LibBlockInputSignal(0, "", "", 0)>, %<datetime>);
+  %endif
+
+  %% ======================================================================
+  %% ReadEMail
+  %if conf == "ReceiveEMail"
+    %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_ReadEMail();
+    %<LibBlockOutputSignal(1, "", "", 0)> = (uint32_T)&%<blockid>_from[0];
+    %<LibBlockOutputSignal(2, "", "", 0)> = (uint32_T)&%<blockid>_subject[0];
+    %<LibBlockOutputSignal(3, "", "", 0)> = (uint32_T)&%<blockid>_body[0];
+  %endif
+
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

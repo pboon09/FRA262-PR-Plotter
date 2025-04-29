@@ -1,0 +1,19 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".bat"
+echo off
+
+REM Always run this script file from the folder where the makefile resides.
+REM Do not forget to update "WaijungRoot" to Waijung's root directory.
+set WaijungRoot=C:\Users\Aimagin\Desktop\waijung_18.11a
+set WaijungGnuArmPath=C:\Users\Aimagin\Desktop\waijung_18.11a\utils\gnu_tools_arm_embedded\bin
+
+echo on
+REM Check which toolchain is used
+%assign str = "\"%WaijungGnuArmPath%\\arm-none-eabi-gcc\" --version"
+%<str>
+
+%assign str = "\"%WaijungRoot%\\utils\\gnumake382-w32\\gnumake382-w32\" -f " + "%<LibGetModelName()>" + ".mk "
+%<str>
+%assign str = "\"%WaijungRoot%\\utils\\gnumake382-w32\\gnumake382-w32\" -f " + "%<LibGetModelName()>" + ".mk " + "clean-obj"
+REM %<str>
+
+%closefile tmpBuf

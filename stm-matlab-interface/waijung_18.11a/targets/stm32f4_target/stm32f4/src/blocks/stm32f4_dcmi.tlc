@@ -1,0 +1,423 @@
+%implements stm32f4_dcmi "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign dummy            = optionstring[0]
+  %assign capturemode      = optionstring[1]
+  %assign synchronizemode  = optionstring[2]
+  %assign pclkpolarity     = optionstring[3]
+  %assign vspolarity       = optionstring[4]
+  %assign hspolarity       = optionstring[5]
+  %assign capturerate      = optionstring[6]
+  %assign dmadoublebuffer  = optionstring[7]
+  %assign dmadatatype      = optionstring[8]
+  %assign dmatransfersize  = optionstring[9]
+  %assign segmentsize      = optionstring[10]
+  %assign segmentcount     = optionstring[11]
+  %assign buffervarname    = optionstring[12]
+  %assign dummy1           = optionstring[13]
+  %assign dummy2           = optionstring[14]
+  %assign dummy3           = optionstring[15]
+  %assign port_a_used      = optionstring[16]
+  %assign port_b_used      = optionstring[17]
+  %assign port_c_used      = optionstring[18]
+  %assign port_d_used      = optionstring[19]
+  %assign port_e_used      = optionstring[20]
+  %assign port_f_used      = optionstring[21]
+  %assign port_g_used      = optionstring[22]
+  %assign port_h_used      = optionstring[23]
+  %assign port_i_used      = optionstring[24]
+  %assign pclk_port        = optionstring[25]
+  %assign pclk_pin         = optionstring[26]
+  %assign vsync_port       = optionstring[27]
+  %assign vsync_pin        = optionstring[28]
+  %assign hsync_port       = optionstring[29]
+  %assign hsync_pin        = optionstring[30]
+  %assign d0_port          = optionstring[31]
+  %assign d0_pin           = optionstring[32]
+  %assign d1_port          = optionstring[33]
+  %assign d1_pin           = optionstring[34]
+  %assign d2_port          = optionstring[35]
+  %assign d2_pin           = optionstring[36]
+  %assign d3_port          = optionstring[37]
+  %assign d3_pin           = optionstring[38]
+  %assign d4_port          = optionstring[39]
+  %assign d4_pin           = optionstring[40]
+  %assign d5_port          = optionstring[41]
+  %assign d5_pin           = optionstring[42]
+  %assign d6_port          = optionstring[43]
+  %assign d6_pin           = optionstring[44]
+  %assign d7_port          = optionstring[45]
+  %assign d7_pin           = optionstring[46]
+
+  %assign block = block + conf + sampletime + blockid + dummy + capturemode \
+                + synchronizemode + pclkpolarity + vspolarity + hspolarity \
+                + capturerate + dmadoublebuffer + dmadatatype + dmatransfersize \
+                + segmentsize + segmentcount + buffervarname + dummy1 + dummy2 \
+                + dummy3 + port_a_used + port_b_used + port_c_used + port_d_used \
+                + port_e_used + port_f_used + port_g_used + port_h_used + port_i_used \
+                + pclk_port + pclk_pin + vsync_port + vsync_pin + hsync_port \
+                + hsync_pin + d0_port + d0_pin + d1_port + d1_pin + d2_port \
+                + d2_pin + d3_port + d3_pin + d4_port + d4_pin + d5_port \
+                + d5_pin + d6_port + d6_pin + d7_port + d7_pin
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DCMI__) == 0)
+      %assign :: __STM32F4XX_DCMI__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dcmi.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+typedef enum {
+  CAPTURE_READY = 0, /* 0: Ready */
+  CAPTURE_INIT,      /* 1: Initialize */
+  CAPTURE_BUSY,      /* 2: Busy */
+  CAPTURE_ERROR,     /* 3: Error */
+} %<blockid>_CAPTURE_STATE;
+
+#define %<blockid>DCMI_DR_ADDRESS       0x50050028
+
+uint32_t %<blockid>_Capture(void);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+
+volatile uint8_t %<blockid>_transfer_status = 0;
+volatile uint8_t %<blockid>_transfer_segment = 0;
+SYS_TIMER_STRUCT %<blockid>_timer;
+uint32_t %<blockid>_Capture(void)
+{
+  /* Capture init */
+  %<blockid>_transfer_segment = 0;
+  %<blockid>_transfer_status = 0; /* 0: Wait, 1: Success, 2: Error */
+
+  /* Start transfer */
+  DCMI_Cmd(ENABLE); 
+  DMA_Cmd(DMA2_Stream7, ENABLE);
+  DCMI_CaptureCmd(ENABLE);
+
+  /* Start time-out check */
+  SysTimer_Start(&%<blockid>_timer, 500);
+
+  /* Wait */
+  while ((%<blockid>_transfer_status == 0) && (!SysTimer_IsTimeout(&%<blockid>_timer)));
+  
+  /* Disable transfer */
+  DCMI_Cmd(DISABLE); 
+  DMA_Cmd(DMA2_Stream7, DISABLE);
+  DCMI_CaptureCmd(DISABLE);
+
+  /* Success */
+  if(%<blockid>_transfer_status == 1)
+    return (uint32_t)CAPTURE_READY;
+  else
+    return (uint32_t)CAPTURE_ERROR;
+}
+
+/* This function handles DMA2_Stream7 interrupt. */
+void DMA2_Stream7_IRQHandler(void)
+{
+  /* Transfer complete interrupt */
+  if (DMA_GetFlagStatus(DMA2_Stream7, DMA_FLAG_TCIF7) != RESET)
+  {
+    /* Clear the Interrupt flag */
+    DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_TCIF7);
+    %if dmadoublebuffer == "1"
+    if(%<blockid>_transfer_segment >= %<segmentcount>) {
+      %<blockid>_transfer_status = 1; /* Success */
+    }
+    %else
+    %<blockid>_transfer_status = 1; /* Success */
+    %endif
+  }
+
+  /* Half Transfer complete interrupt */
+  else if (DMA_GetFlagStatus(DMA2_Stream7, DMA_FLAG_HTIF7) != RESET)
+  {
+    /* Clear the Interrupt flag */
+    DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_HTIF7);
+    %if dmadoublebuffer == "1"
+    if(++%<blockid>_transfer_segment < %<segmentcount>) {
+      /* Select next segment */
+      DMA_MemoryTargetConfig(DMA2_Stream7, (((uint32_t)%<buffervarname>)+(%<segmentsize>*4*%<blockid>_transfer_segment)), (DMA_GetCurrentMemoryTarget(DMA2_Stream7) == 0)?DMA_Memory_1:DMA_Memory_0);  
+    }
+    else {
+      /* Reset to first segment */
+      DMA_MemoryTargetConfig(DMA2_Stream7, ((uint32_t)%<buffervarname>), (DMA_GetCurrentMemoryTarget(DMA2_Stream7) == 0)?DMA_Memory_1:DMA_Memory_0);
+    }
+    %endif
+  }
+
+  /* FIFO Error interrupt */
+  else if (DMA_GetFlagStatus(DMA2_Stream7, DMA_FLAG_FEIF7) != RESET)
+  {
+    %<blockid>_transfer_status = CAPTURE_ERROR; /* Error */
+
+    /* Clear the Interrupt flag */
+    DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_FEIF7);
+  }
+
+  /* Transfer error interrupt */
+  else if (DMA_GetFlagStatus(DMA2_Stream7, DMA_FLAG_TEIF7) != RESET)
+  {
+    DCMI_ClearFlag(DCMI_FLAG_OVFRI);
+
+    %<blockid>_transfer_status = CAPTURE_ERROR; /* Error */
+
+    /* Clear the Interrupt flag */
+    DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_TEIF7);
+  }
+}
+
+void enable_%<blockid>(void){
+  DCMI_InitTypeDef DCMI_InitStructure;
+  DMA_InitTypeDef  DMA_InitStructure;
+  NVIC_InitTypeDef  NVIC_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* Enable DCMI GPIOs clocks */
+  %if port_a_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+  %endif
+  %if port_b_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+  %endif
+  %if port_c_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  %endif
+  %if port_d_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+  %endif
+  %if port_e_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+  %endif
+  %if port_f_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+  %endif
+  %if port_g_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+  %endif
+  %if port_h_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+  %endif
+  %if port_i_used == "1"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+  %endif
+
+  /* GPIO configuration */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+
+  /* DCMI_PCLK: P%<pclk_port>%<pclk_pin> */
+  GPIO_PinAFConfig(GPIO%<pclk_port>, GPIO_PinSource%<pclk_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pclk_pin>;
+  GPIO_Init(GPIO%<pclk_port>, &GPIO_InitStructure);
+
+  /* DCMI_VSYNC: P%<vsync_port>%<vsync_pin> */
+  GPIO_PinAFConfig(GPIO%<vsync_port>, GPIO_PinSource%<vsync_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<vsync_pin>;
+  GPIO_Init(GPIO%<vsync_port>, &GPIO_InitStructure);
+
+  /* DCMI_HSYNC: P%<hsync_port>%<hsync_pin> */
+  GPIO_PinAFConfig(GPIO%<hsync_port>, GPIO_PinSource%<hsync_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<hsync_pin>;
+  GPIO_Init(GPIO%<hsync_port>, &GPIO_InitStructure);
+
+  /* DCMI_D0: P%<d0_port>%<d0_pin> */
+  GPIO_PinAFConfig(GPIO%<d0_port>, GPIO_PinSource%<d0_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d0_pin>;
+  GPIO_Init(GPIO%<d0_port>, &GPIO_InitStructure);
+
+  /* DCMI_D1: P%<d1_port>%<d1_pin> */
+  GPIO_PinAFConfig(GPIO%<d1_port>, GPIO_PinSource%<d1_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d1_pin>;
+  GPIO_Init(GPIO%<d1_port>, &GPIO_InitStructure);
+
+  /* DCMI_D2: P%<d2_port>%<d2_pin> */
+  GPIO_PinAFConfig(GPIO%<d2_port>, GPIO_PinSource%<d2_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d2_pin>;
+  GPIO_Init(GPIO%<d2_port>, &GPIO_InitStructure);
+
+  /* DCMI_D3: P%<d3_port>%<d3_pin> */
+  GPIO_PinAFConfig(GPIO%<d3_port>, GPIO_PinSource%<d3_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d3_pin>;
+  GPIO_Init(GPIO%<d3_port>, &GPIO_InitStructure);
+
+  /* DCMI_D4: P%<d4_port>%<d4_pin> */
+  GPIO_PinAFConfig(GPIO%<d4_port>, GPIO_PinSource%<d4_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d4_pin>;
+  GPIO_Init(GPIO%<d4_port>, &GPIO_InitStructure);
+
+  /* DCMI_D5: P%<d5_port>%<d5_pin> */
+  GPIO_PinAFConfig(GPIO%<d5_port>, GPIO_PinSource%<d5_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d5_pin>;
+  GPIO_Init(GPIO%<d5_port>, &GPIO_InitStructure);
+
+  /* DCMI_D6: P%<d6_port>%<d6_pin> */
+  GPIO_PinAFConfig(GPIO%<d6_port>, GPIO_PinSource%<d6_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d6_pin>;
+  GPIO_Init(GPIO%<d6_port>, &GPIO_InitStructure);
+
+  /* DCMI_D7: P%<d7_port>%<d7_pin> */
+  GPIO_PinAFConfig(GPIO%<d7_port>, GPIO_PinSource%<d7_pin>, GPIO_AF_DCMI);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<d7_pin>;
+  GPIO_Init(GPIO%<d7_port>, &GPIO_InitStructure);
+
+  /* DCMI-DMA */
+
+  /* Enable DCMI clock */
+  RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_DCMI, ENABLE);
+
+  /* DCMI configuration */
+  DCMI_InitStructure.DCMI_CaptureMode = DCMI_CaptureMode_%<capturemode>;
+  DCMI_InitStructure.DCMI_SynchroMode = DCMI_SynchroMode_%<synchronizemode>;
+  DCMI_InitStructure.DCMI_PCKPolarity = DCMI_PCKPolarity_%<pclkpolarity>;
+  DCMI_InitStructure.DCMI_VSPolarity = DCMI_VSPolarity_%<vspolarity>;
+  DCMI_InitStructure.DCMI_HSPolarity = DCMI_HSPolarity_%<hspolarity>;
+  DCMI_InitStructure.DCMI_CaptureRate = DCMI_CaptureRate_%<capturerate>_Frame;
+  DCMI_InitStructure.DCMI_ExtendedDataMode = DCMI_ExtendedDataMode_8b;  
+
+  /* Configures the DMA2 to transfer Data from DCMI */
+  /* Enable DMA2 clock */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+  
+  /* DMA2 Stream7 Configuration */
+  DMA_DeInit(DMA2_Stream7);
+
+  DMA_InitStructure.DMA_Channel = DMA_Channel_1;
+  DMA_InitStructure.DMA_PeripheralBaseAddr = %<blockid>DCMI_DR_ADDRESS;	
+  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)%<buffervarname>;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+  DMA_InitStructure.DMA_BufferSize = 0xFFFF;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_%<dmadatatype>;
+  %if dmadoublebuffer == "1"
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;	  
+  %else
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  %endif
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+  /* DCMI configuration */
+  DCMI_Init(&DCMI_InitStructure);
+
+  %if dmadoublebuffer == "1"
+  DMA_DoubleBufferModeConfig(DMA2_Stream7, (((uint32_t)%<buffervarname>)+(%<segmentsize>*4)), DMA_Memory_0);  
+  DMA_DoubleBufferModeCmd(DMA2_Stream7, ENABLE);
+  %endif
+
+  /* DMA2 IRQ channel Configuration */
+  %if dmadoublebuffer == "1"
+  DMA_InitStructure.DMA_BufferSize = %<segmentsize>;
+  %else
+  DMA_InitStructure.DMA_BufferSize = %<dmatransfersize>;
+  %endif
+  DMA_Init(DMA2_Stream7, &DMA_InitStructure);
+  DMA_ITConfig(DMA2_Stream7, DMA_IT_TC | DMA_IT_HT | DMA_IT_TE, ENABLE);
+
+  /* DMA2 IRQ channel Configuration */
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream7_IRQn ;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 13;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_Capture();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

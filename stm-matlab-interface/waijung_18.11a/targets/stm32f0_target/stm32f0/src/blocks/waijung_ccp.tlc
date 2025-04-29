@@ -1,0 +1,101 @@
+%implements waijung_ccp "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

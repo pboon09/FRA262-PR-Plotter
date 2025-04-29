@@ -1,0 +1,374 @@
+%implements stm32f4_flash "C"
+
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+  %%CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of confstr: %<SIZE(confstr)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %if conf == "Program"
+    %assign transfer = confstr[0]
+    %assign datatype = confstr[1]
+    %assign enablestatus = confstr[2]
+    %assign sectorsize = confstr[3]
+    %assign sectoraddr = confstr[4]
+    %assign sectorid = confstr[5]
+
+    %assign block = block + transfer + datatype + enablestatus + sectorsize \
+                          + sectoraddr
+  %endif
+
+  %if conf == "Erase"
+    %assign transfer = confstr[0]
+    %assign enablestatus = confstr[1]
+    %assign sectoraddr = confstr[2]
+    %assign sectorid = confstr[3]
+    %assign block = block + transfer + enablestatus + sectoraddr + sectorid
+  %endif
+
+  %if conf == "Read"
+    %assign datatype = confstr[0]
+    %assign sectorsize = confstr[1]
+    %assign sectoraddr = confstr[2]
+    %assign sectorid = confstr[3]
+    %assign enablestatus = confstr[4]
+    %assign block = block + datatype + sectorsize + sectoraddr + enablestatus
+  %endif
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Erase"
+  uint8_t %<block.Identifier>_Flash_Erase(void);
+%endif
+%if (conf == "Program") || (conf == "Read")
+  #define %<block.Identifier>_SECTOR_ADDRESS  0x%<sectoraddr>
+  #define %<block.Identifier>_SECTOR_SIZE 0x%<sectorsize>
+%endif
+%if conf == "Program"
+uint8_t %<block.Identifier>_Flash_Prog(uint32_t offset, \
+  %if datatype == "double"  
+    double *data,\
+  %elseif datatype == "single"
+    float *data,\
+  %else
+  %<datatype>_t *data,\
+  %endif  
+  uint16_t count);
+%endif
+
+%if conf == "Read"
+  %if datatype == "double"  
+    extern double *%<block.Identifier>_Data;
+  %elseif datatype == "single"
+    extern float *%<block.Identifier>_Data;
+  %else
+    extern %<datatype>_t  *%<block.Identifier>_Data;
+  %endif
+%endif
+
+%if conf == "Program" || conf == "Erase"
+  void enable_%<blockid>(void);
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Read"
+  %if datatype == "double"  
+    double *%<block.Identifier>_Data;
+  %elseif datatype == "single"
+    float *%<block.Identifier>_Data;
+  %else
+    %<datatype>_t  *%<block.Identifier>_Data;
+  %endif
+%endif
+
+%if conf == "Program"
+uint8_t %<block.Identifier>_Flash_Prog(uint32_t offset, \
+  %if datatype == "double"
+    double *data, uint16_t count) {
+    uint64_t tmp;
+  %elseif datatype == "single"
+    float *data, uint16_t count) {
+    uint32_t tmp;
+  %else
+  %<datatype>_t *data, uint16_t count) {
+  %endif
+  uint32_t Address;
+  FLASH_Status sta;
+
+  /* Wait for last operation */
+  while(FLASH_GetStatus() == FLASH_BUSY);
+
+  /* Clear pending flags (if any) */  
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
+
+  do {
+  /* Calculate physical address from offset */
+  Address = %<block.Identifier>_SECTOR_ADDRESS + offset;
+
+  %if (datatype == "int8") || (datatype == "uint8")
+    /* Validate offset */
+    if(offset > (%<block.Identifier>_SECTOR_SIZE-1))
+      return 0xFF;
+
+    /* Write data to Flash */
+    __disable_irq();
+    sta = FLASH_ProgramByte(Address, \
+    %if datatype == "int8"
+    (uint8_t)\
+    %endif
+    *data);
+    __enable_irq();
+
+    /* Increment offset */
+    offset += 1;
+  %elseif (datatype == "int16") || (datatype == "uint16")
+    /* Validate offset */
+    if(offset > (%<block.Identifier>_SECTOR_SIZE-2))
+      return 0xFF;
+
+    /* Write data to Flash */
+    __disable_irq();
+    sta = FLASH_ProgramHalfWord(Address, \
+    %if datatype == "int16"
+    (uint16_t)\
+    %endif
+    *data);
+    __enable_irq();
+    /* Increment offset */
+    offset += 2;
+  %elseif (datatype == "int32") || (datatype == "uint32")
+    /* Validate offset */
+    if(offset > (%<block.Identifier>_SECTOR_SIZE-4))
+      return 0xFF;
+
+    /* Write data to Flash */
+    __disable_irq();
+    sta = FLASH_ProgramWord(Address, \
+    %if datatype == "int32"
+    (uint32_t)\
+    %endif
+    *data);
+    __enable_irq();
+    /* Increment offset */
+    offset += 4;
+  %elseif (datatype == "double")
+    /* Validate offset */
+    if(offset > (%<block.Identifier>_SECTOR_SIZE-8))
+      return 0xFF;
+    memcpy(&tmp, data, 8);
+    __disable_irq();
+    sta = FLASH_ProgramDoubleWord(Address, tmp);
+    __enable_irq();
+    /* Increment offset */
+    offset += 8;
+  %elseif (datatype == "single")
+    /* Validate offset */
+    if(offset > (%<block.Identifier>_SECTOR_SIZE-4))
+      return 0xFF;
+    memcpy(&tmp, data, 4);
+    __disable_irq();
+    sta = FLASH_ProgramWord(Address, tmp);
+    __enable_irq();    
+    /* Increment offset */
+    offset += 8;
+  %else
+    %error "Invalid data type."
+  %endif
+
+  %if transfer == "Blocking"
+    /* Wait while busy */
+    while(sta == FLASH_BUSY) {
+      sta = FLASH_GetStatus();
+    }
+  %endif
+  } while ((sta == FLASH_COMPLETE) && (--count));
+
+  /* Return flash operation status */
+  if(sta == FLASH_COMPLETE)
+    return 0;
+  else
+    return (uint8_t)sta;
+}
+%endif
+
+%if conf == "Erase"
+uint8_t %<block.Identifier>_Flash_Erase(void)
+{
+  FLASH_Status sta;
+
+  /* Wait for last operation */
+  while(FLASH_GetStatus() == FLASH_BUSY);
+
+  /* Clear pending flags (if any) */  
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
+  
+  /* Erase */
+  __disable_irq();
+  sta = FLASH_EraseSector(FLASH_Sector_%<sectorid>, VoltageRange_3);
+  __enable_irq();
+
+  %if transfer == "Blocking"
+    /* Wait while busy */
+    while(sta == FLASH_BUSY) {
+      sta = FLASH_GetStatus();
+    }
+  %endif
+  /* Return flash operation status */
+  if(sta == FLASH_COMPLETE)
+    return 0;
+  else
+    return (uint8_t)sta;
+}
+%endif
+
+%if conf == "Program" || conf == "Erase"
+void enable_%<blockid>(void){
+  /* Unlocks the FLASH control register access */
+  FLASH_Unlock();
+}
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */
+  %if conf == "Program"
+    %if enablestatus == "on"
+      %<LibBlockOutputSignal(0, "", "", 0)> = \
+    %endif
+    %<block.Identifier>_Flash_Prog(\
+        %if LibBlockInputSignalDataTypeName(0,"") != "uint32_T"
+          (uint32_t) \
+        %endif
+        %<LibBlockInputSignal(0, "", "", 0)>, \
+        %<LibBlockInputSignalAddr(1, "", "", 0)>, \
+        %<LibBlockInputSignalWidth(1)> \
+        );
+        %%<LibBlockInputSignal(1, "", "", 0)>);
+  %elseif conf == "Erase"
+    %if enablestatus == "on"
+      %<LibBlockOutputSignal(0, "", "", 0)> = \
+    %endif
+    %<block.Identifier>_Flash_Erase();
+  %elseif conf == "Read"    
+    %assign offset =  LibBlockInputSignal(0, "", "", 0)
+    %if datatype == "double"  
+      %<block.Identifier>_Data = (double*)(%<block.Identifier>_SECTOR_ADDRESS+\
+    %elseif datatype == "single"
+      %<block.Identifier>_Data = (float*)(%<block.Identifier>_SECTOR_ADDRESS+\
+    %else
+      %<block.Identifier>_Data = (%<datatype>_t*)(%<block.Identifier>_SECTOR_ADDRESS+\
+    %endif
+    %if LibBlockInputSignalDataTypeName(0,"") != "uint32_T"
+    (uint32_t) \
+    %endif
+    %<offset> );
+    %if LibBlockOutputSignalWidth(0) > 1
+      %assign yAddr = LibBlockOutputSignalAddr(0, "", "", 0)
+      memcpy(%<yAddr>, %<block.Identifier>_Data,%<LibBlockOutputSignalWidth(0)>*sizeof(%<LibBlockOutputSignalDataTypeName(0,tRealPart)>));
+    %else
+      %if datatype == "double"  
+        %<LibBlockOutputSignal(0, "", "", 0)> = *(const double*)%<block.Identifier>_Data;
+      %elseif datatype == "single"
+        %<LibBlockOutputSignal(0, "", "", 0)> = *(const float*)%<block.Identifier>_Data;
+      %else
+      %<LibBlockOutputSignal(0, "", "", 0)> = *(const %<datatype>_t*)%<block.Identifier>_Data;
+      %endif
+    %endif
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+  %if conf == "Program" || conf == "Erase"
+  enable_%<blockid>();
+  %endif
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

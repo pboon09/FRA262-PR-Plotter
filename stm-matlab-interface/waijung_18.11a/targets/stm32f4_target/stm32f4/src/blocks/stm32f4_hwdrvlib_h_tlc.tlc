@@ -1,0 +1,105 @@
+%<LibAddToCommonIncludes("waijung_hwdrvlib.h")>
+
+%openfile tmpBuf
+   #include "rtwtypes.h"
+   #include "stm32f4xx.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+%<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+%openfile tmpBuf
+
+   /* 
+    * Bit banding
+    *
+    * The Cortex memory map includes two bit-band regions. 
+    * These regions map each word in an alias region of memory to a bit in 
+    * a bit-band region of memory. Writing to a word in the alias region 
+    * has the same effect as a read-modify-write operation on the targeted bit 
+    * in the bit-band region.
+    *
+    * In the STM32F4xxx both peripheral registers and SRAM are mapped in 
+    * a bit-band region. This allows single bit-band write and read operations 
+    * to be performed.
+    *
+    * A mapping formula shows how to reference each word in the alias region 
+    * to a corresponding bit in the bit-band region. The mapping formula is:
+    * bit_word_addr = bit_band_base + (byte_offset x 32) + (bit_number × 4)
+    *
+    * BB_base      is the base address of the bit-band region for a register. (PERIPH_BB_BASE at 0x42000000 or SRAM_BB_BASE at 0x22000000)
+    * Reg_base     is the base address of a register in the memory region. (PERIPH_BASE at 0x40000000 or SRAM_BASE at 0x20000000)
+    * Register     is a register in the memory region that contains the targeted bit.
+    * Bit_number   is the targeted bit number (0 - 31).
+    * 
+    * PERIPH_BB_BASE, SRAM_BB_BASE, PERIPH_BASE, and SRAM_BASE are defined in stm32f10x.h
+    * 
+    * Example for determining bit banding bit.
+    * Determine DMA Transfer Complete Flag using bit banding.
+    * TCIFx is the flag for DMA Channel x 
+    * This bit is set by hardware. It is cleared by software writing 1 to 
+    * the corresponding bit in the DMA_IFCR register.
+    * TCIFx = 0: No transfer complete (TC) event on channel x
+    * TCIFx = 1: A transfer complete (TC) event occurred on channel x
+    *
+    * DMA Channel:       1 2 3  4  5  6  7
+    * Flag bit position: 1 5 9 13 17 21 25 (in DMA_ISR register)
+    * (For DMA2 Channel 6 and 7 is irrelevant since it only has 5 channels.)
+    *
+    * CTCIFx: Channel x transfer complete clear (x = 1 ..7)
+    * This bit is set and cleared by software.
+    * CTCIFx = 0: No effect
+    * CTCIFx = 1: Clear the corresponding TCIF flag in the DMA_ISR register
+    *
+    */
+   #define BitBanding(Register, Bit_number, Reg_base, BB_base) \
+   ((volatile uint32_t*) ((BB_base) + (((uint32_t) &(Register)) - ((Reg_base))<<5) + ((Bit_number)<<2)))
+
+   #define Peripheral_BB(Register, Bit_number) \
+   BitBanding(Register, Bit_number, PERIPH_BASE, PERIPH_BB_BASE)
+
+   #define SRAM_BB(Register, Bit_number) \
+   BitBanding(Register, Bit_number, SRAM_BASE, SRAM_BB_BASE)
+
+   /* 
+    * Sample usage:
+    * USART1->SR can be found from "stm32f4xx.h" and USART_FLAG_TC (6) can be found from "stm32f4xx_usart.h"
+    * #define USART1_TC Peripheral_BB(USART1->SR, 6) USART_SR.TC bit
+    * 
+    * Another example:
+    * #define GPIOC_8 Peripheral_BB(GPIOC->ODR, 8)
+    * *GPIOC_8 = 1;
+    */
+
+   /* 
+    * Systick is configured such that the SysTick interrupt every %<SampleTime[0].ClockTickStepSize> sec
+    * which is the base sample time of the system. 
+    */
+   #define SYSTICKRELOADVALUE %<systickreloadvalue> 
+
+   /* 
+    * HCLK (Hz)
+    */
+   #define HCLK %<hclk> 
+
+   /* 
+    * Each Systick counter is TIMEPERSYSTICK sec.
+    */
+   #define TIMEPERSYSTICK %<SampleTime[0].ClockTickStepSize> / %<systickreloadvalue> 
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+%<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%openfile tmpBuf
+   extern volatile unsigned int systick_count;
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+%<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>

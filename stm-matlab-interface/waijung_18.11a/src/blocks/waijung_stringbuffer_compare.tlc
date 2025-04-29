@@ -1,0 +1,62 @@
+%implements waijung_stringbuffer_compare "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+        
+%assign configuration = CAST("String",SFcnParamSettings.configuration)
+%assign method = CAST("String",SFcnParamSettings.method)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign block = block + sampletime + blockid \
+         + configuration + method
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>   
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STD_IO__) == 0)
+      %assign :: __STM32F4XX_STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid> */
+  %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,"")>)%<method>;
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

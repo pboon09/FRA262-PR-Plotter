@@ -1,0 +1,214 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Block References &gt; Device Configuration &gt; Target Setup</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="background tasks,Clock Configuration,Multirate Single Tasking,non real-time critical,real-time critical,Scheduling,STM3241G,STM32F4DISCOVERY,system_stm32f4xx.c,Target Setup,Task Scheduling">
+   <meta name="description" content="Target Setup">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f4_target_setup.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Target Setup</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f4_target_setup.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="blockset_references.htm">Block References</a> &gt; <a href="device_configuration.htm">Device Configuration</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Target Setup</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="device_configuration.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="device_configuration.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f4_uidread.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<h1 class="p_Heading1"><img src="targetsetup.png" width="950" height="147" alt="targetsetup" style="width:950px;height:147px;border:none" /></h1>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="targetsetupmask.png" width="950" height="669" alt="targetsetupmask" style="margin:10px 0px 0px 0px; border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">When to use this block?</span></h2>
+<p>A single instance of this block must be inserted in every STM32F4 Target Simulink model. This block is used to setup the target to:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">Generate code for the selected STM32F4 target from a list of <a href="supportedmcu.htm" class="topiclink">supported MCU</a>.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none">Select and control the Cross Compiler for use to compile the generated code. See the following documents for compiler 's options:</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 16px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">a.</span></td><td style="border:none"><span style="font-style: italic;"><a href="http://gcc.gnu.org/onlinedocs/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">GNU Tools for ARM Embedded Processors</a> contains documentation for GNU GCC compiler.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 16px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">b.</span></td><td style="border:none"><span style="font-style: italic;"><a href="http://www.google.co.th/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;ved=0CCEQFjAA&amp;url=http%3A%2F%2Fsupp.iar.com%2FFilesPublic%2FUPDINFO%2F004916%2Farm%2Fdoc%2FEWARM_DevelopmentGuide.ENU.pdf&amp;ei=hJ-UUOjTFIqHrAe8y4CICg&amp;usg=AFQjCNHZUNcO4c8uLo9cX5XgQG46WHcNcA" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">IAR C/C++ Development Guide Compiling and linking for Advanced RISC Machines Ltd’s ARM® Cores</a></span> (pdf) describes EWARM compiler &amp; linker command line usages and options.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 16px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">c.</span></td><td style="border:none"><span style="font-style: italic;"><a href="http://www.hh.se/download/18.4cad802d1363ad97dad8000999/1332883100152/EWARM_AssemblerReference.pdf" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">ARM® IAR Assembler Reference Guide for Advanced RISC Machines Ltd’s &nbsp;ARM Cores</a></span> (pdf) describes EWARM assemble command line usages and options.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none">Set up various <a href="stm32f4_target_setup.htm#clockconfiguration" class="topiclink">system clocks</a> for the target.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none">Control the entire Build Process from automatic compiling to download (flash programming).</td></tr></table></div><h2 class="p_Heading2"><span class="f_Heading2">How does this block work?</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">Generated Code Task Scheduling</span></h3>
+<p>Waijung Blockset supports &quot;Multirate Single Tasking&quot; scheduling. This means the base interrupt timer (based on SysTick Module) will be automatically set at the smallest sample time of a system. For example, assume that you set your system to operate at 2 different rates, say, at every 0.1sec and 1sec, the generated code will be such that SysTick Interrupt Service Routine interrupts at every 0.1sec to execute the 0.1sec tasks, and, in addition, at every 10th SysTick interrupt, the 1sec tasks will also be executed automatically.</p>
+<p>In this sense, you only need to make sure that all tasks are performed within the specified smallest sample time, e.g. in the above example 0.1sec.</p>
+<p>You can configure the system to operate at Multirates by simply assign the required sample time in each sample time filed in each block mask parameter, under one required condition, i.e. every sample time must be a multiple of the base (smallest) sample time. You can use -1 to inherit sample time (from previous block).</p>
+<p>Press CTRL + J to see color legend of each sample time.</p>
+<p>See [<a href="stm32f4_target_setup.htm#simulinksingletaskingandmultitaskingmodesexplained" class="topiclink">1</a>] for more information about Simulink generated code Task Scheduling.</p>
+<p>Systick is a special 24-bits timer. As such, it can count up to 2<span style="font-size: 7pt; vertical-align: super;">24</span>-1 = 16777215 counts. Each Systick count takes 1/HCLK seconds. For instance, if you set the HCLK to the maximum of 168MHz, Systick timer can count up to 16777215/(168x10<span style="font-size: 7pt; vertical-align: super;">6</span>) = .0999 seconds. This is the largest possible time steps for your system; meaning, all task that are based on native Simulink blocks must be completed within this time interval. So if you set up your system to operate very slowly, for instance, if the smallest sample time (counting all blocks in the system) is 1 second, you have got a problem because Systick can count only up to 0.0999 seconds (your time step interval can not be greater than 0.0999 seconds). Waijung solves this problem by computing the greatest possible Systick value as a multiple of &quot;1&quot; (i.e. ..., 100, 10, 1, 0.1, 0.01, 0.001, ...) that can be used as the base sample time<span style="font-weight: bold;">.</span></p>
+<p>So in the above example, the base sample time of your system will be set to 0.01 sec or 10 msec automatically. Waijung select the greatest value possible, that does not violate Systick constraints, so that you have the maximum time interval possible to complete all tasks in the system.</p>
+<p>In addition to the above mechanism, Waijung also automatically classifies tasks as <span style="font-style: italic; font-weight: bold;">real-time critical</span><span style="font-weight: bold;"> </span>or <span style="font-style: italic; font-weight: bold;">non real-time critical</span> (background tasks). Examples of real-time tasks are reading ADC inputs or generating DAC outputs. Examples of non real-time critical tasks are character LCD updates, CANBUS or other communication message processing, and webserver message processing. For real-time critical tasks, Waijung automatically generates and puts the core functions for such tasks in the main (Systick) timer interrupt service routines. The provision of non real-time task mechanism allows for more flexible and practical applications. For instances, a user can configure a system to operate with a fast inner-control loop (such as driving PWM or input capturing signals) as a real-time critical tasks, , while having &nbsp;a LCD (non real-time task) updates at 30Hz rate running without blocking the real-time critical functions. Provisions, in a form of Asynchronous Interrupt Function Call Sub-System, are made available if real-time responses are needed for uses with non-real time critical tasks.</p>
+<p>Because Waijung tries to determine the sample times automatically for you, it is necessary to <span style="font-weight: bold;">&quot;Update the Diagram&quot; twice</span>. The first Update is to determine sample time of all blocks in the system, except the Target set up block. The second Update is to determine the base sample time (Target Setup Block sample time) based on information of the first Update.</p>
+<p>It is possible to override automatic base sample time determination by enable the &quot;Manually set base sample time&quot; check box as shown below.</p>
+<p><img src="targetsetupmask_manualsetsampletime.png" width="950" height="724" alt="targetsetupmask_manualsetsampletime" style="width:950px;height:724px;border:none" /></p>
+<p>&nbsp;</p>
+<h3 class="p_Heading3"><a id="clockconfiguration"></a><span class="f_Heading3">Clock Configuration</span></h3>
+<p>Normally, STM32F4xx clock configuration is done via the clock configuration source file “<span style="font-style: italic; font-weight: bold;">system_stm32f4xx.c</span>”. </p>
+<p>STMicroelectronics has made available a very easy-to-use clock configuration tool for STM32F4xx MCU &nbsp;which is a Microsoft Excel file (STM32F4xx_Clock_Configuration_V1.0.1.xls) that has a simple user interface for use to generate the clock configuration file “system_stm32f4xx.c”.</p>
+<p>STM32F4xx_Clock_Configuration_V1.0.1.xls can be downloaded from [<a href="stm32f4_target_setup.htm#stm32f40x41xclockconfigurationsoftware" class="topiclink">2</a>]. It is also made available under the directory rapidstm32f4root\utils\STM32F4xx_AN3988_V1.0.1. of this STM32F4 Target installation. Information about this utility is available from [<a href="stm32f4_target_setup.htm#an3988clockconfigurationtoolforstm32f40x41xmicrocontrollers" class="topiclink">3</a>].</p>
+<p>STM32F4 Target supports highly flexible clock configuration via the use of this STMicroelectronics Clock configuration tool for STM32F4xx controllers.</p>
+<p>There are three clock configuration options as shown below:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><a href="stm32f4_target_setup.htm#stm32f4discoverydefaulthseosc-8mhzhclk-168mhz" class="topiclink">STM32F4DISCOVERY Default (HSEOSC-8MHz/HCLK-168MHz)</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><a href="stm32f4_target_setup.htm#stm3241gdefaulthseosc-25mhzhclk-168mhz" class="topiclink">STM3241G Default (HSEOSC-23MHz/HCLK-168MHz)</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none"><a href="stm32f4_target_setup.htm#customsystem_stm32f4xx.c" class="topiclink">Custom (system_stm32f4xx.c)</a></td></tr></table></div><h4 class="p_Heading4"><a id="stm32f4discoverydefaulthseosc-8mhzhclk-168mhz"></a><span class="f_Heading4">STM32F4DISCOVERY Default (HSEOSC-8MHz/HCLK-168MHz)</span></h4>
+<p>By selecting “STM32F4DISCOVERY Default (HSEOSC-8MHz/HCLK-168MHz)” option, STM32F4 Target will automatically use the following <a href="system_stm32f4xx_8mhz.c" onclick="return HMTrackTopiclink(this);" class="filelink">system_stm32f4xx.c </a>which is generated from STM32F4xx_Clock_Configuration_V1.0.1.xls with the options as shown in Figure 1. This configuration is basically suited for use with such boards as STM32F4DISCOVERY which uses a 8MHz external crystal at the highest working (HCLK) clock speed of 168MHz.</p>
+<div><div style="width:1202px;padding:10px 0px 10px 0px"><img id="1" src="default8mhz.png" width="1202" height="544" style="border:none" alt="Figure 1 “Default (HSEOSC-8MHz/HCLK-168MHz)” option" title="Figure 1 “Default (HSEOSC-8MHz/HCLK-168MHz)” option" /><p style="text-align:center"><span class="f_ImageCaption">Figure 1 “Default (HSEOSC-8MHz/HCLK-168MHz)” option</span></p></div></div>
+<h4 class="p_Heading4"><a id="stm3241gdefaulthseosc-25mhzhclk-168mhz"></a><span class="f_Heading4">STM3241G Default (HSEOSC-25MHz/HCLK-168MHz)</span></h4>
+<p>By selecting “STM3241G Default (HSEOSC-25MHz/HCLK-168MHz)” option, STM32F4 Target will automatically use the following <a href="system_stm32f4xx_25mhz.c" onclick="return HMTrackTopiclink(this);" class="filelink">system_stm32f4xx.c</a> which is generated from STM32F4xx_Clock_Configuration_V1.0.1.xls with the options as shown in Figure 2. This configuration is basically suited for use with such boards as STM3241G-EVAL which uses a 25MHz external crystal at the highest working (HCLK) clock speed of 168MHz.</p>
+<div><div style="width:1203px;padding:10px 0px 10px 0px"><img id="2" src="default25mhz.png" width="1203" height="545" style="border:none" alt="Figure 2 “Default (HSEOSC-25MHz/HCLK-168MHz)” option" title="Figure 2 “Default (HSEOSC-25MHz/HCLK-168MHz)” option" /><p style="text-align:center"><span class="f_ImageCaption">Figure 2 “Default (HSEOSC-25MHz/HCLK-168MHz)” option</span></p></div></div>
+<h4 class="p_Heading4"><a id="customsystem_stm32f4xx.c"></a><span class="f_Heading4">Custom (system_stm32f4xx.c)</span></h4>
+<p>By selecting “Custom (system_stm32f4xx.c)” option, STM32F4 Target will automatically use the system_stm32f4xx.c file that resides in the directory <span style="font-style: italic; font-weight: bold;">rapidstm32f4root\utils\STM32F4xx_AN3988_V1.0.1</span>. Hence a user can generate any custom clock configuration (via system_stm32f4xx.c file) to configure clocks of any STM32F4xx target board with the STMicroelectronics clock configuration tool.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">References</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><a id="simulinksingletaskingandmultitaskingmodesexplained"></a><a href="http://www.mathworks.com/help//rtw/ug/scheduling.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Simulink Single Tasking and Multitasking Modes Explained</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><a id="stm32f4xxdesignsupportapplicationnotes"></a><a href="http://www.st.com/stonline/stappl/resourceSelector/app?page=resourceSelector&amp;doctype=APPLICATION_NOTE&amp;SubClassID=1521" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">STM32F4xx Design Support Application Notes</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none"><a id="an3988clockconfigurationtoolforstm32f40x41xmicrocontrollers"></a><a href="http://www.st.com/internet/com/TECHNICAL_RESOURCES/TECHNICAL_LITERATURE/APPLICATION_NOTE/DM00039457.pdf" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">AN3988 Clock configuration tool for STM32F40x/41x microcontrollers</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none"><a id="stm32f40x41xclockconfigurationsoftware"></a><a href="http://www.st.com/internet/com/SOFTWARE_RESOURCES/TOOL/CONFIGURATION_UTILITY/stm32f4_clockconfig.zip" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">STM32F40x/41x Clock configuration software</a></td></tr></table></div><p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

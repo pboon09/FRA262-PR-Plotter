@@ -1,0 +1,776 @@
+%implements waijung_soft_i2c "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+  %assign targetname = CAST("String",SFcnParamSettings.targetname)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + targetname
+
+  %% Additional parameters  
+  %% === Setup ===
+  %if conf == "Setup"
+    %assign module   = CAST("Number",optionstring[0])
+    %assign clock    = CAST("Number",optionstring[1])
+    %assign tperiod  = CAST("Number",optionstring[2])
+    %assign tstart   = CAST("Number",optionstring[3])
+    %assign tlow     = CAST("Number",optionstring[4])
+    %assign tcapture = CAST("Number",optionstring[5])
+    %assign timeout  = CAST("Number",optionstring[6])
+    %assign dummy    = optionstring[7]
+    %assign dummy    = optionstring[8]
+    %assign dummy    = optionstring[9]
+    %assign port_a_used = optionstring[10]
+    %assign port_b_used = optionstring[11]
+    %assign port_c_used = optionstring[12]
+    %assign port_d_used = optionstring[13]
+    %assign port_e_used = optionstring[14]
+    %assign port_f_used = optionstring[15]
+    %assign port_g_used = optionstring[16]
+    %assign port_h_used = optionstring[17]
+    %assign port_i_used = optionstring[18]
+    %assign dummy       = optionstring[19]
+    %assign buscount = CAST("Number",optionstring[20])
+  
+    %assign block = block + module + clock + tperiod + tstart + tlow \
+                  + tcapture + timeout + buscount \
+                  + port_a_used + port_b_used + port_c_used + port_d_used \
+                  + port_e_used + port_f_used + port_g_used + port_h_used \
+                  + port_i_used
+
+  %% === Read/ Write ===
+  %else
+    %assign module        = CAST("Number",optionstring[0])
+    %assign writecount    = CAST("Number",optionstring[1])
+    %assign readcount     = CAST("Number",optionstring[2])
+    %assign waitwritetime = CAST("Number",optionstring[3])
+    %assign forcestop     = optionstring[4]
+    %assign buscount      = CAST("Number",optionstring[5])
+
+    %assign block = block + module + writecount + readcount + waitwritetime \
+                  + forcestop + buscount
+  %endif
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %switch targetname
+     %case "stm32f4"
+       %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+         %assign :: __STM32F4XX_GPIO__ = 1
+         %openfile tmpBuf
+           #include "stm32f4xx_gpio.h"
+         %closefile tmpBuf
+         %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+         %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+         %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+       %endif
+       %break
+
+     %case "stm32f0"
+       %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+         %assign :: __STM32F0XX_GPIO__ = 1
+         %openfile tmpBuf
+           #include "stm32f0xx_gpio.h"
+         %closefile tmpBuf
+         %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+         %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+         %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+       %endif
+       %break
+   %endswitch
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+  %openfile tmpBuf
+    /* ########################################################################
+     * Software I2C transaction processing
+     * ########################################################################
+     */
+    typedef enum {
+      SOFTI2C_OK = 0,
+      SOFTI2C_NAK, /* No ACK from device */
+      SOFTI2C_TIMEOUT
+    } SOFTI2C_RESULT;
+    
+    #define SOFTI2C_OPTION_STOPBEFORE_RESTART    0x01
+
+    typedef struct {
+      /* Option */
+      uint8_t options;
+
+      /* Transaction */
+      uint8_t *readbuffer;
+      uint8_t *writebuffer;
+      uint16_t writecount;
+      uint16_t readcount;
+
+      uint32_t waitwritetime; /* us */  
+      /* Timing */
+      uint16_t tstart;
+      uint16_t tlow;
+      uint16_t thigh;
+      uint16_t tcapture;
+    } SOFTI2C_TRANSACTION;
+
+    typedef struct {
+      SOFTI2C_RESULT result; /* Status of processing */
+      uint16_t sda_pin;      /* SDA pin */
+      uint16_t scl_pin;      /* SCL pin */
+      %if (targetname == "stm32f4") || (targetname == "stm32f0")
+      GPIO_TypeDef *sda_port; /* SDA port */
+      GPIO_TypeDef *scl_port; /* SCL port */
+      %else
+      uint32_t sda_port; /* SDA port */
+      uint32_t scl_port; /* SCL port */
+      %endif
+    } SOFTI2C_BUS_INFO;
+
+    /* I2C Pin control */
+    %switch targetname
+      %case "stm32f4"
+        #define I2CBUS_SetBits(port,pin)           GPIO_SetBits(port,pin)
+        #define I2CBUS_ResetBits(port,pin)         GPIO_ResetBits(port,pin)
+        #define I2CBUS_ReadInputDataBit(port,pin)  GPIO_ReadInputDataBit(port,pin)
+        %break
+      
+      %case "stm32f0"
+        #define I2CBUS_SetBits(port,pin)           GPIO_SetBits(port,pin)
+        #define I2CBUS_ResetBits(port,pin)         GPIO_ResetBits(port,pin)
+        #define I2CBUS_ReadInputDataBit(port,pin)  GPIO_ReadInputDataBit(port,pin)
+        %break
+
+      %case "nrf5"
+        #define I2CBUS_SetBits(port,pin)           nrf_gpio_pin_set(pin)
+        #define I2CBUS_ResetBits(port,pin)         nrf_gpio_pin_clear(pin)
+        #define I2CBUS_ReadInputDataBit(port,pin)  nrf_gpio_pin_read(pin)
+        %break
+    %endswitch
+
+    void soft_i2c_trans_proc(uint8_t slaveaddress, SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction, uint8_t *sta);
+  %closefile tmpBuf
+  %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+  %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+  %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+  %openfile tmpBuf
+    /* ########################################################################
+     * Software I2C transaction processing
+     * ########################################################################
+     */
+    void soft_i2c_write_byte(SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction, uint8_t data)
+    {
+      int device_valid;
+      uint16_t i, j;
+      SYS_TIMER_STRUCT timer;
+
+      /* Check at lease one device valid */
+      device_valid = 0;
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          device_valid = 1;
+      }
+      if (device_valid == 0)
+        return;
+      
+      /* Data bits */
+      for (j=0; j< 8; j++) {
+        /* Bit value */
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK) {
+            if((data & (0x80 >> j)) != 0)
+              I2CBUS_SetBits(businfo[i].sda_port, businfo[i].sda_pin);
+            else
+              I2CBUS_ResetBits(businfo[i].sda_port, businfo[i].sda_pin);
+          }
+        }
+        /* Wait clock Low */
+        SysTimer_delay_us(transaction->tlow);
+        /* Clock High */
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK)
+            I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+        }
+        /* Wait clock High */
+        SysTimer_delay_us(transaction->thigh);
+        /* Clock Low */
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK)
+              I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+        }
+      }
+      /* Ack ? */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_SetBits(businfo[i].sda_port, businfo[i].sda_pin);
+      }
+      /* Wait clock low */
+      SysTimer_delay_us(transaction->tlow);
+      /* Clock High */
+      SysTimer_Start(&timer, timeout_us);
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      }
+      /* Clock stretch */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK) {
+          while ((I2CBUS_ReadInputDataBit(businfo[i].scl_port, businfo[i].scl_pin) == 0) \
+           && (!SysTimer_IsTimeout(&timer)));
+          if(SysTimer_IsTimeout(&timer))
+            businfo[i].result = SOFTI2C_TIMEOUT;
+        }
+      }
+      /* Wait to capture */
+      SysTimer_delay_us(transaction->tcapture);
+      /* Check SDA status */
+      for (i=0; i<buscount; i++) {
+        if(I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin) != 0)
+          businfo[i].result = SOFTI2C_NAK;       
+      }
+      /* Wait to low */
+      SysTimer_delay_us(transaction->tcapture);
+      /* Clock/ Data Low */
+      for (i=0; i<buscount; i++) {
+        I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+        I2CBUS_ResetBits(businfo[i].sda_port, businfo[i].sda_pin);
+      }
+    }
+
+    void soft_i2c_read_byte(SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction, uint8_t nack, uint8_t *data)
+    {
+      int device_valid;
+      uint8_t tmp;
+      uint16_t i, j;
+
+      /* Check at lease one device valid */
+      device_valid = 0;
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          device_valid = 1;
+      }
+      if (device_valid == 0)
+        return;
+
+      /* Reset Data buffer */
+      for (i=0; i<buscount; i++)
+        data[i] = 0x00;
+
+      /* Release SDA line */
+      for (i=0; i<buscount; i++)
+        I2CBUS_SetBits(businfo[i].sda_port, businfo[i].sda_pin);      
+
+      /* Data bits */
+      for (j=0; j< 8; j++) {
+        /* Wait while clock Low */
+        SysTimer_delay_us(transaction->tlow);
+        /* Clock High */
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK)
+            I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+        }
+        /* Wait to Capture data */
+        SysTimer_delay_us(transaction->tcapture);
+        for (i=0; i<buscount; i++) {
+          tmp = data[i];
+          if(I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin) != 0) {
+            tmp |= (0x80 >> j);
+            data[i] = tmp;
+          }
+        }
+        %if (targetname == "nrf5")
+        %else
+        SysTimer_delay_us(transaction->tcapture);
+        %endif
+
+        /* Clock Low */
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK)
+            I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+        }
+      }
+
+      /* Ack ? */
+      if(nack == 0) {
+        for (i=0; i<buscount; i++) {
+          if (businfo[i].result == SOFTI2C_OK)
+            I2CBUS_ResetBits(businfo[i].sda_port, businfo[i].sda_pin);         
+        }
+      }
+      SysTimer_delay_us(transaction->tlow);
+      /* Clock High */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      }
+      SysTimer_delay_us(transaction->thigh);
+      /* Clock Low */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      }
+      /* Data Low */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_ResetBits(businfo[i].sda_port, businfo[i].sda_pin);         
+      }
+    }
+
+    void soft_i2c_start(SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction, uint8_t slvAddr)
+    {
+      int device_valid;
+      uint16_t i;
+
+      /* Check at lease one device valid */
+      device_valid = 0;
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          device_valid = 1;
+      }
+      if (device_valid == 0)
+        return;
+
+      /* Clear Bus */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)    
+          I2CBUS_SetBits(businfo[i].sda_port, businfo[i].sda_pin);
+      }
+      SysTimer_delay_us(transaction->tlow);
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK)
+          I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      }
+
+      /* Wait */
+      SysTimer_delay_us(transaction->tlow + transaction->thigh);
+
+      /* Generate START */
+      /* SDA Low */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK) {
+          if ((I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin) == 0) \
+            || (I2CBUS_ReadInputDataBit(businfo[i].scl_port, businfo[i].scl_pin) == 0)) {
+            businfo[i].result = SOFTI2C_TIMEOUT; /* Error: timeout */
+          }
+          else { I2CBUS_ResetBits(businfo[i].sda_port, businfo[i].sda_pin); }
+        }
+      }
+      SysTimer_delay_us(transaction->tstart); /* Wait: START */
+
+      /* SCL Low */
+      for (i=0; i<buscount; i++) {
+        if (businfo[i].result == SOFTI2C_OK) 
+          I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      }
+      SysTimer_delay_us(transaction->tstart); /* Wait: START */
+
+      /* Transmit slave address */
+      soft_i2c_write_byte(businfo, buscount, timeout_us, transaction, slvAddr);
+    }
+
+    void soft_i2c_stop(SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction)
+    {
+      uint16_t i;
+      SYS_TIMER_STRUCT timer;
+
+      SysTimer_delay_us(transaction->tlow);
+
+      /* SCL High */
+      for (i=0; i<buscount; i++)
+        I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+      /* Verify SCL High */
+      SysTimer_Start(&timer, timeout_us);
+      for (i=0; i<buscount; i++) {
+        while ((I2CBUS_ReadInputDataBit(businfo[i].scl_port, businfo[i].scl_pin) == 0) \
+         && (!SysTimer_IsTimeout(&timer)));
+        if(SysTimer_IsTimeout(&timer))
+          businfo[i].result = SOFTI2C_TIMEOUT;
+      }
+      SysTimer_delay_us(transaction->tstart);
+      for (i=0; i<buscount; i++)
+        I2CBUS_SetBits(businfo[i].sda_port, businfo[i].sda_pin);
+      SysTimer_Start(&timer, timeout_us);
+      for (i=0; i<buscount; i++) {
+        while ((I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin) == 0) \
+         && (!SysTimer_IsTimeout(&timer)));
+        if(SysTimer_IsTimeout(&timer))
+          businfo[i].result = SOFTI2C_TIMEOUT;
+      }
+      SysTimer_delay_us(transaction->tstart);
+    }
+
+    void soft_i2c_clrbus(SOFTI2C_BUS_INFO *businfo, uint16_t buscount, SOFTI2C_TRANSACTION *transaction)
+    {
+      uint8_t sta;
+      uint16_t i, j;
+      
+      for (i=0; i<buscount; i++) {
+        sta = I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin);
+        j = 0;
+        while ((sta == 0) && (++j < 16)) {
+          I2CBUS_ResetBits(businfo[i].scl_port, businfo[i].scl_pin);
+          SysTimer_delay_us(transaction->tlow);
+          I2CBUS_SetBits(businfo[i].scl_port, businfo[i].scl_pin);
+          SysTimer_delay_us(transaction->thigh);
+          sta = I2CBUS_ReadInputDataBit(businfo[i].sda_port, businfo[i].sda_pin);
+        }
+      }
+    }
+    
+    void soft_i2c_trans_proc(uint8_t slaveaddress, SOFTI2C_BUS_INFO *businfo, uint16_t buscount, uint32_t timeout_us, SOFTI2C_TRANSACTION *transaction, uint8_t *sta)
+    {
+      uint8_t slvaddr;
+      uint16_t i;
+
+      /* Reset I2C status */
+      for (i=0; i<buscount; i++) {
+        businfo[i].result = SOFTI2C_OK;
+      }
+
+      /* Clear Bus */
+      soft_i2c_clrbus(businfo, buscount, transaction);
+
+      /* WRITE */
+      if((transaction->writecount > 0) || ((transaction->writecount == 0) && (transaction->readcount == 0))){
+        /* SRART + Addr */
+        slvaddr = (slaveaddress) & 0xFE; /* Clear RW bit */
+        soft_i2c_start(businfo, buscount, timeout_us, transaction, slvaddr);
+
+        /* Transmit data bytes */
+        for (i=0; i<transaction->writecount; i++) {
+          soft_i2c_write_byte(businfo, buscount, timeout_us, transaction, transaction->writebuffer[i]);
+        }
+
+        /* Transmit STOP if need */
+        if((transaction->readcount <= 0) || ((transaction->options & SOFTI2C_OPTION_STOPBEFORE_RESTART) > 0)) {
+          soft_i2c_stop(businfo, buscount, timeout_us, transaction);
+        }
+
+        /* Wait write time */
+        SysTimer_delay_us(transaction->waitwritetime);
+      }
+
+      /* READ */
+      if(transaction->readcount == 0) {
+        /* Do nothing */        
+      }
+      else {
+        /* SRART + Addr */
+        slvaddr = (slaveaddress) | 0x01; /* Set RW bit */
+        soft_i2c_start(businfo, buscount, timeout_us, transaction, slvaddr);
+        /* Read data */
+        for (i=0; i<transaction->readcount;  i++) {
+          if ((i + 1) == transaction->readcount)
+            soft_i2c_read_byte(businfo, buscount, timeout_us, transaction, 1, (uint8_t *)&(transaction->readbuffer[i * buscount]));
+          else
+            soft_i2c_read_byte(businfo, buscount, timeout_us, transaction, 0, (uint8_t *)&(transaction->readbuffer[i * buscount]));
+        }
+        /* STOP */
+        soft_i2c_stop(businfo, buscount, timeout_us, transaction);
+      }
+
+      /* Status */
+      for (i=0; i<buscount; i++)
+        sta[i] = (uint8_t)(businfo[i].result);
+    }
+  %closefile tmpBuf
+  %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+  %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+  %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+  %if conf == "Setup"
+    extern SOFTI2C_BUS_INFO SoftI2C%<module>_BusInfo[];
+    /* Define */
+    #define SOFT_I2C%<module>_BUS_COUNT %<buscount>
+    %%#define SOFT_I2C%<module>_TIMEOUT (%<timeout>*1000U)
+    #define SOFT_I2C%<module>_TIMEOUT %<timeout> /* mS */
+    #define SOFT_I2C%<module>_CLK_PERIOD %<tperiod> /* uS */
+    #define SOFT_I2C%<module>_CLK_START %<tstart> /* uS */
+
+    %if (targetname == "nrf5") && (tlow == 1)
+      #define SOFT_I2C%<module>_CLK_LOW 0 /* uS */
+      #define SOFT_I2C%<module>_CLK_HIGH 0 /* uS */
+      #define SOFT_I2C%<module>_CLK_CAPTURE 0 /* uS */
+    %else      
+      #define SOFT_I2C%<module>_CLK_LOW %<tlow> /* uS */
+      #define SOFT_I2C%<module>_CLK_HIGH %<tperiod-tlow> /* uS */
+      #define SOFT_I2C%<module>_CLK_CAPTURE %<tcapture> /* uS */
+    %endif
+  %else
+    extern SOFTI2C_TRANSACTION %<block.Identifier>;
+    %if writecount > 0
+      extern uint8_t %<block.Identifier>_WBuffer[];
+    %endif
+    %if readcount > 0
+      extern uint8_t %<block.Identifier>_RBuffer[];
+    %endif
+  %endif
+  void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+  %if conf == "Setup"
+    SOFTI2C_BUS_INFO SoftI2C%<module>_BusInfo[SOFT_I2C%<module>_BUS_COUNT];
+  %else
+    SOFTI2C_TRANSACTION %<block.Identifier>;
+    %if writecount > 0
+    uint8_t %<block.Identifier>_WBuffer[%<writecount>];
+    %endif
+    %if readcount > 0
+    uint8_t %<block.Identifier>_RBuffer[%<readcount>*SOFT_I2C%<module>_BUS_COUNT];
+    %endif
+  %endif
+void enable_%<blockid>(void){
+  %% === Setup ===
+  %if conf == "Setup"
+    %if (targetname == "stm32f4") || (targetname == "stm32f0")
+    GPIO_InitTypeDef GPIO_InitStructure;    
+    %endif
+
+    /* Clock configuration */
+    %% --- Port A ---
+    %if port_a_used == "1"   
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+      %endif      
+    %endif
+
+    %% --- Port B ---
+    %if port_b_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+      %endif
+    %endif
+    %% --- Port C ---
+    %if port_c_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+      %endif
+    %endif
+    %% --- Port D ---
+    %if port_d_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+      %endif
+    %endif
+    %% --- Port E ---
+    %if port_e_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOE, ENABLE);
+      %endif
+    %endif
+    %% --- Port F ---
+    %if port_f_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+      %endif
+      %if targetname == "stm32f0"
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+      %endif
+    %endif
+    %% --- Port G ---
+    %if port_g_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+      %endif
+    %endif
+    %% --- Port H ---
+    %if port_h_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+      %endif
+    %endif
+    %% --- Port I ---
+    %if port_i_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+      %endif
+    %endif
+
+    %assign str_idx = 21
+    %foreach idx=buscount
+      /* --- Bus %<idx> --- */
+      SoftI2C%<module>_BusInfo[%<idx>].result = SOFTI2C_OK;
+
+      %if (targetname == "stm32f4") || (targetname == "stm32f0")
+        SoftI2C%<module>_BusInfo[%<idx>].sda_port = GPIO%<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].sda_pin = GPIO_Pin_%<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].scl_port = GPIO%<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].scl_pin = GPIO_Pin_%<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+
+        /* GPIO Init */    
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+        GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+        /* SDA */
+        GPIO_InitStructure.GPIO_Pin = SoftI2C%<module>_BusInfo[%<idx>].sda_pin;
+        GPIO_Init(SoftI2C%<module>_BusInfo[%<idx>].sda_port, &GPIO_InitStructure);
+        /* SCL */
+        GPIO_InitStructure.GPIO_Pin = SoftI2C%<module>_BusInfo[%<idx>].scl_pin;
+        GPIO_Init(SoftI2C%<module>_BusInfo[%<idx>].scl_port, &GPIO_InitStructure);
+      %else
+        %% nRF5 Target
+        SoftI2C%<module>_BusInfo[%<idx>].sda_port = %<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].sda_pin = %<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].scl_port = %<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+        SoftI2C%<module>_BusInfo[%<idx>].scl_pin = %<optionstring[str_idx]>;
+        %assign str_idx = str_idx + 1
+    
+        /* SDA GPIO Init */
+        NRF_GPIO->PIN_CNF[SoftI2C%<module>_BusInfo[%<idx>].sda_pin] = \
+                           (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                           | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+                           | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                           | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                           | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+        /* SCL GPIO Init */
+        NRF_GPIO->PIN_CNF[SoftI2C%<module>_BusInfo[%<idx>].scl_pin] = \
+                           (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                           | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+                           | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                           | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                           | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+      %endif
+    %endforeach
+  %% === Read/ Write ===
+  %else
+    %if forcestop == "on"
+      %<block.Identifier>.options = SOFTI2C_OPTION_STOPBEFORE_RESTART;
+    %else
+      %<block.Identifier>.options = 0;
+    %endif
+    %<block.Identifier>.writecount = %<writecount>;
+    %if writecount > 0
+      %<block.Identifier>.writebuffer = %<block.Identifier>_WBuffer;
+    %else
+      %<block.Identifier>.writebuffer = (uint8_t*)0;
+    %endif
+    %<block.Identifier>.readcount = %<readcount>;
+    %if readcount > 0
+      %<block.Identifier>.readbuffer = %<block.Identifier>_RBuffer;
+    %else
+      %<block.Identifier>.readbuffer = (uint8_t*)0;
+    %endif
+    %<block.Identifier>.waitwritetime = %<CAST("Number", waitwritetime)>*1000UL; /* uS */    
+
+    /* Timing */
+    %<block.Identifier>.tstart = SOFT_I2C%<module>_CLK_START;
+    %<block.Identifier>.tlow = SOFT_I2C%<module>_CLK_LOW;
+    %<block.Identifier>.thigh = SOFT_I2C%<module>_CLK_HIGH;
+    %<block.Identifier>.tcapture = SOFT_I2C%<module>_CLK_CAPTURE;
+
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if conf == "Setup"
+  %else
+    /* Target: %<targetname>
+     * Soft I2C Transaction, Name: %<block.Name>
+     * ID : %<block.Identifier>
+     * Info: Write byte(s)= %<writecount>, Read byte(s)= %<readcount>, Wait write time(mS)= %<waitwritetime>, 
+     %if forcestop == "on"
+     *  STOP before re-start= "%<forcestop>"
+     %endif
+     */
+    {
+    %if writecount > 0
+    /* Collect data */
+    %endif
+    %foreach idx=writecount
+      %<block.Identifier>.writebuffer[%<idx>] = %<LibBlockInputSignal(idx+1, "", "", 0)>; /* Wr%<idx> */
+    %endforeach
+    /* I2C Transaction processing */    
+    soft_i2c_trans_proc(%<LibBlockInputSignal(0, "", "", 0)>, &SoftI2C%<module>_BusInfo[0], SOFT_I2C%<module>_BUS_COUNT, SOFT_I2C%<module>_TIMEOUT, &%<block.Identifier>, %<LibBlockOutputSignalAddr(0, "", "", 0)>);
+    %if readcount > 0
+    /* Update output */
+    %endif
+    %foreach idx=readcount
+      %foreach bidx=buscount
+        %<LibBlockOutputSignal(idx+1, "", "", bidx)> = %<block.Identifier>.readbuffer[%<idx*buscount+bidx>]; /* Rd%<idx>[%<bidx>] */
+      %endforeach
+    %endforeach
+    }  
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

@@ -1,0 +1,532 @@
+%implements waijung_ethernet_app "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign  dummy = optionstring[0]
+  %assign ipaddr0 = optionstring[1]
+  %assign ipaddr1 = optionstring[2]
+  %assign ipaddr2 = optionstring[3]
+  %assign ipaddr3 = optionstring[4]
+  %assign netmask0 = optionstring[5]
+  %assign netmask1 = optionstring[6]
+  %assign netmask2 = optionstring[7]
+  %assign netmask3 = optionstring[8]
+  %assign gateway0 = optionstring[9]
+  %assign gateway1 = optionstring[10]
+  %assign gateway2 = optionstring[11]
+  %assign gateway3 = optionstring[12]
+  %assign macaddr0 = optionstring[13]
+  %assign macaddr1 = optionstring[14]
+  %assign macaddr2 = optionstring[15]
+  %assign macaddr3 = optionstring[16]
+  %assign macaddr4 = optionstring[17]
+  %assign macaddr5 = optionstring[18]
+  %assign dhcp = optionstring[19]
+  %assign timerscaler = optionstring[20]
+
+  %assign block = block + ipaddr0 + ipaddr1 + ipaddr2 + ipaddr3 \
+                + netmask0 + netmask1 + netmask2 + netmask3 \
+                + gateway0 + gateway1 + gateway2 + gateway3 \
+                + macaddr0 + macaddr1 + macaddr2 + macaddr3 +macaddr4 + macaddr5 \
+                + dhcp + timerscaler
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#include "mem.h"
+#include "memp.h"
+#include "tcp.h"
+#include "udp.h"
+#include "etharp.h"
+#include "dhcp.h"
+#include "ethernetif.h"
+#include "tcp_impl.h"
+#include "timers.h"
+#include "stm32f4x7_eth.h"
+#include "stm32f4xx.h"
+#include "debug.h"
+#include "ip_config.h"
+
+
+/* Indicate ready state */
+extern int ethernet_app_setup_state;
+#define ETHERNET_APP_READY() (ethernet_app_setup_state != 0)
+
+uint32_t webserver_getms_tickcount(void);
+void ethernet_app_handle(void);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+#include "stm32f4xx.h"
+
+/* IP Configuration
+*/
+extern uint8_t webserver_ipaddr0;
+extern uint8_t webserver_ipaddr1;
+extern uint8_t webserver_ipaddr2;
+extern uint8_t webserver_ipaddr3;
+
+extern uint8_t webserver_gateway0;
+extern uint8_t webserver_gateway1;
+extern uint8_t webserver_gateway2;
+extern uint8_t webserver_gateway3;
+
+/* MAC Address */
+#define MAC_ADDR0 0x%<macaddr0>
+#define MAC_ADDR1 0x%<macaddr1>
+#define MAC_ADDR2 0x%<macaddr2>
+#define MAC_ADDR3 0x%<macaddr3>
+#define MAC_ADDR4 0x%<macaddr4>
+#define MAC_ADDR5 0x%<macaddr5>
+
+/* IP Address */
+#define IP_ADDR0 webserver_ipaddr0 /* %<ipaddr0> */
+#define IP_ADDR1 webserver_ipaddr1 /* %<ipaddr1> */
+#define IP_ADDR2 webserver_ipaddr2 /* %<ipaddr2> */
+#define IP_ADDR3 webserver_ipaddr3 /* %<ipaddr3> */
+
+/* NET Mask */
+#define NETMASK_ADDR0 %<netmask0>
+#define NETMASK_ADDR1 %<netmask1>
+#define NETMASK_ADDR2 %<netmask2>
+#define NETMASK_ADDR3 %<netmask3>
+
+/* Gate way */
+#define GW_ADDR0 webserver_gateway0 /* %<gateway0> */
+#define GW_ADDR1 webserver_gateway1 /* %<gateway1> */
+#define GW_ADDR2 webserver_gateway2 /* %<gateway2> */
+#define GW_ADDR3 webserver_gateway3 /* %<gateway3> */
+
+/* DHCP */
+#define ENABLE_DHCP \
+%if dhcp == "on"
+1
+%else
+0
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "ip_config")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+extern unsigned int http_server_port;
+int ethernet_app_setup_state;
+
+/* IP Address */
+uint8_t webserver_ipaddr0 = %<ipaddr0>;
+uint8_t webserver_ipaddr1 = %<ipaddr1>;
+uint8_t webserver_ipaddr2 = %<ipaddr2>;
+uint8_t webserver_ipaddr3 = %<ipaddr3>;
+/* Gate way */
+uint8_t webserver_gateway0 = %<gateway0>;
+uint8_t webserver_gateway1 = %<gateway1>;
+uint8_t webserver_gateway2 = %<gateway2>;
+uint8_t webserver_gateway3 = %<gateway3>;
+
+uint32_t %<blockid>LocalTime = 0;
+
+#define MAX_DHCP_TRIES        4
+typedef enum 
+{ 
+  DHCP_START=0,
+  DHCP_WAIT_ADDRESS,
+  DHCP_ADDRESS_ASSIGNED,
+  DHCP_TIMEOUT
+} 
+DHCP_State_TypeDef;
+
+struct netif netif;
+uint32_t TCPTimer = 0;
+uint32_t ARPTimer = 0;
+uint32_t IPaddress = 0;
+
+#if ENABLE_DHCP
+uint32_t DHCPfineTimer = 0;
+uint32_t DHCPcoarseTimer = 0;
+DHCP_State_TypeDef DHCP_state = DHCP_START;
+#endif
+
+void LwIP_DHCP_Process_Handle(void);
+/**
+  * @brief  Initializes the lwIP stack
+  * @param  None
+  * @retval None
+  */
+void LwIP_Init(void)
+{
+  struct ip_addr ipaddr;
+  struct ip_addr netmask;
+  struct ip_addr gw;
+#if ENABLE_DHCP
+  uint8_t iptab[4];
+  uint8_t iptxt[20];
+#endif
+
+  /* Initializes the dynamic memory heap defined by MEM_SIZE.*/
+  mem_init();
+
+  /* Initializes the memory pools defined by MEMP_NUM_x.*/
+  memp_init();
+
+#ifdef USE_DHCP
+  ipaddr.addr = 0;
+  netmask.addr = 0;
+  gw.addr = 0;
+#else
+
+  #if 0
+  // Load from file
+  do {
+    char *s;
+    uint32_t addr0,addr1,addr2,addr3,port;
+    UINT actual_count = 0;
+    char net_buffer [128];
+    FIL *f = _fopen("network.ini", "r");
+    if (f) {
+      if ((f_read(f, (void*)net_buffer, sizeof(net_buffer)-1, &actual_count) == FR_OK) && (actual_count > 0)) {
+        net_buffer [actual_count] = '\0';
+        // IP
+        s = strstr(net_buffer,"IP=");
+        if (s) {
+          if (sscanf(s,"IP=%u.%u.%u.%u",&addr0,&addr1,&addr2,&addr3) == 4) {
+            IP_ADDR0 = (uint8_t)addr0;
+            IP_ADDR1 = (uint8_t)addr1;
+            IP_ADDR2 = (uint8_t)addr2;
+            IP_ADDR3 = (uint8_t)addr3;
+          }
+        }
+        // PORT
+        s = strstr(net_buffer,"PORT=");
+        if (s) {
+          if (sscanf(s,"PORT=%u",&port) == 1) {
+            http_server_port = port;
+          }
+        }
+        // GATEWAY
+        s = strstr(net_buffer,"GATEWAY=");
+        if (s) {
+          if (sscanf(s,"GATEWAY=%u.%u.%u.%u",&addr0,&addr1,&addr2,&addr3) == 4) {
+            GW_ADDR0 = (uint8_t)addr0;
+            GW_ADDR1 = (uint8_t)addr1;
+            GW_ADDR2 = (uint8_t)addr2;
+            GW_ADDR3 = (uint8_t)addr3;
+          }
+        }
+      }
+      // Close
+      _fclose(f);
+    }
+  } while (0);
+  #endif //0
+
+  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
+  IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
+  IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+
+#endif
+
+  /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
+            struct ip_addr *netmask, struct ip_addr *gw,
+            void *state, err_t (* init)(struct netif *netif),
+            err_t (* input)(struct pbuf *p, struct netif *netif))
+    
+   Adds your network interface to the netif_list. Allocate a struct
+  netif and pass a pointer to this structure as the first argument.
+  Give pointers to cleared ip_addr structures when using DHCP,
+  or fill them with sane numbers otherwise. The state pointer may be NULL.
+
+  The init function pointer must point to a initialization function for
+  your ethernet netif interface. The following code illustrates it's use.*/
+  netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+
+  /*  Registers the default network interface.*/
+  netif_set_default(&netif);
+
+  /*  When the netif is fully configured this function must be called.*/
+  netif_set_up(&netif);
+}
+
+/**
+  * @brief  Called when a frame is received
+  * @param  None
+  * @retval None
+  */
+void LwIP_Pkt_Handle(void)
+{
+  /* Read a received packet from the Ethernet buffers and send it to the lwIP for handling */
+  ethernetif_input(&netif);
+}
+
+/**
+  * @brief  LwIP periodic tasks
+  * @param  localtime the current LocalTime value
+  * @retval None
+  */
+void LwIP_Periodic_Handle(__IO uint32_t localtime)
+{
+  /* Timeout check */
+  //sys_check_timeouts();
+
+#if LWIP_TCP
+  /* TCP periodic process every 250 ms */
+  //if (localtime - TCPTimer >= TCP_TMR_INTERVAL)
+
+  if ((localtime < TCPTimer) || (localtime - TCPTimer >= %<timerscaler>)) {
+    TCPTimer = localtime;
+    tcp_tmr();
+  }
+#endif
+  
+  /* ARP periodic process every 5s */
+  if ((localtime - ARPTimer) >= ARP_TMR_INTERVAL)
+  {
+    ARPTimer =  localtime;
+    etharp_tmr();
+  }
+
+#if ENABLE_DHCP
+  /* Fine DHCP periodic process every 500ms */
+  if (localtime - DHCPfineTimer >= DHCP_FINE_TIMER_MSECS)
+  {
+    DHCPfineTimer =  localtime;
+    dhcp_fine_tmr();
+    if ((DHCP_state != DHCP_ADDRESS_ASSIGNED)&&(DHCP_state != DHCP_TIMEOUT))
+    { 
+      /* process DHCP state machine */
+      LwIP_DHCP_Process_Handle();    
+    }
+  }
+
+  /* DHCP Coarse periodic process every 60s */
+  if (localtime - DHCPcoarseTimer >= DHCP_COARSE_TIMER_MSECS)
+  {
+    DHCPcoarseTimer =  localtime;
+    dhcp_coarse_tmr();
+  }
+  
+#endif
+
+}
+
+#if ENABLE_DHCP
+/**
+  * @brief  LwIP_DHCP_Process_Handle
+  * @param  None
+  * @retval None
+  */
+void LwIP_DHCP_Process_Handle()
+{
+  struct ip_addr ipaddr;
+  struct ip_addr netmask;
+  struct ip_addr gw;
+  uint8_t iptab[4];
+  uint8_t iptxt[20];
+
+  switch (DHCP_state)
+  {
+    case DHCP_START:
+    {
+      dhcp_start(&netif);
+      IPaddress = 0;
+      DHCP_state = DHCP_WAIT_ADDRESS;
+
+    }
+    break;
+
+    case DHCP_WAIT_ADDRESS:
+    {
+      /* Read the new IP address */
+      IPaddress = netif.ip_addr.addr;
+
+      if (IPaddress!=0) 
+      {
+        DHCP_state = DHCP_ADDRESS_ASSIGNED;	
+
+        /* Stop DHCP */
+        dhcp_stop(&netif);
+				
+				
+        iptab[0] = (uint8_t)(IPaddress >> 24);
+        iptab[1] = (uint8_t)(IPaddress >> 16);
+        iptab[2] = (uint8_t)(IPaddress >> 8);
+        iptab[3] = (uint8_t)(IPaddress);
+
+        /* Update IP */
+        webserver_ipaddr0 = (uint8_t)(IPaddress >> 24);
+        webserver_ipaddr1 = (uint8_t)(IPaddress >> 16);
+        webserver_ipaddr2 = (uint8_t)(IPaddress >> 8);
+        webserver_ipaddr3 = (uint8_t)(IPaddress);		
+
+      }
+      else
+      {
+        /* DHCP timeout */
+        if (netif.dhcp->tries > MAX_DHCP_TRIES)
+        {
+          DHCP_state = DHCP_TIMEOUT;
+
+          /* Stop DHCP */
+          dhcp_stop(&netif);
+
+          /* Static address used */
+          IP4_ADDR(&ipaddr, IP_ADDR0 ,IP_ADDR1 , IP_ADDR2 , IP_ADDR3 );
+          IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3);
+          IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+          netif_set_addr(&netif, &ipaddr , &netmask, &gw);
+        }
+      }
+    }
+    break;
+    default: break;
+  }
+}
+#endif      
+
+//unsigned long sys_now(void) {
+//	return (unsigned long)((float)systick_count*SYS_TICKSTEP*1000);
+//}
+
+/* Webserver tick, ms */
+uint32_t webserver_getms_tickcount(void) {
+  volatile float step_ms;
+  step_ms = SYS_TICKSTEP*1000;
+  return (uint32_t)((float)systick_count*step_ms);
+}
+
+void ethernet_app_handle(void) {
+  /* Init */
+  if(ethernet_app_setup_state == 0) {
+    if(ETHERNET_LINK_READY()) {
+      /* Initilaize the LwIP stack */
+      LwIP_Init();
+
+      /* Activate setup is ready */
+      ethernet_app_setup_state = 1;
+    }
+  }
+
+  /* Process */
+  if(ETHERNET_APP_READY()) {
+    /* check if any packet received */
+    if (ETH_CheckFrameReceived()) { 
+      /* process received ethernet packet */
+      LwIP_Pkt_Handle();
+    }
+    /* handle periodic timers for LwIP */
+    LwIP_Periodic_Handle(webserver_getms_tickcount());
+  }
+}
+
+void enable_%<blockid>(void) {
+  /* Default configuration */
+  webserver_ipaddr0 = %<ipaddr0>;
+  webserver_ipaddr1 = %<ipaddr1>;
+  webserver_ipaddr2 = %<ipaddr2>;
+  webserver_ipaddr3 = %<ipaddr3>;
+  webserver_gateway0 = %<gateway0>;
+  webserver_gateway1 = %<gateway1>;
+  webserver_gateway2 = %<gateway2>;
+  webserver_gateway3 = %<gateway3>;
+
+  /* Setup status */
+  ethernet_app_setup_state = 0;
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */  
+  ethernet_app_handle();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

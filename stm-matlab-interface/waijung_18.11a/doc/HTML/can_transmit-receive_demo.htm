@@ -1,0 +1,200 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Standard Peripherals Demos &gt; CAN BUS &gt; CAN Transmit-Receive</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="CAN Transmit-Receive">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "can_transmit-receive_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">CAN Transmit-Receive</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?can_transmit-receive_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="standard_peripherals_demos.htm">Standard Peripherals Demos</a> &gt; <a href="can2.htm">CAN BUS</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">CAN Transmit-Receive</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="can2.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="can2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="can_transmit-receive_extended_.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><span style="font-weight: bold;">Demo File</span>: stm32f4_can_demo.mdl</p>
+<p><img src="can_demo_model.png" width="950" height="697" alt="can_demo_model" style="width:950px;height:697px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Description</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">Blocks function (1)</span></h3>
+<p>CAN transmit data packet with following ID:.</p>
+<p> - ID 0 at time step: 0, 2, 4, 8, ...</p>
+<p> - ID 1 at time step: 1, 3, 5, 7, ...</p>
+<p>Transmit value is counting number from 0 to 15.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Blocks function (2)</span></h3>
+<p>CAN Receive block, filter with ID Mask 0x07FE. For Standard ID (11 bits), 0x7FE mean bit '0' don't care and other bits must match to ID pattern. This CAN Receive block will filter only ID 0 and 1.</p>
+<p>Output of block is function-call, it generates event call when receive Standard ID 0 or 1. In function-call subsystem, use CAN Message block to get input packet from CAN message buffer.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Blocks function (3)</span></h3>
+<p>CAN Transmit packet with ID 2. It sent packet only when Button (pin A0) pressed.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Blocks function (4)</span></h3>
+<p>CAN Receive block using non-ISR output. The block will return number of pending message in buffer. Use While Iterator Subsystem to process all pending message.</p>
+<p><img src="can_demo_sub_model.png" width="950" height="404" alt="can_demo_sub_model" style="width:950px;height:404px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware configuration</span></h2>
+<p>Select CAN Tx/Rx pin from CAN Setup block. This demo using pin B9 for CAN_Tx and B8 for CAN_Rx.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<p>This demo require two STM32F4DISCOVERY boards for testing. Build and download same model to board #1 and #2.</p>
+<p>If CAN communication working properly, LED Yellow and LED Orange will blink with 320ms period (ON 160ms, OFF 160ms).</p>
+<p>If button pressed, LED Red on other board will toggling.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">See also</span></h2>
+<p><a href="can_transmit-receive_extended_.htm" class="topiclink">CAN Transmit-Receive Extended ID</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

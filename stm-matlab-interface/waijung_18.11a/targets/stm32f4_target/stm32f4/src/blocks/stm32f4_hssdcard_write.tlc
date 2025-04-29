@@ -1,0 +1,1204 @@
+%implements stm32f4_hssdcard_write "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+%assign packetmode = CAST("String",SFcnParamSettings.packetmode)
+%assign recordmode = CAST("String",SFcnParamSettings.recordmode)
+%assign recordcount = CAST("Number",SFcnParamSettings.recordcount)
+%assign recordsize = CAST("Number",SFcnParamSettings.recordsize)
+%assign filesize = SFcnParamSettings.filesize
+%assign asciiheader = CAST("String",SFcnParamSettings.asciiheader)
+%assign asciiformat = CAST("String",SFcnParamSettings.asciiformat)
+%assign buffersize = CAST("String",SFcnParamSettings.buffersize)
+
+%assign inputtypearray = SFcnParamSettings.inputtypearray
+
+%assign gpio_port = CAST("String",SFcnParamSettings.gpio_port)
+%assign gpio_sta_busy = CAST("String",SFcnParamSettings.gpio_sta_busy)
+%assign gpio_sta_success = CAST("String",SFcnParamSettings.gpio_sta_success)
+%assign gpio_sta_error = CAST("String",SFcnParamSettings.gpio_sta_error)
+
+%assign sdcardoption = CAST("String",SFcnParamSettings.sdcardoption)
+
+%assign sampletime = SFcnParamSettings.sampletime
+%assign sampletimestr = SFcnParamSettings.sampletimestr
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign fsize = confstr[0]
+%assign fcount = confstr[1]
+
+%assign block = block + sampletime + sampletimestr + blockid \
+                + packetmode + recordmode + recordcount + recordsize \
+                + asciiheader + asciiformat + buffersize + filesize \
+                + inputtypearray + gpio_port + gpio_sta_busy + gpio_sta_success \
+                + gpio_sta_error + sdcardoption + fsize + fcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_SDIO__) == 0)
+      %assign :: __STM32F4XX_SDIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_sdio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STRING__) == 0)
+      %assign :: __STM32F4XX_STRING__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STD_IO__) == 0)
+      %assign :: __STM32F4XX_STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+/* ########################################################################
+ * SDIO processing
+ * ########################################################################
+ */
+#include "amg_sdio.h"
+#include "diskio.h"
+#include "ff.h"
+
+#define SECTOR_SIZE                    512U
+#define SDIO_DRIVE                     0
+#define LOGGER_FILE_SIZE               520
+#define LOGGER_BUFFER_LENGTH           %<buffersize>UL /* Valid: 4k, 8k, 16k or 32k */
+#define LOGGER_BUFFER_COUNT                   2
+#define LOGGER_FILE_COUNT                   8
+
+#define LOGGER_DATA_SIZE               (uint64_t)%<filesize>
+#define LOGGER_RECORD_COUNT            %<recordcount>UL
+
+#if (LOGGER_BUFFER_LENGTH != 4096)\
+    &&(LOGGER_BUFFER_LENGTH != 8192)\
+	&&(LOGGER_BUFFER_LENGTH != 16384)\
+	&&(LOGGER_BUFFER_LENGTH != 32768)
+  #error Invalid buffer length!
+#endif
+
+typedef enum {
+  LOGGER_STA_OK,
+  LOGGER_STA_BUSY, /* SD write is in process. */
+  LOGGER_STA_IOERROR,
+  LOGGER_STA_NOT_EMPTY,	
+} LOGGER_STATUS;
+
+typedef enum {
+  LOGGER_STATE_INITIAL1,               /* Initial state */
+  LOGGER_STATE_INITIAL2,               /* Alocate space, this make disk_write ignore data sector. Just want to pre-allocate cluster chain of file */
+  LOGGER_STATE_WRITEBUFFER,
+  LOGGER_STATE_STOP_SUCCESS,
+  LOGGER_STATE_DISKFULL,
+  LOGGER_STATE_STOP_ERROR,
+} LOGGER_STATE;
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ************************************************************************
+** %<blockid> 
+** ************************************************************************
+*/
+extern uint8_t %<blockid>_Buffer[];
+void %<blockid>_Write_buffer(uint8_t *buff, uint16_t len);
+void logger_manual_stop_check(uint8_t stop);
+uint32_t %<blockid>_get_status(void);
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<blockid>
+ * Description: Hi-speed data logger.
+ * ########################################################################
+*/
+typedef enum {
+	LOGGER_STARTMODE_AUTO, /* Auto format disk */
+	LOGGER_STARTMODE_SAFE_DISK, /* Reject disk if it is not empty, Card must be empty before use */
+} LOGGER_STARTMODE;
+
+typedef enum {
+	LOGGER_STOPMODE_SINGLE, /* Capture and store until full storage */
+	LOGGER_STOPMODE_LOOP, /* Capture and store until approx 3.99GB then revert to 0 */
+} LOGGER_STOPMODE;
+
+typedef struct {
+	uint64_t data_location; /* Start sector of data of a file */
+	uint32_t data_offset; /* Current offset sector of file */
+	uint32_t size; /* Pre-reserve size */
+	//FIL fil;
+	uint8_t active;
+} LOGGER_FILE;
+
+typedef struct {
+	uint64_t total_bytes_count;
+	uint64_t total_bytes_written;
+
+    uint32_t record_index;
+	
+	uint16_t buffer_bytes_index;
+	uint16_t file_index;
+	uint16_t file_count;	
+	
+	LOGGER_STATUS status;
+	LOGGER_STATE state;
+	
+	/* CARD */
+	uint32_t datasector_base;
+	
+	/* BUFFER */
+	LOGGER_STOPMODE stop_mode;
+
+    /* LED blink */
+    uint16_t led_blink_count;
+    uint32_t led_blick_lasttick;
+} LOGGER_CONTROL;
+
+#define MAXLOGGER_TIMING_ERROR 32
+typedef struct {
+  uint32_t SampleIndex;
+  float Error;
+
+} LOGGER_TIMING_ERROR;
+
+typedef struct {
+  LOGGER_TIMING_ERROR Items[MAXLOGGER_TIMING_ERROR];
+  uint8_t Count; /* Count of error */
+  uint32_t LastTick;
+} LOGGER_TIMING_ERROR_LIST;
+
+LOGGER_CONTROL logger;
+uint8_t logger_buffer_data[(LOGGER_BUFFER_LENGTH*LOGGER_BUFFER_COUNT)];
+uint8_t logger_buffer_index;
+uint8_t logger_manual_stop;
+FATFS logger_fats;
+FIL logger_file_msg_fil;
+FIL logger_file_fil;
+LOGGER_FILE logger_file_msg;
+LOGGER_FILE logger_file_list[LOGGER_FILE_COUNT];
+
+LOGGER_TIMING_ERROR_LIST error_list;
+
+extern DWORD clust2sect (FATFS*,DWORD);
+
+SD_Error Status = SD_OK;
+SD_CardStatus SDCardStatus;
+extern SD_CardInfo SDCardInfo;
+
+%if gpio_port == "Not used"
+%else
+/* LED control */
+/* Busy */
+#define LED_BUSY_ON()  {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_busy>, Bit_SET);}
+#define LED_BUSY_OFF() {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_busy>, Bit_RESET);}
+#define LED_BUSY_TOGGLE() {GPIO_ToggleBits(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_busy>);}
+/* Error */
+#define LED_ERROR_ON()  {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_error>, Bit_SET);}
+#define LED_ERROR_OFF() {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_error>, Bit_RESET);}
+/* Success */
+#define LED_SUCCESS_ON()  {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_success>, Bit_SET);}
+#define LED_SUCCESS_OFF() {GPIO_WriteBit(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_success>, Bit_RESET);}
+#define LED_SUCCESS_TOGGLE() {GPIO_ToggleBits(GPIO%<gpio_port>, GPIO_Pin_%<gpio_sta_success>);}
+%endif
+
+/* Non-block function */
+extern SD_Error CmdResp1Error_nonblock(uint8_t cmd, uint8_t init, uint8_t *state);
+extern SD_Error SD_WriteMultiBlocks_nonblock(uint8_t *writebuff, uint64_t WriteAddr64, uint16_t BlockSize, uint16_t NumberOfBlocks, uint8_t init, uint8_t *state);
+//extern SD_Error SD_WriteMultiBlocks_nonblock(uint8_t *writebuff, uint32_t WriteAddr, uint16_t BlockSize, uint32_t NumberOfBlocks, uint8_t init, uint8_t *state);
+extern SD_Error SD_StopTransfer_nonblock(uint8_t init, uint8_t *state);
+extern SD_Error SD_WaitWriteOperation_nonblock(uint8_t init, uint8_t *state);
+extern SD_Error SD_SendStatus_nonblock(uint32_t *pcardstatus, uint8_t init, uint8_t *state);
+extern SDCardState SD_GetState_nonblock(uint8_t init, uint8_t *state);
+extern SDTransferState SD_GetStatus_nonblock(uint8_t init, uint8_t *state);
+
+
+%%/*
+%%**  get_fattime
+%%**		The get_fattime function gets current time.
+%%**	Return Value
+%%**		Currnet time is returned with packed into a DWORD value.
+%%**			The bit field is as follows:
+%%**		bit31:25 - Year from 1980 (0..127)
+%%**		bit24:21 - Month (1..12)
+%%**		bit20:16 - Day in month(1..31)
+%%**		bit15:11 - Hour (0..23)
+%%**		bit10:5 - Minute (0..59)
+%%**		bit4:0 - Second / 2 (0..29)
+%%**	Description
+%%**		The get_fattime function must return any valid time even if the system does not support
+%%**		a real time clock. If a zero is returned, the file will not have a valid time.
+%%**		This fucntion is not required in read only configuration.
+%%*/
+DWORD get_fattime(void)
+{
+	return ((DWORD)32<<25) 
+		| ((DWORD)9<<21) 
+		| ((DWORD)9<<16) 
+		| ((DWORD)19<<11) 
+		| ((DWORD)12<<5)
+		| ((DWORD)25<<0);
+}
+
+/* Interrupt routine for SD card */
+void SDIO_IRQHandler(void)
+{
+	SD_ProcessIRQSrc();  
+}   
+
+void DMA2_Stream3_IRQHandler(void)
+{
+	SD_ProcessDMAIRQ();  
+}
+
+/* Initialize a Drive
+*/
+DSTATUS disk_initialize (BYTE drv) { 
+  switch (drv) {
+    case SDIO_DRIVE:
+    {
+      /* Initialize SD Card */
+      Status = SD_Init(); 
+      
+      if (Status != SD_OK)
+        return STA_NOINIT;
+      else
+        return 0x00;
+    }
+  }
+  
+  return STA_NOINIT;
+}
+
+/* Return Disk Status
+*/
+DSTATUS disk_status (BYTE drv)
+{
+  switch (drv) {
+    case SDIO_DRIVE:
+	  if(Status != SD_OK) {				
+		Status = SD_Init();
+		if(Status == SD_OK)
+		  Status = SD_GetCardInfo(&SDCardInfo);
+	  }
+	  else {
+	    Status = SD_GetCardInfo(&SDCardInfo);
+	  }
+      if (Status != SD_OK)
+        return STA_NOINIT;
+      else
+        return 0x00;
+  }
+  
+  return STA_NOINIT;
+}
+
+/* Read Sector(s)
+*/
+DRESULT disk_read (BYTE drv, BYTE *buff, DWORD sector, BYTE count)
+{
+  SDTransferState trans_state = SD_TRANSFER_OK;
+
+  switch (drv) 
+  {
+    case SDIO_DRIVE:
+    {     
+      Status = SD_OK;
+	  
+      /* Read Multiple Blocks */
+      Status = SD_ReadMultiBlocks((uint8_t*)(buff),(sector)*SECTOR_SIZE,SECTOR_SIZE,count);
+
+	  /* Check if the Transfer is finished */
+	  Status = SD_WaitReadOperation();
+
+      /* Wait until end of DMA transfer */
+	  do {
+	    trans_state = SD_GetStatus();
+	  }
+	  while(trans_state == SD_TRANSFER_BUSY);
+			
+	  if ((Status == SD_OK) && (trans_state == SD_TRANSFER_OK)) {
+        return RES_OK;
+      }
+	  else
+	    return RES_ERROR;
+    }
+  }
+  return RES_PARERR;
+}
+
+/* Write Sector(s)
+*/
+DRESULT disk_write (BYTE drv, const BYTE *buff, DWORD sector, BYTE count)
+{
+  SDTransferState trans_state = SD_TRANSFER_OK;
+	
+  switch (drv) 
+  {
+    case SDIO_DRIVE:
+    {     
+      /* Ignore write data sector if allocating space */
+      if (logger.state == LOGGER_STATE_INITIAL2) {
+        if (sector > logger.datasector_base)
+          return RES_OK; /* Ignore to reduce the speed, for space preserve */
+      }
+
+	  Status = SD_OK;	
+	  /* Write Multiple Blocks */
+	  Status = SD_WriteMultiBlocks((uint8_t*)(buff),(sector)*SECTOR_SIZE,SECTOR_SIZE,count);
+
+	  /* Check if the Transfer is finished */
+	  Status = SD_WaitWriteOperation();
+
+	  do { trans_state = SD_GetStatus();}
+	  while(trans_state == SD_TRANSFER_BUSY);
+			
+	  if ((Status == SD_OK) && (trans_state == SD_TRANSFER_OK))
+	    return RES_OK;
+	  else
+	    return RES_ERROR;			
+    }
+  }
+  return RES_PARERR;
+}
+
+/* Miscellaneous Functions
+*/
+DRESULT disk_ioctl (BYTE drv, BYTE ctrl, void *buff)
+{
+  switch (drv) 
+  {  
+    case SDIO_DRIVE:
+      switch (ctrl)
+      {
+        case CTRL_SYNC:
+          /* no synchronization to do since not buffering in this module */
+          return RES_OK;
+        case GET_SECTOR_SIZE:
+          *(uint16_t*)buff = SECTOR_SIZE;
+          return RES_OK;
+        case GET_SECTOR_COUNT:
+          *(uint32_t*)buff = SDCardInfo.CardCapacity / SECTOR_SIZE;
+          return RES_OK;
+        case GET_BLOCK_SIZE:
+          *(uint32_t*)buff = SDCardInfo.CardBlockSize;
+		  return RES_OK; 		 
+		default :
+			return RES_OK;
+      }
+  }
+  return RES_PARERR;
+}
+
+void logger_msg_write(char* msg)
+{
+  UINT written;
+
+  /* Ignor if I/O error */
+  if(logger.status == LOGGER_STA_IOERROR)
+    return;
+
+  if (f_write(&logger_file_msg_fil, msg, strlen(msg), &written) != FR_OK) {
+    logger.status = LOGGER_STA_IOERROR;
+  }
+}
+
+void logger_msg_initialize(uint8_t append)
+{
+  /* Ignor if I/O error */
+  if(logger.status == LOGGER_STA_IOERROR)
+    return;
+
+  /* Open file for logger message */
+  if (f_open(&logger_file_msg_fil, "msg.txt", FA_WRITE) != FR_OK) {
+    logger.status = LOGGER_STA_IOERROR;
+  }
+
+  /* seek */
+  if(append) {
+    f_lseek(&logger_file_msg_fil, f_size(&logger_file_msg_fil));
+  }
+  else {
+    f_lseek(&logger_file_msg_fil, 0);
+    /* Truncate */
+    f_truncate(&logger_file_msg_fil);
+  }
+}
+
+/* Logging message processing code */
+#define LOGGING_BASIC_INF 0
+#define LOGGING_TIMEING_ERROR_INF 1
+#define LOGGING_ASSUME_FAIL 2
+
+void logger_msg_writecode(int code)
+{
+  uint8_t i;
+  char tmp_buffer[32];
+
+  /* Write message corresponding to specific code */
+  switch(code) {
+    case LOGGING_BASIC_INF: /* Basic information */
+      logger_msg_write("=== Data logger version 1.00 ===\r\n");
+      /* Card initialize option */
+      logger_msg_write("Card initialize option: ");
+      logger_msg_write("%<sdcardoption>");
+      logger_msg_write("\r\n");
+      /* Packet mode */
+      logger_msg_write("Packet mode: ");
+      logger_msg_write("%<packetmode>\r\n");
+
+      /* Record mode */
+      logger_msg_write("Record mode: ");
+      logger_msg_write("%<recordmode>\r\n");
+
+      /* Data format */
+      logger_msg_write("Record format: ");
+      %if packetmode == "Binary"
+        %foreach idx=inputtypearray[0]
+          logger_msg_write(" %<typestr[inputtypearray[idx+1]]>");
+        %endforeach
+      %else
+        logger_msg_write("%<asciiformat>");
+      %endif
+      logger_msg_write("\r\n");
+
+      %if recordmode == "Single"
+      /* Record count */
+      logger_msg_write("Record count: ");
+      logger_msg_write("%<recordcount> record(s).\r\n");        
+      %endif
+
+      /* Buffer size */
+      logger_msg_write("Buffer (Disk cluster) size: ");
+      logger_msg_write("%<buffersize> bytes\r\n"); 
+
+      /* Sample time */       
+      sprintf(tmp_buffer, "Sampling time: %f sec\r\n", %<sampletimestr>);
+      logger_msg_write(tmp_buffer);
+      
+      logger_msg_write("=== Record timing issue ===\r\n");      
+
+      break;
+
+    case LOGGING_TIMEING_ERROR_INF:
+      if(error_list.Count == 0) {
+        logger_msg_write("(No timing error detected)\r\n");      
+      }
+      else {
+        if(error_list.Count >= MAXLOGGER_TIMING_ERROR) {
+          logger_msg_write("Too many timing error detected, more than ");
+          sprintf(tmp_buffer, "%d", MAXLOGGER_TIMING_ERROR);
+          logger_msg_write(tmp_buffer);
+          logger_msg_write(" sampling point.\r\n");
+        }
+        else {
+          sprintf(tmp_buffer, "Number of error: %u\r\n", (unsigned int)error_list.Count);
+          logger_msg_write(tmp_buffer);
+        }
+        for(i=0; i<error_list.Count; i++) {
+          sprintf(tmp_buffer, "ERROR %d, ", i+1);
+          logger_msg_write(tmp_buffer);
+          sprintf(tmp_buffer, "Record index %u, ", (unsigned int)error_list.Items[i].SampleIndex);
+          logger_msg_write(tmp_buffer);
+          sprintf(tmp_buffer, "Time %f seconds.\r\n", error_list.Items[i].Error);
+          logger_msg_write(tmp_buffer);
+        }
+        if(error_list.Count >= MAXLOGGER_TIMING_ERROR) {
+          logger_msg_write("There are more timing error points ...\r\n");
+        }
+      }
+      break;
+
+    /* Assume Processing,
+    ** Logging message able to show Failed when Card removed before processing is done.
+    */
+    case LOGGING_ASSUME_FAIL:
+      logger_msg_write("!!!Data logger processing FAILED!!!\r\n");
+      break;
+  }
+}
+
+void logger_msg_finallize(void)
+{
+  /* Ignor if I/O error */
+  //if(logger.status == LOGGER_STA_IOERROR)
+  //  return;
+  
+  /* Close loging message file */  
+  f_close(&logger_file_msg_fil);
+}
+
+typedef enum {
+  sdIDLE = 0,
+  sdINIT,
+  sdWAIT,
+  sdFINALLIZE,
+  sdGETSTATUS,
+  sdCHECKSTATUS,
+} SD_BACKGROUND_STATE;
+
+typedef struct {
+  uint8_t *buffer;
+  uint64_t address;
+  uint32_t blocksize;
+} SD_WRITE_INFO;
+
+SD_BACKGROUND_STATE sd_background_state = sdIDLE;
+SD_WRITE_INFO sd_write_info;
+
+SD_BACKGROUND_STATE sd_background_write(void)
+{
+  uint8_t state;
+  static SD_Error sd_error;
+  SDTransferState trans_state = SD_TRANSFER_OK;
+
+  switch(sd_background_state) {
+    case sdIDLE:      
+      break;
+
+    case sdINIT:
+      sd_error = SD_WriteMultiBlocks_nonblock(sd_write_info.buffer, sd_write_info.address, SECTOR_SIZE, sd_write_info.blocksize, 1, &state);
+      sd_background_state = sdWAIT;
+      break; /* Can be removed, to fall into next process */
+    case sdWAIT:
+      sd_error = SD_WriteMultiBlocks_nonblock(sd_write_info.buffer, sd_write_info.address, SECTOR_SIZE, sd_write_info.blocksize, 0, &state);
+      if(state == 0) { /* Done */
+        if(sd_error != SD_OK) {
+          logger.status = LOGGER_STA_IOERROR;
+        }
+        sd_background_state = sdFINALLIZE;
+        Status = SD_WaitWriteOperation_nonblock(1, &state);
+        break; /* Can be removed, to fall into next process */
+      }
+      else {
+        break;
+      }
+
+    case sdFINALLIZE:
+      Status = SD_WaitWriteOperation_nonblock(0, &state);
+      if(state == 0) { /* Done */
+        sd_background_state = sdGETSTATUS;
+        break; /* Can be removed, to fall into next process */
+      }
+      else {
+        break;
+      }
+
+    case sdGETSTATUS:
+      trans_state = SD_GetStatus_nonblock(1, &state);
+      sd_background_state = sdCHECKSTATUS;
+      break; /* Can be removed, to fall into next process */
+
+    case sdCHECKSTATUS:
+      trans_state = SD_GetStatus_nonblock(0, &state);
+      if(state == 0) {
+        if(trans_state == SD_TRANSFER_BUSY) {
+          sd_background_state = sdGETSTATUS;
+        }
+        else {
+          sd_background_state = sdIDLE;
+          if ((Status == SD_OK) && (trans_state == SD_TRANSFER_OK))
+            logger.status = LOGGER_STA_OK;
+          else
+            logger.status = LOGGER_STA_IOERROR;
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+  
+ 
+  /* Return current state */
+  return sd_background_state;
+}
+
+void sd_background_start(void) {
+  /* Wait until previous write operation to finish */
+  while(sd_background_write() != sdIDLE) {
+    if(logger.status == LOGGER_STA_IOERROR) {
+      logger.state = LOGGER_STATE_STOP_ERROR;
+      return;
+    }
+  }
+
+  /* Capture neccessary data */
+  sd_write_info.buffer = &(logger_buffer_data[LOGGER_BUFFER_LENGTH*logger_buffer_index]);
+  sd_write_info.address = ((uint64_t)logger_file_list[logger.file_index].data_location + (uint64_t)logger_file_list[logger.file_index].data_offset);  
+  sd_write_info.blocksize = LOGGER_BUFFER_LENGTH/SECTOR_SIZE;
+
+  /* Enable background process */
+  sd_background_state = sdINIT;
+  sd_background_write();
+
+  /* Update file list */
+  logger_file_list[logger.file_index].data_offset += logger.buffer_bytes_index;
+  switch (logger.stop_mode) {
+    case LOGGER_STOPMODE_SINGLE:
+      if (logger_file_list[logger.file_index].data_offset >= logger_file_list[logger.file_index].size) {
+        logger_file_list[logger.file_index].data_offset = logger_file_list[logger.file_index].size; /* Debug */
+        if ((logger.file_index+1) >= LOGGER_FILE_COUNT)
+          logger.state = LOGGER_STATE_DISKFULL;
+		else
+          logger.file_index ++;
+      }
+      break;
+
+     case LOGGER_STOPMODE_LOOP:
+      if (logger_file_list[logger.file_index].data_offset >= logger_file_list[logger.file_index].size) {
+        logger_file_list[logger.file_index].data_offset -= logger_file_list[logger.file_index].size;
+      }
+      break;
+    }
+}
+
+void %<blockid>_Write_buffer(uint8_t *buff, uint16_t len)
+{
+  uint16_t count;
+  uint32_t curr_tick;
+
+  /* Capture current tick */
+  curr_tick = (uint32_t)systick_count;
+	
+  %if gpio_port == "Not used"
+  %else
+    /* LED status */
+    switch(logger.state) {
+      case LOGGER_STATE_WRITEBUFFER:        
+        if((systick_count - logger.led_blick_lasttick) >= logger.led_blink_count) {
+          logger.led_blick_lasttick = systick_count;
+          /* Toggle LED */
+          LED_SUCCESS_TOGGLE();
+        }
+        break;
+      case LOGGER_STATE_STOP_SUCCESS:
+        /* Slow blink LED, ON 2S/ OFF 2S */
+        if((systick_count - logger.led_blick_lasttick) >= (logger.led_blink_count*20)) {
+          logger.led_blick_lasttick = systick_count;
+          /* Toggle LED */
+          LED_SUCCESS_TOGGLE();
+        }
+        return;
+      case LOGGER_STATE_STOP_ERROR:
+      default:
+        LED_ERROR_ON();
+        LED_SUCCESS_OFF()
+        return;
+    }
+  %endif
+
+  /* Proceed only if it is write state */
+  if(logger.state != LOGGER_STATE_WRITEBUFFER)
+    return;
+
+  /* Timing error check */
+  if(error_list.Count < MAXLOGGER_TIMING_ERROR) {
+    %assign f = sampletimestr/SampleTime[0].ClockTickStepSize
+    if((curr_tick - error_list.LastTick) >= (%<CAST("Number", f)>*2))\
+    { /* Time step: %<CAST("Number", f)> * %<SampleTime[0].ClockTickStepSize> = %<sampletimestr> */
+      error_list.Items[error_list.Count].SampleIndex = logger.record_index;
+      error_list.Items[error_list.Count].Error = (curr_tick - error_list.LastTick)*SYS_TICKSTEP;
+      error_list.Count ++;
+    }      
+  }
+  /* Keep last tick */
+  error_list.LastTick = curr_tick;
+
+  /* Update record index */
+  logger.record_index ++;
+
+  /* SD Card write background process */
+  sd_background_write();
+  if(logger.status == LOGGER_STA_IOERROR) {
+    logger.state = LOGGER_STATE_STOP_ERROR;
+    return;
+  }
+
+  /* Check copy bytes */
+  if((logger.buffer_bytes_index + len) < LOGGER_BUFFER_LENGTH) {
+    memcpy(&(logger_buffer_data[logger_buffer_index*LOGGER_BUFFER_LENGTH+logger.buffer_bytes_index]), buff, len);
+    logger.buffer_bytes_index += len;
+  } else {
+    count = LOGGER_BUFFER_LENGTH - logger.buffer_bytes_index;
+
+    /* Copy some bytes */
+    memcpy(&(logger_buffer_data[logger_buffer_index*LOGGER_BUFFER_LENGTH+logger.buffer_bytes_index]), buff, count);
+
+    /* Update bytes written */
+    logger.total_bytes_written += logger.buffer_bytes_index;
+    logger.buffer_bytes_index += count;
+
+    /* Write to SD */
+    sd_background_start();
+    if(logger.state == LOGGER_STATE_DISKFULL) {
+      /* No disk space, disable data logger process */
+      disable_%<blockid>();
+      return;
+    }
+    logger.buffer_bytes_index = 0;
+    logger_buffer_index += 1;
+    logger_buffer_index &= 1;          /* limit: 0, 1 */
+
+    /* Rest bytes */
+    memcpy(&(logger_buffer_data[logger_buffer_index*LOGGER_BUFFER_LENGTH]), &buff[count], len-count);
+    logger.buffer_bytes_index += len-count;
+  }
+
+  /* Check size limited */
+  if((logger_manual_stop != 0) || (logger.record_index >= LOGGER_RECORD_COUNT) || ((uint64_t)logger.total_bytes_written+(uint64_t)logger.buffer_bytes_index) >= logger.total_bytes_count) {
+    /* Done, write rest data then disable process */
+    sd_background_start();
+    disable_%<blockid>();
+  }
+}
+
+uint32_t %<blockid>_get_status(void)
+{
+  return (uint32_t)logger.state;
+}
+
+uint32_t logger_preserve_file(LOGGER_FILE* file, char* filename, uint32_t size) {
+  UINT written;
+  uint32_t i;
+  uint32_t tot_size;
+  uint16_t blink = 0;
+  
+  /* Buffer init */
+  memset(&logger_file_fil, 0, sizeof(FIL));
+  if ((logger.status == LOGGER_STA_OK)
+    && (f_open(&logger_file_fil, filename, FA_WRITE| FA_CREATE_NEW) != FR_OK)) {
+    logger.status = LOGGER_STA_IOERROR;
+  }
+
+  /* Locate data sector start */
+  logger.datasector_base = logger_fats.database;
+
+  /* Pre-allocate storage space */
+  logger.state = LOGGER_STATE_INITIAL2;/* Pre-Allocate data space */
+	
+  i = 0;
+  tot_size = 0;
+  while (i<size) {
+    if(tot_size>=size)
+	  break;
+		
+    if (f_write(&logger_file_fil, &(logger_buffer_data[logger_buffer_index]), ((size-tot_size)>LOGGER_BUFFER_LENGTH)?LOGGER_BUFFER_LENGTH:(size-tot_size), &written) != FR_OK) {
+      logger.status = LOGGER_STA_IOERROR;
+      break;
+    }
+	tot_size += ((size-tot_size)>LOGGER_BUFFER_LENGTH)?LOGGER_BUFFER_LENGTH:(size-tot_size);
+	
+	/* Get data start sector */
+	if(i==0) {
+      file->data_location = (uint64_t)SECTOR_SIZE * clust2sect(&logger_fats, logger_file_fil.clust);
+	}
+    i += written;
+	
+	if(written != LOGGER_BUFFER_LENGTH)
+	  break;	
+
+    /* Blink Busy */	
+    if((++blink & 0x03FF) == 0)
+      LED_BUSY_TOGGLE();
+  }
+
+  /* Close file */
+  logger.state = LOGGER_STATE_INITIAL1;
+  f_close(&logger_file_fil);
+	
+  /* Return size of file */
+  return i;
+}
+
+%if sdcardoption == "Reject if not empty"
+uint8_t logger_diskempty(void)
+{
+  DIR dirs;
+  FILINFO finfo;
+  FRESULT f_res;
+
+  /* Open directory */
+  if (f_opendir(&dirs, "\\") == FR_OK) {
+	f_res = f_readdir(&dirs, &finfo);
+	if(f_res == FR_OK) {
+      if(*finfo.fname)
+	    return 0;	
+	  else
+	    return 1;	
+    }
+  }
+  /* Assume disk is not empty */
+  return 0;
+}
+%endif
+
+void logger_manual_stop_check(uint8_t stop) {
+  logger_manual_stop = stop;
+}
+
+%if packetmode == "Binary"
+  uint8_t %<blockid>_Buffer[%<recordsize>];
+%else
+  uint8_t %<blockid>_Buffer[%<recordsize>+1]; /* Preserve one last byte for NULL terminator */
+%endif
+/* Enable module */
+void enable_%<blockid>(void){
+  char filename[16];
+  uint32_t fsize;
+  uint32_t i;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  %if gpio_port == "Not used"
+  %else
+  GPIO_InitTypeDef GPIO_InitStructure;
+  %endif
+
+  /* SDIO Interrupt ENABLE */
+  NVIC_InitStructure.NVIC_IRQChannel = SDIO_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* DMA2 STREAMx Interrupt ENABLE */
+  NVIC_InitStructure.NVIC_IRQChannel = SD_SDIO_DMA_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_Init(&NVIC_InitStructure);
+
+  %if gpio_port == "Not used"
+  %else
+    /* GPIO clock */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<gpio_port>, ENABLE);
+    /* Pin configuration */
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    /* Busy status */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<gpio_sta_busy>;
+    GPIO_Init(GPIO%<gpio_port>, &GPIO_InitStructure);
+    /* Success status */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<gpio_sta_success>;
+    GPIO_Init(GPIO%<gpio_port>, &GPIO_InitStructure);
+    /* Error status */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<gpio_sta_error>;
+    GPIO_Init(GPIO%<gpio_port>, &GPIO_InitStructure);
+
+    /* Init LED status */
+    LED_BUSY_ON();
+    LED_SUCCESS_OFF();
+    LED_ERROR_OFF();
+  %endif
+
+  /* Manual Stop */
+  logger_manual_stop = 0;
+
+  /* LED blink configuration */
+  logger.led_blink_count = %<CAST("Number",0.1/SampleTime[0].ClockTickStepSize)>;
+  logger.led_blick_lasttick = systick_count; /* Capture current tick */
+
+  /* Data logger status */
+  logger.status = LOGGER_STA_OK;
+  logger.state = LOGGER_STATE_INITIAL1;
+
+  /* Init buffer */
+  logger.buffer_bytes_index = 0;
+  logger_buffer_index = 0;
+  logger.file_index = 0;
+  memset(&logger_buffer_data[0], 0, LOGGER_BUFFER_LENGTH*LOGGER_BUFFER_COUNT);		
+  
+  /* Init file */
+  for(i=0; i<LOGGER_FILE_COUNT; i++) {
+    logger_file_list[i].data_location = 0;
+	logger_file_list[i].data_offset = 0;
+	logger_file_list[i].active = 0;
+	logger_file_list[i].size = 0;
+	//memset(&(logger_file_list[i].fil), 0, sizeof(FIL));
+  }
+
+  /* Stop mode */
+  %if recordmode == "Single"
+    logger.stop_mode = LOGGER_STOPMODE_SINGLE;
+  %else
+    logger.stop_mode = LOGGER_STOPMODE_LOOP;
+  %endif
+
+  /* Mount disk */
+  f_mount(0, &(logger_fats));
+
+  /* SD Card initial option: %<sdcardoption> */
+  %if sdcardoption == "Reject if not empty"
+    /* Check if the Disk is empty or not */
+    if(logger_diskempty() == 0) {
+      logger.status = LOGGER_STA_IOERROR;
+      return;
+    }
+  %endif
+
+
+  /* Format Disk */
+  if (f_mkfs(0, 1, LOGGER_BUFFER_LENGTH) != FR_OK) {
+    logger.status = LOGGER_STA_IOERROR;
+  }
+
+  /* Check disk capacity
+  */
+  if(SDCardInfo.CardCapacity <= 1024*1024*1024UL) { /* Reject Disk size 1GB or less */
+    logger.status = LOGGER_STA_IOERROR;
+  }
+  
+  /* Logging message:
+  ** Preserve 250MB for logger message.
+  ** Logging file size will be resize on logger stop processing.
+  ** Reserve 250MB for logging message.
+  ** This for work around, to offset of starting storage memory.
+  ** We found memory below 250MB cause too many timing error, don't know why.
+  */
+  if(logger.status == LOGGER_STA_OK) {
+    logger_preserve_file(&(logger_file_msg), "msg.txt", 250*1024*1024);
+  }
+
+  /* Preserve files, max file count: LOGGER_FILE_COUNT
+  */
+  //fsize = (uint32_t)2*1024*1024; /* For test only */
+  fsize = (uint32_t)((uint64_t)0x100000000 - LOGGER_BUFFER_LENGTH); /* 3.99GB, file size must be a number of (32768) */
+  logger.total_bytes_count = 0;
+  logger.total_bytes_written = 0;
+  logger.record_index = 0;
+  for(i=0; i<LOGGER_FILE_COUNT; i++) {
+    %if packetmode == "Binary"
+    sprintf(filename, "DATA%u.bin", (unsigned int)i);
+    %else
+    sprintf(filename, "DATA%u.txt", (unsigned int)i);
+    %endif
+  	if(logger.status == LOGGER_STA_OK) {
+      if(logger.total_bytes_count >= LOGGER_DATA_SIZE) /* For Ascii mode, size is estimated and will be fit later */
+		break;
+	
+	  if((LOGGER_DATA_SIZE-logger.total_bytes_count)>= (uint64_t)fsize) {
+		logger_file_list[i].size = logger_preserve_file(&(logger_file_list[i]), filename, fsize);
+		logger.total_bytes_count += logger_file_list[i].size;
+	  }
+	  else {
+	    logger_file_list[i].size = logger_preserve_file(&(logger_file_list[i]), filename, \
+				                     (uint32_t)(LOGGER_DATA_SIZE-logger.total_bytes_count));
+		logger.total_bytes_count += (LOGGER_DATA_SIZE-logger.total_bytes_count);
+      }
+	}
+	if(logger_file_list[i].size == 0) {
+	  logger_file_list[i].active = 0;
+	}
+	else if(logger_file_list[i].size != fsize) {
+	  logger_file_list[i].active = 1;
+	  break;
+	}
+	else {
+	  logger_file_list[i].active = 1;
+	}
+  }
+
+  /* Total Bytes Count - vs - Disk size */
+  if(logger.total_bytes_count > (SDCardInfo.CardCapacity - 300*1024*1024)) { /* 250MB+50MB */
+    logger.total_bytes_count = (SDCardInfo.CardCapacity - 300*1024*1024); /* Make sure Disk is not overrun, !! This code will removed later */
+  }
+
+  /* Reset logging message file size to 0 */
+  logger_msg_initialize(0);
+  logger_msg_finallize();
+
+  /* Re-initialize logging message file for ready to log message */  
+  logger_msg_initialize(0);
+
+  /* Write initial information to logging file */  
+  logger_msg_writecode(LOGGING_ASSUME_FAIL);
+
+  logger_msg_finallize();
+
+  /* Enable write buffer
+  */
+  switch(logger.status) {
+    case LOGGER_STA_OK:
+      logger.state = LOGGER_STATE_WRITEBUFFER;
+      break;
+
+    case LOGGER_STA_BUSY:
+    case LOGGER_STA_IOERROR:
+    case LOGGER_STA_NOT_EMPTY:
+      logger.state = LOGGER_STATE_STOP_ERROR;
+      break;
+  }
+
+  %if gpio_port == "Not used"
+  %else
+  /* Turn off LED Busy */
+  LED_BUSY_OFF();
+  %endif
+
+  /* Error detection list */
+  error_list.Count = 0;
+  error_list.LastTick = (uint32_t)systick_count;
+}
+
+/* Disable module */
+void disable_%<blockid>(void) {
+  uint8_t i;
+  char filename[16];
+
+  if((logger.state == LOGGER_STATE_WRITEBUFFER) || (logger.state == LOGGER_STATE_DISKFULL))
+  {
+    /* Finalize SD */
+    while(sd_background_write() != sdIDLE);
+    if(logger.status == LOGGER_STA_IOERROR)
+      logger.state = LOGGER_STATE_STOP_ERROR;
+    else
+      logger.state = LOGGER_STATE_STOP_SUCCESS;
+
+    /* Update file */
+    for(i=logger.file_index; i<LOGGER_FILE_COUNT; i++) {
+      %if packetmode == "Binary"
+      sprintf(filename, "DATA%u.bin", (unsigned int)i);
+      %else
+      sprintf(filename, "DATA%u.txt", (unsigned int)i);
+      %endif
+      if(logger_file_list[i].data_offset > 0) {
+        if(logger_file_list[i].data_offset < logger_file_list[i].size) {
+          /* Fit to actual size */
+          if(f_open(&logger_file_fil, filename, FA_WRITE) == FR_OK) {
+            /* Seek */
+            f_lseek(&logger_file_fil, logger_file_list[i].data_offset);
+            /* Truncate */
+            f_truncate(&logger_file_fil);
+            /* Close */
+            f_close(&logger_file_fil);
+          }
+        }
+      }
+      else { /* File not contain the valid data due to logging process stopped */
+        /* Unlink */
+        if (logger_file_list[i].size > 0) {
+		  f_unlink(filename);
+        }
+      }
+    }
+
+    /* Update logging messasge */
+    logger_msg_initialize(0);
+    logger_msg_writecode(LOGGING_BASIC_INF);
+    logger_msg_finallize();
+
+    /* Update timing error list */
+    logger_msg_initialize(1);
+    logger_msg_writecode(LOGGING_TIMEING_ERROR_INF);
+    logger_msg_finallize();
+  }
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>  */
+  %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_get_status();
+  %% STOP        
+  logger_manual_stop_check(%<LibBlockInputSignal(0, "", "", 0)>); /* Determine manual stop. */
+  %if packetmode == "Binary"
+    %assign ptr = 0
+    %foreach idx=inputtypearray[0]
+      %if idx > 0
+        %if LibBlockInputSignalConnected(idx)
+          memcpy(&%<blockid>_Buffer[%<ptr>], &%<LibBlockInputSignal(idx, "", "", 0)>, sizeof(%<typestr[inputtypearray[idx+1]]>));      
+        %else
+          memset(&%<blockid>_Buffer[%<ptr>], 0, sizeof(%<typestr[inputtypearray[idx+1]]>));      
+        %endif
+        %if inputtypearray[idx+1] == 0
+          %assign ptr = ptr + 8
+        %elseif (inputtypearray[idx+1] == 1) || (inputtypearray[idx+1] == 6) || (inputtypearray[idx+1] == 7)
+          %assign ptr = ptr + 4
+        %elseif (inputtypearray[idx+1] == 4) || (inputtypearray[idx+1] == 5)
+          %assign ptr = ptr + 2
+        %else
+          %assign ptr = ptr + 1
+        %endif
+      %endif
+    %endforeach
+    %<blockid>_Write_buffer(%<blockid>_Buffer, %<ptr>); 
+  %else
+    sprintf((char*)%<blockid>_Buffer, "%<asciiformat>"
+    %foreach idx=inputtypearray[0]      
+      %if idx > 0 
+      ,%<LibBlockInputSignal(idx, "", "", 0)>
+      %endif
+    %endforeach
+    );
+    %<blockid>_Write_buffer(%<blockid>_Buffer, strlen((char*)%<blockid>_Buffer));
+  %endif 
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

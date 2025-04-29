@@ -1,0 +1,175 @@
+%implements nrf5_target_setup "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign compiler = CAST("String",SFcnParamSettings.compiler)
+%assign stacksize = CAST("String",SFcnParamSettings.stacksize)
+%assign heapsize = CAST("String",SFcnParamSettings.heapsize)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign systickreloadvalue = CAST("String",SFcnParamSettings.systickreloadvalue)
+%assign hseval = CAST("String",SFcnParamSettings.hseval)
+%assign hclk = CAST("Number",SFcnParamSettings.hclk)
+%assign softdeviceversion = CAST("String",SFcnParamSettings.softdeviceversion)
+
+
+%assign softdevice = optionstring[0]
+%assign lowpower = optionstring[1]
+%assign peripherallinkcount = optionstring[2]
+%assign centrallinkcount = optionstring[3]
+%assign totallinkcount = optionstring[4]
+
+%assign block = block + compiler + stacksize + heapsize + sampletime + \
+                blockid + systickreloadvalue + hseval + hclk + softdeviceversion +\
+                softdevice + lowpower + peripherallinkcount + centrallinkcount + totallinkcount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %include "nrf5_hwdrvlib_h_tlc.tlc"
+   %include "nrf5_hwdrvlib_c_tlc.tlc"
+   %include "nrf5_genstartupfile.tlc"
+   %include "nrf5_genmkfile.tlc"
+   %include "nrf5_genmkbatfile.tlc"
+   %include "nrf5_genlinkerfile.tlc"
+   %include "sdk_config_h.tlc"
+   %%include "nrf5_genrtmodel_h.tlc"
+   %%include "waijung_profiler.tlc"
+      %openfile tmpBuf
+       
+      /* ########################################################################
+      * System
+      * ########################################################################
+      */
+  
+      %if lowpower == "on"
+      // Low power: %<lowpower>
+      #define LOW_POWER_MANAGEMENT 1
+      %endif
+
+      extern volatile uint32_t i2c_hw_timeout_timeout_start;
+
+      void rt_OneStep(void * p_context);
+      void TimerTick_Init (void);
+      void TimerTick_Start (void);
+      void SoftDevice_Init(void);
+
+      uint32_t waijung_nrf5_getsoc_evt(void);
+      void waijung_nrf5_clearsoc_evt(void);
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+      %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+      %openfile tmpBuf
+     /* ########################################################################
+     * System
+     * ########################################################################
+     */
+     
+     // I2C Timeout Detection
+     volatile uint32_t i2c_hw_timeout_timeout_start;
+     
+     void SoftDevice_Init(void)
+     {
+       %if softdevice == "s310"
+       uint32_t err_code;
+       // Initialize the SoftDevice handler module.
+       //SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, NULL);
+       err_code = softdevice_handler_init(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, NULL, 0, NULL);
+       APP_ERROR_CHECK(err_code);
+       %else
+       ret_code_t err_code;
+
+       err_code = nrf_sdh_enable_request();
+       APP_ERROR_CHECK(err_code);
+       %endif
+     }
+
+     %if softdevice == "s310"
+     #define APP_TIMER_PRESCALER              0                                          /**< Value of the RTC1 PRESCALER register. */
+     #define APP_TIMER_OP_QUEUE_SIZE          4                                          /**< Size of timer operation queues. */
+     %endif
+     APP_TIMER_DEF(m_rtOneStep_timer_id); 
+     void TimerTick_Init (void)
+     {
+        uint32_t err_code;
+		// Initialize timer module.
+        %if softdevice == "s310"
+        APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
+        %else
+		err_code = app_timer_init();
+		APP_ERROR_CHECK(err_code);
+        %endif
+
+		// Create timer
+		err_code = app_timer_create(&m_rtOneStep_timer_id, APP_TIMER_MODE_REPEATED, rt_OneStep);
+        APP_ERROR_CHECK(err_code);
+     }
+
+     void TimerTick_Start(void)
+     {
+        uint32_t err_code;
+        %if softdevice == "s310"
+        err_code = app_timer_start(m_rtOneStep_timer_id, APP_TIMER_TICKS(1000UL/__SYSTICK_FREQUENCY, APP_TIMER_PRESCALER), NULL);
+        %else
+		err_code = app_timer_start(m_rtOneStep_timer_id, APP_TIMER_TICKS(1000UL/__SYSTICK_FREQUENCY), NULL);
+        %endif
+		APP_ERROR_CHECK(err_code);	
+     }
+
+     void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
+     {
+          // Reset the system on assertion
+          NVIC_SystemReset();
+     }
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+%%void enable_%<blockid>(void){
+%%}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%%/* %<blockid> */
+%%void enable_%<blockid>(void);
+
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

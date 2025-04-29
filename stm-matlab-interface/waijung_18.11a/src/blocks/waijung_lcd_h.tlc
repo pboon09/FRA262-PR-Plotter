@@ -1,0 +1,13 @@
+
+%openfile tmpBuf = "waijung_lcd.h"
+#ifndef __WAIJUNG_LCD_H
+#define __WAIJUNG_LCD_H
+
+#include <stdint.h>
+
+void lcd_init(void);
+void LCD_NonBlock_Write(uint8_t row, uint8_t col, const char* str);
+void LCD_NonBlock_Step(void);
+
+#endif // __WAIJUNG_LCD_H
+%closefile tmpBuf

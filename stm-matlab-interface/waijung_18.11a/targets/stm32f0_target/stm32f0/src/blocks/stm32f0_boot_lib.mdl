@@ -1,0 +1,700 @@
+Library {
+  Name			  "stm32f0_boot_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Dec 01 16:21:30 2014"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:49>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "stm32f0_boot_lib"
+    Location		    [-1161, 517, -486, 726]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Boot Load"
+      Ports		      [0, 1]
+      Position		      [15, 22, 150, 98]
+      FunctionName	      "stm32f0_boot"
+      Parameters	      "conf,enableisr,inputarray,outputarray,confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_boot"
+      MaskDescription	      "This Boot block generate function call when system is startup.\n\nIMPORTANT: Function-cal"
+      "l will execute before Model initialize routine,\nperipheral modules are not initialize yet."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_boot_load.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Flash Origin (Hex)|Flash Length (Hex)|Enable isr|Target program sector|Sam"
+      "ple time (sec)|Compiled sample time (sec) in string|BlockID|Input port|Input port label|Output port|Output port "
+      "label|Compatibility (Reserved for future use)|Configuration String"
+      MaskStyleString	      "popup(Boot|Goto|Configure),edit,edit,checkbox,popup(Sector 5: 0x08020000 - 0x0803FFFF|Sec"
+      "tor 6: 0x08040000 - 0x0805FFFF|Sector 7: 0x08060000 - 0x0807FFFF|Sector 8: 0x08080000 - 0x0809FFFF|Sector 9: 0x0"
+      "80A0000 - 0x080BFFFF|Sector 10: 0x080C0000 - 0x080DFFFF|Sector 11: 0x080E0000 - 0x080FFFFF),edit,edit,edit,edit,"
+      "edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f0_boot_callback('conf');|||||stm32f0_boot_callback('sampletime');|stm32f0_boot_ca"
+      "llback('sampletimestr');|stm32f0_boot_callback('blockid');||||||"
+      MaskEnableString	      "on,on,on,on,on,on,off,off,on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;flashorigin=&2;flashlength=&3;enableisr=@4;usersector=&5;sampletime=@6;sampletimest"
+      "r=&7;blockid=&8;inputarray=@9;inputlabelarray=&10;outputarray=@11;outputlabelarray=&12;compat=&13;confstr=&14;"
+      MaskInitialization      "stm32f0_boot_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'BOOT','ver','middle','hor','center'); port_label('output', 1,'Call ISR'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Boot|0x8000000|0x100000|on|Sector 9: 0x080A0000 - 0x080BFFFF|-1|0|BootLoad|[]|{}|[7]|{'Ca"
+      "ll ISR'}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Configure Sector"
+      Ports		      []
+      Position		      [355, 22, 490, 98]
+      FunctionName	      "stm32f0_boot"
+      Parameters	      "conf,enableisr,inputarray,outputarray,confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_boot"
+      MaskDescription	      "This block is for User application configuration, set offset and size of flash."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_boot_configure.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Flash Origin (Hex)|Flash Length (Hex)|Enable isr|Target program sector|Sam"
+      "ple time (sec)|Compiled sample time (sec) in string|BlockID|Input port|Input port label|Output port|Output port "
+      "label|Compatibility (Reserved for future use)|Configuration String"
+      MaskStyleString	      "popup(Boot|Goto|Configure),popup(0x8000000|0x8000800|0x8001000|0x8001800|0x8002000|0x8002"
+      "800|0x8003000|0x8003800|0x8004000|0x8004800|0x8005000|0x8005800|0x8006000|0x8006800|0x8007000|0x8007800|0x800800"
+      "0|0x8008800|0x8009000|0x8009800|0x800A000|0x800A800|0x800B000|0x800B800|0x800C000|0x800C800|0x800D000|0x800D800|"
+      "0x800E000|0x800E800|0x800F000|0x800F800|0x8010000|0x8010800|0x8011000|0x8011800|0x8012000|0x8012800|0x8013000|0x"
+      "8013800|0x8014000|0x8014800|0x8015000|0x8015800|0x8016000|0x8016800|0x8017000|0x8017800|0x8018000|0x8018800|0x80"
+      "19000|0x8019800|0x801A000|0x801A800|0x801B000|0x801B800|0x801C000|0x801C800|0x801D000|0x801D800|0x801E000|0x801E"
+      "800|0x801F000|0x801F800),edit,checkbox,popup(Sector 5: 0x08020000 - 0x0803FFFF|Sector 6: 0x08040000 - 0x0805FFFF"
+      "|Sector 7: 0x08060000 - 0x0807FFFF|Sector 8: 0x08080000 - 0x0809FFFF|Sector 9: 0x080A0000 - 0x080BFFFF|Sector 10"
+      ": 0x080C0000 - 0x080DFFFF|Sector 11: 0x080E0000 - 0x080FFFFF),edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f0_boot_callback('conf');|||||stm32f0_boot_callback('sampletime');|stm32f0_boot_ca"
+      "llback('sampletimestr');|stm32f0_boot_callback('blockid');||||||"
+      MaskEnableString	      "on,on,on,on,on,on,off,off,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;flashorigin=&2;flashlength=&3;enableisr=@4;usersector=&5;sampletime=@6;sampletimest"
+      "r=&7;blockid=&8;inputarray=@9;inputlabelarray=&10;outputarray=@11;outputlabelarray=&12;compat=&13;confstr=&14;"
+      MaskInitialization      "stm32f0_boot_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Configure\\nOrigin: 0x8004000\\nLength: 0x00C000','ver','middle','hor','cente"
+      "r'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Configure|0x8004000|0x00C000|off|Sector 5: 0x08020000 - 0x0803FFFF|-1|0|ConfigureSector|["
+      "]|{}|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Jump Sector"
+      Ports		      []
+      Position		      [185, 22, 320, 98]
+      FunctionName	      "stm32f0_boot"
+      Parameters	      "conf,enableisr,inputarray,outputarray,confstr,sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_boot"
+      MaskDescription	      "This block is used for jump to other secor (ie.user application).\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_boot_jump.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Flash Origin (Hex)|Flash Length (Hex)|Enable isr|Target program sector|Sam"
+      "ple time (sec)|Compiled sample time (sec) in string|BlockID|Input port|Input port label|Output port|Output port "
+      "label|Compatibility (Reserved for future use)|Configuration String"
+      MaskStyleString	      "popup(Boot|Goto|Configure),edit,edit,checkbox,popup(Sector 0: 0x8000000 - 0x80007FF|Secto"
+      "r 1: 0x8000800 - 0x8000FFF|Sector 2: 0x8001000 - 0x80017FF|Sector 3: 0x8001800 - 0x8001FFF|Sector 4: 0x8002000 -"
+      " 0x80027FF|Sector 5: 0x8002800 - 0x8002FFF|Sector 6: 0x8003000 - 0x80037FF|Sector 7: 0x8003800 - 0x8003FFF|Secto"
+      "r 8: 0x8004000 - 0x80047FF|Sector 9: 0x8004800 - 0x8004FFF|Sector 10: 0x8005000 - 0x80057FF|Sector 11: 0x8005800"
+      " - 0x8005FFF|Sector 12: 0x8006000 - 0x80067FF|Sector 13: 0x8006800 - 0x8006FFF|Sector 14: 0x8007000 - 0x80077FF|"
+      "Sector 15: 0x8007800 - 0x8007FFF|Sector 16: 0x8008000 - 0x80087FF|Sector 17: 0x8008800 - 0x8008FFF|Sector 18: 0x"
+      "8009000 - 0x80097FF|Sector 19: 0x8009800 - 0x8009FFF|Sector 20: 0x800A000 - 0x800A7FF|Sector 21: 0x800A800 - 0x8"
+      "00AFFF|Sector 22: 0x800B000 - 0x800B7FF|Sector 23: 0x800B800 - 0x800BFFF|Sector 24: 0x800C000 - 0x800C7FF|Sector"
+      " 25: 0x800C800 - 0x800CFFF|Sector 26: 0x800D000 - 0x800D7FF|Sector 27: 0x800D800 - 0x800DFFF|Sector 28: 0x800E00"
+      "0 - 0x800E7FF|Sector 29: 0x800E800 - 0x800EFFF|Sector 30: 0x800F000 - 0x800F7FF|Sector 31: 0x800F800 - 0x800FFFF"
+      "|Sector 32: 0x8010000 - 0x80107FF|Sector 33: 0x8010800 - 0x8010FFF|Sector 34: 0x8011000 - 0x80117FF|Sector 35: 0"
+      "x8011800 - 0x8011FFF|Sector 36: 0x8012000 - 0x80127FF|Sector 37: 0x8012800 - 0x8012FFF|Sector 38: 0x8013000 - 0x"
+      "80137FF|Sector 39: 0x8013800 - 0x8013FFF|Sector 40: 0x8014000 - 0x80147FF|Sector 41: 0x8014800 - 0x8014FFF|Secto"
+      "r 42: 0x8015000 - 0x80157FF|Sector 43: 0x8015800 - 0x8015FFF|Sector 44: 0x8016000 - 0x80167FF|Sector 45: 0x80168"
+      "00 - 0x8016FFF|Sector 46: 0x8017000 - 0x80177FF|Sector 47: 0x8017800 - 0x8017FFF|Sector 48: 0x8018000 - 0x80187F"
+      "F|Sector 49: 0x8018800 - 0x8018FFF|Sector 50: 0x8019000 - 0x80197FF|Sector 51: 0x8019800 - 0x8019FFF|Sector 52: "
+      "0x801A000 - 0x801A7FF|Sector 53: 0x801A800 - 0x801AFFF|Sector 54: 0x801B000 - 0x801B7FF|Sector 55: 0x801B800 - 0"
+      "x801BFFF|Sector 56: 0x801C000 - 0x801C7FF|Sector 57: 0x801C800 - 0x801CFFF|Sector 58: 0x801D000 - 0x801D7FF|Sect"
+      "or 59: 0x801D800 - 0x801DFFF|Sector 60: 0x801E000 - 0x801E7FF|Sector 61: 0x801E800 - 0x801EFFF|Sector 62: 0x801F"
+      "000 - 0x801F7FF|Sector 63: 0x801F800 - 0x801FFFF),edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f0_boot_callback('conf');|||||stm32f0_boot_callback('sampletime');|stm32f0_boot_ca"
+      "llback('sampletimestr');|stm32f0_boot_callback('blockid');||||||"
+      MaskEnableString	      "on,on,on,on,on,on,off,off,on,on,on,on,on,on"
+      MaskVisibilityString    "off,off,off,off,on,on,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;flashorigin=&2;flashlength=&3;enableisr=@4;usersector=&5;sampletime=@6;sampletimest"
+      "r=&7;blockid=&8;inputarray=@9;inputlabelarray=&10;outputarray=@11;outputlabelarray=&12;compat=&13;confstr=&14;"
+      MaskInitialization      "stm32f0_boot_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'GOTO\\nTarget: Sector 8','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Goto|0x8000000|0x100000|off|Sector 8: 0x8004000 - 0x80047FF|-1|0|JumpSector|[]|{}|[]|{}|0"
+      "|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,"
+    }
+  }
+}

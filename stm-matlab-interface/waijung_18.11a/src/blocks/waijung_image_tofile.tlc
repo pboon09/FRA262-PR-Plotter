@@ -1,0 +1,303 @@
+%implements waijung_image_tofile "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+
+  %assign variablefilename    = optionstring[0]
+  %assign filename            = optionstring[1]
+  %assign format              = optionstring[2]
+  %assign size                = optionstring[3]
+  %assign varname             = optionstring[4]
+  %assign rgb16torgb24        = optionstring[5]
+  %assign enablestatus        = optionstring[6]
+  %assign columnsize          = optionstring[7]
+  %assign linesize            = optionstring[8]
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid \
+                + variablefilename + filename + format + size + varname \
+                + rgb16torgb24 + enablestatus + columnsize + linesize
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_RNG__) == 0)
+      %assign :: __STM32F4XX_RNG__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_rng.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STD_LIB_H__) == 0)
+      %assign :: __STD_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %%%openfile tmpBuf
+   %%/* ########################################################################
+   %%* Image To File
+   %%* ########################################################################
+   %%*/
+   %%%closefile tmpBuf
+   %%%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %%%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %%%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+  /* ########################################################################
+   * Image To File
+   * ########################################################################
+   */
+   #include "ff.h"
+   #include "amg_utils.h"
+ 
+   #define BMP_PIXEL16_TO_R(pixel)       ((pixel & 0x1F) << 3)
+   #define BMP_PIXEL16_TO_G(pixel)       (((pixel >> 5) & 0x3F) << 2)
+   #define BMP_PIXEL16_TO_B(pixel)       (((pixel >> 11) & 0x1F) << 3)
+
+   #define %<blockid>_COLUMN_SIZE %<columnsize>
+   #define %<blockid>_LINE_SIZE %<linesize>
+
+   void RGB16toRGB24(uint8_t *pDestBuffer, uint16_t value, uint8_t is_bgr);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+uint32_t %<blockid>_Save%<format>_ToFile(const char *filename);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+ */
+const uint8_t %<blockid>_ImageHeader[54] = { /* BMP Header size: 54 */
+  0x42, 0x4D,              /* Offet0: BMP Magic Number */
+  %if linesize == "160"
+  0x36, 0xE1, 0x00, 0x00,  /* Offset2 : filesz : Size of the BMP file 120*160*3 + 54 */
+  %elseif linesize == "320"
+  0x36, 0x84, 0x03, 0x00,  /* Offset2 : filesz : Size of the BMP file 240*320*3 + 54 */
+  %else
+  0x36, 0x10, 0x0E, 0x00,  /* Offset2 : filesz : Size of the BMP file 480*640*3 + 54 */
+  %endif
+  0x00, 0x00, 0x00, 0x00,  /* Offset6, Offset8 : Reserved0, Reserved1 =0 */
+  0x36, 0x00, 0x00, 0x00,  /* Offset10 : bmp_offset: Offset of bitmap data (pixels)  = 54 = 0x36 */
+  0x28, 0x00, 0x00, 0x00,  /* Offset14 : header_sz : The number of bytes in the header (from this point). */
+  %if linesize == "160"
+  0xA0, 0x00, 0x00, 0x00,  /* Offset18 : width 160 */
+  %elseif linesize == "320"
+  0x40, 0x01, 0x00, 0x00,  /* Offset18 : width 320 */
+  %else
+  0x80, 0x02, 0x00, 0x00,  /* Offset18 : width 640 */
+  %endif
+  %if columnsize == "120"
+  0x78, 0x00, 0x00, 0x00,  /* Offset22 : height 120 */
+  %elseif columnsize == "240"
+  0xF0, 0x00, 0x00, 0x00,  /* Offset22 : height 240 */
+  %else
+  0xE0, 0x01, 0x00, 0x00,  /* Offset22 : height 480 */
+  %endif
+  0x01, 0x00,              /* Offset26 : nplanes */
+  0x18, 0x00,              /* Offset24: Bits per Pixels */
+  0x00, 0x00, 0x00, 0x00,  /* Offset30: compress_type = 0  */
+  0x00, 0x58, 0x02, 0x00,  /* Offset34 : bmp bytes size*/
+  0x00, 0x00, 0x00, 0x00,  /* Offset38 : X Resolution : Pixel per meters = 0 */
+  0x00, 0x00, 0x00, 0x00,  /* Offset42 : Y Resolution : Pixel per meters */
+  0x00, 0x00, 0x00, 0x00,  /* Offset46 : Number of Colours = 0 */
+  0x00, 0x00, 0x00, 0x00,  /* Offset50 : Important Colours = 0 */
+};
+
+uint32_t %<blockid>_Save%<format>_ToFile(const char *filename) {
+  uint32_t status;
+  FIL *f = 0;
+  uint16_t i=0, j=0, k=0;  
+  uint16_t write_size;
+  uint8_t *write_buffer; 
+  uint8_t rgb_convert[3];
+  uint32_t bytes_count;  
+  %if rgb16torgb24 == "on"
+  uint16_t src_pixel;
+  uint16_t* src_buffer;
+  src_buffer = (uint16_t*)%<varname>;
+  %else
+  uint8_t* src_buffer;
+  src_buffer = (uint8_t*)%<varname>;
+  %endif
+
+  /* Allocate memory buffer from HEAP: Try 4096 -> 2048 -> 1024 -> 512 */
+  write_size = 4096;
+  do {
+    if(write_size < 512) {
+      return 1; /* Out of memory */ 
+    }
+    if((write_buffer = malloc(write_size)) == 0) { 
+      write_size >>= 1; 
+    }
+  } while (write_buffer == 0);
+
+  /* Open file to write */
+  if((f = _fopen(filename, "w")) == 0) {
+    free(write_buffer);
+    return 2; /* Failed to open file */
+  }
+  
+  /* Copy header  */
+  bytes_count = 0;
+  memcpy(write_buffer, %<blockid>_ImageHeader, sizeof(%<blockid>_ImageHeader));
+  bytes_count += sizeof(%<blockid>_ImageHeader);
+
+  /* Fill buffer */
+  status = 0;
+  for(i = 0; i<%<blockid>_COLUMN_SIZE; i++) {
+    for(j= 0; j<%<blockid>_LINE_SIZE; j++) {
+      %if rgb16torgb24 == "on"
+      src_pixel = src_buffer[j+(%<blockid>_LINE_SIZE*(%<blockid>_COLUMN_SIZE-1-i))];
+      rgb_convert[0] = BMP_PIXEL16_TO_B(src_pixel);
+      rgb_convert[1] = BMP_PIXEL16_TO_G(src_pixel);
+      rgb_convert[2] = BMP_PIXEL16_TO_R(src_pixel);
+      %else
+      rgb_convert[0] = src_buffer[(j*3+0)+(%<blockid>_LINE_SIZE*(%<blockid>_COLUMN_SIZE-1-i))];
+      rgb_convert[1] = src_buffer[(j*3+1)+(%<blockid>_LINE_SIZE*(%<blockid>_COLUMN_SIZE-1-i))];
+      rgb_convert[2] = src_buffer[(j*3+2)+(%<blockid>_LINE_SIZE*(%<blockid>_COLUMN_SIZE-1-i))];
+      %endif
+
+      /* Put to Buffer */
+      for(k=0; k<3; k++) {
+        write_buffer[bytes_count] = rgb_convert[k];
+        bytes_count ++;
+        if(bytes_count >= write_size) {
+          UINT written;
+          /* Write to file */
+          if(f_write(f,write_buffer,bytes_count,&written) != FR_OK)
+            status = 3;            
+
+          /* Reset index */
+          bytes_count = 0;
+        }
+        if(status != 0) {
+         goto __cleanup;
+        }
+      }
+    }
+  }
+
+  /* Rest of bytes */
+  if(bytes_count > 0) {
+    UINT written;
+    /* Write to file */
+    if(f_write(f,write_buffer,bytes_count,&written) != FR_OK)
+      status = 3;    
+  }
+
+  /* Cleanup */
+__cleanup:
+  free(write_buffer);
+  _fclose(f);
+  
+  return status;
+}
+
+void enable_%<blockid>(void){
+  /* Init file system */
+  stdio_init();
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */
+  %if enablestatus == "on"
+  %<LibBlockOutputSignal(0, "", "", 0)> = \
+  %endif
+  %<blockid>_Save%<format>_ToFile \
+  %if variablefilename == "on"
+  ((const char*)%<LibBlockInputSignal(0, "", "", 0)>);
+  %else 
+  ("%<filename>");
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

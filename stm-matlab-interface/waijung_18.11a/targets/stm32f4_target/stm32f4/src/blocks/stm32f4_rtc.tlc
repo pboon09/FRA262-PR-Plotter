@@ -1,0 +1,323 @@
+%implements stm32f4_rtc "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign configuration = confstr[0]
+%assign clocksource = confstr[1]
+%assign dataformat = confstr[2]
+%assign hourformat = confstr[3]
+
+%assign block = block + sampletime + sampletimestr + blockid + configuration \
+               + clocksource + dataformat + hourformat
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_RTC__) == 0)
+      %assign :: __STM32F4XX_RTC__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_rtc.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_PWR__) == 0)
+      %assign :: __STM32F4XX_PWR__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_pwr.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if configuration == "Setup"
+extern RTC_DateTypeDef RTC_DateStructure;
+extern RTC_TimeTypeDef RTC_TimeStructure;
+%endif
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if configuration == "Setup"
+  RTC_DateTypeDef RTC_DateStructure;
+  RTC_TimeTypeDef RTC_TimeStructure;
+  RTC_InitTypeDef RTC_InitStructure;
+%endif
+
+/* Enable module */
+void enable_%<blockid>(void){
+  %if configuration == "Setup"
+    /* RTC Configuration */
+    if (RTC_ReadBackupRegister(RTC_BKP_DR0) != 0x32F4) {
+      /* Enable the PWR clock */
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+
+      /* Allow access to RTC */
+      PWR_BackupAccessCmd(ENABLE);
+    
+      %if clocksource == "LSI"
+      /* The RTC Clock may varies due to LSI frequency dispersion. */   
+      /* Enable the LSI OSC */ 
+      RCC_LSICmd(ENABLE);
+
+      /* Wait till LSI is ready */  
+      while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+
+      /* Select the RTC Clock Source */
+      RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+
+      %else %% LSE 32.768kHz
+      /* Enable the LSE OSC */
+      RCC_LSEConfig(RCC_LSE_ON);
+
+      /* Wait till LSE is ready */  
+      while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
+
+      /* Select the RTC Clock Source */
+      RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+      %endif
+  
+      /* Enable the RTC Clock */
+      RCC_RTCCLKCmd(ENABLE);
+
+      /* Wait for RTC APB registers synchronization */
+      RTC_WaitForSynchro();
+
+      /* Indicator for the RTC configuration */
+      RTC_WriteBackupRegister(RTC_BKP_DR0, 0x32F4);
+
+      /* Configure the RTC data register and RTC prescaler */
+      RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
+      RTC_InitStructure.RTC_SynchPrediv = 0xFF;
+      RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
+   
+      /* Check on RTC init */
+      if (RTC_Init(&RTC_InitStructure) == ERROR)
+      {      
+      }
+    }
+    else {
+      /* Enable the PWR clock */
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+
+      /* Allow access to RTC */
+      PWR_BackupAccessCmd(ENABLE);
+
+      %if clocksource == "LSI"
+      /* The RTC Clock may varies due to LSI frequency dispersion. */   
+      /* Enable the LSI OSC */ 
+      RCC_LSICmd(ENABLE);
+
+      /* Wait till LSI is ready */  
+      while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+
+      /* Select the RTC Clock Source */
+      RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+      %endif
+
+      /* Wait for RTC APB registers synchronisation */
+      RTC_WaitForSynchro();
+    }
+
+#if 0
+      /* Enable the PWR clock */
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+
+      /* Allow access to RTC */
+      PWR_BackupAccessCmd(ENABLE);
+
+      %if clocksource == "LSI"
+        /* LSI used as RTC source clock
+        ** The RTC Clock may varies due to LSI frequency dispersion.
+        */
+
+        /* Enable the LSI OSC */ 
+        RCC_LSICmd(ENABLE);
+
+        /* Wait till LSI is ready */  
+        while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+      
+        /* Select the RTC Clock Source */
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+  
+      %else %% LSE 32.768kHz
+        /* Enable the LSE OSC */
+        RCC_LSEConfig(RCC_LSE_ON);
+
+        /* Wait till LSE is ready */  
+        while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET);
+
+        /* Select the RTC Clock Source */
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+      %endif
+
+      /* Enable the RTC Clock */
+      RCC_RTCCLKCmd(ENABLE);
+
+      /* Wait for RTC APB registers synchronisation */
+      RTC_WaitForSynchro();
+
+      /* Configure the RTC data register and RTC prescaler */
+      RTC_InitStructure.RTC_AsynchPrediv = 0x7F; /* AsynchPrediv */
+      RTC_InitStructure.RTC_SynchPrediv = 0xFF; /* SynchPrediv */
+      RTC_InitStructure.RTC_HourFormat = RTC_%<hourformat>;
+      if (RTC_Init(&RTC_InitStructure) == ERROR) {
+        /* while(1); */ /* RTC Prescaler Config failed */
+      }
+
+#endif //0
+  %endif
+}
+
+/* Disable module */
+void disable_%<blockid>(void) {
+
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if configuration == "Setup"
+  %else
+    /* %<blockid> */
+    %switch (configuration)
+      %case "DateWrite"        
+        RTC_GetDate(RTC_Format_%<dataformat>, &RTC_DateStructure);
+        %% Date
+        %if LibBlockInputSignalDataTypeName(0, "") == "uint8"
+          RTC_DateStructure.RTC_Date = %<LibBlockInputSignal(0, "", "", 0)>;
+        %else
+          RTC_DateStructure.RTC_Date = (uint8_t)%<LibBlockInputSignal(0, "", "", 0)>;
+        %endif
+        %% Month
+        %if LibBlockInputSignalDataTypeName(1, "") == "uint8"
+          RTC_DateStructure.RTC_Month = %<LibBlockInputSignal(1, "", "", 0)>;
+        %else
+          RTC_DateStructure.RTC_Month = (uint8_t)%<LibBlockInputSignal(1, "", "", 0)>;
+        %endif
+        %% Year
+        %if LibBlockInputSignalDataTypeName(2, "") == "uint8"
+          RTC_DateStructure.RTC_Year = %<LibBlockInputSignal(2, "", "", 0)>;
+        %else
+          RTC_DateStructure.RTC_Year = (uint8_t)%<LibBlockInputSignal(2, "", "", 0)>;
+        %endif
+        %% Update
+        RTC_SetDate(RTC_Format_%<dataformat>, &RTC_DateStructure);
+        %break
+      %case "TimeWrite"
+        RTC_GetTime(RTC_Format_%<dataformat>, &RTC_TimeStructure);
+        %% Hour
+        %if LibBlockInputSignalDataTypeName(0, "") == "uint8"
+          RTC_TimeStructure.RTC_Hours = %<LibBlockInputSignal(0, "", "", 0)>;
+        %else
+          RTC_TimeStructure.RTC_Hours = (uint8_t)%<LibBlockInputSignal(0, "", "", 0)>;
+        %endif
+        %% Minute
+        %if LibBlockInputSignalDataTypeName(1, "") == "uint8"
+          RTC_TimeStructure.RTC_Minutes = %<LibBlockInputSignal(1, "", "", 0)>;
+        %else
+          RTC_TimeStructure.RTC_Minutes = (uint8_t)%<LibBlockInputSignal(1, "", "", 0)>;
+        %endif
+        %% Second
+        %if LibBlockInputSignalDataTypeName(2, "") == "uint8"
+          RTC_TimeStructure.RTC_Seconds = %<LibBlockInputSignal(2, "", "", 0)>;
+        %else
+          RTC_TimeStructure.RTC_Seconds = (uint8_t)%<LibBlockInputSignal(2, "", "", 0)>;
+        %endif
+        %% Update
+        RTC_SetTime(RTC_Format_%<dataformat>, &RTC_TimeStructure);
+        %break
+      %case "DateRead"
+        RTC_GetDate(RTC_Format_%<dataformat>, &RTC_DateStructure);
+        %assign day    = LibBlockOutputSignal(0, "", "", 0)
+        %assign date   = LibBlockOutputSignal(1, "", "", 0)
+        %assign month  = LibBlockOutputSignal(2, "", "", 0)
+        %assign year   = LibBlockOutputSignal(3, "", "", 0)
+        %<year> = RTC_DateStructure.RTC_Year;
+        %<month> = RTC_DateStructure.RTC_Month;
+        %<date> = RTC_DateStructure.RTC_Date;
+        %<day> = RTC_DateStructure.RTC_WeekDay;
+        %break
+      %case "TimeRead"
+        RTC_GetTime(RTC_Format_%<dataformat>, &RTC_TimeStructure);
+        %assign hour   = LibBlockOutputSignal(0, "", "", 0)
+        %assign minute = LibBlockOutputSignal(1, "", "", 0)
+        %assign second = LibBlockOutputSignal(2, "", "", 0)
+        %<hour> = RTC_TimeStructure.RTC_Hours;
+        %<minute> = RTC_TimeStructure.RTC_Minutes;
+        %<second> = RTC_TimeStructure.RTC_Seconds;
+        %break
+    %endswitch
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

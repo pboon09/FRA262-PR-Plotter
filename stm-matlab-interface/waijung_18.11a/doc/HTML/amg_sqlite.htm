@@ -1,0 +1,210 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Hardware Modules &gt; aMG SQLite Database Server</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="SQLite">
+   <meta name="description" content="aMG SQLite Database Server">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "amg_sqlite.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">aMG SQLite Database Server</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?amg_sqlite.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="amg_related_hardware.htm">Hardware Modules</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">aMG SQLite Database Server</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="http_client.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="amg_related_hardware.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="overview2.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><a href="amg_sqlite_data_server_1.png"><img id="TOGGLE0186A1" class="image-toggle" src="amg_sqlite_data_server_1_zoom25.png" alt="amg_sqlite_data_server_1_zoom25" style="margin:10px 10px 10px 10px;padding:10px 10px 10px 10px; border:none" /></a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><a href="amg_sqlite_data_server_2.png"><img id="TOGGLE0186A2" class="image-toggle" src="amg_sqlite_data_server_2_zoom25.png" alt="amg_sqlite_data_server_2_zoom25" style="margin:10px 10px 10px 10px;padding:10px 10px 10px 10px; border:none" /></a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><a href="amg_sqlite_data_server_3.png"><img id="TOGGLE0186A3" class="image-toggle" src="amg_sqlite_data_server_3_zoom25.png" alt="amg_sqlite_data_server_3_zoom25" style="margin:10px 10px 10px 10px;padding:10px 10px 10px 10px; border:none" /></a></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><a href="amg_sqlite_data_server_4.png"><img id="TOGGLE0186A4" class="image-toggle" src="amg_sqlite_data_server_4_zoom25.png" alt="amg_sqlite_data_server_4_zoom25" style="margin:10px 10px 10px 10px;padding:10px 10px 10px 10px; border:none" /></a></p>
+</td>
+<td style="vertical-align:middle; padding:0px;"><p><a href="https://www.aimagin.com/amg-sqlite-database-server.html" target="_blank" onclick="return HMTrackTopiclink(this);" title="Aimagin Store"><img src="buynow_button.png" width="133" height="39" alt="Aimagin Store" title="Aimagin Store" style="width:133px;height:39px;border:none" /></a></p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Features</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none">SQLite 3 &nbsp;Database Server <a href="http://www.sqlite.org/index.html" target="_blank" onclick="return HMTrackTopiclink(this);"><img src="sqlite370_banner.gif" width="220" height="101" alt="sqlite370_banner" style="width:220px;height:101px;border:none" /></a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none">ARM Cortex-M4 FPU processor (STM32F4), 168MHz</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none">Two operating modes (UART-SQLite database and USB mass storage mode).</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none">Database mode (enable database query from any microcontrollers via UART port)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">a)</span></td><td style="border:none">USB Mass Storage Device (Flash Drive) mode (enable database query from any PC via USB port)</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 48px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">b)</span></td><td style="border:none">Micro SD Card slot</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">5.</span></td><td style="border:none"><a href="simulink_block_support.htm" class="topiclink">Matlab / Simulink support with Waijung Blockset</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">6.</span></td><td style="border:none"><span class="f_Code">Basic IO Protection against spikes.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">7.</span></td><td style="border:none">Operating Voltage: 3.3V</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">8.</span></td><td style="border:none"><a href="amg_sqlite_firmware_upgrade_instruction.htm" class="topiclink">Firmware Upgradable</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">9.</span></td><td style="border:none"> RoHS</td></tr></table></div><h2 class="p_Heading2"><span class="f_Heading2">Applications</span></h2>
+<p style="margin: 5px 0px 5px 24px;">1. Low-cost stand-alone database server</p>
+<p style="margin: 5px 0px 5px 24px;">2. Network based monitoring and control</p>
+<p style="margin: 5px 0px 5px 24px;">3. Data logger</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Documentations</span></h2>
+<p style="margin: 5px 0px 5px 24px;">1. <a href="Dimension aMG SQLite Database Server v2.1.pdf" onclick="return HMTrackTopiclink(this);" class="filelink">Dimensions</a></p>
+<p style="margin: 5px 0px 5px 24px;">2. User Manual</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">i.</span></td><td style="border:none"><a href="overview2.htm" class="topiclink">Overview</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">ii.</span></td><td style="border:none"><a href="pinout.htm" class="topiclink">Connection and Pinout</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">iii.</span></td><td style="border:none"><a href="configuration.htm" class="topiclink">Configuration</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">iv.</span></td><td style="border:none"><a href="amg_sqlite_firmware_upgrade_instruction.htm" class="topiclink">Firmware upgrade instruction</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">v.</span></td><td style="border:none"><a href="simulink_block_support.htm" class="topiclink">Waijung simulink block support</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">a)</span></td><td style="border:none"><a href="sqlite_table_setup.htm" class="topiclink">SQLite Table Setup</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 72px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">b)</span></td><td style="border:none"><a href="sqlite_query_statement.htm" class="topiclink">SQLite Query Statement</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">vi.</span></td><td style="border:none"><a href="limitation.htm" class="topiclink">Limitation</a></td></tr></table></div><h2 class="p_Heading2"><span class="f_Heading2">References</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><a href="http_webserver_cgi.htm" class="topiclink">Waijung Webserver CGI</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><a href="http://www.sqlite.org/docs.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Official SQLite Online Documentation</a></td></tr></table></div><h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<p>1. <a href="communication_test_demo.htm" class="topiclink">Basic UART-SQLite query demo</a></p>
+<p>2. <a href="use_waijung_blockset_for_sqlit.htm" class="topiclink">Use Waijung Blockset for SQLite data logger demo</a></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+<script type="text/javascript">
+HMInitToggle('TOGGLE0186A1','hm.type','picture','hm.state','0','hm.src0','amg_sqlite_data_server_1_zoom25.png','hm.src1','amg_sqlite_data_server_1.png');
+HMInitToggle('TOGGLE0186A2','hm.type','picture','hm.state','0','hm.src0','amg_sqlite_data_server_2_zoom25.png','hm.src1','amg_sqlite_data_server_2.png');
+HMInitToggle('TOGGLE0186A3','hm.type','picture','hm.state','0','hm.src0','amg_sqlite_data_server_3_zoom25.png','hm.src1','amg_sqlite_data_server_3.png');
+HMInitToggle('TOGGLE0186A4','hm.type','picture','hm.state','0','hm.src0','amg_sqlite_data_server_4_zoom25.png','hm.src1','amg_sqlite_data_server_4.png');
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

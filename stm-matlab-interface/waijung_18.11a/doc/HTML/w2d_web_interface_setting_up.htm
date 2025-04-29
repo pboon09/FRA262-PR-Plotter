@@ -1,0 +1,709 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Waijung Blockset &gt; Waijung WebPage Designer (W2D) &gt; W2D Web Interface Setting up</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="W2D">
+   <meta name="description" content="W2D Web Interface Setting up">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "w2d_web_interface_setting_up.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">W2D Web Interface Setting up</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?w2d_web_interface_setting_up.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="waijung.htm">Waijung Blockset</a> &gt; <a href="waijung_webpage_designer_w2d.htm">Waijung WebPage Designer (W2D)</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">W2D Web Interface Setting up</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="w2d_model_setting_up.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="waijung_webpage_designer_w2d.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="w2d_web_other_components.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><a id="setup_web"></a><span class="f_Heading2">Setting up Web Interface</span></h2>
+<h3 class="p_Heading3"><a id="installation"></a><span class="f_Heading3" style="font-size: 14pt; text-decoration: underline;">Installation</span></h3>
+<h4 class="p_Heading4"><span class="f_Heading4" style="background-color: #ffffff;">The steps for W2D installation is as follows;</span></h4>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><span style="background-color: #ffffff;">Get the hardware ready. Build your model with Webserver Setup Block + UART Setup Block</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><span style="background-color: #ffffff;">Download the latest disk image from&nbsp;</span><span style="font-weight: bold;"><a href="w2d_disk_image.htm" class="topiclink" title="W2D Disk Image">HERE</a> </span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none">Open Chrome Browser and go to (your configured IP)-----&gt;  <span class="f_Code" style="font-weight: bold;">192.168.1.30/upload.html</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none">Input <span class="f_Code" style="font-weight: bold;">system/upgrade</span> as a remote directory, then choose file (you just download), then click <span class="f_Code" style="font-weight: bold;">Upload</span>. Wait until <span style="font-weight: bold; color: #00ff00;">success</span>, or try again if <span style="font-weight: bold; color: #ff0000;">fail</span>.</td></tr></table></div><p><img src="w2d_upload_disk_image.png" width="950" height="283" alt="w2d_upload_disk_image" style="width:950px;height:283px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">5.</span></td><td style="border:none">MCU webserver will be reset automatically, then W2D will be ready.</td></tr></table></div><p>&nbsp;</p>
+<p>Open your Chrome Browser and point to your MCU Webserver address (192.168.1.30 as demo). It will direct you to login.html page. Please wait here at the login screen about a couple minutes for W2D to initialize the database for the first time. </p>
+<p><img src="w2d_login.png" width="950" height="422" alt="w2d_login" style="width:950px;height:422px;border:none" /></p>
+<h4 class="p_Heading4"><span class="f_Heading4">Login page during initialization process when first start (or resetting the database to default)</span></h4>
+<p><img src="w2d_login_initialization.png" width="950" height="346" alt="w2d_login_initialization" style="width:950px;height:346px;border:none" /></p>
+<p>After the initialization process finished, sign in with default username:<span style="font-weight: bold;">admin</span> and password:<span style="font-weight: bold;">admin</span> . It will direct you to main page.</p>
+<p>If the initialization process stop in the middle, please delete database file from micro SD card on the SQLite module and refresh login screen again.</p>
+<p><img src="w2d_index.png" width="950" height="367" alt="w2d_index" style="width:950px;height:367px;border:none" /></p>
+<h3 class="p_Heading3"><a id="design_it"></a><span class="f_Heading3" style="font-size: 14pt; text-decoration: underline;">Design Web Interface</span></h3>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/rxXpA4UR2J8?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/rxXpA4UR2J8?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<p>Click menu <span style="font-weight: bold;">&quot;Design&quot;</span> to start designing your web interface. Then click menu <span style="font-weight: bold;">&quot;Pages&quot;</span> to load up the pages you design. The rest of the menus are described <span style="text-decoration: underline;">here</span>.</p>
+<p><img src="w2d_design.png" width="950" height="1086" alt="w2d_design" style="width:950px;height:1086px;border:none" /></p>
+<p><span style="font-weight: bold;">Tool Box</span> on the right lists all available items. Drag items into <span style="font-weight: bold;">Drop Target</span> to add page component. New page will <span style="font-weight: bold;">not</span> be saved until you press <span style="font-weight: bold;">Save/Update</span> on <span style="font-weight: bold;">Action Bar</span>.</p>
+<p><img src="w2d_action_bar.png" width="950" height="100" alt="w2d_action_bar" style="width:950px;height:100px;border:none" /> </p>
+<p>The following lists all available <span style="font-weight: bold;">items</span> and their meaning.</p>
+<div style="text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="margin:0 auto; border:solid 3px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Items</span></p>
+</th>
+<th style="vertical-align:top; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Behaviors</span></p>
+</th>
+<th style="vertical-align:top; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Purpose</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Frame</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Container/Partition</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">&nbsp;</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Display Label</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Label/General Text Display</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">&nbsp;</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">ON-OFF switch</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Digital (0,1) <span style="font-weight: bold;">Input</span>/<span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #c0504d;">Web Control</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Button</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Push Button <span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #c0504d;">Web Control</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Text Input</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Numerical/Date/Text <span style="font-weight: bold;">Input</span>/<span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #c0504d;">Web Control</span>/<span style="color: #4f81bd;">Web Monitoring</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Alarm</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Monitor value per condition</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Web Monitoring</span>/<span style="color: #4f81bd;">Alarming</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Slider Input</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Numerical <span style="font-weight: bold;">Input</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #c0504d;">Web Control</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Chart</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Chart <span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Web Monitoring</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Photo</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Show image/photo/IP camera</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Display/Banner/Live Capture</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Map</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Show map with location pin + geolocation information/sensor</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Geolocation Information/Sensor</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Gauge</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Gauge/Set point <span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Web Monitoring</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Bar Gauge</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Bar Gauge/Set point <span style="font-weight: bold;">Output</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="color: #4f81bd;">Web Monitoring</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p>Once an item, e.g. Frame, is <span style="font-weight: bold;">Dragged &amp; Dropped</span> into <span style="font-weight: bold;">Drop Target</span>, its properties will be listed in <span style="font-weight: bold;">Property Box</span> as shown below. </p>
+<p><img src="w2d_frame_property.png" width="950" height="426" alt="w2d_frame_property" style="width:950px;height:426px;border:none" /></p>
+<h4 class="p_Heading4"><a id="detail_item_prop"></a><span class="f_Heading4">You need to specify those properties following these guide lines. Then press </span><span class="f_Heading4" style="text-decoration: underline;">Save/Update</span><span class="f_Heading4"> on </span><span class="f_Heading4" style="text-decoration: underline;">Action Bar</span><span class="f_Heading4"> to save the edited page into database.</span></h4>
+<div style="text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:solid 3px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:150px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Properties</span></p>
+</th>
+<th style="vertical-align:top; width:327px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Frame</span></p>
+</th>
+<th style="vertical-align:top; width:435px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Display/Label</span></p>
+</th>
+<th style="vertical-align:top; width:379px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Alarm</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item ID</p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">ID of each item as they are dropped in, you can <span style="font-weight: bold;">rearrange</span> items by specifying id accordingly. <span style="font-weight: bold;">Lower number goes to top-left</span>.</p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Leave it Default</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Name</p>
+</td>
+<td style="vertical-align:top; width:327px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of <span style="font-weight: bold;">this</span> Frame</p>
+</td>
+<td style="vertical-align:top; width:435px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this label (not important, anything but blank)</p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Column name</span> (from table) where you want to monitor/control values or <span style="font-weight: bold;">Variable Name</span> from mapped data storage.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Property</p>
+</td>
+<td style="vertical-align:top; width:327px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">N/A</span></p>
+</td>
+<td style="vertical-align:top; width:435px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Text</span> to display as <span style="font-weight: bold;">label</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Condition (<span style="font-weight: bold;">&gt;, &lt;, &gt;=, &lt;=, ==</span>) and Comparing value</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Refresh Rate (ms)</p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> that you want this page to <span style="font-weight: bold;">reload</span> item data  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> that you want &nbsp;to <span style="font-weight: bold;">recheck</span> alarm condition  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(Direct Method [DM])</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Mapped Data Storage</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Mapped Data Storage</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(SQLite Method [SM])</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">SQLite Table Column</span><br />
+<span style="font-weight: bold;">Table</span> <span style="font-weight: bold;">name</span> and <span style="font-weight: bold;">condition</span> for this page to access <span style="font-weight: bold; color: #4f81bd;">(e.g. table_name where rowid=1)</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">SQLite Table Column</span><br />
+<span style="font-weight: bold;">Table</span> <span style="font-weight: bold;">name</span> and <span style="font-weight: bold;">condition</span> for this page to access <br />
+<span style="font-weight: bold; color: #4f81bd;">(e.g. table_name where rowid=1)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Width(%)</p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">N/A</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Parent Frame</p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of Frame you want <span style="font-weight: bold;">this item to move in</span></p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">N/A</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Page Name</p>
+</td>
+<td colspan="2" style="vertical-align:top; width:773px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this page (need once per page)</p>
+</td>
+<td style="vertical-align:top; width:379px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this page (need once per page)</p>
+</td>
+</tr>
+</table>
+</div>
+<p><span style="background-color: #ffff00;">Note:</span> For<span style="font-weight: bold;"> Alarm item</span>, you can upload the alarm sound (small .wav) file to server via <span class="f_Heading4">setup.html</span> page</p>
+<div style="text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:solid 3px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:150px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Properties</span></p>
+</th>
+<th style="vertical-align:top; width:186px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Switch</span></p>
+</th>
+<th style="vertical-align:top; width:195px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Text Input</span></p>
+</th>
+<th style="vertical-align:top; width:621px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Slide Input</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item ID</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">ID of each item as they are dropped in, you can <span style="font-weight: bold;">rearrange</span> items by specifying id accordingly. <span style="font-weight: bold;">Lower number goes to top-left</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Name</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Column name</span> (from table) where you want to monitor/control values or <span style="font-weight: bold;">Variable Name</span> from mapped data storage.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Property</p>
+</td>
+<td style="vertical-align:top; width:186px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">N/A</span></p>
+</td>
+<td style="vertical-align:top; width:195px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Number/Time Format/Default</span></p>
+</td>
+<td style="vertical-align:top; width:621px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Property</span> of this slide <span style="font-weight: bold; color: #4f81bd;">(e.g. min=0 max=100 step=0.5 value=0)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Refresh Rate (ms)</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> that you want this page to <span style="font-weight: bold;">reload</span> item data  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(Direct Method [DM])</span></p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Mapped Data Storage</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(SQLite Method [SM])</span></p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">SQLite Table Column</span><br />
+<span style="font-weight: bold;">Table</span> <span style="font-weight: bold;">name</span> and <span style="font-weight: bold;">condition</span> for this page to access <span style="font-weight: bold; color: #4f81bd;">(e.g. table_name where rowid=1)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Width (%)</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Parent Frame</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of Frame you want <span style="font-weight: bold;">this item to move in</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Page Name</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this page (need once per page)</p>
+</td>
+</tr>
+</table>
+</div>
+<div style="text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:solid 3px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:150px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Properties</span></p>
+</th>
+<th style="vertical-align:top; width:373px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Chart</span></p>
+</th>
+<th style="vertical-align:top; width:303px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Gauge</span></p>
+</th>
+<th style="vertical-align:top; width:340px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Bar Gauge</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item ID</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">ID of each item as they are dropped in, you can <span style="font-weight: bold;">rearrange</span> items by specifying id accordingly. <span style="font-weight: bold;">Lower number goes to top-left</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Name</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this chart (not important, anything but blank)</p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Column names</span> (from table) where you want to monitor values (allow 1, or 2 column separated by space)</p>
+<p style="text-align: center;">or <span style="font-weight: bold;">Variable Name</span> from mapped data storage (allow 1 or 2 variable name separated by space).</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Property</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><a href="w2d_web_interface_setting_up.htm#prop_chart" class="topiclink">See Chart Properties</a></p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><a href="w2d_web_interface_setting_up.htm#prop_gauge" class="topiclink">See Gauge and Bar Gauge Properties</a></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Refresh Rate (ms)</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> <br />
+that you want this chart to <span style="font-weight: bold;">reload</span> its data  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> that you want this page to <span style="font-weight: bold;">reload</span> item data  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(Direct Method [DM])</span></p>
+</td>
+<td rowspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">&nbsp;</p>
+<p style="text-align: center;"><a href="w2d_web_interface_setting_up.htm#prop_table" class="topiclink">See Chart Table Properties</a></p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Mapped Data Storage</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(SQLite Method [SM])</span></p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">SQLite Table Column</span><br />
+<span style="font-weight: bold;">Table</span> <span style="font-weight: bold;">name</span> and <span style="font-weight: bold;">condition</span> for this page to access <span style="font-weight: bold; color: #4f81bd;">(e.g. table_name where rowid=1)</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Width (%)</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width </span></p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width </span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Parent Frame</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of Frame you want <span style="font-weight: bold;">this item to move in</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Page Name</p>
+</td>
+<td colspan="3" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this page (need once per page)</p>
+</td>
+</tr>
+</table>
+</div>
+<h4 class="p_Heading4"><span class="f_Heading4">Clip Showing How to use Map and Photo Items</span></h4>
+<div><div style="width:640px;height:390px;padding:0px"><object width="640" height="390">
+  <param name="clsid" value="D27CDB6E-AE6D-11cf-96B8-444553540000" />
+	<param name="movie" value="http://www.youtube.com/v/cegM10vL48c?version=3" />
+	<param name="allowFullScreen" value="true" />
+	<param name="allowScriptAccess" value="always" />
+	<embed src="http://www.youtube.com/v/cegM10vL48c?version=3"
+	       type="application/x-shockwave-flash"
+	       allowfullscreen="true"
+	       allowScriptAccess="always"
+	       width="640"
+	       height="390" />
+</object></div></div>
+<div style="text-align: center; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="width:100%; border:solid 3px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:150px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Properties</span></p>
+</th>
+<th style="vertical-align:top; width:373px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Photo</span></p>
+</th>
+<th style="vertical-align:top; width:340px; background-color:#c0c0c0; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"><span style="font-weight: bold;">Map</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item ID</p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">ID of each item as they are dropped in, you can <span style="font-weight: bold;">rearrange</span> items by specifying id accordingly. <span style="font-weight: bold;">Lower number goes to top-left</span>.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Name</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this Photo (not important, anything but blank)</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this Map (not important, anything but blank)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Property</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"> location <span style="font-weight: bold;">URL</span> of the source photo (can be local or remote)</p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Specify name of table containing geolocation information/name<br />
+Type of Map (Road, Satellite, Terrain, Hybrid)</p>
+<p style="text-align: center;">Zoom level (or Auto -- cover all location points)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;"> Refresh Rate (ms)</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Amount of time in<span style="font-weight: bold;"> mili-second</span> <br />
+that you want this photo to <span style="font-weight: bold;">reload</span>  <span style="font-weight: bold; color: #4f81bd;">( &gt; 500 ms)</span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">N/A</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(Direct Method [DM])</span></p>
+</td>
+<td rowspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">&nbsp;</p>
+<p style="text-align: center;">N/A</p>
+</td>
+<td rowspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">&nbsp;</p>
+<p style="text-align: center;">N/A</p>
+<p style="text-align: center;">&nbsp;</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Data Source<br />
+<span style="font-weight: bold;">(SQLite Method [SM])</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Item Width (%)</p>
+</td>
+<td style="vertical-align:top; width:373px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width </span></p>
+</td>
+<td style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Width of this item in <span style="font-weight: bold;">percent</span> of <span style="font-weight: bold;">Parent Width </span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Parent Frame</p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of Frame you want <span style="font-weight: bold;">this item to move in</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:150px; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Page Name</p>
+</td>
+<td colspan="2" style="vertical-align:top; padding:2px; border:solid 1px #000000;"><p style="text-align: center;">Name of this page (need once per page)</p>
+</td>
+</tr>
+</table>
+</div>
+<p style="text-align: center;"><span style="font-size: 18pt; font-weight: bold; color: #0000ff; background-color: #ffff00; text-decoration: underline;">Note:</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;To set&nbsp;</span><span style="font-size: 18pt; font-style: italic; font-weight: bold; color: #0000ff; background-color: #ffff00;">refresh interval</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;and table access (real&nbsp;</span><span style="font-size: 18pt; font-style: italic; font-weight: bold; color: #0000ff; background-color: #ffff00;">table</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;or&nbsp;</span><span style="font-size: 18pt; font-style: italic; font-weight: bold; color: #0000ff; background-color: #ffff00;">dv</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">),</span><br />
+<span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">it is recommended to set values at&nbsp;</span><span style="font-size: 18pt; font-weight: bold; color: #0000ff; background-color: #ffff00;">'event'</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;and&nbsp;</span><span style="font-size: 18pt; font-weight: bold; color: #0000ff; background-color: #ffff00;">'table'</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;on&nbsp;</span><span style="font-size: 18pt; font-weight: bold; color: #0000ff; background-color: #ffff00; text-decoration: underline;">the first Frame</span><span style="font-size: 18pt; color: #0000ff; background-color: #ffff00;">&nbsp;item.</span></p>
+<h3 class="p_Heading3"><a id="prop_chart"></a><span class="f_Heading3">Chart Properties</span></h3>
+<h4 class="p_Heading4"><span class="f_Heading4">1.Static Chart -- [where you load many rows from data table to display on chart at once, never refresh]</span></h4>
+<p>The chart property will tell chart what <span style="font-weight: bold;">Column</span> to use as <span style="font-weight: bold;">xaxis</span>, and what <span style="font-weight: bold;">Columns</span> to use as <span style="font-weight: bold;">yaxis</span>. There can be more than one yaxis. Yaxis <span style="font-weight: bold;">minimum</span> and <span style="font-weight: bold;">maximum</span> can also be specified, as well as the <span style="font-weight: bold;">number of points</span> per each line to keep data. The <span style="font-weight: bold;">default</span> values are, <span style="font-weight: bold;">min=0, max=100, point=30</span>.</p>
+<p>Property has these formats; (properties in square brackets are optional)</p>
+<p> <span style="font-family: Consolas; font-weight: bold;">xaxis yaxis1,yaxis2,yaxis3 [min=0 max=100 point=30]</span></p>
+<p><span style="font-weight: bold; color: #4f81bd;">(e.g. </span><span style="font-family: Consolas; font-weight: bold; color: #4f81bd;">time adc1,adc2)</span></p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.Dynamic Chart -- [where you keep loading new row entry (on time interval, specified in Event prop) into chart]</span></h4>
+<p>The chart property will tell chart to use browser <span style="font-weight: bold;">time as xaxis</span>, and use what <span style="font-weight: bold;">Columns</span> as <span style="font-weight: bold;">yaxis</span>. There can be more than one yaxis. Yaxis <span style="font-weight: bold;">minimum</span> and <span style="font-weight: bold;">maximum</span> can also be specified, as well as the <span style="font-weight: bold;">number of points</span> per each line to keep data. The <span style="font-weight: bold;">default</span> values are, <span style="font-weight: bold;">min=0, max=100, point=30</span>.</p>
+<p>Property has these formats; (properties in square brackets are optional)</p>
+<p> <span style="font-family: Consolas; font-weight: bold;">auto yaxis1,yaxis2,yaxis3 [min=0 max=100 point=30]</span></p>
+<p><span style="font-weight: bold; color: #4f81bd;">(e.g. </span><span style="font-family: Consolas; font-weight: bold; color: #4f81bd;">auto adc1,adc2 min=0 max=4 point=50)</span></p>
+<h3 class="p_Heading3"><a id="prop_table"></a><span class="f_Heading3">Chart Table</span></h3>
+<h4 class="p_Heading4"><span class="f_Heading4">1.Static Chart -- [where you load many rows from table data to display on chart at once, never refresh]</span></h4>
+<p>Select <span style="font-weight: bold;">'SQLite Table Column'</span> then specifying the<span style="font-weight: bold;"> table name</span> and (optionally) <span style="font-weight: bold;">condition</span> for querying data from table into chart.</p>
+<p>Property has these formats;</p>
+<p> <span style="font-family: Consolas; font-weight: bold;">table_name</span> or <span style="font-family: Consolas; font-weight: bold;">table_name SQLite_optional_condition [SM for SQLite Method only]</span></p>
+<p><span style="font-weight: bold; color: #4f81bd;">(e.g. </span><span style="font-family: Consolas; font-weight: bold; color: #4f81bd;">sensors where adc1&gt;50 </span><span style="font-weight: bold; color: #4f81bd;">or</span><span style="font-family: Consolas; font-weight: bold; color: #4f81bd;"> sensors limit 20)</span></p>
+<h4 class="p_Heading4"><span class="f_Heading4">2.Dynamic Chart -- [where you keep loading new row entry (on time interval, specified in Refresh Rate) into chart]</span></h4>
+<p>Select <span style="font-weight: bold;">'SQLite Table Column'</span> then specifying the<span style="font-weight: bold;"> table name</span> and <span style="font-weight: bold;">row</span> <span style="font-weight: bold;">condition</span> for querying one row of data from table adding into chart, or set it to <span style="font-weight: bold;">'Mapped Data Storage' </span>in case of<span style="font-weight: bold;"> Direct Method [DM]</span></p>
+<p>Property has these formats;</p>
+<p> <span style="font-family: Consolas; font-weight: bold;">table_name row_condition</span> <span style="font-family: Consolas; font-weight: bold;">[SM]</span></p>
+<p><span style="font-weight: bold; color: #4f81bd;">(e.g. </span><span style="font-family: Consolas; font-weight: bold; color: #4f81bd;">sensors where rowid=1)</span></p>
+<h3 class="p_Heading3"><a id="prop_gauge"></a><span class="f_Heading3">Gauge and Bar Gauge Properties</span></h3>
+<p>Specifying the <span style="font-weight: bold;">Minimum</span> and <span style="font-weight: bold;">Maximum</span> as well as a <span style="font-weight: bold;">Caption</span> for Gauge or Bar Gauge. It assume <span style="font-weight: bold;">min=0, max=100</span> and <span style="font-weight: bold;">name=ColumnName/VariableName</span> as default. &nbsp;Note: for dial gauge you have option to set number of major ticks and minor ticks on the gauge face.</p>
+<h3 class="p_Heading3"><a id="load_it"></a><span class="f_Heading3" style="font-size: 14pt; text-decoration: underline;">Loading Web Interface</span></h3>
+<p>You can load the web interface you have created from menu <span style="font-weight: bold;">&quot;Pages&quot;</span>. List of pages available will show up under main menu as <span style="font-weight: bold;">page number</span>. <span style="font-weight: bold;">&quot;Click&quot;</span> to go to that page.</p>
+<p><img src="w2d_pages.png" width="950" height="215" alt="w2d_pages" style="width:950px;height:215px;border:none" /></p>
+<h3 class="p_Heading3"><a id="tweak_it"></a><span class="f_Heading3" style="font-size: 14pt; text-decoration: underline;">SQLite Query Statement</span></h3>
+<p>You can use general <a href="http://www.sqlite.org/index.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="About SQLite">SQLite</a> Statement here. This page will allow you to <span style="font-family: Consolas; font-weight: bold;"><a href="http://www.sqlite.org/lang_createtable.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Create Table">CREATE</a>/<a href="http://www.sqlite.org/lang_droptable.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Drop Table">DROP</a></span> table, <span style="font-family: Consolas; font-weight: bold;"><a href="http://www.sqlite.org/lang_insert.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Insert">INSERT</a></span><span style="font-family: Consolas;">, </span><span style="font-family: Consolas; font-weight: bold;"><a href="http://www.sqlite.org/lang_update.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Update">UPDATE</a></span><span style="font-family: Consolas;">, </span><span style="font-family: Consolas; font-weight: bold;"><a href="http://www.sqlite.org/lang_delete.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Delete">DELETE</a></span><span style="font-family: Consolas;">, </span><span style="font-family: Consolas; font-weight: bold;"><a href="http://www.sqlite.org/lang_select.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Select">SELECT</a></span> data on table. <a href="http://www.sqlite.org/lang.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="Other Statements">Other statements</a> are not thoroughly tested and may or may not work. The SQLite Query Statement <span style="font-weight: bold;">Input</span> are there to help you <span style="font-weight: bold;">fix</span> and <span style="font-weight: bold;">fine tuning</span> your database table.</p>
+<p><img src="w2d_sqlite.png" width="950" height="697" alt="w2d_SQLite" style="width:950px;height:697px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Examples of Valid SQLite Statements</span></h3>
+<p>The most <span style="font-weight: bold;">common uses</span> of SQLite Query are shown (for example) here. (<span style="font-family: Consolas; font-weight: bold;">CAP</span> are SQLite Keywords and <span style="font-weight: bold; text-decoration: underline;">NonCAP</span> are your addition, <span style="font-weight: bold;">lower case</span> SQLite keywords also <span style="font-weight: bold;">work</span>.)</p>
+<p class="p_Code"><span class="f_Code">CREATE TABLE IF NOT EXISTS table_name (col1 INTEGER, col2 REAL, col3 TEXT)</span></p>
+<p class="p_Code"><span class="f_Code">DROP TABLE table_name</span></p>
+<p class="p_Code"><span class="f_Code">CREATE TABLE table_name (id INTEGER PRIMARY KEY, col2 REAL, col3 INTEGER, col4 TEXT)</span></p>
+<p class="p_Code"><span class="f_Code">INSERT INTO table_name (col2,col3,col4) VALUES (1.25,10,'your first text')</span></p>
+<p class="p_Code"><span class="f_Code">INSERT INTO table_name (col2,col4) VALUES (54.2,'your second text')</span></p>
+<p class="p_Code"><span class="f_Code">UPDATE table_name SET col2=12.5, col3=20 WHERE col4='your first text'</span></p>
+<p class="p_Code"><span class="f_Code">UPDATE table_name SET col3=30 WHERE col2=54.2</span></p>
+<p class="p_Code"><span class="f_Code">SELECT * FROM table_name LIMIT 2</span></p>
+<p class="p_Code"><span class="f_Code">SELECT * FROM table_name WHERE col3=10</span></p>
+<p class="p_Code"><span class="f_Code">SELECT col4 FROM table_name WHERE col2&lt;10</span></p>
+<p class="p_Code"><span class="f_Code">SELECT * FROM table_name ORDER BY col3 ASC</span></p>
+<p class="p_Code"><span class="f_Code">SELECT * FROM table_name ORDER BY col2 DESC</span></p>
+<p class="p_Code"><span class="f_Code">DELETE FROM table_name WHERE col4='your second text'</span></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

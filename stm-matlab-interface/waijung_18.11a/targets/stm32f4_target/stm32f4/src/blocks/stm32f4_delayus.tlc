@@ -1,0 +1,59 @@
+%implements stm32f4_delayus "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+
+%assign delaytime = CAST("Number",SFcnParamSettings.delaytime)
+%assign enableinput = CAST("Number",SFcnParamSettings.enableinput)
+%assign enableoutput = CAST("Number",SFcnParamSettings.enableoutput)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+
+%assign block = block + sampletime + sampletimestr + blockid \
+                + delaytime + enableinput + enableoutput
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+/* %<Name> */
+%if enableinput == 1
+(void)%<LibBlockInputSignal(0, "", "", 0)>;
+%endif
+%if enableoutput == 1
+(void)%<LibBlockOutputSignal(0, "", "", 0)>;
+%endif
+SysTimer_delay_us(%<delaytime>);
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* enable_%<blockid>(); */
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

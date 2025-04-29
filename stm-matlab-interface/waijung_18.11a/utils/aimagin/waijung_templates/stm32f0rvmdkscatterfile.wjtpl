@@ -1,0 +1,13 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".sct"
+;LR_IROM1 0x08000000 0x00100000  {    ; load region size_region
+;  ER_IROM1 0x08000000 0x00100000  {  ; load address = execution address
+${section:flash}
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+${section:ram}
+}
+
+%closefile tmpBuf
+

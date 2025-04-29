@@ -1,0 +1,469 @@
+%implements nrf5_adc "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign analogprescaling = optionstring[0]
+  %assign analogreference = optionstring[1] 
+  %assign externalreference = optionstring[2]
+  %assign read_an0 = optionstring[3]
+  %assign read_an1 = optionstring[4]
+  %assign read_an2 = optionstring[5]
+  %assign read_an3 = optionstring[6]
+  %assign read_an4 = optionstring[7]
+  %assign read_an5 = optionstring[8]
+  %assign read_an6 = optionstring[9]
+  %assign read_an7 = optionstring[10]
+  %assign read_an8 = optionstring[11]
+  %assign read_an9 = optionstring[12]
+  %assign family   = optionstring[13]
+  %assign gain     = optionstring[14]
+  %assign acquisitiontime = optionstring[15]
+
+  %assign block = block + analogprescaling + analogreference + externalreference \
+                + read_an0 + read_an1 + read_an2 + read_an3 \
+                + read_an4 + read_an5 + read_an6 + read_an7 \
+                + read_an8 + read_an9 + family + gain + acquisitiontime
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+    %if family == "nrf52"
+    /* ########################################################################
+    * Name: ADC
+    * ########################################################################
+    */
+    #include "nrf_saadc.h"
+    #include "nrf_drv_saadc.h"
+    int16_t nrf52_simple_adc_read(nrf_saadc_channel_config_t *channel_config);
+    %endif
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+     %if family == "nrf52"
+       /* ########################################################################
+        * Name: ADC
+        * ########################################################################
+        */
+       int16_t nrf52_simple_adc_read(nrf_saadc_channel_config_t *channel_config)
+       {
+	     nrf_saadc_value_t val;
+ 	     ret_code_t err_code;
+	     //nrf_saadc_channel_config_t channel_config = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(input);
+	     //channel_config.pin_p = input;
+	
+	     // Init
+	     err_code = nrf_drv_saadc_channel_init(0, channel_config);
+	     APP_ERROR_CHECK(err_code);	
+	
+	     // Enable
+	     nrf_saadc_enable();	
+	
+	     // Convert
+	     err_code = nrf_drv_saadc_sample_convert(0, &val);
+	     APP_ERROR_CHECK(err_code);	
+	
+	     // Disable
+	     nrf_saadc_disable();
+	     nrf_drv_saadc_channel_uninit(0);	
+	
+	     // Return
+	     return (int16_t)val;
+       }   
+     %endif 
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+  typedef struct {
+    %if read_an0 == "on"
+    int16_t An0;
+    %endif
+    %if read_an1 == "on"
+    int16_t An1;
+    %endif
+    %if read_an2 == "on"
+    int16_t An2;
+    %endif
+    %if read_an3 == "on"
+    int16_t An3;
+    %endif
+    %if read_an4 == "on"
+    int16_t An4;
+    %endif
+    %if read_an5 == "on"
+    int16_t An5;
+    %endif
+    %if read_an6 == "on"
+    int16_t An6;
+    %endif
+    %if read_an7 == "on"
+    int16_t An7;
+    %endif
+  %if family == "nrf51"  
+    %if read_an8 == "on"
+    int16_t VDD_3;
+    %endif
+    %if read_an9 == "on"
+    int16_t VDD2_3;
+    %endif
+  %endif
+
+  %if family == "nrf52"  
+    int16_t VDD;
+  %endif
+  } %<blockid>_DATA_STRUCT;
+
+extern %<blockid>_DATA_STRUCT %<blockid>_Data;
+void %<blockid>_Convert(void);
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%<blockid>_DATA_STRUCT %<blockid>_Data;
+
+%if family == "nrf51"
+  int16_t %<blockid>_ADC_Start(void)
+  {
+    uint16_t val;
+
+    /* Start */
+    NRF_ADC->EVENTS_END = 0;
+    NRF_ADC->TASKS_START = 1;
+    while (NRF_ADC->EVENTS_END == 0);
+
+    /* Result */
+    val = (uint16_t)(NRF_ADC->RESULT);
+
+    /* Stop */
+    NRF_ADC->TASKS_STOP = 1;
+
+    return (int16_t)val;
+  }
+
+  void %<blockid>_Convert(void)
+  {
+    %% External ref
+    %if analogreference == "EXT"
+      %if externalreference == "AREF0"
+        %assign ext_ref = "ADC_CONFIG_EXTREFSEL_AnalogReference0"
+      %else
+        %assign ext_ref = "ADC_CONFIG_EXTREFSEL_AnalogReference1"
+      %endif
+    %else
+      %assign ext_ref = "ADC_CONFIG_EXTREFSEL_None"
+    %endif
+
+    %% Reference
+    %if analogreference == "VBG"
+      %assign ref = "ADC_CONFIG_REFSEL_VBG"  
+    %elseif analogreference == "EXT"
+      %assign ref = "ADC_CONFIG_REFSEL_External"  
+    %elseif analogreference == "VDD/2"
+      %assign ref = "ADC_CONFIG_REFSEL_SupplyOneHalfPrescaling"
+    %elseif analogreference == "VDD/3"
+      %assign ref = "ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling"
+    %endif
+
+    %% Analog input prescaling
+    %if analogprescaling == "No"
+      %assign prescaling = "ADC_CONFIG_INPSEL_AnalogInputNoPrescaling"
+    %elseif analogprescaling == "2/3"
+      %assign prescaling = "ADC_CONFIG_INPSEL_AnalogInputTwoThirdsPrescaling"
+    %elseif analogprescaling == "1/3"
+      %assign prescaling = "ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling"
+    %endif
+
+    %if read_an0 == "on"
+
+
+      /* === AN0 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput0 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An0 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an1 == "on"
+      /* === AN1 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput1 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An1 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an2 == "on"
+      /* === AN2 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput2 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An2 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an3 == "on"
+      /* === AN3 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput3 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An3 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an4 == "on"
+      /* === AN4 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput4 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An4 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an5 == "on"
+      /* === AN5 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput5 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An5 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an6 == "on"
+      /* === AN6 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput6 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An6 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an7 == "on"
+      /* === AN7 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_AnalogInput7 << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (%<prescaling> << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.An7 = %<blockid>_ADC_Start();
+    %endif
+    %if read_an8 == "on"
+      /* === VDD/3 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_Disabled << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.VDD_3 = %<blockid>_ADC_Start();
+    %endif  
+    %if read_an9 == "on"
+      /* === 2VDD/3 === */
+      NRF_ADC->CONFIG	= (%<ext_ref> << ADC_CONFIG_EXTREFSEL_Pos) 
+              | (ADC_CONFIG_PSEL_Disabled << ADC_CONFIG_PSEL_Pos)
+              | (%<ref> << ADC_CONFIG_REFSEL_Pos)
+              | (ADC_CONFIG_INPSEL_SupplyTwoThirdsPrescaling << ADC_CONFIG_INPSEL_Pos)
+              | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);
+      %<blockid>_Data.VDD2_3 = %<blockid>_ADC_Start();
+    %endif  
+  }
+
+%endif
+
+%if family == "nrf52"
+void %<blockid>_Convert(void)
+{
+    nrf_saadc_channel_config_t channel_config = NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN0);
+    channel_config.gain = NRF_SAADC_GAIN%<gain>;
+    channel_config.acq_time = NRF_SAADC_ACQTIME_%<acquisitiontime>;
+    %if read_an0 == "on"
+      /* === AN0 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN0;
+      %<blockid>_Data.An0 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an1 == "on"
+      /* === AN1 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN1;
+      %<blockid>_Data.An1 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an2 == "on"
+      /* === AN2 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN2;
+      %<blockid>_Data.An2 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an3 == "on"
+      /* === AN3 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN3;
+      %<blockid>_Data.An3 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an4 == "on"
+      /* === AN4 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN4;
+      %<blockid>_Data.An4 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an5 == "on"
+      /* === AN5 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN5;
+      %<blockid>_Data.An5 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an6 == "on"
+      /* === AN6 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN6;
+      %<blockid>_Data.An6 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an7 == "on"
+      /* === AN7 === */
+      channel_config.pin_p = NRF_SAADC_INPUT_AIN7;
+      %<blockid>_Data.An7 = nrf52_simple_adc_read(&channel_config);
+    %endif
+    %if read_an8 == "on"
+      /* === VDD === */
+      channel_config.pin_p = NRF_SAADC_INPUT_VDD;
+      %<blockid>_Data.VDD = nrf52_simple_adc_read(&channel_config);
+    %endif  
+}
+%endif
+
+void enable_%<blockid>(void){
+  %if family == "nrf51"
+  NRF_ADC->POWER = (ADC_POWER_POWER_Enabled << ADC_POWER_POWER_Pos);
+  __NOP(); __NOP(); __NOP();
+  NRF_ADC->ENABLE = (ADC_ENABLE_ENABLE_Enabled << ADC_ENABLE_ENABLE_Pos);
+  %endif
+}
+
+void disable_%<blockid>(void) {
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */
+    %<blockid>_Convert();
+
+    %assign port_idx = 0
+    %if read_an0 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An0;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an1 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An1;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an2 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An2;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an3 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An3;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an4 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An4;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an5 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An5;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an6 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An6;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an7 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.An7;
+      %assign port_idx = port_idx + 1
+    %endif
+  %if family == "nrf51"
+    %if read_an8 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.VDD_3;
+      %assign port_idx = port_idx + 1
+    %endif
+    %if read_an9 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.VDD2_3;
+      %assign port_idx = port_idx + 1
+    %endif
+  %endif
+
+  %if family == "nrf52"
+    %if read_an8 == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Data.VDD;
+      %assign port_idx = port_idx + 1
+    %endif
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

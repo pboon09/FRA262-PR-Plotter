@@ -1,0 +1,666 @@
+%implements waijung_ethernet_inf "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+%assign dummy = optionstring[0]
+
+%assign port_a_used = optionstring[1]
+%assign port_b_used = optionstring[2]
+%assign port_c_used = optionstring[3]
+%assign port_d_used = optionstring[4]
+%assign port_e_used = optionstring[5]
+%assign port_f_used = optionstring[6]
+%assign port_g_used = optionstring[7]
+%assign port_h_used = optionstring[8]
+%assign port_i_used = optionstring[9]
+
+%assign crs_used = optionstring[10]
+%assign rxclk_used = optionstring[11]
+%assign mdio_used = optionstring[12]
+%assign col_used = optionstring[13]
+%assign dv_used = optionstring[14]
+%assign rxd2_used = optionstring[15]
+%assign rxd3_used = optionstring[16]
+%assign pps_used = optionstring[17]
+%assign txd3_used = optionstring[18]
+%assign rxer_used = optionstring[19]
+%assign txen_used = optionstring[20]
+%assign txd0_used = optionstring[21]
+%assign txd1_used = optionstring[22]
+%assign mdc_used = optionstring[23]
+%assign txd2_used = optionstring[24]
+%assign txclk_used = optionstring[25]
+%assign rxd0_used = optionstring[26]
+%assign rxd1_used = optionstring[27]
+
+%assign crs_port = optionstring[28]
+%assign crs_pin = optionstring[29]
+
+%assign rxclk_port = optionstring[30]
+%assign rxclk_pin = optionstring[31]
+
+%assign mdio_port = optionstring[32]
+%assign mdio_pin = optionstring[33]
+
+%assign col_port = optionstring[34]
+%assign col_pin = optionstring[35]
+
+%assign dv_port = optionstring[36]
+%assign dv_pin = optionstring[37]
+
+%assign rxd2_port = optionstring[38]
+%assign rxd2_pin = optionstring[39]
+
+%assign rxd3_port = optionstring[40]
+%assign rxd3_pin = optionstring[41]
+
+%assign pps_port = optionstring[42]
+%assign pps_pin = optionstring[43]
+
+%assign txd3_port = optionstring[44]
+%assign txd3_pin = optionstring[45]
+
+%assign rxer_port = optionstring[46]
+%assign rxer_pin = optionstring[47]
+
+%assign txen_port = optionstring[48]
+%assign txen_pin = optionstring[49]
+
+%assign txd0_port = optionstring[50]
+%assign txd0_pin = optionstring[51]
+
+%assign txd1_port = optionstring[52]
+%assign txd1_pin = optionstring[53]
+
+%assign mdc_port = optionstring[54]
+%assign mdc_pin = optionstring[55]
+
+%assign txd2_port = optionstring[56]
+%assign txd2_pin = optionstring[57]
+
+%assign txclk_port = optionstring[58]
+%assign txclk_pin = optionstring[59]
+
+%assign rxd0_port = optionstring[60]
+%assign rxd0_pin = optionstring[61]
+
+%assign rxd1_port = optionstring[62]
+%assign rxd1_pin = optionstring[63]
+
+%assign interfacetype = optionstring[64]
+
+%assign chipaddress = optionstring[65]
+%assign autonegotiation = optionstring[66]
+%assign speed  = optionstring[67]
+%assign duplex = optionstring[68]
+
+%assign block = block + port_a_used + port_b_used + port_c_used + port_d_used \
+        + port_e_used + port_f_used + port_g_used + port_h_used + port_i_used \
+        + crs_used + rxclk_used + mdio_used + col_used + dv_used + rxd2_used \
+        + rxd3_used + pps_used + txd3_used + rxer_used + txen_used + txd0_used \
+        + txd1_used + mdc_used + txd2_used + txclk_used + rxd0_used + rxd1_used \
+        + crs_port + crs_pin + rxclk_port + rxclk_pin + mdio_port + mdio_pin \
+        + col_port + col_pin + dv_port + dv_pin + rxd2_port + rxd2_pin + rxd3_port + rxd3_pin \ 
+        + pps_port + pps_pin + txd3_port + txd3_pin + rxer_port + rxer_pin + txen_port + txen_pin \
+        + txd0_port + txd0_pin + txd1_port + txd1_pin + mdc_port + mdc_pin + txd2_port + txd2_pin \
+        + txclk_port + txclk_pin + rxd0_port + rxd0_pin + rxd1_port + rxd1_pin + interfacetype \
+        + chipaddress + autonegotiation + speed + duplex
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#include "stm32f4x7_eth.h"
+
+/* STM32F4x7_ETH_BSP */
+%%#define DP83848_PHY_ADDRESS            0x01
+#define ETH_PHY_ADDRESS            %<chipaddress>
+
+/* Specific defines for EXTI line, used to manage Ethernet link status */
+#define ETH_LINK_EXTI_LINE             EXTI_Line14
+#define ETH_LINK_EXTI_PORT_SOURCE      EXTI_PortSourceGPIOB
+#define ETH_LINK_EXTI_PIN_SOURCE       EXTI_PinSource14
+#define ETH_LINK_EXTI_IRQn             EXTI15_10_IRQn 
+/* PB14 */
+#define ETH_LINK_PIN                   GPIO_Pin_14
+#define ETH_LINK_GPIO_PORT             GPIOB
+#define ETH_LINK_GPIO_CLK              RCC_AHB1Periph_GPIOB
+
+/* Indicate ready state */
+extern int ethernet_link_setup_state;
+#define ETHERNET_LINK_READY() (ethernet_link_setup_state==3)
+
+void setup_eth_link(void);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+volatile uint32_t  EthInitStatus = 0;
+volatile uint8_t EthLinkStatus = 0;
+int ethernet_link_setup_state = 0;
+/* Extern */
+uint32_t ETH_Init_Nonblocking(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress, uint32_t *nonblocking_state);
+
+/**
+  * @brief  Read a PHY register
+  * @param PHYAddress: PHY device address, is the index of one of supported 32 PHY devices. 
+  *   This parameter can be one of the following values: 0,..,31                  
+  * @param PHYReg: PHY register address, is the index of one of the 32 PHY register. 
+  *   This parameter can be one of the following values: 
+  *     @arg PHY_BCR: Transceiver Basic Control Register 
+  *     @arg PHY_BSR: Transceiver Basic Status Register 
+  *     @arg PHY_SR : Transceiver Status Register    
+  *     @arg More PHY register could be read depending on the used PHY
+  * @retval ETH_ERROR: in case of timeout
+  *         MAC MIIDR register value: Data read from the selected PHY register (correct read )
+  */
+uint16_t ETH_ReadPHYRegister_Nonblocking(uint16_t PHYAddress, uint16_t PHYReg)
+{
+  uint32_t tmpreg = 0;     
+  __IO uint32_t timeout = 0;
+  /* Check the parameters */
+  assert_param(IS_ETH_PHY_ADDRESS(PHYAddress));
+  assert_param(IS_ETH_PHY_REG(PHYReg));
+  
+  /* Get the ETHERNET MACMIIAR value */
+  tmpreg = ETH->MACMIIAR;
+  /* Keep only the CSR Clock Range CR[2:0] bits value */
+  tmpreg &= ~MACMIIAR_CR_MASK;
+  /* Prepare the MII address register value */
+  tmpreg |=(((uint32_t)PHYAddress<<11) & ETH_MACMIIAR_PA);/* Set the PHY device address */
+  tmpreg |=(((uint32_t)PHYReg<<6) & ETH_MACMIIAR_MR);      /* Set the PHY register address */
+  tmpreg &= ~ETH_MACMIIAR_MW;                              /* Set the read mode */
+  tmpreg |= ETH_MACMIIAR_MB;                               /* Set the MII Busy bit */
+  /* Write the result value into the MII Address register */
+  ETH->MACMIIAR = tmpreg;
+  /* Check for the Busy flag */
+  do
+  {
+    timeout++;
+    tmpreg = ETH->MACMIIAR;
+  } while ((tmpreg & ETH_MACMIIAR_MB) && (timeout < (uint32_t)PHY_READ_TO));
+  /* Return ERROR in case of timeout */
+  if(timeout == PHY_READ_TO)
+  {
+    return (uint16_t)ETH_ERROR;
+  }
+  
+  /* Return data register value */
+  return (uint16_t)(ETH->MACMIIDR);
+}
+
+/**
+  * @brief  Write to a PHY register
+  * @param PHYAddress: PHY device address, is the index of one of supported 32 PHY devices. 
+  *   This parameter can be one of the following values: 0,..,31
+  * @param PHYReg: PHY register address, is the index of one of the 32 PHY register. 
+  *   This parameter can be one of the following values: 
+  *     @arg PHY_BCR    : Transceiver Control Register  
+  *     @arg More PHY register could be written depending on the used PHY
+  * @param  PHYValue: the value to write
+  * @retval ETH_ERROR: in case of timeout
+  *         ETH_SUCCESS: for correct write
+  */
+uint32_t ETH_WritePHYRegister_Nonblocking(uint16_t PHYAddress, uint16_t PHYReg, uint16_t PHYValue)
+{
+  uint32_t tmpreg = 0;
+  __IO uint32_t timeout = 0;
+  /* Check the parameters */
+  assert_param(IS_ETH_PHY_ADDRESS(PHYAddress));
+  assert_param(IS_ETH_PHY_REG(PHYReg));
+
+  /* Get the ETHERNET MACMIIAR value */
+  tmpreg = ETH->MACMIIAR;
+  /* Keep only the CSR Clock Range CR[2:0] bits value */
+  tmpreg &= ~MACMIIAR_CR_MASK;
+  /* Prepare the MII register address value */
+  tmpreg |=(((uint32_t)PHYAddress<<11) & ETH_MACMIIAR_PA); /* Set the PHY device address */
+  tmpreg |=(((uint32_t)PHYReg<<6) & ETH_MACMIIAR_MR);      /* Set the PHY register address */
+  tmpreg |= ETH_MACMIIAR_MW;                               /* Set the write mode */
+  tmpreg |= ETH_MACMIIAR_MB;                               /* Set the MII Busy bit */
+  /* Give the value to the MII data register */
+  ETH->MACMIIDR = PHYValue;
+  /* Write the result value into the MII Address register */
+  ETH->MACMIIAR = tmpreg;
+  /* Check for the Busy flag */
+  do
+  {
+    timeout++;
+    tmpreg = ETH->MACMIIAR;
+  } while ((tmpreg & ETH_MACMIIAR_MB) && (timeout < (uint32_t)PHY_WRITE_TO));
+  /* Return ERROR in case of timeout */
+  if(timeout == PHY_WRITE_TO)
+  {
+    return ETH_ERROR;
+  }
+
+  /* Return SUCCESS */
+  return ETH_SUCCESS;  
+}
+
+static void ETH_GetDMAStatus(void)
+{
+/**
+  * @brief  Checks whether the specified ETHERNET DMA overflow flag is set or not.
+  * @param  ETH_DMA_Overflow: specifies the DMA overflow flag to check.
+  *   This parameter can be one of the following values:
+  *     @arg ETH_DMA_Overflow_RxFIFOCounter : Overflow for FIFO Overflows Counter
+  *     @arg ETH_DMA_Overflow_MissedFrameCounter : Overflow for Buffer Unavailable Missed Frame Counter
+  * @retval The new state of ETHERNET DMA overflow Flag (SET or RESET).
+  */
+#ifdef WEBSERVER_DEBUG_PRINT
+  FlagStatus sta;
+  sta = ETH_GetDMAOverflowStatus(ETH_DMA_Overflow_RxFIFOCounter);
+  WEBSERVER_DEBUG_PRINT("ETH_DMA_Overflow_RxFIFOCounter: %u", (uint32_t)sta);
+  WEBSERVER_DEBUG_PRINT("ETH_DMA_Overflow_MissedFrameCounter: %u", (uint32_t)sta);
+#endif
+}
+
+/**
+  * @brief  Configures the Ethernet Interface
+  * @param  None
+  * @retval None
+  */
+static void ETH_MACDMA_Config(ETH_InitTypeDef *ETH_InitStructure)
+{
+  //ETH_InitTypeDef ETH_InitStructure;
+
+  /* Enable ETHERNET clock  */
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_ETH_MAC | \
+                        RCC_AHB1Periph_ETH_MAC_Tx |\
+                        RCC_AHB1Periph_ETH_MAC_Rx, ENABLE);
+                        
+  /* Reset ETHERNET on AHB Bus */
+  ETH_DeInit();
+
+  /* Software reset */
+  ETH_SoftwareReset();
+
+  /* Wait for software reset */
+  while (ETH_GetSoftwareResetStatus() == SET);
+
+  /* ETHERNET Configuration --------------------------------------------------*/
+  /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
+  ETH_StructInit(ETH_InitStructure);
+
+  /* Fill ETH_InitStructure parametrs */
+  /*------------------------   MAC   -----------------------------------*/
+  %if autonegotiation == "Disable"
+    ETH_InitStructure->ETH_AutoNegotiation = ETH_AutoNegotiation_Disable; 
+    ETH_InitStructure->ETH_Speed = ETH_Speed_%<speed>M;
+    ETH_InitStructure->ETH_Mode = ETH_Mode_%<duplex>Duplex;
+  %else %%Enable
+    ETH_InitStructure->ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
+  %endif
+
+  ETH_InitStructure->ETH_LoopbackMode = ETH_LoopbackMode_Disable;
+  ETH_InitStructure->ETH_RetryTransmission = ETH_RetryTransmission_Disable;
+  ETH_InitStructure->ETH_AutomaticPadCRCStrip = ETH_AutomaticPadCRCStrip_Disable;
+  ETH_InitStructure->ETH_ReceiveAll = ETH_ReceiveAll_Disable;
+  ETH_InitStructure->ETH_BroadcastFramesReception = ETH_BroadcastFramesReception_Enable;
+  ETH_InitStructure->ETH_PromiscuousMode = ETH_PromiscuousMode_Disable;
+  ETH_InitStructure->ETH_MulticastFramesFilter = ETH_MulticastFramesFilter_Perfect;
+  ETH_InitStructure->ETH_UnicastFramesFilter = ETH_UnicastFramesFilter_Perfect;
+#ifdef CHECKSUM_BY_HARDWARE
+  ETH_InitStructure->ETH_ChecksumOffload = ETH_ChecksumOffload_Enable;
+#endif
+
+  /*------------------------   DMA   -----------------------------------*/    
+  /* When we use the Checksum offload feature, we need to enable the Store and Forward mode: 
+  the store and forward guarantee that a whole frame is stored in the FIFO, so the MAC can insert/verify the checksum, 
+  if the checksum is OK the DMA can handle the frame otherwise the frame is dropped */
+  ETH_InitStructure->ETH_DropTCPIPChecksumErrorFrame = ETH_DropTCPIPChecksumErrorFrame_Enable; 
+  ETH_InitStructure->ETH_ReceiveStoreForward = ETH_ReceiveStoreForward_Enable;         
+  ETH_InitStructure->ETH_TransmitStoreForward = ETH_TransmitStoreForward_Enable;     
+ 
+  ETH_InitStructure->ETH_ForwardErrorFrames = ETH_ForwardErrorFrames_Disable;       
+  ETH_InitStructure->ETH_ForwardUndersizedGoodFrames = ETH_ForwardUndersizedGoodFrames_Disable;   
+  ETH_InitStructure->ETH_SecondFrameOperate = ETH_SecondFrameOperate_Enable;
+  ETH_InitStructure->ETH_AddressAlignedBeats = ETH_AddressAlignedBeats_Enable;      
+  ETH_InitStructure->ETH_FixedBurst = ETH_FixedBurst_Enable;                
+  ETH_InitStructure->ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;          
+  ETH_InitStructure->ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
+  ETH_InitStructure->ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
+
+  /* Configure Ethernet */
+  //EthInitStatus = ETH_Init(&ETH_InitStructure, ETH_PHY_ADDRESS);
+}
+
+/* Nonblocking setup link */
+void setup_eth_link(void)
+{
+  static uint32_t nonblocking_state;
+  static SYS_TIMER_STRUCT timer;
+  static ETH_InitTypeDef ETH_InitStructure;
+
+  switch(ethernet_link_setup_state) {    
+    /* configure ethernet (GPIOs, clocks, MAC, DMA) */ 
+    case 0:
+      /* Configure the GPIO ports for ethernet pins */
+      //ETH_GPIO_Config(); 
+      ETH_MACDMA_Config(&ETH_InitStructure);
+
+      /* Next state */
+      ethernet_link_setup_state ++;
+      nonblocking_state = 0;
+      SysTimer_Start(&timer, 10000); /* 10 Seconds */
+      break;
+
+    case 1: /* Non-blocking connection init */
+       
+      /* Configure Ethernet */
+      //EthInitStatus = ETH_Init_Nonblocking(&ETH_InitStructure, ETH_PHY_ADDRESS, &nonblocking_state);
+      EthInitStatus = ETH_Init(&ETH_InitStructure, ETH_PHY_ADDRESS);
+      if(EthInitStatus == ETH_SUCCESS) {
+        /* Next state */
+        ethernet_link_setup_state ++;
+      }
+      else if(EthInitStatus == ETH_ERROR) {
+        SysTimer_Start(&timer, 10000); /* 10 Seconds */
+        ethernet_link_setup_state = 4; /* Error state */
+      }
+      else {
+        if(SysTimer_IsTimeout(&timer)) {
+          SysTimer_Start(&timer, 10000); /* 10 Seconds */
+          ethernet_link_setup_state = 4; /* Error state */
+        }
+      }
+
+      break;
+
+    case 2: /* Do nothing */
+      SysTimer_Start(&timer, 1000); /* 1 Seconds */
+      /* Next state */
+      ethernet_link_setup_state ++;
+      break;
+
+    case 3: /* Ready */
+      /* Perioridic check */
+      if(SysTimer_IsTimeout(&timer)) {        
+        #if 0//WEBSERVER_DEBUG_PRINT
+            uint16_t bsr; 
+            uint16_t sts;
+    
+            if((bsr = ETH_ReadPHYRegister_Nonblocking(ETH_PHY_ADDRESS, PHY_BSR)) != ETH_ERROR) {
+                WEBSERVER_DEBUG_PRINT("Eth bsr: %4X", (uint32_t)bsr);
+            
+
+                /* PHY_STS */
+                if((sts = ETH_ReadPHYRegister_Nonblocking(ETH_PHY_ADDRESS, 0x10)) != ETH_ERROR) {
+                    WEBSERVER_DEBUG_PRINT("Eth sts: %4X", (uint32_t)sts);
+                }
+                else { WEBSERVER_DEBUG_PRINT("Eth sts: timeout!!!"); }
+
+                //ETH_GetDMAStatus();
+            }
+            else { WEBSERVER_DEBUG_PRINT("Eth bsr: timeout!!!"); }
+        #endif
+        SysTimer_Start(&timer, 1000); /* 1 Seconds */
+      }
+      break;
+
+    case 4: default: /* I/O Error */
+      /* Wait for 5S to retry at state 0*/
+      if(SysTimer_IsTimeout(&timer)) {
+        ethernet_link_setup_state = 0;
+      }
+      break;
+  }
+}
+
+void enable_%<blockid>(void){
+  GPIO_InitTypeDef GPIO_InitStructure;
+
+  /* Enable GPIOs clocks */
+  %if port_a_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+  %endif
+  %if port_b_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+  %endif
+  %if port_c_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  %endif
+  %if port_d_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+  %endif
+  %if port_e_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+  %endif
+  %if port_f_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+  %endif
+  %if port_g_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+  %endif
+  %if port_h_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+  %endif
+  %if port_i_used == "on"
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+  %endif
+
+  /* Enable SYSCFG clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE); 
+
+  /* Interface */
+  SYSCFG_ETH_MediaInterfaceConfig(SYSCFG_ETH_MediaInterface_%<interfacetype>);     
+
+  /* GPIO Init */ 
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+  %if crs_used == "on"
+  /* ETH_MII_CRS: P%<crs_port>%<crs_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<crs_pin>;
+  GPIO_Init(GPIO%<crs_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<crs_port>, GPIO_PinSource%<crs_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxclk_used == "on"
+  /* ETH_MII_RX_CLK/ ETH_RMII_REF_CLK: P%<rxclk_port>%<rxclk_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxclk_pin>;
+  GPIO_Init(GPIO%<rxclk_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxclk_port>, GPIO_PinSource%<rxclk_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if mdio_used == "on"
+  /* ETH_MDIO: P%<mdio_port>%<mdio_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<mdio_pin>;
+  GPIO_Init(GPIO%<mdio_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<mdio_port>, GPIO_PinSource%<mdio_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if col_used == "on"
+  /* ETH_MII_COL: P%<col_port>%<col_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<col_pin>;
+  GPIO_Init(GPIO%<col_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<col_port>, GPIO_PinSource%<col_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if dv_used == "on"
+  /* ETH_MII_RX_DV/ ETH_RMII_CRS_DV: P%<dv_port>%<dv_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<dv_pin>;
+  GPIO_Init(GPIO%<dv_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<dv_port>, GPIO_PinSource%<dv_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxd2_used == "on"
+  /* ETH_MII_RXD2: P%<rxd2_port>%<rxd2_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxd2_pin>;
+  GPIO_Init(GPIO%<rxd2_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxd2_port>, GPIO_PinSource%<rxd2_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxd3_used == "on"
+  /* ETH_MII_RXD3: P%<rxd3_port>%<rxd3_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxd3_pin>;
+  GPIO_Init(GPIO%<rxd3_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxd3_port>, GPIO_PinSource%<rxd3_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if pps_used == "on"
+  /* ETH_PPS_OUT: P%<pps_port>%<pps_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pps_pin>;
+  GPIO_Init(GPIO%<pps_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<pps_port>, GPIO_PinSource%<pps_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txd3_used == "on"
+  /* ETH_MII_TXD3: P%<txd3_port>%<txd3_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txd3_pin>;
+  GPIO_Init(GPIO%<txd3_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txd3_port>, GPIO_PinSource%<txd3_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxer_used == "on"
+  /* ETH_MII_RX_ER: P%<rxer_port>%<rxer_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxer_pin>;
+  GPIO_Init(GPIO%<rxer_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxer_port>, GPIO_PinSource%<rxer_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txen_used == "on"
+  /* ETH_MII_TX_EN/ ETH_RMII_TX_EN: P%<txen_port>%<txen_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txen_pin>;
+  GPIO_Init(GPIO%<txen_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txen_port>, GPIO_PinSource%<txen_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txd0_used == "on"
+  /* ETH_MII_TXD0/ ETH_RMII_TXD0: P%<txd0_port>%<txd0_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txd0_pin>;
+  GPIO_Init(GPIO%<txd0_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txd0_port>, GPIO_PinSource%<txd0_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txd1_used == "on"
+  /* ETH_MII_TXD1/ ETH_RMII_TXD1: P%<txd1_port>%<txd1_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txd1_pin>;
+  GPIO_Init(GPIO%<txd1_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txd1_port>, GPIO_PinSource%<txd1_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if mdc_used == "on"
+  /* ETH_MDC: P%<mdc_port>%<mdc_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<mdc_pin>;
+  GPIO_Init(GPIO%<mdc_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<mdc_port>, GPIO_PinSource%<mdc_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txd2_used == "on"
+  /* ETH_MII_TXD2: P%<txd2_port>%<txd2_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txd2_pin>;
+  GPIO_Init(GPIO%<txd2_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txd2_port>, GPIO_PinSource%<txd2_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if txclk_used == "on"
+  /* ETH_MII_TX_CLK: P%<txclk_port>%<txclk_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txclk_pin>;
+  GPIO_Init(GPIO%<txclk_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<txclk_port>, GPIO_PinSource%<txclk_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxd0_used == "on"
+  /* ETH_MII_RXD0/ ETH_RMII_RXD0: P%<rxd0_port>%<rxd0_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxd0_pin>;
+  GPIO_Init(GPIO%<rxd0_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxd0_port>, GPIO_PinSource%<rxd0_pin>, GPIO_AF_ETH);
+  %endif
+
+  %if rxd1_used == "on"
+  /* ETH_MII_RXD1/ ETH_RMII_RXD1: P%<rxd1_port>%<rxd1_pin> */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxd1_pin>;
+  GPIO_Init(GPIO%<rxd1_port>, &GPIO_InitStructure);
+  GPIO_PinAFConfig(GPIO%<rxd1_port>, GPIO_PinSource%<rxd1_pin>, GPIO_AF_ETH);
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */
+  setup_eth_link();
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

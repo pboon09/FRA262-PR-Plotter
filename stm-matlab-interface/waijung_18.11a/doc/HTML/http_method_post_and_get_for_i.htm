@@ -1,0 +1,209 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Tips &amp; Tricks &gt; Boards &gt; HTTP method POST and GET for IoT application demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="HTTP method POST and GET for IoT application demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "http_method_post_and_get_for_i.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">HTTP method POST and GET for IoT application demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?http_method_post_and_get_for_i.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="waijung_related_topics.htm">Tips &amp; Tricks</a> &gt; <a href="boards.htm">Boards</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">HTTP method POST and GET for IoT application demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="boards.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="boards.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="http_webserver_configuration_f.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Overview</span></h2>
+<p>This topic demonstrate how to upload data via HTTP POST and download via HTTP GET to IoT server, <a href="https://thingspeak.com" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">ThingSpeck</a>. The interface command used by this demo listed below:</p>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Upload data (POST method)</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Server: <span style="font-weight: bold;">api.thingspeak.com</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Action: <span style="font-weight: bold;">/update</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Parameter field:</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">i.</span></td><td style="border:none">api_key = &lt;<span style="font-style: italic; font-weight: bold;">your_api_key</span>&gt; &nbsp;; Note: API Key will provided when create ThingSpeak channel.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">ii.</span></td><td style="border:none">field1=&lt;<span style="font-style: italic; font-weight: bold;">Data #1</span>&gt; ; Data field1. For this demo, field1 is &nbsp;a running number of ADC value to upload.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 32px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">iii.</span></td><td style="border:none">field2=&lt;<span style="font-style: italic; font-weight: bold;">Data #2</span>&gt;; Data field2. For this demo, field2 is &nbsp;a Voltage value reading from LDR sensor.</td></tr></table></div><h3 class="p_Heading3"><span class="f_Heading3">1. Download data (GET method)</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Server: <span style="font-weight: bold;">api.thingspeak.com</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 13px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Request: <span style="font-weight: bold;">/channels/</span><span style="font-style: italic; font-weight: bold;">&lt;your_channel&gt;</span><span style="font-weight: bold;">/feeds.csv?results=5 &nbsp; &nbsp; </span>;Note: download 5 latest data in CSV format.</td></tr></table></div><p>&nbsp;</p>
+<p>Note: You have to create your own Channel for Testing.</p>
+<h2 style="background: #f2f2f2; margin: 29px 0px 5px 0px;"><span style="font-size: 16pt; font-weight: bold; color: #3366ff;">Hardware Setup required for demonstration</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3" style="font-size: 16pt;">NUCLEO-F429ZI board</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_hardware_setup.png" width="950" height="523" alt="webserver_manual_configure_hardware_setup" style="width:950px;height:523px;border:none" /></p>
+<h2 style="background: #f2f2f2; margin: 29px 0px 5px 0px;"><span style="font-size: 16pt; font-weight: bold; color: #3366ff;">Waijung Blocks Setup</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">Target Setup block</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_targetsetup.png" width="950" height="752" alt="webserver_manual_configure_block_targetsetup" style="width:950px;height:752px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Ethernet Setup</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="waijung_ethernet_inf.htm" class="topiclink">Ethernet Link Setup</a></td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_ethernetlink_setup.png" width="950" height="595" alt="webserver_manual_configure_block_ethernetlink_setup" style="width:950px;height:595px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="waijung_ethernet_app.htm" class="topiclink">Ethernet Application Setup</a></td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_ethernetapp_setup.png" width="950" height="431" alt="webserver_manual_configure_block_ethernetapp_setup" style="width:950px;height:431px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p><span style="width:48px">&nbsp;</span>Make sure IP address did not conflict with other device in the network.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo model file</span></h2>
+<p>The demo file for NUCLEO-F429ZI board located in directory &quot;targets\stm32f4_target\stm32f4\demo\boards\nucleo_f429zi&quot;.</p>
+<p>Model file: http_method_post_thingspeak_demo.mdl</p>
+<p><img src="http_client_model.png" width="1310" height="869" alt="http_client_model" style="width:1310px;height:869px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Post data trigger</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">The Processing time (CPU load) of HTTP POST and GET cannot fitted into one sample time (10ms), so the block designed to work as Non-Blocking mode. </td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">A non-zero value to &quot;Trig&quot; input port will start the process. Output Status port will indicate the operation state, BUSY, SUCCESS or FAILED.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Turn on delay time required for network initialization.</td></tr></table></div><h3 class="p_Heading3"><span class="f_Heading3">LED status</span></h3>
+<p>The demo use 3 On-board LED for indicates POST data operation status.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">LED1 (Green), Normal is blinking 200ms period indicates software is running.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">LED2 (Blue), Flashing (turn on for 1 time step) indicate POST operation SUCCESS.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">LED3 (Red), Flashing (turn on for 1 time step) indicate POST operation FAILED.</td></tr></table></div><h3 class="p_Heading3"><span class="f_Heading3">UART Debug message</span></h3>
+<p>On-board ST-Link of NUCLEO board used for programming/debugging, and also provide USB-Virtual COM port. This demo transmit the Response data to UART3 (PD8/PD9) which will be redirected to USB virtual COM port, the response data can be captured by Serial terminal software.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<p>Run Serial Terminal Software (Putty), with baud rate setting 115200.</p>
+<p><img src="http_client_testing_putty.png" width="950" height="1026" alt="http_client_testing_putty" style="width:950px;height:1026px;border:none" /></p>
+<p>The display Chart on ThingSpeak</p>
+<p><img src="http_client_testing_chart.png" width="950" height="739" alt="http_client_testing_chart" style="width:950px;height:739px;border:none" /></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

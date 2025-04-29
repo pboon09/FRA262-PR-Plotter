@@ -1,0 +1,174 @@
+%implements stm32f4_encoderread "C"
+
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign TIMER = CAST("String",SFcnParamSettings.timer)
+   %assign timer = "TIM" + "%<TIMER>"
+   %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+   %assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign apb = CAST("String",SFcnParamSettings.apb)
+   %assign portstr = SFcnParamSettings.portstr
+   %assign portstr_size = SIZE(portstr)
+   %assign pinstr = SFcnParamSettings.pinstr
+   %assign pinstr_size = SIZE(pinstr)
+   %assign pinmat = SFcnParamSettings.pinmat
+   %assign period = CAST("Number",SFcnParamSettings.period)
+   %assign filterstr = CAST("String",SFcnParamSettings.filterstr)
+   %assign filter = CAST("Number",SFcnParamSettings.filter)
+   %assign rstcnt = CAST("Number",SFcnParamSettings.rstcnt)
+
+   %assign block = block +  sampletime + timer + apb + portstr + portstr_size + \
+         pinstr + pinstr_size + pinmat + sampletimestr + period + \
+         blockid + filter + filterstr + rstcnt
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO_H__) == 0)
+      %assign :: __STM32F4XX_GPIO_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_TIM_H__) == 0)
+      %assign :: __STM32F4XX_TIM_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+  
+   %openfile tmpBuf
+      void enable_%<blockid>(void){ 
+         /* Block: %<blockid> */
+
+         GPIO_InitTypeDef GPIO_InitStructure;
+         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+         TIM_ICInitTypeDef TIM_ICInitStructure;
+
+         /* %<timer> clock source enable */
+         RCC_APB%<apb>PeriphClockCmd(RCC_APB%<apb>Periph_%<timer>, ENABLE);
+       
+         %foreach portidx = %<portstr_size[1]>
+            %assign gpio = "%<portstr[portidx]>"
+
+            /* GPIO%<gpio> clock enable */
+            RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<gpio>, ENABLE);
+
+            /* GPIO%<gpio> configuration */
+            GPIO_InitStructure.GPIO_Pin = %<pinstr[portidx]>;
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+            GPIO_Init(GPIO%<gpio>, &GPIO_InitStructure);
+
+            /* Connect %<timer> pins to AF */
+            %assign numberofpins = CAST("Number", %<pinmat[portidx][0]>)
+            %foreach pinidx = %<numberofpins>
+               %assign pinidx2 = %<pinidx> + 1
+               %assign pin = CAST("Number", %<pinmat[portidx][pinidx2]>)
+               GPIO_PinAFConfig(GPIO%<gpio>, GPIO_PinSource%<pin>, GPIO_AF_%<timer>);
+            %endforeach
+         %endforeach
+
+  
+        /* Configure Timer in encoder mode */
+        TIM_DeInit(%<timer>);
+        TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+   
+        TIM_TimeBaseStructure.TIM_Prescaler = 0x0;  // No prescaling 
+        TIM_TimeBaseStructure.TIM_Period = %<period>;  
+        TIM_TimeBaseStructure.TIM_ClockDivision = 1;
+        TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;   
+        TIM_TimeBaseInit(%<timer>, &TIM_TimeBaseStructure);
+ 
+        TIM_EncoderInterfaceConfig(%<timer>, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+        TIM_ICStructInit(&TIM_ICInitStructure);
+  
+        TIM_ICInitStructure.TIM_ICFilter = %<filter>; /* %<filterstr> */
+        TIM_ICInit(%<timer>, &TIM_ICInitStructure);
+  
+        TIM_ICInitStructure.TIM_Channel = TIM_Channel_2;
+        TIM_ICInit(%<timer>, &TIM_ICInitStructure);
+      
+        // Clear all pending interrupts
+        TIM_ClearFlag(%<timer>, TIM_FLAG_Update);
+        TIM_ITConfig(%<timer>, TIM_IT_Update, ENABLE);
+   
+        //Reset counter
+        %<timer>->CNT = 0;
+  
+        TIM_Cmd(%<timer>, ENABLE);
+      }
+
+      void disable_%<blockid>(void){ 
+         TIM_Cmd(%<timer>, DISABLE);
+      }
+
+      void terminate_%<blockid>(void){ 
+         TIM_Cmd(%<timer>, DISABLE);
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void enable_%<blockid>(void); /* %<blockid> */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+   
+   %openfile tmpBuf
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+   %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> (%<ParamSettings.FunctionName>) */
+
+   %assign y0 = LibBlockOutputSignal(0, "", "", 0)
+   %<y0> = (%<timer>->CR1 & 0x10) >> 4;
+
+   %assign y1 = LibBlockOutputSignal(1, "", "", 0)
+   %<y1> = (uint32_t) TIM_GetCounter(%<timer>);
+   
+   %if rstcnt == 1
+      /* Reset Counter */
+      TIM_SetCounter(%<timer>, (uint32_t) 0);
+   %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   /* terminate_%<blockid>(); */
+%endfunction
