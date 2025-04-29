@@ -39,7 +39,7 @@ Motor_Constant_Structure ZGX45RGG_400RPM_Constant = {
     .V_max = 12.0,
     .U_max = 65535.0,
     .qd_max = 41.887902, // rad/s
-	.qdd_max =  41.887902 * 3
+	.qdd_max =  41.887902 * 0.5
 };
 
 Environment Disturbance_Constant = {

@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  0002cb6e  00000000  00000000  00040c3a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   000280cb  00000000  00000000  0006d7a8  2**0
+ 17 .debug_line   000280c6  00000000  00000000  0006d7a8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00118a34  00000000  00000000  00095873  2**0
+ 18 .debug_str    00118a34  00000000  00000000  0009586e  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001ae2a7  2**0
+ 19 .comment      00000043  00000000  00000000  001ae2a2  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000077e0  00000000  00000000  001ae2ec  2**2
+ 20 .debug_frame  000077e0  00000000  00000000  001ae2e8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000006a  00000000  00000000  001b5acc  2**0
+ 21 .debug_line_str 0000006a  00000000  00000000  001b5ac8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -5420,16 +5420,12 @@ int main(void) {
  8002f4c:	4a2b      	ldr	r2, [pc, #172]	@ (8002ffc <main+0x130>)
  8002f4e:	6013      	str	r3, [r2, #0]
 
-//			Trapezoidal_Generator(&prisGen, initial_p, target_p,
-//					ZGX45RGG_400RPM_Constant.qd_max,
-//					ZGX45RGG_400RPM_Constant.qdd_max);
-
 			Trapezoidal_Generator(&prisGen, initial_p, target_p,
  8002f50:	4b27      	ldr	r3, [pc, #156]	@ (8002ff0 <main+0x124>)
  8002f52:	ed93 8a00 	vldr	s16, [r3]
  8002f56:	4b29      	ldr	r3, [pc, #164]	@ (8002ffc <main+0x130>)
  8002f58:	edd3 8a00 	vldr	s17, [r3]
-					ZGX45RGG_150RPM_Constant.qd_max,
+					ZGX45RGG_400RPM_Constant.qd_max,
  8002f5c:	4b28      	ldr	r3, [pc, #160]	@ (8003000 <main+0x134>)
  8002f5e:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
 			Trapezoidal_Generator(&prisGen, initial_p, target_p,
@@ -5437,7 +5433,7 @@ int main(void) {
  8002f64:	4619      	mov	r1, r3
  8002f66:	f7fd fd6d 	bl	8000a44 <__aeabi_d2f>
  8002f6a:	4604      	mov	r4, r0
-					ZGX45RGG_150RPM_Constant.qdd_max);
+					ZGX45RGG_400RPM_Constant.qdd_max);
  8002f6c:	4b24      	ldr	r3, [pc, #144]	@ (8003000 <main+0x134>)
  8002f6e:	e9d3 2312 	ldrd	r2, r3, [r3, #72]	@ 0x48
 			Trapezoidal_Generator(&prisGen, initial_p, target_p,
@@ -5476,11 +5472,11 @@ int main(void) {
  8002fb6:	b2da      	uxtb	r2, r3
  8002fb8:	4b09      	ldr	r3, [pc, #36]	@ (8002fe0 <main+0x114>)
  8002fba:	701a      	strb	r2, [r3, #0]
-//		if (b1) {
 //			pen_down();
 //		} else if (b4) {
 //			pen_up();
 //		}
+
 		HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, b2);
  8002fbc:	4b12      	ldr	r3, [pc, #72]	@ (8003008 <main+0x13c>)
  8002fbe:	681b      	ldr	r3, [r3, #0]
@@ -5506,7 +5502,7 @@ int main(void) {
  8002ff4:	200002ec 	.word	0x200002ec
  8002ff8:	0800d3e8 	.word	0x0800d3e8
  8002ffc:	200002e0 	.word	0x200002e0
- 8003000:	20000000 	.word	0x20000000
+ 8003000:	20000050 	.word	0x20000050
  8003004:	200002b0 	.word	0x200002b0
  8003008:	20001548 	.word	0x20001548
  800300c:	2000154c 	.word	0x2000154c
@@ -5669,10 +5665,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80030e2:	f040 80e6 	bne.w	80032b2 <HAL_TIM_PeriodElapsedCallback+0x1e2>
 		update_sensors();
  80030e6:	f000 fba3 	bl	8003830 <update_sensors>
-//			cmd_ux = 0;
-//		}
-//
-//		MDXX_set_range(&prismatic_motor, 2000, cmd_ux);
 
 		if (trajectoryActive && !prisEva.isFinised) {
  80030ea:	4b76      	ldr	r3, [pc, #472]	@ (80032c4 <HAL_TIM_PeriodElapsedCallback+0x1f4>)
@@ -5690,7 +5682,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003106:	ed93 8a00 	vldr	s16, [r3]
  800310a:	4b71      	ldr	r3, [pc, #452]	@ (80032d0 <HAL_TIM_PeriodElapsedCallback+0x200>)
  800310c:	edd3 8a00 	vldr	s17, [r3]
-					ZGX45RGG_150RPM_Constant.qd_max,
+					ZGX45RGG_400RPM_Constant.qd_max,
  8003110:	4b70      	ldr	r3, [pc, #448]	@ (80032d4 <HAL_TIM_PeriodElapsedCallback+0x204>)
  8003112:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
 			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
@@ -5698,7 +5690,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003118:	4619      	mov	r1, r3
  800311a:	f7fd fc93 	bl	8000a44 <__aeabi_d2f>
  800311e:	4606      	mov	r6, r0
-					ZGX45RGG_150RPM_Constant.qdd_max);
+					ZGX45RGG_400RPM_Constant.qdd_max);
  8003120:	4b6c      	ldr	r3, [pc, #432]	@ (80032d4 <HAL_TIM_PeriodElapsedCallback+0x204>)
  8003122:	e9d3 2312 	ldrd	r2, r3, [r3, #72]	@ 0x48
 			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
@@ -5736,10 +5728,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003164:	4a60      	ldr	r2, [pc, #384]	@ (80032e8 <HAL_TIM_PeriodElapsedCallback+0x218>)
  8003166:	6013      	str	r3, [r2, #0]
 
-			QEI_get_diff_count(&revolute_encoder);
+			QEI_get_diff_count(&prismatic_encoder);
  8003168:	4860      	ldr	r0, [pc, #384]	@ (80032ec <HAL_TIM_PeriodElapsedCallback+0x21c>)
  800316a:	f7fe fdb1 	bl	8001cd0 <QEI_get_diff_count>
-			QEI_compute_data(&revolute_encoder);
+			QEI_compute_data(&prismatic_encoder);
  800316e:	485f      	ldr	r0, [pc, #380]	@ (80032ec <HAL_TIM_PeriodElapsedCallback+0x21c>)
  8003170:	f7fe fe8e 	bl	8001e90 <QEI_compute_data>
 
@@ -5756,7 +5748,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003196:	4b59      	ldr	r3, [pc, #356]	@ (80032fc <HAL_TIM_PeriodElapsedCallback+0x22c>)
  8003198:	edc3 7a00 	vstr	s15, [r3]
 
-			kal_flit = SteadyStateKalmanFilter(&revolute_kalman, vin,
+			kal_flit = SteadyStateKalmanFilter(&prismatic_kalman, vin,
  800319c:	4b57      	ldr	r3, [pc, #348]	@ (80032fc <HAL_TIM_PeriodElapsedCallback+0x22c>)
  800319e:	edd3 7a00 	vldr	s15, [r3]
  80031a2:	4b52      	ldr	r3, [pc, #328]	@ (80032ec <HAL_TIM_PeriodElapsedCallback+0x21c>)
@@ -5768,13 +5760,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80031b6:	eef0 7a40 	vmov.f32	s15, s0
  80031ba:	4b52      	ldr	r3, [pc, #328]	@ (8003304 <HAL_TIM_PeriodElapsedCallback+0x234>)
  80031bc:	edc3 7a00 	vstr	s15, [r3]
-					revolute_encoder.rads);
+					prismatic_encoder.rads);
 
 			cmd_vx = PWM_Satuation(
  80031c0:	4b48      	ldr	r3, [pc, #288]	@ (80032e4 <HAL_TIM_PeriodElapsedCallback+0x214>)
  80031c2:	ed93 7a00 	vldr	s14, [r3]
-					PID_CONTROLLER_Compute(&revolute_position_pid,
-							setpoint_pos - revolute_encoder.rads),
+					PID_CONTROLLER_Compute(&prismatic_position_pid,
+							setpoint_pos - prismatic_encoder.rads),
  80031c6:	4b49      	ldr	r3, [pc, #292]	@ (80032ec <HAL_TIM_PeriodElapsedCallback+0x21c>)
  80031c8:	edd3 7a0e 	vldr	s15, [r3, #56]	@ 0x38
 			cmd_vx = PWM_Satuation(
@@ -5783,7 +5775,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80031d4:	484c      	ldr	r0, [pc, #304]	@ (8003308 <HAL_TIM_PeriodElapsedCallback+0x238>)
  80031d6:	f7fd ff2c 	bl	8001032 <PID_CONTROLLER_Compute>
  80031da:	eeb0 8a40 	vmov.f32	s16, s0
-					ZGX45RGG_150RPM_Constant.qd_max,
+					ZGX45RGG_400RPM_Constant.qd_max,
  80031de:	4b3d      	ldr	r3, [pc, #244]	@ (80032d4 <HAL_TIM_PeriodElapsedCallback+0x204>)
  80031e0:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
 			cmd_vx = PWM_Satuation(
@@ -5791,7 +5783,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80031e6:	4619      	mov	r1, r3
  80031e8:	f7fd fbe4 	bl	80009b4 <__aeabi_d2iz>
  80031ec:	4606      	mov	r6, r0
-					-ZGX45RGG_150RPM_Constant.qd_max);
+					-ZGX45RGG_400RPM_Constant.qd_max);
  80031ee:	4b39      	ldr	r3, [pc, #228]	@ (80032d4 <HAL_TIM_PeriodElapsedCallback+0x204>)
  80031f0:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
  80031f4:	4614      	mov	r4, r2
@@ -5811,7 +5803,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  800321a:	edc3 7a00 	vstr	s15, [r3]
 
 			cmd_ux = PWM_Satuation(
-					PID_CONTROLLER_Compute(&revolute_velocity_pid,
+					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
 							cmd_vx + setpoint_vel - kal_flit), 65535, -65535);
  800321e:	4b3b      	ldr	r3, [pc, #236]	@ (800330c <HAL_TIM_PeriodElapsedCallback+0x23c>)
  8003220:	ed93 7a00 	vldr	s14, [r3]
@@ -5848,7 +5840,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003272:	4b22      	ldr	r3, [pc, #136]	@ (80032fc <HAL_TIM_PeriodElapsedCallback+0x22c>)
  8003274:	f04f 0200 	mov.w	r2, #0
  8003278:	601a      	str	r2, [r3, #0]
-			kal_flit = SteadyStateKalmanFilter(&revolute_kalman, vin,
+			kal_flit = SteadyStateKalmanFilter(&prismatic_kalman, vin,
  800327a:	4b20      	ldr	r3, [pc, #128]	@ (80032fc <HAL_TIM_PeriodElapsedCallback+0x22c>)
  800327c:	edd3 7a00 	vldr	s15, [r3]
  8003280:	4b1a      	ldr	r3, [pc, #104]	@ (80032ec <HAL_TIM_PeriodElapsedCallback+0x21c>)
@@ -5860,10 +5852,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  8003294:	eef0 7a40 	vmov.f32	s15, s0
  8003298:	4b1a      	ldr	r3, [pc, #104]	@ (8003304 <HAL_TIM_PeriodElapsedCallback+0x234>)
  800329a:	edc3 7a00 	vstr	s15, [r3]
-					revolute_encoder.rads);
+					prismatic_encoder.rads);
 		}
 
-		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
+		MDXX_set_range(&prismatic_motor, 2000, cmd_ux);
  800329e:	4b14      	ldr	r3, [pc, #80]	@ (80032f0 <HAL_TIM_PeriodElapsedCallback+0x220>)
  80032a0:	edd3 7a00 	vldr	s15, [r3]
  80032a4:	eef0 0a67 	vmov.f32	s1, s15
@@ -5883,25 +5875,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  80032c8:	200002c4 	.word	0x200002c4
  80032cc:	200002dc 	.word	0x200002dc
  80032d0:	200002e0 	.word	0x200002e0
- 80032d4:	20000000 	.word	0x20000000
+ 80032d4:	20000050 	.word	0x20000050
  80032d8:	200002b0 	.word	0x200002b0
  80032dc:	200002e4 	.word	0x200002e4
  80032e0:	200002e8 	.word	0x200002e8
  80032e4:	200002f0 	.word	0x200002f0
  80032e8:	200002f4 	.word	0x200002f4
- 80032ec:	200003f0 	.word	0x200003f0
+ 80032ec:	200003a4 	.word	0x200003a4
  80032f0:	200002fc 	.word	0x200002fc
  80032f4:	477fff00 	.word	0x477fff00
  80032f8:	c77fff00 	.word	0xc77fff00
  80032fc:	20000304 	.word	0x20000304
- 8003300:	20000b04 	.word	0x20000b04
+ 8003300:	20000784 	.word	0x20000784
  8003304:	200002f8 	.word	0x200002f8
- 8003308:	20000494 	.word	0x20000494
+ 8003308:	2000043c 	.word	0x2000043c
  800330c:	20000300 	.word	0x20000300
- 8003310:	200004c0 	.word	0x200004c0
+ 8003310:	20000468 	.word	0x20000468
  8003314:	ffff0001 	.word	0xffff0001
  8003318:	44fa0000 	.word	0x44fa0000
- 800331c:	20000358 	.word	0x20000358
+ 800331c:	2000030c 	.word	0x2000030c
 
 08003320 <Error_Handler>:
 
@@ -6211,42 +6203,45 @@ void plotter_begin() {
 	pen_up();
  80035ca:	f000 f9d3 	bl	8003974 <pen_up>
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 500, 5, 70,
 			ZGX45RGG_400RPM_Constant.qd_max);
  80035ce:	4b2f      	ldr	r3, [pc, #188]	@ (800368c <plotter_begin+0x360>)
  80035d0:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
-	PID_CONTROLLER_Init(&prismatic_position_pid, 2, 1e-7, 1,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 500, 5, 70,
  80035d4:	4610      	mov	r0, r2
  80035d6:	4619      	mov	r1, r3
  80035d8:	f7fd fa34 	bl	8000a44 <__aeabi_d2f>
  80035dc:	4603      	mov	r3, r0
  80035de:	ee01 3a90 	vmov	s3, r3
- 80035e2:	eeb7 1a00 	vmov.f32	s2, #112	@ 0x3f800000  1.0
- 80035e6:	eddf 0a39 	vldr	s1, [pc, #228]	@ 80036cc <plotter_begin+0x3a0>
- 80035ea:	eeb0 0a00 	vmov.f32	s0, #0	@ 0x40000000  2.0
- 80035ee:	4838      	ldr	r0, [pc, #224]	@ (80036d0 <plotter_begin+0x3a4>)
+ 80035e2:	ed9f 1a3a 	vldr	s2, [pc, #232]	@ 80036cc <plotter_begin+0x3a0>
+ 80035e6:	eef1 0a04 	vmov.f32	s1, #20	@ 0x40a00000  5.0
+ 80035ea:	ed9f 0a39 	vldr	s0, [pc, #228]	@ 80036d0 <plotter_begin+0x3a4>
+ 80035ee:	4839      	ldr	r0, [pc, #228]	@ (80036d4 <plotter_begin+0x3a8>)
  80035f0:	f7fd fcf5 	bl	8000fde <PID_CONTROLLER_Init>
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 7, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
  80035f4:	4b25      	ldr	r3, [pc, #148]	@ (800368c <plotter_begin+0x360>)
  80035f6:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 25, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 500, 7, 0,
  80035fa:	4610      	mov	r0, r2
  80035fc:	4619      	mov	r1, r3
  80035fe:	f7fd fa21 	bl	8000a44 <__aeabi_d2f>
  8003602:	4603      	mov	r3, r0
  8003604:	ee01 3a90 	vmov	s3, r3
  8003608:	ed9f 1a1a 	vldr	s2, [pc, #104]	@ 8003674 <plotter_begin+0x348>
- 800360c:	eef3 0a09 	vmov.f32	s1, #57	@ 0x41c80000  25.0
- 8003610:	ed9f 0a30 	vldr	s0, [pc, #192]	@ 80036d4 <plotter_begin+0x3a8>
+ 800360c:	eef1 0a0c 	vmov.f32	s1, #28	@ 0x40e00000  7.0
+ 8003610:	ed9f 0a2f 	vldr	s0, [pc, #188]	@ 80036d0 <plotter_begin+0x3a4>
  8003614:	4830      	ldr	r0, [pc, #192]	@ (80036d8 <plotter_begin+0x3ac>)
  8003616:	f7fd fce2 	bl	8000fde <PID_CONTROLLER_Init>
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72, //500, 1e-9, 72
+	//unit test
+	//25 1e-8 0
+	//2000 80 0
+	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72,
 			ZGX45RGG_150RPM_Constant.qd_max);
  800361a:	4b1f      	ldr	r3, [pc, #124]	@ (8003698 <plotter_begin+0x36c>)
  800361c:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
-	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72, //500, 1e-9, 72
+	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72,
  8003620:	4610      	mov	r0, r2
  8003622:	4619      	mov	r1, r3
  8003624:	f7fd fa0e 	bl	8000a44 <__aeabi_d2f>
@@ -6254,21 +6249,21 @@ void plotter_begin() {
  800362a:	ee01 3a90 	vmov	s3, r3
  800362e:	ed9f 1a2b 	vldr	s2, [pc, #172]	@ 80036dc <plotter_begin+0x3b0>
  8003632:	eddf 0a2b 	vldr	s1, [pc, #172]	@ 80036e0 <plotter_begin+0x3b4>
- 8003636:	ed9f 0a27 	vldr	s0, [pc, #156]	@ 80036d4 <plotter_begin+0x3a8>
+ 8003636:	ed9f 0a26 	vldr	s0, [pc, #152]	@ 80036d0 <plotter_begin+0x3a4>
  800363a:	482a      	ldr	r0, [pc, #168]	@ (80036e4 <plotter_begin+0x3b8>)
  800363c:	f7fd fccf 	bl	8000fde <PID_CONTROLLER_Init>
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 22, 0, //1800 1.5
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 20, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
  8003640:	4b15      	ldr	r3, [pc, #84]	@ (8003698 <plotter_begin+0x36c>)
  8003642:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 22, 0, //1800 1.5
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 20, 0,
  8003646:	4610      	mov	r0, r2
  8003648:	4619      	mov	r1, r3
  800364a:	f7fd f9fb 	bl	8000a44 <__aeabi_d2f>
  800364e:	4603      	mov	r3, r0
  8003650:	ee01 3a90 	vmov	s3, r3
  8003654:	ed9f 1a07 	vldr	s2, [pc, #28]	@ 8003674 <plotter_begin+0x348>
- 8003658:	eef3 0a06 	vmov.f32	s1, #54	@ 0x41b00000  22.0
+ 8003658:	eef3 0a04 	vmov.f32	s1, #52	@ 0x41a00000  20.0
  800365c:	ed9f 0a22 	vldr	s0, [pc, #136]	@ 80036e8 <plotter_begin+0x3bc>
  8003660:	4822      	ldr	r0, [pc, #136]	@ (80036ec <plotter_begin+0x3c0>)
  8003662:	f7fd fcbc 	bl	8000fde <PID_CONTROLLER_Init>
@@ -6298,18 +6293,15 @@ void plotter_begin() {
  80036c0:	20001570 	.word	0x20001570
  80036c4:	20000504 	.word	0x20000504
  80036c8:	44fa0000 	.word	0x44fa0000
- 80036cc:	33d6bf95 	.word	0x33d6bf95
- 80036d0:	2000043c 	.word	0x2000043c
- 80036d4:	43fa0000 	.word	0x43fa0000
+ 80036cc:	428c0000 	.word	0x428c0000
+ 80036d0:	43fa0000 	.word	0x43fa0000
+ 80036d4:	2000043c 	.word	0x2000043c
  80036d8:	20000468 	.word	0x20000468
  80036dc:	42900000 	.word	0x42900000
  80036e0:	3089705f 	.word	0x3089705f
  80036e4:	20000494 	.word	0x20000494
  80036e8:	447a0000 	.word	0x447a0000
  80036ec:	200004c0 	.word	0x200004c0
-	//unit test
-	//25 1e-8 0
-	//2000 80 0
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
  80036f0:	4932      	ldr	r1, [pc, #200]	@ (80037bc <plotter_begin+0x490>)
