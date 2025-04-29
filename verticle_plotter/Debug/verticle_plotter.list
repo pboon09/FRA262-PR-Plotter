@@ -6242,11 +6242,11 @@ void plotter_begin() {
  8003614:	4830      	ldr	r0, [pc, #192]	@ (80036d8 <plotter_begin+0x3ac>)
  8003616:	f7fd fce2 	bl	8000fde <PID_CONTROLLER_Init>
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72.5,
+	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72, //500, 1e-9, 72
 			ZGX45RGG_150RPM_Constant.qd_max);
  800361a:	4b1f      	ldr	r3, [pc, #124]	@ (8003698 <plotter_begin+0x36c>)
  800361c:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
-	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72.5,
+	PID_CONTROLLER_Init(&revolute_position_pid, 500, 1e-9, 72, //500, 1e-9, 72
  8003620:	4610      	mov	r0, r2
  8003622:	4619      	mov	r1, r3
  8003624:	f7fd fa0e 	bl	8000a44 <__aeabi_d2f>
@@ -6257,18 +6257,18 @@ void plotter_begin() {
  8003636:	ed9f 0a27 	vldr	s0, [pc, #156]	@ 80036d4 <plotter_begin+0x3a8>
  800363a:	482a      	ldr	r0, [pc, #168]	@ (80036e4 <plotter_begin+0x3b8>)
  800363c:	f7fd fccf 	bl	8000fde <PID_CONTROLLER_Init>
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 1.5, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 22, 0, //1800 1.5
 			ZGX45RGG_150RPM_Constant.U_max);
  8003640:	4b15      	ldr	r3, [pc, #84]	@ (8003698 <plotter_begin+0x36c>)
  8003642:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 1.5, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 1000, 22, 0, //1800 1.5
  8003646:	4610      	mov	r0, r2
  8003648:	4619      	mov	r1, r3
  800364a:	f7fd f9fb 	bl	8000a44 <__aeabi_d2f>
  800364e:	4603      	mov	r3, r0
  8003650:	ee01 3a90 	vmov	s3, r3
  8003654:	ed9f 1a07 	vldr	s2, [pc, #28]	@ 8003674 <plotter_begin+0x348>
- 8003658:	eef7 0a08 	vmov.f32	s1, #120	@ 0x3fc00000  1.5
+ 8003658:	eef3 0a06 	vmov.f32	s1, #54	@ 0x41b00000  22.0
  800365c:	ed9f 0a22 	vldr	s0, [pc, #136]	@ 80036e8 <plotter_begin+0x3bc>
  8003660:	4822      	ldr	r0, [pc, #136]	@ (80036ec <plotter_begin+0x3c0>)
  8003662:	f7fd fcbc 	bl	8000fde <PID_CONTROLLER_Init>
@@ -6302,7 +6302,7 @@ void plotter_begin() {
  80036d0:	2000043c 	.word	0x2000043c
  80036d4:	43fa0000 	.word	0x43fa0000
  80036d8:	20000468 	.word	0x20000468
- 80036dc:	42910000 	.word	0x42910000
+ 80036dc:	42900000 	.word	0x42900000
  80036e0:	3089705f 	.word	0x3089705f
  80036e4:	20000494 	.word	0x20000494
  80036e8:	447a0000 	.word	0x447a0000

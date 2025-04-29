@@ -58,7 +58,7 @@ volatile float32_t current_velocity;   // Current velocity (mm/s)
 
 uint8_t trajectory_sequence_index = 0;
 bool sequence_active = false;
-const float32_t trajectory_sequence[4] = { 100.0f, 400.0f, 200.0f, 300.0f }; // Sequence of setpoints
+const float32_t trajectory_sequence[4] = { 100.0f, 200.0f, 0.0f, 300.0f }; // Sequence of setpoints
 
 float setpoint_pos, setpoint_vel, error, kal_flit, lp_filt;
 float cmd_ux, cmd_vx, vin, square_sample, sine_sample, velo, prev_kal_flit;
