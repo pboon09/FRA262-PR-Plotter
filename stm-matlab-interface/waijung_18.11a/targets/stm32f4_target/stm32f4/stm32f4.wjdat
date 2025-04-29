@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+   <waijung>
+      <mode>user</mode>
+      <path>
+         <root>D:\\subversion\\rapidstm32f4\\trunk\\waijung</root>
+         <project>D:\\subversion\\rapidstm32f4\\trunk\\rapidstm32f4_target\\rapidstm32f4</project>
+      </path>
+   </waijung>
+   <target>
+      <name>stm32f4</name>
+      <description>STM32F4 Target</description>
+      <path>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\targets\\stm32f4_target\\stm32f4</root>
+         <source>${target/path/root}\src</source>
+         <sourceBlocks>${target/path/source}\blocks</sourceBlocks>
+         <utils>${target/path/root}\utils</utils>
+         <stlinkutilitybin>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\devices\\ST_LINK_Utility\\ST-LINK Utility</stlinkutilitybin>
+      </path>
+      <customization>
+         <name>cortexm4</name>
+         <vendor>ARM Compatible</vendor>
+         <type>Cortex - M4</type>
+         <endianess>LittleEndian</endianess>
+      </customization>
+   </target>
+   <compilers>
+      <mdkarm>
+         <binpath>ARMCC\\BIN</binpath>
+         <incpath>ARMCC\\include;</incpath>
+      </mdkarm>
+      <ewarm>
+         <binpath>arm\\bin</binpath>
+         <incpath>arm\\CMSIS\\Include;arm\\inc\\c</incpath>
+      </ewarm>
+      <gnuarm>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded</root>
+         <binpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded\\bin</binpath>
+         <incpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\aimagin\\gnuarminc;C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\targets\\stm32f4_target\\stm32f4\\utils\\STM32F4xx_DSP_StdPeriph_Lib\\Libraries\\CMSIS\\Include</incpath>
+         <version>gcc version 7.2.1 20170904 (release) [ARM/embedded-7-branch revision 255204] (GNU Tools for Arm Embedded Processors 7-2017-q4-major)  
+</version>
+      </gnuarm>
+   </compilers>
+   <tables type="waijung_dat">
+      <table name="waijung_mcu_resources"/>
+   </tables>
+</configuration>

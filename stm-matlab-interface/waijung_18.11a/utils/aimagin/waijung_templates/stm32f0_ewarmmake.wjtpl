@@ -1,0 +1,36 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".mk"
+# Make file generated with Waijung Blockset
+
+CC = iccarm
+AS = iasmarm
+LD = ilinkarm
+EF = ielftool
+
+#---------------- Parameters ----------------
+MODELNAME = %<LibGetModelName()>
+${section:includeString}
+
+${section:controlString}
+
+EFLAGS = --verbose $(MODELNAME).out $(MODELNAME).$(OUTFILETYPE)
+STARTUP = startup_stm32f072.o
+SRCS = $(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
+LIBS = 
+
+#---------------- Rules ----------------
+$(MODELNAME).$(OUTFILETYPE): $(MODELNAME).out
+	$(EF) $(EFOUTTYPE) $(EFLAGS)
+
+$(MODELNAME).out: $(OBJS) $(STARTUP)
+	$(LD) $(OBJS) $(LIBS) $(STARTUP) $(LFLAGS) 
+
+%assign str = "%" + ".o : " + "%" + ".c"
+%<str>
+	$(CC) $(CFLAGS) $< -o $@
+
+%assign str = "%" + ".o : " + "%" + ".s"
+%<str>
+	$(AS) $(AFLAGS) $<
+	
+%closefile tmpBuf

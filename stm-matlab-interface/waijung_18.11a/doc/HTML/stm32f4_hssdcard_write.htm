@@ -1,0 +1,368 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Block References &gt; On-chip Peripherals &gt; SDIO &gt; High speed SD Card write</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="SD Card">
+   <meta name="description" content="High speed SD Card write">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f4_hssdcard_write.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">High speed SD Card write</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f4_hssdcard_write.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="blockset_references.htm">Block References</a> &gt; <a href="on-chip_peripherals.htm">On-chip Peripherals</a> &gt; <a href="sdio.htm">SDIO</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">High speed SD Card write</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="sdio.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="sdio.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f4_datalogger.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="amg_sdio_block.png" width="950" height="195" alt="amg_sdio_block" style="width:950px;height:195px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Packet mode</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Ascii | Binary</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Select mode of data format to store into SD Card.</p>
+<p>Output file of data logger in Ascii mode can be open with text viewer software, output file in Binary mode need to open with Hex viewer or custom development software.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Record mode</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Single shot | Loop back</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Currently record mode available in Single shot only.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Max number of logging record</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>(Input a number)</p>
+<p>This number is uint32 format.</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Specify number of packet to log.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Record size (bytes)</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>-</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>This is read only, showing number of bytes to store in SD card.</p>
+<p>Record size = PACKET_SIZE * RECORD_COUNT.</p>
+<p>&nbsp;</p>
+<p>Note: For packet Ascii mode, Record size is only estimated number.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Buffer size (bytes)</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>32768</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>This is buffer for data record. The actual buffer size require for this data logger will be 32768*2 (double buffer). </p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Card initialize option</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Format as FAT32 (Remove all existing files) |</p>
+<p>Reject if not empty</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>This is for security option:</p>
+<p>When configured to &quot;Format as FAT32&quot;, all files in SD card will erased automatically.</p>
+<p>But when configured as &quot;Reject if not empty&quot;, card will be reject if it is not empty.</p>
+<p>&nbsp;</p>
+<p>Note: SD card will re-format into FAT32 with 32k cluster size.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Ascii format</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>format of ascii record.</p>
+<p>example: %d, %f\r\n</p>
+<p>Note:</p>
+<p> &nbsp;%d - convert int32 to string.</p>
+<p> &nbsp;%u - convert uint32 to string.</p>
+<p> &nbsp;%f - convert single to string.</p>
+<p> &nbsp;%x - contert uint32 to Hex.</p>
+<p>This is available when select packet mode to Ascii</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Specify packet format.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Number of data type DOUBLE,</p>
+<p>Number of data type SINGLE,</p>
+<p>Number of data type INT8,</p>
+<p>Number of data type UINT8,</p>
+<p>Number of data type INT16,</p>
+<p>Number of data type UINT16,</p>
+<p>Number of data type INT32,</p>
+<p>Number of data type UINT32</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>(Specify number of using data type and count)</p>
+<p>This is available when select packet mode to Binary.</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Specify data type and count for store data.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>GPIO status port</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Not used | A | B | C | D | E | F | G | H | I</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Specify port for control LED, status indicator.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>GPIO status pin, Busy</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>The block will drive this pin to High to indicate Busy process.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>GPIO status pin, Progress</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>The block will blink this pin 5Hz to indicate writing process, and 0.25 Hz to indicate data logger operation Stop with success.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>GPIO status pin, Error</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>The block will drive this pin to High to indicate Error process.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Sample time (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>-1 for inherited, or specify</p>
+</td>
+<td style="vertical-align:top; padding:0px; border:solid 1px #000000;"><p>Specify sample time value, this will be interval time of data logger for a record.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Logger Stop or finish</span></h2>
+<p>How logging process stop:</p>
+<p>1. Disk full (Max 32GB by design, tested with 8GB).</p>
+<p>2. Number of logging record is equal to &quot;Max number of logging record&quot;.</p>
+<p>3. Manual stop, by assigning value 1 to input port 'STOP' (or use GPIO Input to get button pressed status).</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Limitations</span></h2>
+<p>1. Limit only one &quot;High speed data logger&quot; block in a model.</p>
+<p>2. Reserve 250MB of SD card memory as not used due to too many timing error on first 250MB region.</p>
+<p>3. Logger data file will spitted into multiple files if size exceed 3.99GB.</p>
+<h2 class="p_Heading2"><span class="f_Heading3">Design</span><span class="f_Heading2"> </span><span class="f_Heading3">consideration</span></h2>
+<h4 class="p_Heading4"><span class="f_Heading4">The related parameters:</span></h4>
+<p>1. Card speed (example: 4MBytes/Sec, 10MBytes/Sec, or higher).</p>
+<p>2. Buffer size (Currently 32k and will be more when use external SDRAM).</p>
+<p>3. Sample time.</p>
+<p>4. Record size.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">Conditions:</span></h4>
+<p>1. Record size cannot exceed buffer size.</p>
+<p>2. Record speed cannot exceed Card speed.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">Speed calculation:</span></h4>
+<p> &nbsp; Given: </p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - Packet, to log one 32bit counter and two analog reading value in Raw format (uint16), packet size will be 8 bytes (4bytes + 2 bytes + 2bytes).</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; - Speed, 50 uS per sample (record).</p>
+<p> &nbsp; &nbsp; So, logging speed will be 8byte/50uS.</p>
+<p> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;8bytes/0.000050 Sec = 160000 Bytes/Sec</p>
+<h4 class="p_Heading4"><span class="f_Heading4">Output size calculation</span></h4>
+<p>Given, &nbsp;N = Number of logging record.</p>
+<p>So, &nbsp; Output size = N * Record size.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">Logging time (Period) calculation</span></h4>
+<p>Given, &nbsp; N = Number of logging record.</p>
+<p>So, Logging time (S) = sample time (S) * N</p>
+<h4 class="p_Heading4"><span class="f_Heading4">LED indicator</span></h4>
+<p>1. LED Busy, this LED will turn on at start logging process during perform Card initialization (Format, pre-allocate space for data logging). This busy period can take up to few minutes if number of logging is too large, or few minutes if number of data it small.</p>
+<p>2. LED Progress, this LED will blink 5Hz (ON 0.1S/ OFF 0.1S) during data logger progressing. And will blink in 0.25Hz (ON 2S/ OFF 2S) if progress is finish then user can remove card.</p>
+<p>3. LED Error, this LED will turn on when error detected during logging process.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">Real-time error detection</span></h4>
+<p>When finish logging data, user can review MSG.TXT for information and error message. It will show timing error if sample time cannot be real-time.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Timing error consideration</span></h2>
+<p>Timing error may caused from Card speed and internal Card processing. Below is an example of timing error.</p>
+<p><img src="amg_sdio_timing_error.png" width="950" height="164" alt="amg_sdio_timing_error" style="width:950px;height:164px;border:none" /></p>
+<p>If Sampling time is set to 10uS, a sample has timing error if it take longer than 10uS.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Important note</span></h2>
+<p>1. When data logging process start, the SD card will be re-formatted (All existing file will be loss).</p>
+<p>2. SD Card will be automatic format to <span style="font-weight: bold; color: #ff0000;">FAT system with 32kBytes cluster size, and number of FAT is 1 (no FAT backup)</span>. User can change to its default format with Windows explore. Below is recommended setting for format SD Card.</p>
+<p><img src="hs_data_logger_format_default.png" width="950" height="464" alt="hs_data_logger_format_default" style="width:950px;height:464px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo</span></h2>
+<p><a href="data_logger_ascii_mode.htm" class="topiclink">Data logger Ascii mode (10kHz)</a></p>
+<p><a href="high_speed_data_logger.htm" class="topiclink">High speed data logger Binary mode (100kHz)</a></p>
+<p><a href="data_logger_manual_stop.htm" class="topiclink">Data logger with manual Stop</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

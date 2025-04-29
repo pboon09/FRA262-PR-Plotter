@@ -1,0 +1,192 @@
+%implements stm32f4_basicpwm "C"
+
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign timer = CAST("String",SFcnParamSettings.timer)
+   %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+   %assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign apb = CAST("String",SFcnParamSettings.apb)
+   %assign polaritystr = CAST("String",SFcnParamSettings.polaritystr)
+   %assign portstr = SFcnParamSettings.portstr
+   %assign portstr_size = SIZE(portstr)
+   %assign pinstr = SFcnParamSettings.pinstr
+   %assign pinstr_size = SIZE(pinstr)
+   %assign chmat = SFcnParamSettings.chmat
+   %assign pwmperiod = SFcnParamSettings.pwmperiod
+   %assign timarr = CAST("Number", SFcnParamSettings.timarr)
+   %assign timprescale = CAST("Number", SFcnParamSettings.timprescale)
+   %assign pinmat = SFcnParamSettings.pinmat
+   %assign chsize = SIZE(%<chmat>)
+   %assign TIMER = "TIM" + "%<timer>"
+   %assign block = block +  sampletime + timer + apb + portstr + portstr_size + \
+         pinstr + pinstr_size + pinmat + sampletimestr + pwmperiod + \
+         timarr + timprescale + blockid + chmat + polaritystr + chsize + \
+         TIMER
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO_H__) == 0)
+      %assign :: __STM32F4XX_GPIO_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_TIM_H__) == 0)
+      %assign :: __STM32F4XX_TIM_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+  
+   %openfile tmpBuf
+      void enable_%<blockid>(void){ 
+         /* Block: %<blockid> */
+         GPIO_InitTypeDef GPIO_InitStructure;
+         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+         TIM_OCInitTypeDef  TIM_OCInitStructure;
+
+         %if ((timer == "1") || (timer == "8"))
+            TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
+         %endif
+
+         /* %<TIMER> clock enable */
+         RCC_APB%<apb>PeriphClockCmd(RCC_APB%<apb>Periph_%<TIMER>, ENABLE);
+         
+         %foreach portidx = %<portstr_size[1]>
+            %assign gpio = "%<portstr[portidx]>"
+
+            /* GPIO%<gpio> clock enable */
+            RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<gpio>, ENABLE);
+
+            /* GPIO%<gpio> configuration */
+            GPIO_InitStructure.GPIO_Pin = %<pinstr[portidx]>;
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+            GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+            GPIO_Init(GPIO%<gpio>, &GPIO_InitStructure);
+
+            /* Connect %<TIMER> pins to AF */
+            %assign numberofpins = CAST("Number", %<pinmat[portidx][0]>)
+            %foreach pinidx = %<numberofpins>
+               %assign pinidx2 = %<pinidx> + 1
+               %assign pin = CAST("Number", %<pinmat[portidx][pinidx2]>)
+               GPIO_PinAFConfig(GPIO%<gpio>, GPIO_PinSource%<pin>, GPIO_AF_%<TIMER>);
+            %endforeach
+         %endforeach
+
+         %if ((timer == "1") || (timer == "8"))
+           /* Automatic Output enable, Break, dead time and lock configuration*/
+           TIM_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;
+           TIM_BDTRInitStructure.TIM_OSSIState = TIM_OSSIState_Enable;
+           TIM_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_OFF;
+           TIM_BDTRInitStructure.TIM_DeadTime = 0;
+           TIM_BDTRInitStructure.TIM_Break = TIM_Break_Disable;
+           TIM_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_High;
+           TIM_BDTRInitStructure.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable;
+           TIM_BDTRConfig(TIM%<timer>, &TIM_BDTRInitStructure);
+         %endif
+
+         /* Time base configuration */
+         TIM_TimeBaseStructure.TIM_Period = %<blockid>_%<TIMER>_ARR-1; /* %<pwmperiod> sec */
+         TIM_TimeBaseStructure.TIM_Prescaler = %<timprescale>;
+         TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+         TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+         TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0000;
+         TIM_TimeBaseInit(%<TIMER>, &TIM_TimeBaseStructure);
+
+         /* Init OC */
+         TIM_OCStructInit(&TIM_OCInitStructure);
+         TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+         TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+         TIM_OCInitStructure.TIM_OCPolarity = %<polaritystr>;
+         %foreach chidx = chsize[1]
+            %assign ch = CAST("Number", %<chmat[0][chidx]>)
+            /* PWM1 Mode configuration: Channel %<ch> */
+            TIM_OC%<ch>Init(%<TIMER>, &TIM_OCInitStructure);
+            TIM_OC%<ch>PreloadConfig(%<TIMER>, TIM_OCPreload_Enable);
+         %endforeach
+
+        /* %<TIMER> configure auto reload */
+        TIM_ARRPreloadConfig(%<TIMER>, ENABLE);
+
+        /* %<TIMER> enable counter */
+        TIM_Cmd(%<TIMER>, ENABLE);
+      }
+
+      void disable_%<blockid>(void){ 
+         TIM_Cmd(%<TIMER>, DISABLE);
+      }
+
+      void terminate_%<blockid>(void){ 
+         TIM_Cmd(%<TIMER>, DISABLE);
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      void enable_%<blockid>(void); /* %<blockid> */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+   
+   %openfile tmpBuf
+      /* 
+       * Define PWM Generation Scale Factor 
+       * From TIMx_CCRx = TIMx_ARR * (Duty Cycle / 100)
+       * TIMx_CCRx = (TIMx_ARR/100) * Duty Cycle
+       */
+      #define %<blockid>_%<TIMER>_ARR %<timarr+1>
+      #define %<blockid>_SF ((float)%<blockid>_%<TIMER>_ARR / 100)
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+   %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> (%<ParamSettings.FunctionName>) */
+
+   %assign ch_idx = 0
+   %foreach chidx = chsize[1]
+      %assign y = LibBlockInputSignal(%<ch_idx>, "", "", 0)
+      %assign ch = CAST("Number", %<chmat[0][chidx]>)
+      %<TIMER>->CCR%<ch> = (uint32_t) (%<y> * %<blockid>_SF);
+      %assign ch_idx = ch_idx + 1
+   %endforeach
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   /* terminate_%<blockid>(); */
+%endfunction
+

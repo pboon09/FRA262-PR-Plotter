@@ -1,0 +1,288 @@
+%implements waijung_basic_customcode "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+  %assign custominportlabel = SFcnParamSettings.custominportlabel
+  %assign customoutportlabel = SFcnParamSettings.customoutportlabel
+  %assign incfilestrarray = SFcnParamSettings.incfilestrarray
+  %assign initialfuncallstr = SFcnParamSettings.initialfuncallstr
+  %assign enablefuncallstr = SFcnParamSettings.enablefuncallstr
+  %assign outputfuncallstr = SFcnParamSettings.outputfuncallstr
+  %assign disablefuncallstr = SFcnParamSettings.disablefuncallstr
+  %assign block = block + sampletime + blockid + custominportlabel + customoutportlabel \
+                + incfilestrarray + enablefuncallstr + outputfuncallstr + disablefuncallstr \
+                + initialfuncallstr
+  %% === Cell array ===
+  %assign custominportlabel_size = SIZE(custominportlabel)[1]
+  %assign customoutportlabel_size = SIZE(customoutportlabel)[1]
+  %assign incfilestrarray_size = SIZE(incfilestrarray)[1]
+
+  %assign block = block + custominportlabel_size + customoutportlabel_size + incfilestrarray_size
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+      /* ########################################################################
+       * Name: %<Name>
+       * Id: %<blockid>
+       * ########################################################################
+       */
+     %foreach idx = incfilestrarray_size
+       %if incfilestrarray[idx] != ""
+         #include "%<incfilestrarray[idx]>"
+       %endif            
+     %endforeach
+
+      /* 
+       * Custom Code Block Initial Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void start_%<blockid>(void);
+
+      /* 
+       * Custom Code Block Enable Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void enable_%<blockid>(void);
+
+      /* 
+       * Custom Code Block Disable Function
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void disable_%<blockid>(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+   %openfile tmpBuf
+      /* ########################################################################
+       * Name: %<Name>
+       * Id: %<blockid>
+       * ########################################################################
+       */
+
+      /* 
+       * Custom Code Block Initial Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void start_%<blockid>(void){
+         %<initialfuncallstr>
+      }
+
+      /* 
+       * Custom Code Block Enable Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void enable_%<blockid>(void){
+         %<enablefuncallstr>
+      }
+
+      /* 
+       * Custom Code Block Disable Function
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void disable_%<blockid>(void){
+         %<disablefuncallstr>
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>   
+%endfunction
+
+
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   %% Output Function Prototype
+   %% Loop input ports
+   %assign sep = " "
+   %assign inputstr = ""
+   %assign comment = "* Input Port Definitions"
+   %foreach idx = LibBlockNumInputPorts(block)
+      %assign portidx = idx + 1
+      %assign u = LibBlockInputSignal(%<idx>, "", "", 0)
+      %assign u_type = LibBlockInputSignalDataTypeName(idx, "tRealPart")
+      %if SIZE(LibBlockInputSignalDimensions(idx))[1] > 1
+        %assign nRows = LibBlockInputSignalDimensions(idx)[0]
+        %assign nCols = LibBlockInputSignalDimensions(idx)[1]
+      %else
+        %assign nRows = 1
+        %assign nCols = 1        
+      %endif
+      %assign nWidth = LibBlockInputSignalWidth(idx)      
+      %if (nWidth > 1)
+         %assign inputstr = inputstr + sep + " const " "%<u_type>" + " *in" + "%<portidx>"
+      %else
+         %assign inputstr = inputstr + sep + "%<u_type>" + " " + "in" + "%<portidx>"
+      %endif
+      %assign comment = comment + "\n* in" + "%<portidx>" + ": Port label '" + "%<custominportlabel[idx]>" + "', Type: " + "%<u_type>" + ", Size: " + "%<nWidth>" + " elements, nRows x nCols: " + "%<nRows>" + " x " +"%<nCols>"
+      %assign sep = ","
+   %endforeach   
+   %% Loop output ports  
+   %assign outputstr = ""
+   %if (LibBlockNumOutputPorts(block) > 0)
+   %assign comment = comment + "\n* Output Port Definitions"
+   %foreach idx = LibBlockNumOutputPorts(block)
+      %assign portidx = idx + 1
+      %assign y = LibBlockOutputSignal(%<idx>, "", "", 0)
+      %assign y_type = LibBlockOutputSignalDataTypeName(idx, "tRealPart")
+      %if SIZE(LibBlockOutputSignalDimensions(idx))[1] > 1
+        %assign nRows = LibBlockOutputSignalDimensions(idx)[0]
+        %assign nCols = LibBlockOutputSignalDimensions(idx)[1]
+      %else
+        %assign nRows = 1
+        %assign nCols = 1
+      %endif
+      %assign nWidth = LibBlockOutputSignalWidth(idx)      
+      %if (nWidth > 1)
+         %assign outputstr = outputstr + sep + "%<y_type>" + " " + "*out" + "%<portidx>"
+      %else
+         %assign outputstr = outputstr + sep + "%<y_type>" + " " + "*out" + "%<portidx>"
+      %endif
+      %assign comment = comment + "\n* out" + "%<portidx>" + ": Port label '" + "%<customoutportlabel[idx]>" + "', Type: " + "%<y_type>" + ", Size: " + "%<nWidth>" + " elements, nRows x nCols: " + "%<nRows>" + " x " +"%<nCols>"
+      %assign sep = ","
+   %endforeach   
+   %endif
+
+   %% Check if void function
+   %if (inputstr == "") & (outputstr == "")
+     %assign inputstr = "void"
+   %endif
+
+   %assign comment = comment + "\n*\n* Remark"   
+   %assign comment = comment + "\n* Matlab uses one dimensional array to store 2D (Matrix) signal data, by stacking each column of the matrix to form a vector."   
+   %assign comment = comment + "\n* Example: "   
+   %assign comment = comment + "\n* In Matlab, A = [1 4 7; 2 5 8; 3 6 9]."   
+   %assign comment = comment + "\n* In C, A = [1 2 3 4 5 6 7 8 9]."
+   %openfile tmpBuf
+      /* ########################################################################
+       * Name: %<Name>
+       * Id: %<blockid>
+       * ########################################################################
+       */
+      /* 
+       * Custom Code Block Output Function
+       * Block: %<Name>      
+       * BlockID: %<blockid> 
+       *
+       %<comment>
+       */       
+       void output_%<blockid>(%<inputstr> %<outputstr>);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* ########################################################################
+       * Name: %<Name>
+       * Id: %<blockid>
+       * ########################################################################
+       */
+      /* 
+       * Custom Code Block Output Function
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       %<comment>
+       */       
+       void output_%<blockid>(%<inputstr> %<outputstr>){
+          %<outputfuncallstr>
+       }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %% Output Function Call
+   %% Loop input ports
+   /* 
+    * Custom Code Block Output Function
+    * Block: %<Name>
+    * BlockID: %<blockid> 
+   %assign sep = " "
+   %assign inputstr = ""
+   %assign comment = "* Input Port Definitions"   
+   %foreach idx = LibBlockNumInputPorts(block)
+      %assign u_type = LibBlockInputSignalDataTypeName(idx, "tRealPart")
+      %assign portidx = idx + 1
+      %if SIZE(LibBlockInputSignalDimensions(idx))[1] > 1
+        %assign nRows = LibBlockInputSignalDimensions(idx)[0]
+        %assign nCols = LibBlockInputSignalDimensions(idx)[1]
+      %else
+        %assign nRows = 1
+        %assign nCols = 1        
+      %endif
+      %assign nWidth = LibBlockInputSignalWidth(idx)
+      %if (nWidth > 1)
+         %assign u = LibBlockInputSignalAddr(%<idx>, "", "", 0)
+      %else
+         %assign u = LibBlockInputSignal(%<idx>, "", "", 0)
+      %endif
+      %assign inputstr = inputstr + sep + "%<u>"
+      %assign sep = ","
+      %assign comment = comment + "\n* in" + "%<portidx>" + ": Port label '" + "%<custominportlabel[idx]>" + "', Type: " + "%<u_type>" + ", Size: " + "%<nWidth>" + " elements, nRows x nCols: " + "%<nRows>" + " x " +"%<nCols>"
+   %endforeach   
+   %% Loop output ports  
+   %assign comment = comment + "\n* Output Port Definitions"
+   %assign outputstr = ""
+   %if (LibBlockNumOutputPorts(block) > 0)
+   %foreach idx = LibBlockNumOutputPorts(block)
+      %assign y = LibBlockOutputSignalAddr(%<idx>, "", "", 0)
+      %assign y_type = LibBlockOutputSignalDataTypeName(idx, "tRealPart")
+      %assign portidx = idx + 1
+      %assign outputstr = outputstr + sep + "%<y>"
+      %assign sep = ","
+      %if SIZE(LibBlockOutputSignalDimensions(idx))[1] > 1
+        %assign nRows = LibBlockOutputSignalDimensions(idx)[0]
+        %assign nCols = LibBlockOutputSignalDimensions(idx)[1]
+      %else
+        %assign nRows = 1
+        %assign nCols = 1        
+      %endif
+      %assign nWidth = LibBlockOutputSignalWidth(idx)    
+      %assign comment = comment + "\n* out" + "%<portidx>" + ": Port label '" + "%<customoutportlabel[idx]>" + "', Type: " + "%<y_type>" + ", Size: " + "%<nWidth>" + " elements, nRows x nCols: " + "%<nRows>" + " x " +"%<nCols>"
+   %endforeach   
+   %endif
+   %<comment>
+   */
+   output_%<blockid>(%<inputstr> %<outputstr>);
+
+%endfunction
+
+%function Start(block, system) Output
+   %<addParametersToBlock(block)>   
+   /* %<Type> Block: %<Name> */
+   start_%<blockid>();
+%endfunction %% Start
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+%endfunction
+

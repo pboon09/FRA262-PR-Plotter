@@ -1,0 +1,86 @@
+%implements stm32f0_target_setup "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign compiler = CAST("String",SFcnParamSettings.compiler)
+%assign stacksize = CAST("String",SFcnParamSettings.stacksize)
+%assign heapsize = CAST("String",SFcnParamSettings.heapsize)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign systickreloadvalue = CAST("String",SFcnParamSettings.systickreloadvalue)
+%assign hseval = CAST("String",SFcnParamSettings.hseval)
+%assign hclk = CAST("Number",SFcnParamSettings.hclk)
+%assign stdlib = CAST("String",SFcnParamSettings.stdlib)
+
+
+%assign block = block + compiler + stacksize + heapsize + sampletime + \
+                blockid + systickreloadvalue + hseval + hclk + stdlib
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %%include "stm32f0xx_h.tlc"
+   %if stdlib == "STM32F072"
+     %include "stm32f072_h.tlc"
+   %endif
+   %if stdlib == "STM32F030"
+     %include "stm32f030_h.tlc"
+   %endif
+   
+   %include "system_stm32f0xx_h.tlc"
+   %include "system_stm32f0xx_c.tlc"
+   %include "stm32f0xx_it_h_tlc.tlc"
+   %include "stm32f0xx_it_c_tlc.tlc"
+   %include "stm32f0xx_conf_h_tlc.tlc"
+   %include "stm32f0_hwdrvlib_h_tlc.tlc"
+   %include "stm32f0_hwdrvlib_c_tlc.tlc"
+   %include "stm32f0_genstartupfile.tlc"
+   %include "stm32f0_genmkfile.tlc"
+   %include "stm32f0_genmkbatfile.tlc"
+   %include "stm32f0_genlinkerfile.tlc"
+   %include "stm32f0_genrtmodel_h.tlc"
+   %include "waijung_profiler.tlc"
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+%%void enable_%<blockid>(void){
+%%}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%%/* %<blockid> */
+%%void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

@@ -1,0 +1,721 @@
+%implements stm32f4_i2c "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+
+%assign mode = CAST("String",SFcnParamSettings.mode)
+%assign module = CAST("String",SFcnParamSettings.module)
+%assign transfer = CAST("String",SFcnParamSettings.transfer)
+%assign clkspeed = CAST("Number",SFcnParamSettings.clkspeed)
+%assign timeout = CAST("Number",SFcnParamSettings.timeout)
+%assign writecount = CAST("Number",SFcnParamSettings.writecount)
+%assign readcount = CAST("Number",SFcnParamSettings.readcount)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%assign sdaport = confstr[0]
+%assign sdapin = confstr[1]
+%assign sclport = confstr[2]
+%assign sclpin = confstr[3]
+%assign dma_module = confstr[4]
+%assign dma_channel = confstr[5]
+%assign dma_stream_tx = confstr[6]
+%assign dma_stream_rx = confstr[7]
+%assign dutycycle = confstr[8]
+%assign waitwritetime = confstr[9]
+%assign forcestop = confstr[10]
+
+%assign block = block + sampletime + sampletimestr + blockid \
+                + mode + module + transfer + clkspeed + timeout \
+                + writecount + readcount + sdaport + sdapin + sclport + sclpin \
+                + dma_module + dma_channel + dma_stream_tx + dma_stream_rx \
+                + dutycycle + waitwritetime + forcestop
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_I2C__) == 0)
+      %assign :: __STM32F4XX_I2C__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_i2c.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+/* ########################################################################
+ * I2C transaction processing
+ * ########################################################################
+ */
+typedef enum {
+  I2C_OK = 0,
+  I2C_TIMEOUT,
+  I2C_NAK /* No ACK from device */
+} I2C_RESULT;
+
+#define I2C_OPTION_STOPBEFORE_RESTART    0x01
+
+typedef struct {
+  uint8_t options;
+  uint8_t slaveaddress;
+  uint8_t *readbuffer;
+  uint8_t *writebuffer;
+  uint16_t writecount;
+  uint16_t readcount;
+  uint32_t waitwritetime; /* us */  
+} I2C_TRANSACTION;
+
+I2C_RESULT i2c_trans_proc(I2C_TypeDef* I2Cx, uint32_t timeout, I2C_TRANSACTION *transaction);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * I2C transaction processing
+ * ########################################################################
+ */
+SYS_TIMER_uS_STRUCT i2c_processing_timer;
+I2C_RESULT i2c_trans_proc(I2C_TypeDef* I2Cx, uint32_t timeout, I2C_TRANSACTION *transaction)
+{
+  volatile uint16_t tmp;
+  uint16_t NumByteWritten;
+  uint16_t NumByteToRead;
+  uint16_t i;
+
+  I2C_RESULT sta = I2C_OK;
+
+  /* Enable Acknowledgement */
+  I2C_AcknowledgeConfig(I2Cx, ENABLE); 
+
+  /* WRITE */
+  if((transaction->writecount > 0) || ((transaction->writecount == 0) && (transaction->readcount == 0))){
+    /* Check Busy flag */
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY)) {
+      if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) { /* Timeout */
+        sta = I2C_TIMEOUT;
+        goto ____i2c_error;
+      }
+    }
+
+    /* Clear I2C status */
+    I2C_ClearFlag(I2Cx, I2C_FLAG_AF);
+
+    /* Generate START */
+    I2C_GenerateSTART(I2Cx, ENABLE);
+  
+    /* Test on EV5 and clear it */
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT)) {
+      if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) { /* Timeout */
+        sta = I2C_TIMEOUT;
+        goto ____i2c_error;
+      }
+    }
+
+    /* Slave address */
+    I2C_Send7bitAddress(I2Cx, (transaction->slaveaddress), I2C_Direction_Transmitter);
+
+    /* Test on EV6 and clear it */    
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED)) {
+      if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) { /* Timeout */
+        sta = I2C_TIMEOUT;
+        goto ____i2c_error;
+      }
+      else {
+        if(I2C_GetFlagStatus(I2Cx, I2C_FLAG_AF) == SET) {
+          sta = I2C_NAK;
+          goto ____i2c_error;
+        }
+      }
+    }
+
+    /* Write data */
+    for(NumByteWritten=0; NumByteWritten<transaction->writecount; NumByteWritten++) {
+      /* Send byte */
+      I2C_SendData(I2Cx, transaction->writebuffer[NumByteWritten]);
+  
+      /* Test on BTF and clear it */      
+      SysTimer_uS_Start(&i2c_processing_timer, timeout);
+      while(!I2C_GetFlagStatus(I2Cx, I2C_FLAG_BTF)) {
+        if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) { /* Timeout */        
+          sta = I2C_TIMEOUT;
+          goto ____i2c_error;
+        }
+        else {
+          if(I2C_GetFlagStatus(I2Cx, I2C_FLAG_AF) == SET) {
+            sta = I2C_NAK;
+            goto ____i2c_error;
+          }
+        }
+      }
+    }
+
+    /* Wait till all data have been physically transferred on the bus */    
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while(!I2C_GetFlagStatus(I2Cx, I2C_FLAG_BTF)
+      && (SysTimer_uS_IsTimeout(&i2c_processing_timer) == 0)) {    
+      /* Do nothing */
+    }
+    
+    /* Send STOP condition, if no Read */
+    if((transaction->readcount <= 0) || \
+      SysTimer_uS_IsTimeout(&i2c_processing_timer) ||\
+      ((transaction->options & I2C_OPTION_STOPBEFORE_RESTART) > 0)) {
+      I2C_GenerateSTOP(I2Cx, ENABLE);
+    }
+
+    /* Check timeout */
+    if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+      sta = I2C_TIMEOUT;
+      goto ____i2c_error;
+    }
+
+    /* Write delay */
+    SysTimer_uS_Start(&i2c_processing_timer, transaction->waitwritetime);
+    while(SysTimer_uS_IsTimeout(&i2c_processing_timer) == 0);
+  }
+
+  /* READ */
+  if(transaction->readcount == 0) {
+    /* Do nothing */
+  }
+  else {
+    if (transaction->writecount == 0) { /* Bus will Busy if previous transactio is WRITE */
+      /* Check Busy flag */      
+      SysTimer_uS_Start(&i2c_processing_timer, timeout);
+      while (I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY)) {        
+        if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) { /* Timeout */
+          sta = I2C_TIMEOUT;
+          goto ____i2c_error;
+        }
+      }
+    }
+
+    /* Clear I2C status */
+    I2C_ClearFlag(I2Cx, I2C_FLAG_AF);
+
+    /* Set POS bit if read count is 2 */
+    if(transaction->readcount == 2) {
+      I2Cx->CR1 |= 0x0800;
+    }
+
+    /* Generate START */
+    I2C_GenerateSTART(I2Cx, ENABLE);
+
+    /* Test on EV5 and clear it */    
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT)) {
+      if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+        sta = I2C_TIMEOUT;
+        goto ____i2c_error;
+      }
+    }
+
+    /* Slave address */
+    I2C_Send7bitAddress(I2Cx, (transaction->slaveaddress), I2C_Direction_Receiver);
+
+    /* Wait on ADDR flag to be set (ADDR is still not cleared at this level) */
+    SysTimer_uS_Start(&i2c_processing_timer, timeout);
+    while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_ADDR) == RESET) {
+      if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+        sta = I2C_TIMEOUT;
+        goto ____i2c_error;
+      }
+      else {
+        if(I2C_GetFlagStatus(I2Cx, I2C_FLAG_AF) == SET) {
+          I2C_GenerateSTOP(I2Cx, ENABLE);
+           sta = I2C_NAK;
+           goto ____i2c_error;
+        }
+      }
+    }
+
+    switch(transaction->readcount) {
+      /* Read 1 byte */
+      case 1:
+        /* It is last byte, disable Acknowledgement */
+        I2C_AcknowledgeConfig(I2Cx, DISABLE);
+
+        /* Disable all active IRQs around ADDR clearing and STOP programming because the EV6_3
+        software sequence must complete before the current byte end of transfer */
+        __disable_irq();
+
+        /* Clear ADDR register by reading SR1 then SR2 register (SR1 has already been read) */
+        tmp = I2Cx->SR2;
+
+        /* Send STOP Condition */
+        I2C_GenerateSTOP(I2Cx, ENABLE);
+
+        /* Re-enable IRQs */
+        __enable_irq();
+
+        /* Wait for the byte to be received */        
+        SysTimer_uS_Start(&i2c_processing_timer, timeout);
+        while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_RXNE) == RESET)
+        {
+          if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+            sta = I2C_TIMEOUT;
+            goto ____i2c_error;
+          }        
+        }
+
+        /* Read the byte received from the Slave */
+        transaction->readbuffer[0] = I2C_ReceiveData(I2Cx);
+
+        /* Wait to make sure that STOP control bit has been cleared */        
+        SysTimer_uS_Start(&i2c_processing_timer, timeout);
+        while(I2Cx->CR1 & I2C_CR1_STOP) {
+          if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+            sta = I2C_TIMEOUT;
+            goto ____i2c_error;
+          }
+        }
+        break;
+
+      /* Read 2 bytes */
+      case 2:
+            /* EV6_1: The acknowledge disable should be done just after EV6,
+            that is after ADDR is cleared, so disable all active IRQs around ADDR clearing and 
+            ACK clearing */
+            __disable_irq();
+            /* Clear ADDR by reading SR2 register  */
+            tmp = I2Cx->SR2;
+            /* Clear ACK */
+            I2C_AcknowledgeConfig(I2Cx, DISABLE);
+            /*Re-enable IRQs */
+            __enable_irq();
+
+            /* Test on BTF and clear it */            
+            SysTimer_uS_Start(&i2c_processing_timer, timeout);
+            while(!I2C_GetFlagStatus(I2Cx, I2C_FLAG_BTF)) {
+              if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+                sta = I2C_TIMEOUT;
+                goto ____i2c_error;
+              }
+            }
+
+            /* Disable IRQs around STOP programming and data reading because of the limitation ?*/
+            __disable_irq();
+            /* Program the STOP */
+            I2C_GenerateSTOP(I2Cx, ENABLE);
+            /* Read first data */
+            transaction->readbuffer[0] = I2Cx->DR;
+            /* Re-enable IRQs */
+            __enable_irq();
+            /* Read second data */
+            transaction->readbuffer[1] = I2Cx->DR;
+
+            /* Wait to make sure that STOP control bit has been cleared */            
+            SysTimer_uS_Start(&i2c_processing_timer, timeout);
+            while(I2Cx->CR1 & I2C_CR1_STOP) {
+              if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+                sta = I2C_TIMEOUT;
+                goto ____i2c_error;
+              }
+            }
+            /* Enable Acknowledgement to be ready for another reception */
+            I2C_AcknowledgeConfig(I2Cx, ENABLE);
+            /* Clear POS bit */
+            I2Cx->CR1 &= 0xF7FF;
+        break;
+
+      /* Read more than 2 bytes */
+      default:
+        /* Clear ADDR by reading SR2 status register */
+        tmp = I2Cx->SR2;
+
+        /* While there is data to be read */
+        NumByteToRead = transaction->readcount;
+		i = 0;
+        while (NumByteToRead > 0) {
+          /* Poll on BTF to receive data because in polling mode we can not guarantee the
+             EV7 software sequence is managed before the current byte transfer completes */
+          SysTimer_uS_Start(&i2c_processing_timer, timeout);
+          while(!I2C_GetFlagStatus(I2Cx, I2C_FLAG_BTF)) {
+            if(SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+              sta = I2C_TIMEOUT;
+              goto ____i2c_error;
+            }
+          }
+
+          /* Receive bytes from first byte until byte N-3 */
+          if (NumByteToRead != 3)
+          {
+            /* Read data */
+            transaction->readbuffer[i] = I2Cx->DR;
+            /* */
+            i++;
+            /* Decrement the read bytes counter */
+            NumByteToRead--;
+          }
+          else { /* it remains to read three data: data N-2, data N-1, Data N */
+            /* Clear ACK */
+            I2C_AcknowledgeConfig(I2Cx, DISABLE);
+
+            /* Disable IRQs around data reading and STOP programming because of the limitation ? */
+            __disable_irq();
+            /* Read Data N-2 */
+            transaction->readbuffer[i] = I2Cx->DR;
+            /* Increment */
+            i++;
+            /* Program the STOP */
+            I2C_GenerateSTOP(I2Cx, ENABLE);            
+            /* Read DataN-1 */
+            transaction->readbuffer[i] = I2Cx->DR;
+            /* Re-enable IRQs */
+            __enable_irq();
+            /* Increment */
+            i++;
+            /* Wait until RXNE is set (DR contains the last data) */            
+            SysTimer_uS_Start(&i2c_processing_timer, timeout);
+            while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_RXNE) == RESET)
+            {
+              if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+                sta = I2C_TIMEOUT;
+                goto ____i2c_error;
+              }        
+            }
+            /* Read DataN */
+            transaction->readbuffer[i] = I2Cx->DR;
+            /* Reset the number of bytes to be read by master */
+             NumByteToRead = 0;
+          }
+        }  
+        /* Wait to make sure that STOP control bit has been cleared */
+        SysTimer_uS_Start(&i2c_processing_timer, timeout);        
+        while(I2Cx->CR1 & I2C_CR1_STOP) {
+          if (SysTimer_uS_IsTimeout(&i2c_processing_timer)) {
+            sta = I2C_TIMEOUT;
+            goto ____i2c_error;
+          }
+        }
+        /* Enable Acknowledgement to be ready for another reception */
+        I2C_AcknowledgeConfig(I2Cx, ENABLE);
+        break;
+    }
+  }
+
+  /* No Error */
+  return I2C_OK;
+
+  /* Error */
+____i2c_error:
+  /* Generate STOP */
+  I2C_GenerateSTOP(I2Cx, ENABLE);
+
+  /* Wait to make sure that STOP control bit has been cleared */
+  SysTimer_uS_Start(&i2c_processing_timer, timeout);        
+  while((I2Cx->CR1 & I2C_CR1_STOP) \
+    && (SysTimer_uS_IsTimeout(&i2c_processing_timer) == 0));
+
+  /* Return fail status */
+  return sta;
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ************************************************************************
+** Name: %<Name>
+** Id: %<blockid> 
+** ************************************************************************
+*/
+%if mode == "Setup"
+  #define I2C%<module>_TIMEOUT_uS %<CAST("Number", timeout*1000)> /* Timeout, uS */
+  #define I2C%<module>_TRANSACTION(t) (i2c%<module>_trans_proc(t))
+
+  I2C_RESULT i2c%<module>_trans_proc(uint8_t slaveaddress, I2C_TRANSACTION *transaction);
+%else
+extern I2C_TRANSACTION %<block.Identifier>;
+  %if writecount > 0
+  extern uint8_t %<block.Identifier>_WBuffer[];
+  %endif
+  %if readcount > 0
+  extern uint8_t %<block.Identifier>_RBuffer[];
+  %endif
+%endif
+void enable_%<blockid>(void);
+%if mode == "Setup"
+  void waijung_i2c%<module>_initial(void);
+  #define WAIJUNG_I2C%<module>_INIT()  waijung_i2c%<module>_initial()
+  void disable_%<blockid>(void);
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * (%<block.Identifier>)
+ * ########################################################################
+*/
+%if mode == "Setup"
+I2C_RESULT i2c%<module>_trans_proc(uint8_t slaveaddress, I2C_TRANSACTION *transaction)
+{
+  uint8_t i;
+  I2C_RESULT res;
+
+  /* Update Slave address */
+  transaction->slaveaddress = slaveaddress;
+
+  /* Transaction processing */
+  if((res = i2c_trans_proc(I2C%<module>, I2C%<module>_TIMEOUT_uS, transaction)) != I2C_OK) {
+    /* Temporary disable module to reset I2C */
+    disable_%<blockid>();
+
+    /* Detect if Slave hold low SDA line (this cause stuck on I2C bus),
+    ** use GPIO toggle to generate clock on SCL line until slave release SDA.
+    */
+    i = 0;
+    while ((i++<16) && (GPIO_ReadInputDataBit(GPIO%<sclport>, GPIO_Pin_%<sdapin>) == Bit_RESET)) {
+      GPIO_ResetBits(GPIO%<sclport>, GPIO_Pin_%<sclpin>);        
+      SysTimer_delay_us(5); /* 5uS */
+      GPIO_SetBits(GPIO%<sclport>, GPIO_Pin_%<sclpin>);
+      SysTimer_delay_us(4); /* 4uS */
+    }
+
+    /* Re-enable I2C */
+    enable_%<blockid>();
+  }
+
+  return res;
+}
+%endif
+
+%if mode == "Setup"    
+
+%else
+I2C_TRANSACTION %<block.Identifier>;
+  %if writecount > 0
+  uint8_t %<block.Identifier>_WBuffer[%<writecount>];
+  %endif
+  %if readcount > 0
+  uint8_t %<block.Identifier>_RBuffer[%<readcount>];
+  %endif
+%endif
+
+%if mode == "Setup"   
+  static uint8_t waijung_i2c%<module>_ready = 0;
+  void waijung_i2c%<module>_initial(void)
+  {
+    GPIO_InitTypeDef  GPIO_InitStructure; 
+    I2C_InitTypeDef  I2C_InitStructure;
+
+    if (!waijung_i2c%<module>_ready) {
+      waijung_i2c%<module>_ready = 1;
+
+      /* I2C Periph clock enable */
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C%<module>, ENABLE);
+  
+      /* I2C_SCL_GPIO_CLK and I2C_SDA_GPIO_CLK Periph clock enable */
+      %if sdaport == sclport
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<sdaport>, ENABLE);
+      %else
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<sdaport>, ENABLE);
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<sclport>, ENABLE);
+      %endif
+
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  
+      /* Reset I2C IP */
+      RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C%<module>, ENABLE);
+  
+      /* Release reset signal of I2C IP */
+      RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C%<module>, DISABLE);
+    
+      /* GPIO configuration */
+      /* Connect P%<sclport>%<sclpin> to I2C_SCL*/
+      GPIO_PinAFConfig(GPIO%<sclport>, GPIO_PinSource%<sclpin>, GPIO_AF_I2C%<module>);
+      /* Connect P%<sdaport>%<sdapin> to I2C_SDA*/
+      GPIO_PinAFConfig(GPIO%<sdaport>, GPIO_PinSource%<sdapin>, GPIO_AF_I2C%<module>);  
+  
+      /* Configure I2C pins: SCL */   
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<sclpin>;
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+      GPIO_Init(GPIO%<sclport>, &GPIO_InitStructure);
+
+      /* Configure sEE_I2C pins: SDA */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<sdapin>;
+      GPIO_Init(GPIO%<sdaport>, &GPIO_InitStructure);
+ 
+      /* I2C configuration */
+      I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
+      I2C_InitStructure.I2C_DutyCycle = %<dutycycle>;
+      I2C_InitStructure.I2C_OwnAddress1 = 0xA0;
+      I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+      I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+      I2C_InitStructure.I2C_ClockSpeed = %<clkspeed*1000>; /* %<clkspeed>kHz */
+  
+      /* I2C Peripheral Enable */
+      I2C_Cmd(I2C%<module>, ENABLE);
+      /* Apply I2C%<module> configuration after enabling it */
+      I2C_Init(I2C%<module>, &I2C_InitStructure);
+    }
+  }
+%endif
+
+/* Enable module */
+void enable_%<blockid>(void){
+  // Initial the module
+  WAIJUNG_I2C%<module>_INIT ();
+  %if mode == "Setup"
+
+  %else
+    %if forcestop == "on"
+      %<block.Identifier>.options = I2C_OPTION_STOPBEFORE_RESTART;
+    %else
+      %<block.Identifier>.options = 0;
+    %endif
+    %<block.Identifier>.writecount = %<writecount>;
+    %if writecount > 0
+      %<block.Identifier>.writebuffer = %<block.Identifier>_WBuffer;
+    %else
+      %<block.Identifier>.writebuffer = (uint8_t*)0;
+    %endif
+    %<block.Identifier>.readcount = %<readcount>;
+    %if readcount > 0
+      %<block.Identifier>.readbuffer = %<block.Identifier>_RBuffer;
+    %else
+      %<block.Identifier>.readbuffer = (uint8_t*)0;
+    %endif
+    %<block.Identifier>.waitwritetime = %<CAST("Number", waitwritetime)>*1000UL; /* uS */
+  %endif
+}
+
+%if mode == "Setup"
+/* Disable module */
+void disable_%<blockid>(void) {  
+%%    GPIO_InitTypeDef  GPIO_InitStructure; 
+%%   
+%%    /* I2C Peripheral Disable */
+%%    I2C_Cmd(I2C%<module>, DISABLE);
+%% 
+%%    /* I2C DeInit */
+%%    I2C_DeInit(I2C%<module>);
+%%
+%%    /* I2C Periph clock disable */
+%%    RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C%<module>, DISABLE);
+%%    
+%%    /* GPIO configuration */  
+%%    /* Configure I2C pins: SCL */
+%%    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+%%    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+%%    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<sclpin>;
+%%    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+%%
+%%    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+%%    GPIO_SetBits(GPIO%<sclport>, GPIO_Pin_%<sclpin>);
+%%    GPIO_Init(GPIO%<sclport>, &GPIO_InitStructure);
+%%
+%%    /* Configure I2C pins: SDA */
+%%    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+%%    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<sdapin>;
+%%    GPIO_Init(GPIO%<sdaport>, &GPIO_InitStructure);  
+}
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if mode == "Setup"
+  %else
+    /* I2C Transaction, Name: %<block.Name>
+     * ID : %<block.Identifier> (%<blockid>)
+     * Info: Write byte(s)= %<writecount>, Read byte(s)= %<readcount>, Wait write time(mS)= %<waitwritetime>, 
+     %if forcestop == "on"
+     *  STOP before re-start= "%<forcestop>"
+     %endif
+     */
+    {
+    %if writecount > 0
+    /* Collect data */
+    %endif
+    %foreach idx=writecount
+      %<block.Identifier>.writebuffer[%<idx>] = %<LibBlockInputSignal(idx+1, "", "", 0)>; /* Wr%<idx> */
+    %endforeach
+    /* I2C Transaction processing */
+    %<LibBlockOutputSignal(0, "", "", 0)> = (uint8_T)i2c%<module>_trans_proc(%<LibBlockInputSignal(0, "", "", 0)>, &%<block.Identifier>);
+    %if readcount > 0
+    /* Update output */
+    %endif
+    %foreach idx=readcount
+      %<LibBlockOutputSignal(idx+1, "", "", 0)> = %<block.Identifier>.readbuffer[%<idx>]; /* Rd%<idx> */
+    %endforeach
+    }
+  %endif
+
+%endfunction
+
+%function Start(block, system) Output
+  %if mode == "Setup" 
+  %else
+    /* %<Type> Block: %<Name> */
+    enable_%<blockid>();
+  %endif
+%endfunction %% Start
+
+%function Enable(block, system) Output
+  %if mode == "Setup"    
+  %<addParametersToBlock(block)>
+  enable_%<blockid>();
+  %endif
+%endfunction
+
+%function Disable(block, system) Output
+  %if mode == "Setup"
+  %<addParametersToBlock(block)>
+  disable_%<blockid>();
+  %endif
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

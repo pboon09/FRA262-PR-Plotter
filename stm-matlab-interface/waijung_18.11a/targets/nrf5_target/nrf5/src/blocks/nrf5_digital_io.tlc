@@ -1,0 +1,184 @@
+%implements nrf5_digital_io "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %% Options string
+  %assign port      = optionstring[0]
+  %assign drivemode = optionstring[1]
+  %assign inputtype = optionstring[2]
+  %assign outputtype = optionstring[3]
+  %assign block = block + port + drivemode + inputtype + outputtype
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %%%openfile tmpBuf
+      %%   #include "nrf_gpio.h"
+      %%%closefile tmpBuf
+      %%%assign file = LibCreateSourceFile("Header", "Custom", "nrf5_conf")
+      %%%<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %%%<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * Digital Input/ Output
+      * ########################################################################
+      */
+      void nrf_gpio_cfg_output_ex(uint32_t pin_number, uint32_t drive);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * Digital Input/ Output
+      * ########################################################################
+      */
+     void nrf_gpio_cfg_output_ex(uint32_t pin_number, uint32_t drive)
+     {      
+      NRF_GPIO->PIN_CNF[pin_number] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                            | (drive << GPIO_PIN_CNF_DRIVE_Pos)
+                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                            | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+     }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+%foreach idx=32  
+  %if optionstring[10+idx] == "on"
+    %if conf == "input"
+      /* Input Pin %<idx> */
+      nrf_gpio_cfg_input(%<idx>, NRF_GPIO_PIN_%<inputtype>);    
+    %else
+     /* Output Pin %<idx> */
+     %if (drivemode == "Standard") && (outputtype == "S0S1")
+       nrf_gpio_cfg_output(%<idx>);
+     %else
+       nrf_gpio_cfg_output_ex(%<idx>, GPIO_PIN_CNF_DRIVE_%<outputtype>);
+     %endif
+    %endif
+  %endif
+%endforeach
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+
+/* %<blockid>: '%<block.Name>'
+ *  Direction: %<conf>
+ *  Pin: \
+ %assign sep = ""
+ %foreach idx=32
+   %if optionstring[10+idx] == "on"
+%<sep>%<idx>\
+     %assign sep = ", "
+   %endif
+ %endforeach
+
+ */
+
+%assign portIdx = 0
+%foreach idx=32
+  %if optionstring[10+idx] == "on"
+    %if conf == "input"
+      %assign dtname = LibBlockOutputSignalDataTypeName(portIdx,tRealPart)
+      %<LibBlockOutputSignal(portIdx, "", "", 0)> = (%<dtname>)nrf_gpio_pin_read(%<idx>); /* Pin %<idx> */
+    %else
+      nrf_gpio_pin_write(%<idx>, (uint32_t)%<LibBlockInputSignal(portIdx, "", "", 0)>); /* Pin %<idx> */
+    %endif
+    %assign portIdx = portIdx + 1
+  %endif  
+%endforeach
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

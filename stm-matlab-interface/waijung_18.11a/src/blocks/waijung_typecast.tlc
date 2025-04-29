@@ -1,0 +1,123 @@
+%implements waijung_typecast "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign mode = CAST("String",SFcnParamSettings.mode)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign block = block + mode + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+
+%if (mode == "bytes2double") || (mode == "bytes2single")
+/* %<blockid> buffer */
+extern uint8_t %<blockid>_buff[];
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+
+%openfile tmpBuf
+
+%if (mode == "bytes2single")
+/* %<blockid> buffer for convert single precision */
+uint8_t %<blockid>_buff[4];
+%endif
+
+%if (mode == "bytes2double")
+/* %<blockid> buffer for convert double precision */
+uint8_t %<blockid>_buff[8];
+%endif
+
+/* Init %<blockid> */
+void enable_%<blockid>(void){
+   
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%if (mode == "double2bytes")
+/* Convert double to bytes */
+  %assign u = LibBlockInputSignal(0, "", "", 0)
+  %foreach idx = 8
+    %assign y = LibBlockOutputSignal(%<idx>, "", "", 0)
+    %<y> = ((uint8_T*)&%<u>)[%<idx>];
+  %endforeach
+%endif
+
+%if (mode == "single2bytes")
+/* Convert single to bytes */
+  %assign u = LibBlockInputSignal(0, "", "", 0)
+  %foreach idx = 4
+    %assign y = LibBlockOutputSignal(%<idx>, "", "", 0)
+    %<y> = ((uint8_T*)&%<u>)[%<idx>];
+  %endforeach
+%endif
+
+
+%if (mode == "bytes2double")
+/* Convert bytes to double*/
+  %foreach idx = 8
+    %assign y = LibBlockInputSignal(%<idx>, "", "", 0)
+    %assign y_type = LibBlockInputSignalDataTypeName(%<idx>, "tRealPart")
+    %<blockid>_buff[%<idx>] = %<y>;
+  %endforeach
+  %assign y = LibBlockOutputSignal(0, "", "", 0)
+  %<y> = *(double*)&%<blockid>_buff[0];
+%endif
+
+%if (mode == "bytes2single")
+/* Convert bytes to single*/
+  %foreach idx = 4
+    %assign y = LibBlockInputSignal(%<idx>, "", "", 0)
+    %assign y_type = LibBlockInputSignalDataTypeName(%<idx>, "tRealPart")
+    %<blockid>_buff[%<idx>] = %<y>;
+  %endforeach
+  %assign y = LibBlockOutputSignal(0, "", "", 0)
+  %<y> = *(float*)&%<blockid>_buff[0];
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

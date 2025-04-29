@@ -1,0 +1,213 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Features</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Features">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "features.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Features</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?features.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   &raquo;No topics above this level&laquo;
+   </p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Features</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="quick_navigation2.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="quick_navigation2.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="release_note.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><img src="waijung_logo150.png" width="110" height="148" alt="waijung_logo150" style="float:left;margin:0px 0px 0px 0px; border:none" /></p>
+<p><span style="font-weight: bold;">&quot;</span><span style="font-style: italic; font-weight: bold;">Waijung</span><span style="font-weight: bold;">&quot; </span>or &quot;<span style="font-size: 16pt; font-family: 'TH SarabunPSK'; font-style: italic; font-weight: bold;">ไวจัง</span>&quot;, a Thai slang for &quot;<span style="font-style: italic; font-weight: bold;">so fast</span>&quot;, is a Simulink Blockset that can be used to easily and &nbsp;automatically generate C code from your Matlab/Simulink simulation models for many kinds of microcontrollers (Targets).</p>
+<p>Currently, Waijung has been designed specifically to support <a href="http://www.st.com/internet/mcu/subclass/1521.jsp" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">STM32F4</a> family of microcontrollers (STM32F4 Target) which is a Hi-Performance &amp; DSP MCU from STMicroelectronics. </p>
+<p>Waijung Blockset and STM32F4 Target has been completely redesigned with many new features and improvements, based on our experiences on developing <a href="https://www.aimagin.com/learn/index.php/Learn_RapidSTM32_Home" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="RapidSTM32 Blockset">RapidSTM32 Blockset</a> and <span style="font-style: italic;">&quot;real-world applications with ease of use&quot;</span> philosophy. </p>
+<p>The followings list some of the new features included in Waijung Blockset and STM32F4 Target.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Low-Cost Hi-Performance DSP Hardware with variety of Plug-n-Play modules</span></h2>
+<p><img src="amg_f4connect2_diagram.png" width="950" height="728" alt="amg_f4connect2_diagram" style="width:950px;height:728px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Waijung Execution Time Profiler</span></h2>
+<p>Easily measure execution time of your target in real-time with ease.</p>
+<p>Flexibly define an unlimited number of time capture-point pairs, Waijung Profiler analyzes and reports information such as time steps, elapse time, and histogram for you.</p>
+<p><a href="waijung_profiler.htm" class="topiclink" title="Waijung Profiler"><img src="profileranalysisresult04.png" width="950" height="506" alt="Waijung Profiler" title="Waijung Profiler" style="width:950px;height:506px;border:none" /></a></p>
+<p>&nbsp;</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Auto Compile and Download with GNU GCC Compiler </span></h2>
+<p><a href="https://launchpad.net/gcc-arm-embedded" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="GNU Tools for ARM Embedded Processors">GNU Tools for ARM Embedded Processors</a> is now built-in Waijung Auto Compile and Download mechanism.</p>
+<p>There is no need to install any 3rd party compilers. You can use Waijung right out-of-the-box.</p>
+<p>STM32F4 Hardware Floating Point Unit readily supported.</p>
+<p><img src="gnugccweb.png" width="950" height="600" alt="gnugccweb" style="width:950px;height:600px;border:none" /></p>
+<p>&nbsp;</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Custom Code Block</span></h2>
+<p>Now, you can very easily add your own C code with the new <a href="waijung_basic_customcode.htm" class="topiclink">Basic Custom Code</a> Block. Your custom C code is readily integrated with Waijung and code generation mechanism.</p>
+<p>No need to know how to write S-Function Block or C-mex files. Have your C code ready, and create your own custom Simulink block in less than 5 minutes.</p>
+<p>&nbsp;</p>
+<p><img src="basic_custom_code_mask.png" width="913" height="1071" alt="basic_custom_code_mask" style="width:913px;height:1071px;border:none" /></p>
+<p>&nbsp;</p>
+<h2 class="p_Heading2"><span class="f_Heading2">High Speed Data Logger</span></h2>
+<p>Acquire real-time data to SD Card upto 8GB (tested) / 32GB (by design) upto 100kHz (actual speed depends on SD card used and data record size) with <a href="stm32f4_hssdcard_write.htm" class="topiclink">High speed SD Card write</a> block.</p>
+<p><img src="amg_sdio_demo_binary_model.png" width="950" height="568" alt="amg_sdio_demo_binary_model" style="width:950px;height:568px;border:none" /></p>
+<p>&nbsp;</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Simple and Highly Flexible Target Setup</span></h2>
+<p><img src="feature_blockinsertsetuptarget.png" width="950" height="477" alt="feature_blockinsertsetuptarget" style="width:950px;height:477px;border:none" /></p>
+<p>&nbsp;</p>
+<p><img src="advanced_config.png" width="848" height="609" alt="advanced_config" style="width:848px;height:609px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Improved User Interface</span></h2>
+<p><img src="improvedui.png" width="940" height="460" alt="improvedui" style="width:940px;height:460px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">More Efficient Code Generation </span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Real-Time Critical and Background Tasks management <br />
+Character LCD and other slow non real-time critical tasks still works even at 100k+ base sample time.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">Hardware enable / disable functions.</td></tr></table></div><p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

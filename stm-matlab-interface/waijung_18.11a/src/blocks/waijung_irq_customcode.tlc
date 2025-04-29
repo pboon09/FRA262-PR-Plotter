@@ -1,0 +1,202 @@
+%implements waijung_irq_customcode "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+   %assign custominportlabel = SFcnParamSettings.custominportlabel
+   %assign inportcnt_size = SIZE(custominportlabel)
+   %assign inportcnt = CAST("Number",SFcnParamSettings.inputportcnt)
+   %assign customoutportlabel = SFcnParamSettings.customoutportlabel
+   %assign outportcnt_size = SIZE(customoutportlabel)
+   %assign outportcnt = CAST("Number",SFcnParamSettings.outputportcnt)
+   %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign incfilestrarray = SFcnParamSettings.incfilestrarray
+   %assign incfilestrarray_size =  SIZE(incfilestrarray)[1]
+   %assign enablefuncallstr = CAST("String",SFcnParamSettings.enablefuncallstr)
+   %assign outputfuncallstr = CAST("String",SFcnParamSettings.outputfuncallstr)
+   %assign disablefuncallstr = CAST("String",SFcnParamSettings.disablefuncallstr)
+   %assign initialfuncallstr = CAST("String",SFcnParamSettings.initialfuncallstr)
+   %assign block = block + sampletime + blockid + custominportlabel + \
+           customoutportlabel + inportcnt + outportcnt + incfilestrarray + \
+           incfilestrarray_size + enablefuncallstr + outputfuncallstr + \
+           disablefuncallstr + initialfuncallstr
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %addtorecord block AsyncCallerGenCode TLC_TRUE
+
+   %openfile tmpBuf
+     /* ########################################################################
+     * Name: %<Name>
+     * Id: %<blockid>
+     * ########################################################################
+     */
+
+      /* 
+       * Custom Code Block Start Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void start_%<blockid>(void);
+
+      /* 
+       * Custom Code Block Enable Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void enable_%<blockid>(void);
+
+      /* 
+       * Custom Code Block Disable Function
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void disable_%<blockid>(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      %if (incfilestrarray_size[0] > 0)
+         %foreach idx = incfilestrarray_size[0]
+            %if incfilestrarray[idx] == ""
+            %else
+            #include "%<incfilestrarray[idx]>"
+            %endif
+         %endforeach
+      %endif
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+   %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+   %openfile tmpBuf
+     /* ########################################################################
+     * Name: %<Name>
+     * Id: %<blockid>
+     * ########################################################################
+     */
+
+      /* 
+       * Custom Code Block Start Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void start_%<blockid>(void){
+         %<initialfuncallstr>
+      }
+
+      /* 
+       * Custom Code Block Enable Function 
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void enable_%<blockid>(void){
+         %<enablefuncallstr>
+      }
+
+      /* 
+       * Custom Code Block Disable Function
+       * Block: %<Name>
+       * BlockID: %<blockid> 
+       */
+      void disable_%<blockid>(void){
+         %<disablefuncallstr>
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>   
+%endfunction
+
+%function Outputs(block, system) Output
+  %<addParametersToBlock(block)>
+  /* %<Type> Block: %<Name> */
+
+    %if LibBlockOutputSignalConnected(0)
+      %% Get the downstream block
+      %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+      %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+      %if !block.GenCodeForTopAsyncSS     
+        %%Don't generate code for downstream f-c subsystem
+        %%if GenCodeForTopAsyncSS is not set yet.
+        %return
+      %endif
+
+      %% Call the downstream function call subsystem
+      %openfile tmpBuf
+        %<LibBlockExecuteFcnCall(block, callIdx)>\
+      %closefile tmpBuf   
+
+      %% Always create the ISR function
+      %openfile funcbuf
+        /* ########################################################################
+         * Block Name: %<block.Name>
+         * Block ID: %<blockid>
+         * ########################################################################
+         * Function call: %<blockid> IRQ
+         */
+        %<outputfuncallstr> {
+           %if WHITE_SPACE(tmpBuf)
+              /* Nothing to do for system: %<ssBlock.Name> */
+           %else
+              /* Call the system: %<ssBlock.Name> */
+              %<tmpBuf>
+           %endif
+        }
+      %closefile funcbuf
+
+      %assign filename = LibGetMdlSrcBaseName()
+      %assign file = LibCreateSourceFile("Source", "Simulink", filename)
+      %<LibSetSourceFileSection(file,"Functions",funcbuf)>
+    
+    %else
+      %openfile tmpBuf
+        /* ########################################################################
+         * Block Name: %<block.Name>
+         * Block ID: %<blockid>
+         * ########################################################################
+         * Function call: %<blockid> IRQ
+         */
+        %<outputfuncallstr> {
+          /* Ouput ISR block is not connected */
+        }
+      %closefile tmpBuf
+
+      %assign filename = LibGetMdlSrcBaseName()
+      %assign file = LibCreateSourceFile("Source", "Simulink", filename)
+      %<LibSetSourceFileSection(file,"Functions",tmpBuf)>
+
+    %endif
+%endfunction
+
+%function Start(block, system) Output
+   %<addParametersToBlock(block)>   
+   /* %<Type> Block: %<Name> */
+   start_%<blockid>();
+%endfunction %% Start
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> */
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> */
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+%endfunction
+

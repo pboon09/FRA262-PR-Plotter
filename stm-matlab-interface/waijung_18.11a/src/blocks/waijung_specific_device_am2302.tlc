@@ -1,0 +1,252 @@
+%implements waijung_specific_device_am2302 "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign start_len = optionstring[0]
+  %assign update_interval = optionstring[1]
+  %assign sda_port = optionstring[2]
+  %assign sda_pin = optionstring[3]
+
+  %assign block = block + start_len + update_interval + sda_port + sda_pin
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: AM2302
+    * ########################################################################
+    */
+   typedef enum
+   {
+     AM2302_SUCCESS = 0,
+     AM2302_BUSSTATE_ERROR,
+     AM2302_BITTIMING_ERROR,
+     AM2302_PAKET_ERROR
+   } AM2302_ERR_CODE;
+   void nRF5_AM2302_Read(uint32_t pin, uint8_t start_len, uint8_t *sta, float *h, float *t);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: AM2302
+    * ########################################################################
+    */
+   void nRF5_AM2302_Read(uint32_t pin, uint8_t start_len, uint8_t *sta, float *h, float *t)
+   {
+     int i, j;
+     uint32_t timeout_count;
+     uint8_t sda_state;
+     uint8_t reading_buffer[5];
+     uint16_t parity, humid, temp;
+
+     // 1. Wait for signal High
+     nrf_gpio_pin_set(pin);
+     timeout_count = 0;
+     do {
+       sda_state = nrf_gpio_pin_read(pin);
+       nrf_delay_us(10);
+     }while ((sda_state != 0) && (timeout_count++ < 10)/*approx.100us timeout*/);
+     if (sda_state == 0){
+       *sta = (uint8_t)AM2302_BUSSTATE_ERROR;
+       // Note: h and t unchanged
+       return;
+     }
+
+     // 2. Start bit
+     nrf_gpio_pin_clear(pin);
+     do {
+       nrf_delay_us(1000);
+       if  (start_len >0) {
+         start_len --;
+       }
+     } while (start_len > 0);
+     nrf_gpio_pin_set(pin);
+
+     // 3. Validate Start: Slave Held bus low
+     nrf_delay_us(60);
+     sda_state = nrf_gpio_pin_read(pin);
+     if (sda_state != 0) {
+       *sta = (uint8_t)AM2302_BUSSTATE_ERROR;
+       // Note: h and t unchanged
+       return;
+     }
+
+     // 4. Wait slave release Bus
+     timeout_count = 0;
+     do {
+       sda_state = nrf_gpio_pin_read(pin);
+       nrf_delay_us(10);
+     } while (!sda_state && (timeout_count < 12));
+     if (sda_state == 0) {
+       *sta = (uint8_t)AM2302_BUSSTATE_ERROR;
+       // Note: h and t unchanged
+       return;
+     }
+
+     // 5. Data bits
+     for (i=0; i<5; i++)
+     {
+       uint8_t tmp;
+       tmp = 0;
+       for (j=0; j<8; j++)
+       {
+         // 5.1 Sync bus state: 0
+         timeout_count = 0;
+         do {
+           sda_state = nrf_gpio_pin_read(pin);
+           nrf_delay_us(4);
+         } while (sda_state && (timeout_count++ < 25));
+         if (sda_state != 0) {
+           *sta = (uint8_t)AM2302_BITTIMING_ERROR;
+           // Note: h and t unchanged
+           return;
+         }
+         // 5.2 Sync bus state: 1
+         timeout_count = 0;
+         do {
+           sda_state = nrf_gpio_pin_read(pin);
+           nrf_delay_us(4);
+         } while (!sda_state && (timeout_count++ < 25));
+         if (sda_state == 0) {
+           *sta = (uint8_t)AM2302_BITTIMING_ERROR;
+           // Note: h and t unchanged
+           return;
+         }
+
+         // 5.3 Delay 40us
+         nrf_delay_us(40);
+
+         // Read data bit
+         if (nrf_gpio_pin_read(pin))
+           sda_state = 1;
+         else
+           sda_state = 0;
+         tmp |= (sda_state << (7-j));
+       }
+       reading_buffer[i] = tmp;
+     }
+
+     // 6. Check
+     parity = reading_buffer[0] + reading_buffer[1] + reading_buffer[2] + reading_buffer[3];
+     parity &= 0xFF;
+     if ((uint8_t)parity != reading_buffer[4])
+     {
+           *sta = (uint8_t)AM2302_PAKET_ERROR;
+           // Note: h and t unchanged
+           return;
+     }
+
+     // 7. Convert
+     humid = (uint16_t)reading_buffer[0] << 8 | (uint16_t)reading_buffer[1];
+     temp = (uint16_t)reading_buffer[2] << 8 | (uint16_t)reading_buffer[3];
+     
+     // Return value
+     *sta = (uint8_t)AM2302_SUCCESS;
+     *h = ((float)humid/10);
+     *t = ((float)temp/10);
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_SDA_PIN %<sda_pin>
+#define %<blockid>_START_TIMING %<start_len> // ms
+#define %<blockid>_UPDATE_INTERVAL %<update_interval> // ms
+
+void enable_%<blockid>(void);
+void %<blockid>_read (uint8_t *sta, float *h, float *t);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+SYS_TIMER_STRUCT %<blockid>_Timer = {0,0};
+
+void %<blockid>_read (uint8_t *sta, float *h, float *t)
+{
+  // Convert new if timeout
+  if (SysTimer_IsTimeout(&%<blockid>_Timer)){
+    // Start new timer
+    SysTimer_Start(&%<blockid>_Timer, %<blockid>_UPDATE_INTERVAL);
+
+    // Read sensor data
+    // Note: timing error may occur due to SoftDevice process
+    nRF5_AM2302_Read(%<blockid>_SDA_PIN, (uint8_t)%<blockid>_START_TIMING, sta, h, t);\
+  }
+}
+
+void enable_%<blockid>(void){
+  // Setup convesion timer
+  %<block.Identifier>_Timer.tick_start = 0;
+  %<block.Identifier>_Timer.tick_length = 0;
+
+  // SDA Pin configuration
+  nrf_gpio_pin_set(%<blockid>_SDA_PIN);
+  NRF_GPIO->PIN_CNF[%<blockid>_SDA_PIN] = \
+    (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+    | (GPIO_PIN_CNF_DRIVE_H0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%assign sta = LibBlockOutputSignalAddr(0, "", "", 0)
+%assign h = LibBlockOutputSignalAddr(1, "", "", 0)
+%assign t = LibBlockOutputSignalAddr(2, "", "", 0)
+%<blockid>_read (%<sta>, %<h>, %<t>);
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

@@ -1,0 +1,1314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+   <waijung>
+      <mode>user</mode>
+      <path>
+         <root>D:\\subversion\\rapidstm32f4\\trunk\\waijung</root>
+         <project>D:\\subversion\\rapidstm32f4\\trunk\\rapidstm32f4_target\\rapidstm32f4</project>
+      </path>
+   </waijung>
+   <target>
+      <name>stm32f0</name>
+      <description>STM32F0 Target</description>
+      <path>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\targets\\stm32f0_target\\stm32f0</root>
+         <source>${target/path/root}\src</source>
+         <sourceBlocks>${target/path/source}\blocks</sourceBlocks>
+         <utils>${target/path/root}\utils</utils>
+         <stlinkutilitybin>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\devices\\ST_LINK_Utility\\ST-LINK Utility</stlinkutilitybin>
+      </path>
+      <customization>
+         <name>cortexm0</name>
+         <vendor>ARM Compatible</vendor>
+         <type>Cortex - M0</type>
+         <endianess>LittleEndian</endianess>
+      </customization>
+   </target>
+   <compilers>
+      <mdkarm>
+         <binpath>ARMCC\\BIN</binpath>
+         <incpath>ARMCC\\include;</incpath>
+      </mdkarm>
+      <ewarm>
+         <binpath>arm\\bin</binpath>
+         <incpath>arm\\CMSIS\\Include;arm\\inc\\c</incpath>
+      </ewarm>
+      <gnuarm>
+         <root>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded</root>
+         <binpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\gnu_tools_arm_embedded\\bin</binpath>
+         <incpath>C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\utils\\aimagin\\gnuarminc;C:\\Users\\pboon\\Downloads\\FRA262-PR-Plotter\\stm-matlab-interface\\waijung_18.11a\\targets\\stm32f0_target\\stm32f0\\utils\\STM32F0xx_StdPeriph_Lib\\Libraries\\CMSIS\\Include</incpath>
+         <version>gcc version 7.2.1 20170904 (release) [ARM/embedded-7-branch revision 255204] (GNU Tools for Arm Embedded Processors 7-2017-q4-major)  
+</version>
+      </gnuarm>
+   </compilers>
+   <tables type="waijung_dat">
+      <table name="waijung_mcu_resources">
+         <mcu id="STM32F072CBLQFP48" name="STM32F072CB (LQFP48)">
+            <function type="io">
+               <module Port="A">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+                  <Pin>10<value>Y</value>
+                  </Pin>
+                  <Pin>11<value>Y</value>
+                  </Pin>
+                  <Pin>12<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+                  <Pin>2<value>Y</value>
+                  </Pin>
+                  <Pin>3<value>Y</value>
+                  </Pin>
+                  <Pin>4<value>Y</value>
+                  </Pin>
+                  <Pin>5<value>Y</value>
+                  </Pin>
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>8<value>Y</value>
+                  </Pin>
+                  <Pin>9<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="B">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+                  <Pin>10<value>Y</value>
+                  </Pin>
+                  <Pin>11<value>Y</value>
+                  </Pin>
+                  <Pin>12<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+                  <Pin>2<value>Y</value>
+                  </Pin>
+                  <Pin>3<value>Y</value>
+                  </Pin>
+                  <Pin>4<value>Y</value>
+                  </Pin>
+                  <Pin>5<value>Y</value>
+                  </Pin>
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>8<value>Y</value>
+                  </Pin>
+                  <Pin>9<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="C">
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="F">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+               </module>
+            </function>
+            <function type="adc">
+               <module ADCModule="1">
+                  <AN>0<value>A0</value>
+                  </AN>
+                  <AN>1<value>A1</value>
+                  </AN>
+                  <AN>2<value>A2</value>
+                  </AN>
+                  <AN>3<value>A3</value>
+                  </AN>
+                  <AN>4<value>A4</value>
+                  </AN>
+                  <AN>5<value>A5</value>
+                  </AN>
+                  <AN>6<value>A6</value>
+                  </AN>
+                  <AN>7<value>A7</value>
+                  </AN>
+                  <AN>8<value>B0</value>
+                  </AN>
+                  <AN>9<value>B1</value>
+                  </AN>
+                  <AN>10<value>C0</value>
+                  </AN>
+                  <AN>11<value>C1</value>
+                  </AN>
+                  <AN>12<value>C2</value>
+                  </AN>
+                  <AN>13<value>C3</value>
+                  </AN>
+                  <AN>14<value>C4</value>
+                  </AN>
+                  <AN>15<value>C5</value>
+                  </AN>
+                  <AN>16<value>Y</value>
+                  </AN>
+                  <AN>17<value>Y</value>
+                  </AN>
+                  <AN>18<value>Y</value>
+                  </AN>
+               </module>
+            </function>
+            <function type="can">
+               <module CANModule="Tx1">
+                  <CH>1<value>A12</value>
+                  </CH>
+                  <CH>2<value>B9</value>
+                  </CH>
+                  <CH>3<value>D1</value>
+                  </CH>
+               </module>
+               <module CANModule="Rx1">
+                  <CH>1<value>A11</value>
+                  </CH>
+                  <CH>2<value>B8</value>
+                  </CH>
+                  <CH>3<value>D0</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="dac">
+               <module DACModule="DAC1">
+                  <Port>A<value>4</value>
+                  </Port>
+               </module>
+               <module DACModule="DAC2">
+                  <Port>A<value>5</value>
+                  </Port>
+               </module>
+            </function>
+            <function type="uart">
+               <module UARTModule="Tx1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A9</value>
+                  </CH>
+                  <CH>3<value>B6</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A10</value>
+                  </CH>
+                  <CH>3<value>B7</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A11</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A12</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A2</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A3</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A0</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A1</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B10</value>
+                  </CH>
+                  <CH>3<value>C10</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B11</value>
+                  </CH>
+                  <CH>3<value>C11</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B13</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B14</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A0</value>
+                  </CH>
+                  <CH>3<value>C10</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A1</value>
+                  </CH>
+                  <CH>3<value>C11</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C12</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>D2</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C6</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C7</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="i2c">
+               <module I2CModule="SCL1">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B6</value>
+                  </CH>
+                  <CH>3<value>B8</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA1">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B7</value>
+                  </CH>
+                  <CH>3<value>B9</value>
+                  </CH>
+               </module>
+               <module I2CModule="SCL2">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B10</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA2">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B11</value>
+                  </CH>
+               </module>
+               <module I2CModule="SCL3">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>3<value>A8</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA3">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>3<value>C9</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="spi">
+               <module SPIModule="NSS1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A4</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>A15</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E12</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="SCK1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A5</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B3</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E13</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MISO1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A6</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B4</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E14</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MOSI1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A7</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B5</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E15</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="NSS2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B9</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>3<value>B12</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>D0</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="SCK2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B10</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>3<value>B13</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>D1</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MISO2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B14</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>C2</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>D3</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MOSI2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B15</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>C3</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>D4</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x8000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>128k</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>16k</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x08000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00004000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x08000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00020000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00004000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="basicpwm">
+               <module TIMER="1">
+                  <CH>1<value>A8</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>A9</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>A10</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>A11</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="2">
+                  <CH>1<value>A0</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>1<value>A5</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>A1</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>B3</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>A2</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>B10</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>A3</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>B11</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="3">
+                  <CH>1<value>A6</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>1<value>C6</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>1<value>B4</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>A7</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>C7</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B5</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>3<value>B0</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>3<value>C8</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>B1</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>C9</value>
+                     <af>0</af>
+                  </CH>
+               </module>
+               <module TIMER="14">
+                  <CH>1<value>A4</value>
+                     <af>4</af>
+                  </CH>
+                  <CH>1<value>A7</value>
+                     <af>4</af>
+                  </CH>
+                  <CH>1<value>B1</value>
+                     <af>0</af>
+                  </CH>
+               </module>
+               <module TIMER="15">
+                  <CH>1<value>A2</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A3</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>1<value>B14</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>B15</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module TIMER="16">
+                  <CH>1<value>A6</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>1<value>B8</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="17">
+                  <CH>1<value>A7</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>1<value>B9</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+            </function>
+         </mcu>
+         <mcu id="STM32F030K6LQFP32" name="STM32F030K6 (LQFP32)">
+            <function type="io">
+               <module Port="A">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+                  <Pin>10<value>Y</value>
+                  </Pin>
+                  <Pin>11<value>Y</value>
+                  </Pin>
+                  <Pin>12<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+                  <Pin>2<value>Y</value>
+                  </Pin>
+                  <Pin>3<value>Y</value>
+                  </Pin>
+                  <Pin>4<value>Y</value>
+                  </Pin>
+                  <Pin>5<value>Y</value>
+                  </Pin>
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>8<value>Y</value>
+                  </Pin>
+                  <Pin>9<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="B">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+                  <Pin>10<value>Y</value>
+                  </Pin>
+                  <Pin>11<value>Y</value>
+                  </Pin>
+                  <Pin>12<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+                  <Pin>2<value>Y</value>
+                  </Pin>
+                  <Pin>3<value>Y</value>
+                  </Pin>
+                  <Pin>4<value>Y</value>
+                  </Pin>
+                  <Pin>5<value>Y</value>
+                  </Pin>
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>8<value>Y</value>
+                  </Pin>
+                  <Pin>9<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="C">
+                  <Pin>6<value>Y</value>
+                  </Pin>
+                  <Pin>7<value>Y</value>
+                  </Pin>
+                  <Pin>13<value>Y</value>
+                  </Pin>
+                  <Pin>14<value>Y</value>
+                  </Pin>
+                  <Pin>15<value>Y</value>
+                  </Pin>
+               </module>
+               <module Port="F">
+                  <Pin>0<value>Y</value>
+                  </Pin>
+                  <Pin>1<value>Y</value>
+                  </Pin>
+               </module>
+            </function>
+            <function type="adc">
+               <module ADCModule="1">
+                  <AN>0<value>A0</value>
+                  </AN>
+                  <AN>1<value>A1</value>
+                  </AN>
+                  <AN>2<value>A2</value>
+                  </AN>
+                  <AN>3<value>A3</value>
+                  </AN>
+                  <AN>4<value>A4</value>
+                  </AN>
+                  <AN>5<value>A5</value>
+                  </AN>
+                  <AN>6<value>A6</value>
+                  </AN>
+                  <AN>7<value>A7</value>
+                  </AN>
+                  <AN>8<value>B0</value>
+                  </AN>
+                  <AN>9<value>B1</value>
+                  </AN>
+                  <AN>10<value>C0</value>
+                  </AN>
+                  <AN>11<value>C1</value>
+                  </AN>
+                  <AN>12<value>C2</value>
+                  </AN>
+                  <AN>13<value>C3</value>
+                  </AN>
+                  <AN>14<value>C4</value>
+                  </AN>
+                  <AN>15<value>C5</value>
+                  </AN>
+                  <AN>16<value>Y</value>
+                  </AN>
+                  <AN>17<value>Y</value>
+                  </AN>
+                  <AN>18<value>Y</value>
+                  </AN>
+               </module>
+            </function>
+            <function type="can">
+               <module CANModule="Tx1">
+                  <CH>1<value>A12</value>
+                  </CH>
+                  <CH>2<value>B9</value>
+                  </CH>
+                  <CH>3<value>D1</value>
+                  </CH>
+               </module>
+               <module CANModule="Rx1">
+                  <CH>1<value>A11</value>
+                  </CH>
+                  <CH>2<value>B8</value>
+                  </CH>
+                  <CH>3<value>D0</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="dac">
+               <module DACModule="DAC1">
+                  <Port>A<value>4</value>
+                  </Port>
+               </module>
+               <module DACModule="DAC2">
+                  <Port>A<value>5</value>
+                  </Port>
+               </module>
+            </function>
+            <function type="uart">
+               <module UARTModule="Tx1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A9</value>
+                  </CH>
+                  <CH>3<value>B6</value>
+                  </CH>
+                  <CH>4<value>A2</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A10</value>
+                  </CH>
+                  <CH>3<value>B7</value>
+                  </CH>
+                  <CH>4<value>A3</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A11</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS1">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A12</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A2</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A3</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A0</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS2">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A1</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B10</value>
+                  </CH>
+                  <CH>3<value>C10</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B11</value>
+                  </CH>
+                  <CH>3<value>C11</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B13</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS3">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>B14</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A0</value>
+                  </CH>
+                  <CH>3<value>C10</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>A1</value>
+                  </CH>
+                  <CH>3<value>C11</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS4">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C12</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>D2</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS5">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="Tx6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C6</value>
+                  </CH>
+               </module>
+               <module UARTModule="Rx6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+                  <CH>2<value>C7</value>
+                  </CH>
+               </module>
+               <module UARTModule="CTS6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+               <module UARTModule="RTS6">
+                  <CH>1<value>Not used</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="i2c">
+               <module I2CModule="SCL1">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B6</value>
+                  </CH>
+                  <CH>3<value>B8</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA1">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B7</value>
+                  </CH>
+                  <CH>3<value>B9</value>
+                  </CH>
+               </module>
+               <module I2CModule="SCL2">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B10</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA2">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>2<value>B11</value>
+                  </CH>
+               </module>
+               <module I2CModule="SCL3">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>3<value>A8</value>
+                  </CH>
+               </module>
+               <module I2CModule="SDA3">
+                  <CH>1<value>-</value>
+                  </CH>
+                  <CH>3<value>C9</value>
+                  </CH>
+               </module>
+            </function>
+            <function type="spi">
+               <module SPIModule="NSS1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A4</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>A15</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E12</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="SCK1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A5</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B3</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E13</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MISO1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A6</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B4</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E14</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MOSI1">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A7</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>B5</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>E15</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="NSS2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B9</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>3<value>B12</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>D0</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="SCK2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B10</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>3<value>B13</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>D1</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MISO2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B14</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>C2</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>D3</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module SPIModule="MOSI2">
+                  <CH>1<value>Not used</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B15</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>3<value>C3</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>D4</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_gnuarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x8000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>32k</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>4k</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_mdkarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x08000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00008000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="flashram_origin_length_for_ewarmlinkerscript">
+               <module SECTION="FLASH_ORIGIN">
+                  <VALUES>NA<value>0x08000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="FLASH_LENGTH">
+                  <VALUES>NA<value>0x00008000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_ORIGIN">
+                  <VALUES>NA<value>0x20000000</value>
+                  </VALUES>
+               </module>
+               <module SECTION="RAM_LENGTH">
+                  <VALUES>NA<value>0x00001000</value>
+                  </VALUES>
+               </module>
+            </function>
+            <function type="basicpwm">
+               <module TIMER="1">
+                  <CH>1<value>A8</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>A9</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>A10</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>A11</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="2">
+                  <CH>1<value>A0</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>1<value>A5</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>A1</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>2<value>B3</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>A2</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>3<value>B10</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>A3</value>
+                     <af>2</af>
+                  </CH>
+                  <CH>4<value>B11</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="3">
+                  <CH>1<value>A6</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>1<value>C6</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>1<value>B4</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>A7</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>C7</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>B5</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>3<value>B0</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>3<value>C8</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>4<value>B1</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>4<value>C9</value>
+                     <af>0</af>
+                  </CH>
+               </module>
+               <module TIMER="14">
+                  <CH>1<value>A4</value>
+                     <af>4</af>
+                  </CH>
+                  <CH>1<value>A7</value>
+                     <af>4</af>
+                  </CH>
+                  <CH>1<value>B1</value>
+                     <af>0</af>
+                  </CH>
+               </module>
+               <module TIMER="15">
+                  <CH>1<value>A2</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>2<value>A3</value>
+                     <af>0</af>
+                  </CH>
+                  <CH>1<value>B14</value>
+                     <af>1</af>
+                  </CH>
+                  <CH>2<value>B15</value>
+                     <af>1</af>
+                  </CH>
+               </module>
+               <module TIMER="16">
+                  <CH>1<value>A6</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>1<value>B8</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+               <module TIMER="17">
+                  <CH>1<value>A7</value>
+                     <af>5</af>
+                  </CH>
+                  <CH>1<value>B9</value>
+                     <af>2</af>
+                  </CH>
+               </module>
+            </function>
+         </mcu>
+      </table>
+   </tables>
+</configuration>

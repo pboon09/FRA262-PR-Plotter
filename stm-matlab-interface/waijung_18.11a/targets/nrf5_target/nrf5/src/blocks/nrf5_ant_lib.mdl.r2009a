@@ -1,0 +1,814 @@
+Library {
+  Name			  "nrf5_ant_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Wed Feb 08 13:49:45 2017"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:204>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "nrf5_ant_lib"
+    Location		    [508, 268, 1412, 812]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "ANT"
+      Ports		      [3]
+      Position		      [35, 29, 245, 151]
+      FunctionName	      "nrf5_ant"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_ant"
+      MaskDescription	      "ANT Channel: channel configuration, 0-7.\n\nEVENT:\n  0x00 - <No event>\n  0x03 - EVENT_T"
+      "X\n  0x80 - EVENT_RX\n\nNote: the ANT block override the control of RF module, so the RF block and ANT block can"
+      "not work together in a model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_ant.htm'), '-browser')"
+      MaskPromptString	      "Configuration|ANT Channel|ANT Channel Type|Burst Rx Buffer Size|ANT Channel Period (Hz),"
+      " [min=0.5 and max=32]|Channel Transmission Type|Channel Device Type|Load Channel Device Number from NVM, Address"
+      ": 0x3D800|Default Channel Device Number (1-254)|Network Number 0 (Public)|Network key|RF Frequency|Data bytes co"
+      "unt|D0 data type|D1 data type|D2 data type|D3 data type|D4 data type|D5 data type|D6 data type|D7 data type|Rece"
+      "ive buffer count|Rx search timeout reset (sec)|Enable RSSI|Sample time (sec)|Enable custom port labels (Ex. In1,"
+      " In2, In3)|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pi"
+      "n String|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output po"
+      "rt label|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(<empty>),popup(0|1|2|3|4|5|6|7),popup(Slave (Rx only)|Master (Tx only)|Shared Maste"
+      "r|Shared Slave|Master|Slave),popup(None|32|64|128|256|512),edit,popup(Independent),popup(0 (Wildcard)),checkbox,"
+      "edit,edit,edit,popup(2400MHz|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|241"
+      "1MHz|2412MHz|2413MHz|2414MHz|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|242"
+      "5MHz|2426MHz|2427MHz|2428MHz|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|243"
+      "9MHz|2440MHz|2441MHz|2442MHz|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|245"
+      "3MHz|2454MHz|2455MHz|2456MHz|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),edit,popup(double|single|i"
+      "nt8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|"
+      "single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(N"
+      "ot used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),popup(Not used|int8"
+      "|uint8|int16|uint16),popup(Not used|int8|uint8),popup(2),popup(Disable|10|30|60|120),checkbox,edit,checkbox,edit"
+      ",edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_ant_callback('conf');|nrf5_ant_callback('updateport');|nrf5_ant_callback('updat"
+      "eport');||nrf5_ant_callback('updateport');|||||||||nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype"
+      "');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_ca"
+      "llback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');||||nrf5_ant_callback('sampl"
+      "etime');|nrf5_ant_callback('enablecustomportlabel');|nrf5_ant_callback('conf');|nrf5_ant_callback('conf');||n"
+      "rf51_ant_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,off,off,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,o"
+      "n,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,off,off,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,off,off,on,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ant_channel=&2;ant_channel_type=&3;burst_rxbuffer_size=&4;ant_channel_period=&5;cha"
+      "nnel_transtype=&6;channel_devtype=&7;load_devicenum_nvm=&8;channel_devnum=&9;network_number=&10;network_key=@11;"
+      "rf_frequency=&12;datacount=&13;data0type=&14;data1type=&15;data2type=&16;data3type=&17;data4type=&18;data5type=&"
+      "19;data6type=&20;data7type=&21;buffercount=&22;timeoutreset=&23;enablerssi=&24;sampletime=@25;enablecustomportla"
+      "bel=@26;cinputportlabel=&27;coutputportlabel=&28;portpinstr=&29;blockid=&30;inputporttype=@31;inputportwidth=@32"
+      ";inputportlabel=&33;outputporttype=@34;outputportwidth=@35;outputportlabel=&36;compat=&37;optionstring=&38;"
+      MaskInitialization      "nrf5_ant_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Master]\\nANT Channel: 0\\nDevice Number: 1\\nPeriod (Hz): 4\\nRF: 2420MHz\\"
+      "nData len: 8\\nTs (sec): 0','ver','middle','hor','center'); port_label('input', 1,'D0 (uint16)'); port_label('in"
+      "put', 2,'D1 (uint16)'); port_label('input', 3,'D2 (single)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "<empty>|0|Master|None|4|Independent|0 (Wildcard)|off|1|0|[0 0 0 0 0 0 0 0]|2420MHz|8|uint"
+      "16|uint16|single|Not used|Not used|Not used|Not used|Not used|2|10|off|-1|off|0||0|ANT|[ 5, 5, 1]|[]|{ 'D0 (uint"
+      "16)', 'D1 (uint16)', 'D2 (single)'}|[]|[]|{}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "ANT Burst"
+      Ports		      [0, 2]
+      Position		      [35, 187, 245, 278]
+      FunctionName	      "nrf5_ant_burst"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_ant_burst"
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_ant_burst.htm'), '-browser')"
+      MaskPromptString	      "Configuration|Ant Channel|Data type|Data count|Port Pin String|Enable custom port labels"
+      "|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Sample time (sec)"
+      "|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label"
+      "|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(Tx|Rx),popup(0|1|2|3|4|5|6|7),popup(uint8|uint16|uint32),edit,edit,checkbox,edit,ed"
+      "it,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_ant_burst_callback('conf');|||||nrf5_ant_burst_callback('enablecustomportlabel')"
+      ";|||nrf5_ant_burst_callback('sampletime');|nrf5_ant_burst_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "on,on,on,on,off,on,off,off,on,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;antchannel=&2;datatype=&3;datacount=&4;portpinstr=&5;enablecustomportlabel=@6;cinpu"
+      "tportlabel=&7;coutputportlabel=&8;sampletime=@9;blockid=&10;inputporttype=@11;inputportwidth=@12;inputportlabel="
+      "&13;outputporttype=@14;outputportwidth=@15;outputportlabel=&16;compat=&17;optionstring=&18;"
+      MaskInitialization      "nrf5_ant_burst_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[ANTBurst_Rx]\\nANT Channel: 0\\nTs (sec): 0','ver','middle','hor','center');"
+      " port_label('output', 1,'Len'); port_label('output', 2,'uint8 (8)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Rx|0|uint8|8|0|off|In1,In2|Out1,Out2|-1|ANTBurst|[]|[]|{}|[5 3]|[1 8]|{'Len', 'uint8 (8)'"
+      "}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "ANT Shared Master"
+      Ports		      [3, 4]
+      Position		      [305, 29, 515, 151]
+      FunctionName	      "nrf5_ant"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_ant"
+      MaskDescription	      "ANT Channel: channel configuration, 0-7.\n\nEVENT:\n  0x00 - <No event>\n  0x03 - EVENT_T"
+      "X\n  0x80 - EVENT_RX\n\nNote: the ANT block override the control of RF module, so the RF block and ANT block can"
+      "not work together in a model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_ant.htm'), '-browser')"
+      MaskPromptString	      "Configuration|ANT Channel|ANT Channel Type|Burst Rx Buffer Size|ANT Channel Period (Hz),"
+      " [min=0.5 and max=32]|Channel Transmission Type|Channel Device Type|Load Channel Device Number from NVM, Address"
+      ": 0x3D800|Default Channel Device Number (1-254)|Network Number 0 (Public)|Network key|RF Frequency|Data bytes co"
+      "unt|D0 data type|D1 data type|D2 data type|D3 data type|D4 data type|D5 data type|D6 data type|D7 data type|Rece"
+      "ive buffer count|Rx search timeout reset (sec)|Enable RSSI|Sample time (sec)|Enable custom port labels (Ex. In1,"
+      " In2, In3)|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pi"
+      "n String|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output po"
+      "rt label|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(<empty>),popup(0|1|2|3|4|5|6|7),popup(Slave (Rx only)|Master (Tx only)|Shared Maste"
+      "r|Shared Slave|Master|Slave),popup(None|32|64|128|256|512),edit,popup(Independent),popup(0 (Wildcard)),checkbox,"
+      "edit,edit,edit,popup(2400MHz|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|241"
+      "1MHz|2412MHz|2413MHz|2414MHz|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|242"
+      "5MHz|2426MHz|2427MHz|2428MHz|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|243"
+      "9MHz|2440MHz|2441MHz|2442MHz|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|245"
+      "3MHz|2454MHz|2455MHz|2456MHz|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),edit,popup(double|single|i"
+      "nt8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|"
+      "single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(N"
+      "ot used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),popup(Not used|int8"
+      "|uint8|int16|uint16),popup(Not used|int8|uint8),popup(2),popup(Disable|10|30|60|120),checkbox,edit,checkbox,edit"
+      ",edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_ant_callback('conf');|nrf5_ant_callback('updateport');|nrf5_ant_callback('updat"
+      "eport');||nrf5_ant_callback('updateport');|||||||||nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype"
+      "');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_ca"
+      "llback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');||||nrf5_ant_callback('sampl"
+      "etime');|nrf5_ant_callback('enablecustomportlabel');|nrf5_ant_callback('conf');|nrf5_ant_callback('conf');||n"
+      "rf51_ant_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,off,off,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,o"
+      "n,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,off,on,off,off,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,on,on,on,of"
+      "f,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ant_channel=&2;ant_channel_type=&3;burst_rxbuffer_size=&4;ant_channel_period=&5;cha"
+      "nnel_transtype=&6;channel_devtype=&7;load_devicenum_nvm=&8;channel_devnum=&9;network_number=&10;network_key=@11;"
+      "rf_frequency=&12;datacount=&13;data0type=&14;data1type=&15;data2type=&16;data3type=&17;data4type=&18;data5type=&"
+      "19;data6type=&20;data7type=&21;buffercount=&22;timeoutreset=&23;enablerssi=&24;sampletime=@25;enablecustomportla"
+      "bel=@26;cinputportlabel=&27;coutputportlabel=&28;portpinstr=&29;blockid=&30;inputporttype=@31;inputportwidth=@32"
+      ";inputportlabel=&33;outputporttype=@34;outputportwidth=@35;outputportlabel=&36;compat=&37;optionstring=&38;"
+      MaskInitialization      "nrf5_ant_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Shared Master]\\nANT Channel: 0\\nDevice Number: 1\\nPeriod (Hz): 4\\nRF: 24"
+      "20MHz\\nTs (sec): 0','ver','middle','hor','center'); port_label('input', 1,'D0 (uint16)'); port_label('input', 2"
+      ",'D1 (uint16)'); port_label('input', 3,'D2 (single)'); port_label('output', 1,'EVENT'); port_label('output', 2,'"
+      "D0 (uint16)'); port_label('output', 3,'D1 (uint16)'); port_label('output', 4,'D2 (single)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "<empty>|0|Shared Master|None|4|Independent|0 (Wildcard)|off|1|0|[0 0 0 0 0 0 0 0]|2420MHz"
+      "|8|uint16|uint16|single|Not used|Not used|Not used|Not used|Not used|2|10|off|-1|off|0||0|ANT|[ 5, 5, 1]|[]|{ 'D"
+      "0 (uint16)', 'D1 (uint16)', 'D2 (single)'}|[3  5, 5, 1]|[]|{'EVENT', 'D0 (uint16)', 'D1 (uint16)', 'D2 (single)'"
+      "}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "ANT Shared Slave"
+      Ports		      [3, 4]
+      Position		      [575, 24, 785, 146]
+      FunctionName	      "nrf5_ant"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,optionstring,sampletime,block"
+      "id"
+      EnableBusSupport	      off
+      MaskType		      "nrf5_ant"
+      MaskDescription	      "ANT Channel: channel configuration, 0-7.\n\nEVENT:\n  0x00 - <No event>\n  0x03 - EVENT_T"
+      "X\n  0x80 - EVENT_RX\n\nNote: the ANT block override the control of RF module, so the RF block and ANT block can"
+      "not work together in a model."
+      MaskHelp		      "web(fullfile(waijungdocroot,'nrf5_ant.htm'), '-browser')"
+      MaskPromptString	      "Configuration|ANT Channel|ANT Channel Type|Burst Rx Buffer Size|ANT Channel Period (Hz),"
+      " [min=0.5 and max=32]|Channel Transmission Type|Channel Device Type|Load Channel Device Number from NVM, Address"
+      ": 0x3D800|Default Channel Device Number (1-254)|Network Number 0 (Public)|Network key|RF Frequency|Data bytes co"
+      "unt|D0 data type|D1 data type|D2 data type|D3 data type|D4 data type|D5 data type|D6 data type|D7 data type|Rece"
+      "ive buffer count|Rx search timeout reset (sec)|Enable RSSI|Sample time (sec)|Enable custom port labels (Ex. In1,"
+      " In2, In3)|Custom input port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pi"
+      "n String|Block ID|Input Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output po"
+      "rt label|Compatibility (Reserved for future use)|String(s) to be passed to TLC"
+      MaskStyleString	      "popup(<empty>),popup(0|1|2|3|4|5|6|7),popup(Slave (Rx only)|Master (Tx only)|Shared Maste"
+      "r|Shared Slave|Master|Slave),popup(None|32|64|128|256|512),edit,popup(Independent),popup(0 (Wildcard)),checkbox,"
+      "edit,edit,edit,popup(2400MHz|2401MHz|2402MHz|2403MHz|2404MHz|2405MHz|2406MHz|2407MHz|2408MHz|2409MHz|2410MHz|241"
+      "1MHz|2412MHz|2413MHz|2414MHz|2415MHz|2416MHz|2417MHz|2418MHz|2419MHz|2420MHz|2421MHz|2422MHz|2423MHz|2424MHz|242"
+      "5MHz|2426MHz|2427MHz|2428MHz|2429MHz|2430MHz|2431MHz|2432MHz|2433MHz|2434MHz|2435MHz|2436MHz|2437MHz|2438MHz|243"
+      "9MHz|2440MHz|2441MHz|2442MHz|2443MHz|2444MHz|2445MHz|2446MHz|2447MHz|2448MHz|2449MHz|2450MHz|2451MHz|2452MHz|245"
+      "3MHz|2454MHz|2455MHz|2456MHz|2457MHz|2458MHz|2459MHz|2460MHz|2461MHz|2462MHz|2463MHz),edit,popup(double|single|i"
+      "nt8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|"
+      "single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|single|int8|uint8|int16|uint16|int32|uint32),popup(N"
+      "ot used|single|int8|uint8|int16|uint16|int32|uint32),popup(Not used|int8|uint8|int16|uint16),popup(Not used|int8"
+      "|uint8|int16|uint16),popup(Not used|int8|uint8),popup(2),popup(Disable|10|30|60|120),checkbox,edit,checkbox,edit"
+      ",edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "nrf5_ant_callback('conf');|nrf5_ant_callback('updateport');|nrf5_ant_callback('updat"
+      "eport');||nrf5_ant_callback('updateport');|||||||||nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype"
+      "');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_ca"
+      "llback('datatype');|nrf5_ant_callback('datatype');|nrf5_ant_callback('datatype');||||nrf5_ant_callback('sampl"
+      "etime');|nrf5_ant_callback('enablecustomportlabel');|nrf5_ant_callback('conf');|nrf5_ant_callback('conf');||n"
+      "rf51_ant_callback('blockid');||||||||"
+      MaskEnableString	      "on,on,on,on,on,off,off,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,o"
+      "n,off,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,off,on,off,off,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,on,on,on,of"
+      "f,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;ant_channel=&2;ant_channel_type=&3;burst_rxbuffer_size=&4;ant_channel_period=&5;cha"
+      "nnel_transtype=&6;channel_devtype=&7;load_devicenum_nvm=&8;channel_devnum=&9;network_number=&10;network_key=@11;"
+      "rf_frequency=&12;datacount=&13;data0type=&14;data1type=&15;data2type=&16;data3type=&17;data4type=&18;data5type=&"
+      "19;data6type=&20;data7type=&21;buffercount=&22;timeoutreset=&23;enablerssi=&24;sampletime=@25;enablecustomportla"
+      "bel=@26;cinputportlabel=&27;coutputportlabel=&28;portpinstr=&29;blockid=&30;inputporttype=@31;inputportwidth=@32"
+      ";inputportlabel=&33;outputporttype=@34;outputportwidth=@35;outputportlabel=&36;compat=&37;optionstring=&38;"
+      MaskInitialization      "nrf5_ant_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, '[Shared Slave]\\nANT Channel: 0\\nDevice Number: 1\\nPeriod (Hz): 4\\nRF: 242"
+      "0MHz\\nTs (sec): 0','ver','middle','hor','center'); port_label('input', 1,'D0 (uint16)'); port_label('input', 2,"
+      "'D1 (uint16)'); port_label('input', 3,'D2 (single)'); port_label('output', 1,'EVENT'); port_label('output', 2,'D"
+      "0 (uint16)'); port_label('output', 3,'D1 (uint16)'); port_label('output', 4,'D2 (single)'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "<empty>|0|Shared Slave|None|4|Independent|0 (Wildcard)|off|1|0|[0 0 0 0 0 0 0 0]|2420MHz|"
+      "8|uint16|uint16|single|Not used|Not used|Not used|Not used|Not used|2|10|off|-1|off|0||0|ANTSharedSlave|[ 5, 5, "
+      "1]|[]|{ 'D0 (uint16)', 'D1 (uint16)', 'D2 (single)'}|[3  5, 5, 1]|[]|{'EVENT', 'D0 (uint16)', 'D1 (uint16)', 'D2"
+      " (single)'}|0|[]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+  }
+}

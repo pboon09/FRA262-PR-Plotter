@@ -1,0 +1,1320 @@
+%implements waijung_http_client "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %assign sslenable = 0
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign httpresponse  = optionstring[0]
+  %assign contenttype = optionstring[1]
+  %assign block = block + conf + sampletime + blockid + sslenable + httpresponse + contenttype
+
+  %if httpresponse == "on"
+    %assign http_header = CAST("String",SFcnParamSettings.string3)
+    %assign http_terminator = CAST("String",SFcnParamSettings.string4)
+  %else
+    %assign http_header = ""
+    %assign http_terminator = ""
+  %endif
+
+  %assign block = block + http_header + http_terminator
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+     /* ########################################################################
+      * Name: HTTP Client
+      * ########################################################################
+     */
+     typedef enum {
+       HTTPCLIENT_WAIT = 0,
+       HTTPCLIENT_BUSY,
+       HTTPCLIENT_DATAREADY,
+       HTTPCLIENT_SUCCESS,
+       HTTPCLIENT_ERROR
+     } HTTPCLIENT_RESULT;
+
+     /* Resource access management */
+     typedef struct {                       /* Synchronize object to access */
+       uint8_t InQueue;
+       uint8_t Set;                         /* Active status of Locker */
+       uint8_t Index;                       /* Max count of object is 256 */  
+     } HTTPCLIENT_LOCK_STRUCT;
+
+     uint16_t httpclient_strlen_s(const char *s, uint16_t maxlen);
+     uint8_t HTTPCLIENT_HttpGET(uint8_t init, HTTPCLIENT_LOCK_STRUCT *httpclient_lock, \
+                  uint8_t ssl_enable, \
+                  const char *host, uint16_t host_len, const char *request, uint16_t request_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator);
+     uint8_t HTTPCLIENT_HttpPOST(uint8_t init, HTTPCLIENT_LOCK_STRUCT *httpclient_lock, \
+                  uint8_t ssl_enable, \
+                  const char *host, uint16_t host_len, \
+                  const char *action, uint16_t action_len, const char *content, uint16_t content_len, \
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+    /* ########################################################################
+     * Name: HTTP Client
+     * ########################################################################
+    */
+    #include "dns.h"
+    /* Resource access Lock control
+    */
+    static uint8_t HTTPCLIENT_current_locked_index = 0;
+    static uint8_t HTTPCLIENT_current_locked_count = 0;
+
+    /* Return non-zero if access allowed */
+    uint8_t HTTPCLIENT_Resource_Lock(HTTPCLIENT_LOCK_STRUCT *lock)
+    {
+        /* Check if first access */
+        if(lock->InQueue == 0) {
+           lock->InQueue = 1; /* Indicate it is already in queue */
+           lock->Index = HTTPCLIENT_current_locked_count;
+           HTTPCLIENT_current_locked_count ++;
+        }
+
+        /* Lock? */
+        if(lock->Index == HTTPCLIENT_current_locked_index) {
+            return 1; /* Allow to access resource */
+        }
+
+        /* Resource did not accquired */
+        return 0;
+    }
+
+    void HTTPCLIENT_Resource_UnLock(HTTPCLIENT_LOCK_STRUCT *lock)
+    {
+        if(lock->Index == HTTPCLIENT_current_locked_index) {
+            HTTPCLIENT_current_locked_index ++;
+            lock->InQueue = 0;
+        }
+    }
+
+    uint16_t httpclient_strlen_s(const char *s, uint16_t maxlen)
+    {
+        uint16_t i;
+
+        i = 0;
+        while ((s[i] != '\0') && (i<maxlen))
+          i++;
+        return i;
+    }
+
+     #define DEST_IP_ADDR0   192
+     #define DEST_IP_ADDR1   168
+     #define DEST_IP_ADDR2   1
+     #define DEST_IP_ADDR3   55
+
+     #define DEST_PORT       80
+
+     #define MAX_GET_DATA_COUNT   2048 //1024
+
+     u8_t  recev_buf[50];
+     __IO uint32_t message_count=0;
+
+     char httpclient_get_data[MAX_GET_DATA_COUNT+1] = {0};
+
+     // Http GET Status
+     int httpclient_get_send_count = 0;
+     int httpclient_get_receive_count = 0;
+     uint8_t httpclient_get_connected = 0;
+     uint8_t httpclient_get_closed = 0;
+
+     struct tcp_pcb *echoclient_pcb;
+
+     /* ECHO protocol states */
+     enum echoclient_states
+     {
+       ES_NOT_CONNECTED = 0,
+       ES_CONNECTED,
+       ES_RECEIVED,
+       ES_CLOSING,
+     };
+
+
+     /* structure to be passed as argument to the tcp callbacks */
+     struct echoclient
+     {
+       enum echoclient_states state; /* connection status */
+       struct tcp_pcb *pcb;          /* pointer on the current tcp_pcb */
+       struct pbuf *p_tx;            /* pointer on pbuf to be transmitted */
+     };
+
+     /* Private function prototypes -----------------------------------------------*/
+     static err_t tcp_echoclient_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err);
+     static void tcp_echoclient_connection_close(struct tcp_pcb *tpcb, struct echoclient * es);
+     static err_t tcp_echoclient_poll(void *arg, struct tcp_pcb *tpcb);
+     static err_t tcp_echoclient_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
+     static void tcp_echoclient_send(struct tcp_pcb *tpcb, struct echoclient * es);
+     static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err);
+
+     /* Private functions ---------------------------------------------------------*/
+
+     /**
+     * @brief  Connects to the TCP echo server
+     * @param  None
+     * @retval None
+     */
+     uint8_t tcp_echoclient_connect(uint32_t ip)
+     {
+       struct ip_addr DestIPaddr;
+
+       /* Reset data receive count */
+       httpclient_get_receive_count = 0;
+       httpclient_get_connected = 0;
+       httpclient_get_closed = 0;
+  
+       /* create new tcp pcb */
+       echoclient_pcb = tcp_new();
+  
+       if (echoclient_pcb != NULL)
+       {
+         //IP4_ADDR( &DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
+         DestIPaddr.addr = ip;
+    
+         /* connect to destination address/port */
+         tcp_connect(echoclient_pcb,&DestIPaddr,DEST_PORT,tcp_echoclient_connected);
+    
+         // Success
+         return 1;
+       }
+       else
+       {
+         /* deallocate the pcb */
+         memp_free(MEMP_TCP_PCB, echoclient_pcb);
+       }
+
+       // Error
+       return 0;
+     }
+
+     /**
+       * @brief Function called when TCP connection established
+       * @param tpcb: pointer on the connection contol block
+       * @param err: when connection correctly established err should be ERR_OK 
+       * @retval err_t: returned error 
+       */
+     static err_t tcp_echoclient_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
+     {
+       struct echoclient *es = NULL;
+  
+       if (err == ERR_OK)   
+       {
+         /* allocate structure es to maintain tcp connection informations */
+         es = (struct echoclient *)mem_malloc(sizeof(struct echoclient));
+  
+         if (es != NULL)
+         {
+           es->state = ES_CONNECTED;
+           es->pcb = tpcb;
+      
+           /* allocate pbuf */
+           %%es->p_tx = pbuf_alloc(PBUF_TRANSPORT, strlen((char*)httpclient_get_data) , PBUF_POOL);
+           es->p_tx = pbuf_alloc(PBUF_TRANSPORT, httpclient_get_send_count , PBUF_POOL);
+         
+           if (es->p_tx)
+           {       
+             // Activate connected status
+             httpclient_get_connected = 1;
+
+             /* copy data to pbuf */
+             %%pbuf_take(es->p_tx, (char*)httpclient_get_data, strlen((char*)httpclient_get_data));
+             pbuf_take(es->p_tx, (char*)httpclient_get_data, httpclient_get_send_count);
+        
+             /* pass newly allocated es structure as argument to tpcb */
+             tcp_arg(tpcb, es);
+  
+             /* initialize LwIP tcp_recv callback function */ 
+             tcp_recv(tpcb, tcp_echoclient_recv);
+  
+             /* initialize LwIP tcp_sent callback function */
+             tcp_sent(tpcb, tcp_echoclient_sent);
+  
+             /* initialize LwIP tcp_poll callback function */
+             tcp_poll(tpcb, tcp_echoclient_poll, 1);
+    
+             /* send data */
+             tcp_echoclient_send(tpcb,es);
+        
+             return ERR_OK;
+           }
+         }
+         else
+         {
+           /* close connection */
+           tcp_echoclient_connection_close(tpcb, es);
+      
+           /* return memory allocation error */
+           return ERR_MEM;  
+         }
+       }
+       else
+       {
+         /* close connection */
+         tcp_echoclient_connection_close(tpcb, es);
+       }
+       return err;
+     }
+    
+     /**
+       * @brief tcp_receiv callback
+       * @param arg: argument to be passed to receive callback 
+       * @param tpcb: tcp connection control block 
+       * @param err: receive error code 
+       * @retval err_t: retuned error  
+       */
+     static err_t tcp_echoclient_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+     { 
+       struct echoclient *es;
+       err_t ret_err;
+  
+
+       LWIP_ASSERT("arg != NULL",arg != NULL);
+  
+       es = (struct echoclient *)arg;
+  
+       /* if we receive an empty tcp frame from server => close connection */
+       if (p == NULL)
+       {
+         /* remote host closed connection */
+         es->state = ES_CLOSING;
+         if(es->p_tx == NULL)
+         {
+            /* we're done sending, close connection */
+            tcp_echoclient_connection_close(tpcb, es);
+         }
+         else
+         {
+           /* send remaining data*/
+           tcp_echoclient_send(tpcb, es);
+         }
+         ret_err = ERR_OK;
+       }   
+       /* else : a non empty frame was received from echo server but for some reason err != ERR_OK */
+       else if(err != ERR_OK)
+       {
+         /* free received pbuf*/
+         pbuf_free(p);
+
+         ret_err = err;
+       }
+       else if(es->state == ES_CONNECTED)
+       {
+         struct pbuf *pNext = p;
+
+         while (pNext) { 
+            if ((httpclient_get_receive_count + pNext->len) < MAX_GET_DATA_COUNT) {
+              memcpy(&httpclient_get_data[httpclient_get_receive_count], pNext->payload, pNext->len);
+              httpclient_get_receive_count += pNext->len;
+            }
+            else {
+              if (MAX_GET_DATA_COUNT-httpclient_get_receive_count) {
+                memcpy(&httpclient_get_data[httpclient_get_receive_count], pNext->payload, MAX_GET_DATA_COUNT-httpclient_get_receive_count);
+                httpclient_get_receive_count += (MAX_GET_DATA_COUNT-httpclient_get_receive_count);
+              }
+            }
+            
+            pNext = (pNext->next);
+         }
+         
+         /* Acknowledge data reception */
+         tcp_recved(tpcb, p->tot_len);  
+    
+         pbuf_free(p);
+         tcp_echoclient_connection_close(tpcb, es);
+         ret_err = ERR_OK;
+       }
+
+       /* data received when connection already closed */
+       else
+       {
+         /* Acknowledge data reception */
+         tcp_recved(tpcb, p->tot_len);
+    
+         /* free pbuf and do nothing */
+         pbuf_free(p);
+         ret_err = ERR_OK;
+       }
+       return ret_err;
+     }
+
+     /**
+       * @brief function used to send data
+       * @param  tpcb: tcp control block
+       * @param  es: pointer on structure of type echoclient containing info on data 
+       *             to be sent
+       * @retval None 
+       */
+     static void tcp_echoclient_send(struct tcp_pcb *tpcb, struct echoclient * es)
+     {
+       struct pbuf *ptr;
+       err_t wr_err = ERR_OK;
+ 
+       while ((wr_err == ERR_OK) &&
+              (es->p_tx != NULL) && 
+              (es->p_tx->len <= tcp_sndbuf(tpcb)))
+       {
+    
+         /* get pointer on pbuf from es structure */
+         ptr = es->p_tx;
+
+         /* enqueue data for transmission */
+         wr_err = tcp_write(tpcb, ptr->payload, ptr->len, 1);
+    
+         if (wr_err == ERR_OK)
+         { 
+           /* continue with next pbuf in chain (if any) */
+           es->p_tx = ptr->next;
+      
+           if(es->p_tx != NULL)
+           {
+             /* increment reference count for es->p */
+             pbuf_ref(es->p_tx);
+           }
+      
+           /* free pbuf: will free pbufs up to es->p (because es->p has a reference count > 0) */
+           pbuf_free(ptr);
+        }
+        else if(wr_err == ERR_MEM)
+        {
+           /* we are low on memory, try later, defer to poll */
+          es->p_tx = ptr;     
+        }
+        else
+        {
+          /* other problem ?? */
+        }
+       }
+     }
+
+     /**
+       * @brief  This function implements the tcp_poll callback function
+       * @param  arg: pointer on argument passed to callback
+       * @param  tpcb: tcp connection control block
+       * @retval err_t: error code
+       */
+     static err_t tcp_echoclient_poll(void *arg, struct tcp_pcb *tpcb)
+     {
+       err_t ret_err;
+       struct echoclient *es;
+
+       es = (struct echoclient*)arg;
+       if (es != NULL)
+       {
+         if (es->p_tx != NULL)
+         {
+           /* there is a remaining pbuf (chain) , try to send data */
+           tcp_echoclient_send(tpcb, es);
+         }
+         else
+         {
+           /* no remaining pbuf (chain)  */
+           if(es->state == ES_CLOSING)
+           {
+             /* close tcp connection */
+             tcp_echoclient_connection_close(tpcb, es);
+           }
+         }
+         ret_err = ERR_OK;
+       }
+       else
+       {
+         /* nothing to be done */
+         tcp_abort(tpcb);
+         ret_err = ERR_ABRT;
+       }
+       return ret_err;
+     }
+
+     /**
+       * @brief  This function implements the tcp_sent LwIP callback (called when ACK
+       *         is received from remote host for sent data) 
+       * @param  arg: pointer on argument passed to callback
+       * @param  tcp_pcb: tcp connection control block
+       * @param  len: length of data sent 
+       * @retval err_t: returned error code
+       */
+     static err_t tcp_echoclient_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
+     {
+       struct echoclient *es;
+
+       LWIP_UNUSED_ARG(len);
+
+       es = (struct echoclient *)arg;
+  
+       if(es->p_tx != NULL)
+       {
+         /* still got pbufs to send */
+         tcp_echoclient_send(tpcb, es);
+       }
+
+       return ERR_OK;
+     }
+
+     /**
+       * @brief This function is used to close the tcp connection with server
+       * @param tpcb: tcp connection control block
+       * @param es: pointer on echoclient structure
+       * @retval None
+       */
+     static void tcp_echoclient_connection_close(struct tcp_pcb *tpcb, struct echoclient * es )
+     {
+
+       // Activate closed status
+       httpclient_get_closed = 1;
+
+       /* remove callbacks */
+       tcp_recv(tpcb, NULL);
+       tcp_sent(tpcb, NULL);
+       tcp_poll(tpcb, NULL,0);
+
+       if (es != NULL)
+       {
+         mem_free(es);
+       }
+
+       /* close tcp connection */
+       tcp_close(tpcb);
+     }
+
+     /* ===================================================================
+      * DNS
+      */
+     typedef enum {
+         DNS_IDLE = 0,
+         DNS_BUSY,
+         DNS_SUCCESS,
+	     DNS_ERROR
+     } DNS_RESOLVE_STATE;
+
+     static DNS_RESOLVE_STATE dns_resolve_state = DNS_IDLE;
+     static struct ip_addr resolved_ip_addr = {0};
+     static uint32_t resolved_ip = 0;
+
+     void dns_resolved_callback(const char *name, ip_addr_t *ipaddr, void *arg)
+     {
+       u32_t* ip = arg;
+       if ((ipaddr) && (ipaddr->addr)) {
+         *ip = ipaddr->addr;
+         dns_resolve_state = DNS_SUCCESS;
+       }
+       else {
+         dns_resolve_state = DNS_ERROR;
+       }
+     }
+
+     void dns_resolve_init(const char *host, uint16_t host_len)
+     {
+       char tmp_host[DNS_MAX_NAME_LENGTH+1];
+       uint32_t tmp_add0,tmp_add1,tmp_add2,tmp_add3;
+       const char *s;
+       static uint8_t dns_pcb_init = 0;
+
+       // Copy into buffer
+       if (host_len > DNS_MAX_NAME_LENGTH) {
+           dns_resolve_state = DNS_ERROR;
+           return;
+       }
+       else {
+           memcpy(tmp_host, host, host_len);
+           tmp_host[host_len] = '\0';
+       }
+
+       // DNS pcb initialize
+       if (dns_pcb_init == 0)
+       {
+         dns_init();
+         dns_pcb_init = 1;
+       }
+
+       dns_resolve_state = DNS_IDLE;
+       resolved_ip_addr.addr = 0;
+       resolved_ip = 0;
+
+       // Check if "host" is already an IP address
+       // "https://" or "http://"
+       if (!strncmp(tmp_host, "https://", 8)) {
+         s = host + 8;
+       }
+       else if (!strncmp(tmp_host, "http://", 7)) {
+         s = tmp_host + 7;
+       }
+       else {
+         s = tmp_host;
+       }
+
+       if (sscanf(s, "%u.%u.%u.%u", &tmp_add0, &tmp_add1, &tmp_add2, &tmp_add3) == 4) {
+         //resolved_ip = (tmp_add0 | (tmp_add1 << 8) | (tmp_add2 << 16) | (tmp_add3 << 24));
+         IP4_ADDR(&resolved_ip_addr, tmp_add0, tmp_add1, tmp_add2, tmp_add3);
+         resolved_ip = resolved_ip_addr.addr;
+         dns_resolve_state = DNS_SUCCESS;
+         return;
+       }
+
+       // Get IP by host name
+       switch(dns_gethostbyname(tmp_host, &resolved_ip_addr, dns_resolved_callback, &resolved_ip)) {
+         case ERR_OK:
+           // numeric or cached, returned in resolved
+           resolved_ip = resolved_ip_addr.addr;
+           dns_resolve_state = DNS_SUCCESS;
+           break;
+
+         case ERR_INPROGRESS:
+           // need to ask, will return data via callback
+           dns_resolve_state = DNS_BUSY;
+           break;
+
+         default:
+           // bad arguments in function call
+           dns_resolve_state = DNS_ERROR;
+           break;
+       }
+     }
+
+     DNS_RESOLVE_STATE dns_resolve_result(uint32_t *ip)
+     {
+       *ip = resolved_ip;
+       // Return current DNS state
+       return dns_resolve_state;
+     }
+
+     /* ===================================================================
+      * HTTP Client
+      */
+     #define HttpClient_ChangeState(s)  {httpclient_sequence = (s);}
+     static SYS_TIMER_STRUCT HttpClient_timer_ms = {0UL,0UL};
+
+     /* ===================================================================
+      * POST
+      */
+     typedef enum {
+	     POST_IDLE = 0,
+         POST_RESOLVE_DESTIP,
+         POST_RESOLVE_DESTIP_SUCCESS,
+         POST_RESOLVE_DESTIP_ERROR,
+
+         POST_CONNECT,
+         POST_CONNECTED,
+
+	     POST_ERROR
+     } HTTPCLIENT_POST_STATE;
+
+     uint8_t HTTPCLIENT_HttpPOST(uint8_t init, HTTPCLIENT_LOCK_STRUCT *httpclient_lock, \
+                  uint8_t ssl_enable, \
+                  const char *host, uint16_t host_len, \
+                  const char *action, uint16_t action_len, const char *content, uint16_t content_len, \
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator)
+     {
+         uint8_t result;
+         char *s;
+         static uint32_t dest_ip = 0;
+         static HTTPCLIENT_POST_STATE httpclient_sequence = POST_IDLE;
+         static HTTPCLIENT_POST_STATE httpclient_sequence_last = POST_CONNECT;
+         static uint8_t httpclient_onenterstate = 0;// OnEnterState    
+
+         // Initial result
+         result = HTTPCLIENT_BUSY;
+
+         // Determine OnEnter state
+         if (httpclient_sequence != httpclient_sequence_last) {
+             httpclient_onenterstate = 1;
+             httpclient_sequence_last = httpclient_sequence;
+         } else {
+             httpclient_onenterstate = 0;
+         }
+
+         /* HTTP POST state processing */
+         switch (httpclient_sequence) {
+             // --- Idle ---
+		     case POST_IDLE:
+               if (init != 0) {
+                 HttpClient_ChangeState(POST_RESOLVE_DESTIP);
+               }
+               else {
+                 result = HTTPCLIENT_WAIT;
+               }
+               break;
+
+             // --- Resolve remote host IP address ---
+             case POST_RESOLVE_DESTIP:
+               if (httpclient_onenterstate) {
+                 if (strstr(host,"://")) {
+                   char *s1;
+                   s1 = strstr(host,"://");
+                   s1+= 3;
+                   dns_resolve_init(s1, host_len - ((uint32_t)s1-(uint32_t)host));
+                 }
+                 else {
+                   dns_resolve_init(host, host_len);
+                 }
+                 // Reset timeout
+                 SysTimer_Start(&HttpClient_timer_ms, timeout*1000UL);
+               }
+               else {
+                 switch (dns_resolve_result (&dest_ip)) {
+                   case DNS_SUCCESS:
+                     HttpClient_ChangeState (POST_RESOLVE_DESTIP_SUCCESS);
+                     break;
+	               case DNS_ERROR:
+                     HttpClient_ChangeState (POST_RESOLVE_DESTIP_ERROR);
+                     break;
+                   default:
+                     // Timeout check
+                     if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                       HttpClient_ChangeState (POST_RESOLVE_DESTIP_ERROR);
+                     }
+                     break;
+                 }
+               }
+               break;
+
+             // --- Got Destination IP address ---
+             case POST_RESOLVE_DESTIP_SUCCESS:
+                 HttpClient_ChangeState (POST_CONNECT);
+               break;
+
+             // --- Invalid Destination IP address or no communication ---
+             case POST_RESOLVE_DESTIP_ERROR:
+               HttpClient_ChangeState (POST_ERROR);
+               break;
+              
+             // --- Connect ---
+             case  POST_CONNECT:
+               if (httpclient_onenterstate) {
+                 if (!tcp_echoclient_connect(dest_ip)) {
+                    // Error
+                    HttpClient_ChangeState (POST_ERROR);
+                 }
+                 else {
+                   // Setup data
+                   %% "POST /forms/d/1XiO_uZ1iWelTN3jG7pc9JhYmDUiOk8TDnOb-FLNLWF8/formResponse HTTP/1.1\r\n" \
+                   %% "Host: docs.google.com\r\n" \
+                   %% "Content-Type: application/x-www-form-urlencoded\r\n" \
+                   %% "Content-Length: %d\r\n\r\n" \
+                   %% "%s\r\n\r\n"
+
+                   %% User-Agent: Waijung-STM32F4-LwIP\r\n
+                   
+                   strcpy(httpclient_get_data, "POST ");
+                   s = &httpclient_get_data[strlen(httpclient_get_data)];
+                   if (strncmp(action,host,host_len)) {
+                     // Host url not presented in action
+                     if (action[0] != '/') {
+                       strncpy(s, "/", 1);
+                       s++;
+                     }
+                   }
+                   strncpy(s, action, action_len);
+                   s += action_len;
+                   strcpy(s, " HTTP/1.1\r\nHost: ");
+                   s = &s[strlen(s)];
+
+                   %%strncpy(s, host, host_len);
+                   %%s += host_len;
+
+                   if (strstr(host,"://")) {
+                     char *s1;
+                     s1 = strstr(host,"://");
+                     s1 += 3;
+                     strncpy(s, s1, host_len-((uint32_t)s1-(uint32_t)host));
+                     s+= ((uint32_t)s1-(uint32_t)host);
+                   }
+                   else {
+                     strncpy(s, host, host_len);
+                     s += host_len;
+                   }
+
+                   strcpy(s, "\r\n");
+                   s += strlen(s);
+                   //strcpy(s, "Content-Type: application/x-www-form-urlencoded\r\n"); 
+                   //strcpy(s, "Content-Type: text/xml\r\n"); 
+                   strcpy(s, "Content-Type: %<contenttype>\r\n"); 
+                   s += strlen(s);
+                   sprintf(s, "Content-Length: %d\r\n\r\n", (int)content_len);
+                   s += strlen(s);
+                   strncpy(s, content, content_len);
+                   s += content_len;
+                   strcpy(s, "\r\n\r\n");
+                   s += strlen(s);
+
+                   // Update len
+                   httpclient_get_send_count = strlen((char *)httpclient_get_data);
+
+                   // Start wait timeout
+                   SysTimer_Start(&HttpClient_timer_ms, timeout*1000UL);
+                 }
+               }
+               else {
+                 // Check connect status
+                 if (httpclient_get_connected) {
+                   HttpClient_ChangeState (POST_CONNECTED);
+                 }
+                 else if (httpclient_get_closed) {
+                   // Close without connected, Error.
+                   HttpClient_ChangeState (POST_ERROR);
+                 }
+                 else {
+                   if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                      HttpClient_ChangeState (POST_ERROR);
+                   }
+                 }
+               }
+               break;
+
+             case POST_CONNECTED:
+                 if (httpclient_get_closed) {                   
+                   if (output_size > 0) {
+                     char *p;
+                     char *s = &httpclient_get_data[0];
+
+                     // Terminate string
+                     httpclient_get_data[httpclient_get_receive_count] = '\0';
+
+                     // Line5: "<data>"
+                     output[0] = '\0';
+                     if (s) {
+                       char *h = 0, *t = 0;
+                       if (header[0] == '\0') {
+                         h = s;
+                       }
+                       else {
+                         h = strstr(s, header);
+                         if (h) h += strlen(header);
+                       }
+                       if (h) {
+                          if (terminator[0] == '\0') {
+                            t = &h[strlen(h)];
+                          }
+                          else
+                            t = strstr(h,terminator);
+                       }
+
+                       if ((h && t) && (t > h)) {
+                         int dlen = t - h;
+                         if (dlen < output_size) {
+                           memcpy(output, h, dlen);
+                           output[dlen] = 0;
+                         }
+                         else {
+                           memcpy(output, h, output_size-1);
+                           output[output_size-1] = '\0';
+                         }                         
+                       }
+                     }
+                   }
+
+                   // Success
+                   result = HTTPCLIENT_SUCCESS;
+                   HttpClient_ChangeState (POST_IDLE);
+                 }
+                 else {
+                   if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                      HttpClient_ChangeState (POST_ERROR);
+                   }
+                 }               
+               break;
+
+             //case POST_SUCCESS:
+             //  HttpClient_ChangeState (POST_IDLE);
+             //  break;
+
+	         case POST_ERROR:
+               result = HTTPCLIENT_ERROR;
+               HttpClient_ChangeState (POST_IDLE);
+               break;
+         }
+         //
+         return result;
+     }
+
+     /* ===================================================================
+      * GET
+      */
+     typedef enum {
+	     GET_IDLE = 0,
+         GET_RESOLVE_DESTIP,
+         GET_RESOLVE_DESTIP_SUCCESS,
+         GET_RESOLVE_DESTIP_ERROR,
+
+         GET_CONNECT,
+         GET_CONNECTED,
+
+         //GET_SUCCESS,
+	     GET_ERROR
+     } HTTPCLIENT_GET_STATE;
+
+     uint8_t HTTPCLIENT_HttpGET(uint8_t init, HTTPCLIENT_LOCK_STRUCT *httpclient_lock, \
+                  uint8_t ssl_enable, \
+                  const char *host, uint16_t host_len, const char *request, uint16_t request_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator)
+     {
+         uint8_t result;
+         char *s;
+         static uint32_t dest_ip = 0;
+         static HTTPCLIENT_GET_STATE httpclient_sequence = GET_IDLE;
+         static HTTPCLIENT_GET_STATE httpclient_sequence_last = GET_CONNECT;
+         static uint8_t httpclient_onenterstate = 0;// OnEnterState    
+
+         // Initial result
+         result = HTTPCLIENT_BUSY;
+
+         // Determine OnEnter state
+         if (httpclient_sequence != httpclient_sequence_last) {
+             httpclient_onenterstate = 1;
+             httpclient_sequence_last = httpclient_sequence;
+         } else {
+             httpclient_onenterstate = 0;
+         }
+
+         /* HTTP GET state processing */
+         switch (httpclient_sequence) {
+             // --- Idle ---
+		     case GET_IDLE:
+               if (init != 0) {
+                 HttpClient_ChangeState(GET_RESOLVE_DESTIP);
+               }
+               else {
+                 result = HTTPCLIENT_WAIT;
+               }
+               break;
+
+             // --- Resolve remote host IP address ---
+             case GET_RESOLVE_DESTIP:
+               if (httpclient_onenterstate) {
+                 if (strstr(host,"://")) {
+                   char *s1;
+                   s1 = strstr(host,"://");
+                   s1+= 3;
+                   dns_resolve_init(s1, host_len - ((uint32_t)s1-(uint32_t)host));
+                 }
+                 else {
+                   dns_resolve_init(host, host_len);
+                 }
+                 // Reset timeout
+                 SysTimer_Start(&HttpClient_timer_ms, timeout*1000UL);
+               }
+               else {
+                 switch (dns_resolve_result (&dest_ip)) {
+                   case DNS_SUCCESS:
+                     HttpClient_ChangeState (GET_RESOLVE_DESTIP_SUCCESS);
+                     break;
+	               case DNS_ERROR:
+                     HttpClient_ChangeState (GET_RESOLVE_DESTIP_ERROR);
+                     break;
+                   default:
+                     // Timeout check
+                     if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                       HttpClient_ChangeState (GET_RESOLVE_DESTIP_ERROR);
+                     }
+                     break;
+                 }
+               }
+               break;
+
+             // --- Got Destination IP address ---
+             case GET_RESOLVE_DESTIP_SUCCESS:
+                 HttpClient_ChangeState (GET_CONNECT);
+               break;
+
+             // --- Invalid Destination IP address or no communication ---
+             case GET_RESOLVE_DESTIP_ERROR:
+               HttpClient_ChangeState (GET_ERROR);
+               break;
+              
+             // --- Connect ---
+             case  GET_CONNECT:
+               if (httpclient_onenterstate) {
+                 if (!tcp_echoclient_connect(dest_ip)) {
+                    // Error
+                    HttpClient_ChangeState (GET_ERROR);
+                 }
+                 else {
+                   // Setup data
+                   // "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n",
+                   strcpy(httpclient_get_data, "GET ");
+                   s = &httpclient_get_data[strlen(httpclient_get_data)];
+                   if (strncmp(request,host,host_len)) {
+                     // Host url not presented in action
+                     if (request[0] != '/') {
+                       strncpy(s, "/", 1);
+                       s++;
+                     }
+                   }
+                   strncpy(s, request, request_len);
+                   s += request_len;
+                   strcpy(s, " HTTP/1.1\r\nHost: ");
+                   s = &s[strlen(s)];
+
+                   if (strstr(host,"://")) {
+                     char *s1;
+                     s1 = strstr(host,"://");
+                     s1 += 3;
+                     strncpy(s, s1, host_len-((uint32_t)s1-(uint32_t)host));
+                     s+= ((uint32_t)s1-(uint32_t)host);
+                   }
+                   else {
+                     strncpy(s, host, host_len);
+                     s += host_len;
+                   }
+                   strcpy(s, "\r\n");
+                   s += strlen(s);
+                   strcpy(s, "Cache-Control: max-age=0\r\nAccept: text/html\r\n\r\n\r\n\r\n");
+                   s += strlen(s);
+
+                   // Update len
+                   httpclient_get_send_count = strlen((char *)httpclient_get_data);
+
+                   // Start wait timeout
+                   SysTimer_Start(&HttpClient_timer_ms, timeout*1000UL);
+                 }
+               }
+               else {
+                 // Check connect status
+                 if (httpclient_get_connected) {
+                   HttpClient_ChangeState (GET_CONNECTED);
+                 }
+                 else if (httpclient_get_closed) {
+                   // Close without connected, Error.
+                   HttpClient_ChangeState (GET_ERROR);
+                 }
+                 else {
+                   if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                      HttpClient_ChangeState (GET_ERROR);
+                   }
+                 }
+               }
+               break;
+
+             case GET_CONNECTED:
+                 if (httpclient_get_closed) {                   
+                   if (output_size > 0) {
+                     char *p;
+                     char *s = &httpclient_get_data[0];
+
+                     // Terminate string
+                     httpclient_get_data[httpclient_get_receive_count] = '\0';
+
+                     // Line5: "<data>"
+                     output[0] = '\0';
+                     if (s) {
+                       char *h = 0, *t = 0;
+                       if (header[0] == '\0') {
+                         h = s;
+                       }
+                       else {
+                         h = strstr(s, header);
+                         if (h) h += strlen(header);
+                       }
+                       if (h) {
+                          if (terminator[0] == '\0') {
+                            t = &h[strlen(h)];
+                          }
+                          else
+                            t = strstr(h,terminator);
+                       }
+
+                       if ((h && t) && (t > h)) {
+                         int dlen = t - h;
+                         if (dlen < output_size) {
+                           memcpy(output, h, dlen);
+                           output[dlen] = 0;
+                         }
+                         else {
+                           memcpy(output, h, output_size-1);
+                           output[output_size-1] = '\0';
+                         }                         
+                       }
+                     }
+                   }
+
+                   // Success
+                   result = HTTPCLIENT_SUCCESS;
+                   HttpClient_ChangeState (GET_IDLE);
+                 }
+                 else {
+                   if (SysTimer_IsTimeout(&HttpClient_timer_ms)) {
+                      HttpClient_ChangeState (GET_ERROR);
+                   }
+                 }               
+               break;
+
+             //case GET_SUCCESS:
+             //  HttpClient_ChangeState (GET_IDLE);
+             //  break;
+
+	         case GET_ERROR:
+               result = HTTPCLIENT_ERROR;
+               HttpClient_ChangeState (GET_IDLE);
+               break;
+         }
+         //
+         return result;
+     }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+uint8_t %<blockid>_HttpGET(uint8_t trig, \
+                       const char *host, uint16_t host_len, \
+                       const char *request, uint16_t request_len, \
+                       uint32_t timeout, char *output, uint16_t output_size);
+uint8_t %<blockid>_HttpPOST(uint8_t trig, \
+                       const char *host, uint16_t host_len, \
+                       const char *action, uint16_t action_len, \
+                       const char *content, uint16_t content_len, \
+                       uint32_t timeout, char *output, uint16_t output_size);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if conf == "HttpGET"
+HTTPCLIENT_LOCK_STRUCT %<blockid>_httpclient_lock = {0, 0, 0};
+uint8_t %<blockid>_HttpGET(uint8_t trig, \
+                       const char *host, uint16_t host_len, \
+                       const char *request, uint16_t request_len, \
+                       uint32_t timeout, char *output, uint16_t output_size)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)HTTPCLIENT_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig && ETHERNET_APP_READY()) {
+            state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (HTTPCLIENT_Resource_Lock(&%<blockid>_httpclient_lock)) {        
+            sta = HTTPCLIENT_HttpGET(1, &%<blockid>_httpclient_lock, %<sslenable>, \
+                  host, host_len, request, request_len, \
+                  timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+            state ++;
+        }
+    }
+    else {
+        sta = HTTPCLIENT_HttpGET(0, &%<blockid>_httpclient_lock, %<sslenable>, \
+             host, host_len, request, request_len, \
+             timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+        if ((sta == (uint8_t)HTTPCLIENT_SUCCESS) || (sta == (uint8_t)HTTPCLIENT_ERROR)) {
+             HTTPCLIENT_Resource_UnLock(&%<blockid>_httpclient_lock);
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+%if conf == "HttpPOST"
+HTTPCLIENT_LOCK_STRUCT %<blockid>_httpclient_lock = {0, 0, 0};
+uint8_t %<blockid>_HttpPOST(uint8_t trig, \
+                       const char *host, uint16_t host_len, \
+                       const char *action, uint16_t action_len, \
+                       const char *content, uint16_t content_len, \
+                       uint32_t timeout, char *output, uint16_t output_size)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)HTTPCLIENT_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig && ETHERNET_APP_READY()) {
+            state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (HTTPCLIENT_Resource_Lock(&%<blockid>_httpclient_lock)) {        
+            sta = HTTPCLIENT_HttpPOST(1, &%<blockid>_httpclient_lock, %<sslenable>, \
+                  host, host_len, action, action_len, content, content_len, \
+                  timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+            state ++;
+        }
+    }
+    else {
+        sta = HTTPCLIENT_HttpPOST(0, &%<blockid>_httpclient_lock, %<sslenable>, \
+             host, host_len, action, action_len, content, content_len, \
+             timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+        if ((sta == (uint8_t)HTTPCLIENT_SUCCESS) || (sta == (uint8_t)HTTPCLIENT_ERROR)) {
+             HTTPCLIENT_Resource_UnLock(&%<blockid>_httpclient_lock);
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+void enable_%<blockid>(void){
+
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+/* %<blockid>: '%<block.Name>' */
+%% --- HTTP GET ---
+%if conf == "HttpGET"
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+  %assign host = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign host_len = LibBlockInputSignalWidth(1)
+  %assign request = LibBlockInputSignalAddr(2, "", "", 0)
+  %assign request_len = LibBlockInputSignalWidth(2)
+  %assign timeout = LibBlockInputSignal(3, "", "", 0)
+  
+  %if LibBlockNumOutputPorts(block) > 1
+    %assign out = LibBlockOutputSignalAddr(1, "", "", 0)
+    %assign size = LibBlockOutputSignalWidth(1)
+  %endif
+  %<status> = %<blockid>_HttpGET((uint8_t)(%<trig> != 0), \
+                (char *)%<host>, httpclient_strlen_s((char *)%<host>, %<host_len>), \
+                (char *)%<request>, httpclient_strlen_s((char *)%<request>, %<request_len>), \
+                %<timeout>, \
+                %if LibBlockNumOutputPorts(block) > 1
+                (char *)%<out>, %<size>);
+                %else
+                (char *)0, 0);
+                %endif  
+%endif
+
+%% --- HTTP POST ---
+%if conf == "HttpPOST"
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+  %assign host = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign host_len = LibBlockInputSignalWidth(1)
+  %assign action = LibBlockInputSignalAddr(2, "", "", 0)
+  %assign action_len = LibBlockInputSignalWidth(2)
+  %assign content = LibBlockInputSignalAddr(3, "", "", 0)
+  %assign content_len = LibBlockInputSignalWidth(3)
+  %assign timeout = LibBlockInputSignal(4, "", "", 0)
+  
+  %if LibBlockNumOutputPorts(block) > 1
+    %assign out = LibBlockOutputSignalAddr(1, "", "", 0)
+    %assign size = LibBlockOutputSignalWidth(1)
+  %endif
+  %<status> = %<blockid>_HttpPOST((uint8_t)(%<trig> != 0), \
+                (char *)%<host>, httpclient_strlen_s((char *)%<host>, %<host_len>), \
+                (char *)%<action>, httpclient_strlen_s((char *)%<action>, %<action_len>), \
+                (char *)%<content>, httpclient_strlen_s((char *)%<content>, %<content_len>), \
+                %<timeout>, \
+                %if LibBlockNumOutputPorts(block) > 1
+                (char *)%<out>, %<size>);
+                %else
+                (char *)0, 0);
+                %endif  
+%endif
+
+
+%% === Common used function, Input port ===
+%% LibBlockInputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignal(0, "", "", 0)
+%% LibBlockInputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockInputSignalAddr(0, "", "", 0)
+%% LibBlockInputSignalConnected(portIdx)
+%% LibBlockInputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockInputSignalDataTypeName(0,tRealPart)
+%% LibBlockInputSignalWidth(portIdx)
+%% LibBlockNumInputPorts(block)
+
+%% === Common used function, Output port ===
+%% LibBlockOutputSignal(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignal(0, "", "", 0)
+%% LibBlockOutputSignalAddr(portIdx, ucv, lcv, sigIdx)
+%%  |-> Ex: LibBlockOutputSignalAddr(0, "", "", 0)
+%% LibBlockOutputSignalConnected(portIdx)
+%% LibBlockOutputSignalDataTypeName(portIdx, reim)
+%%  |-> Ex: %assign dtname = LibBlockOutputSignalDataTypeName(0,tRealPart)
+%% LibBlockOutputSignalWidth(portIdx)
+%% LibBlockNumOutputPorts(block)
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

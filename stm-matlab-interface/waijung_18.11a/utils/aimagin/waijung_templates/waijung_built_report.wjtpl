@@ -1,0 +1,35 @@
+<html>
+<head>
+${section:title}
+<style>
+td {text-align: center;}
+td.blockname {text-align: left;}
+td.duplicatedpins {background-color: #f00;}
+td.legend {background-color: #f00;}
+td.legendtext {text-align: left;}
+</style>
+</head>
+<body>
+<h3>Pins Used</h3>
+<table border="1" cellpadding="1" cellspacing="1" style="width: 100%;">
+<tbody>
+<tr>
+${section:th}
+</tr>
+<tr>
+${section:pinrowheader}
+</tr>
+${section:allpinused}
+</tbody>
+</table>
+</br>
+<table border="0" cellpadding="1" cellspacing="1" style="width: 30%;">
+<tbody>
+<tr>
+<td class="legend";>&nbsp;</td> 
+<td class="legendtext";>Duplicated pins used</td> 
+</tr>
+</tbody>
+</table>
+</body>
+</html>

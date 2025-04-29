@@ -1,0 +1,257 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F0 Target &gt; Demos &gt; CAN &gt; CAN to Serial bridge (binary mode)</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="CAN to Serial bridge (binary mode)">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "can_to_serial_bridge.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">CAN to Serial bridge (binary mode)</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?can_to_serial_bridge.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f0_target.htm">STM32F0 Target</a> &gt; <a href="demos.htm">Demos</a> &gt; <a href="can3.htm">CAN</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">CAN to Serial bridge (binary mode)</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="can3.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="can3.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f4_target_block_ref.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Simulink demo &nbsp;file</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">1. CAN device node</span></h3>
+<p><span style="font-weight: bold;">Demo File</span>: stm32f0_can_slave_demo.mdl</p>
+<p><span style="font-weight: bold;">Location:</span> waijung_&lt;version&gt;\targets\stm32f0_target\stm32f0\demo\can_serial_bridge_demo\</p>
+<p>This model file will be Build and Run on the STM32F0 Target, it works as CAN slave (device Node 1: ID=128) for test the &quot;CAN-UART bridge&quot; module.</p>
+<p><img src="stm32f0_demo_canserialbridge_model1.png" width="950" height="501" alt="stm32f0_demo_canserialbridge_model1" style="width:950px;height:501px;border:none" /></p>
+<p>CAN message receiving is 8 bytes data, separated into 2 uint32. First is command (Cmd) and second is parameter (Param).</p>
+<p><img src="stm32f0_demo_canserialbridge_model2.png" width="950" height="556" alt="stm32f0_demo_canserialbridge_model2" style="width:950px;height:556px;border:none" /></p>
+<p>CAN slave device return ADC measurement value from ADC_IN6 for Cmd=0, ADC_IN7 for Cmd=1.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. CAN to Serial bridge</span></h3>
+<p><span style="font-weight: bold;">Demo File</span>: stm32f0_can_serial_bridge_binary.mdl</p>
+<p><span style="font-weight: bold;">Location:</span> waijung_&lt;version&gt;\targets\stm32f0_target\stm32f0\demo\can_serial_bridge_demo\</p>
+<p>This model file will be Build and Run to the STM32F0 Target, for working as CAN to UART bridge. In forward data transmission, it poll for receiving data packet from Host PC then translate and re-direct to CAN bus. In reverse data transmission, it poll for data from CAN bus message which ID matched to the ID filter setting, then transmit to Host PC via UART.</p>
+<p><img src="stm32f0_demo_canserialbridge_model.png" width="950" height="688" alt="stm32f0_demo_canserialbridge_model" style="width:950px;height:688px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Description</span></h2>
+<p>The demo showing how to communicate to CAN node via serial (UART), this demo model work as CAN-Serial bridge (also Serial-CAN). &nbsp;Example usage is Hardware in the loop simulation via CAN bus, showing as below picture.</p>
+<p><img src="stm32f0_demo_canserialbridge_overview.png" width="600" height="400" alt="stm32f0_demo_canserialbridge_overview" style="width:600px;height:400px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware Setup</span></h2>
+<p><span style="font-weight: bold;">CAN to Serial bridge</span></p>
+<p>Module aMG_USBConnect used for communication with Host PC for command and data, it also used as programmer tool during Waijung auto compile and download.</p>
+<p><img src="stm32f0_demo_canserialbridge_hw1.png" width="600" height="415" alt="stm32f0_demo_canserialbridge_hw1" style="width:600px;height:415px;border:none" /></p>
+<p><span style="font-weight: bold;">Setup for communicate to a device node.</span></p>
+<p><img src="stm32f0_demo_canserialbridge_hw2.png" width="950" height="334" alt="stm32f0_demo_canserialbridge_hw2" style="width:950px;height:334px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Serial command protocol</span></h2>
+<p>This section describe the protocol implemented in demo model: &quot;stm32f0_can_serial_bridge_binary.mdl&quot;.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Filter setting command</span></h3>
+<p>Host PC send command packet to &quot;CAN to Serial bridge&quot; module for ID type and filter configuration to receive. The module will monitor CAN Bus and response only if CAN message ID and ID type matched to filter setting. In case of Host PC require to receive all ID on the bus, use ID 0xFFFFFFFF (ID0=FF, ID1=FF, ID2=FF and ID3=FF) for filter setting. Following command is packet format for filter setting.</p>
+<p><span style="width:48px">&nbsp;</span>Format (hex): <span style="font-weight: bold;">[AA][55][88][88][88][88][IDType][Enable][ID0][ID1][ID2][ID3][SUM]</span></p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;Where,</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[AA] [55][88][88][88][88] - Transmit packet header for filter setting command</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[IDType] - 0 for Extended ID and 1 for Standard ID.</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[Enable] - 1 to Enable CAN receive for the specified ID type and filter, 0 to disable. </p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID0] - ID byte 0, ID[7:0]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID1] - ID byte 1, ID[15:8]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID2] - ID byte 2, ID[23:16]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID3] - ID byte 1, ID[31:24]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[SUM] - Sum of transmitting bytes = uint8(AA + 55 + 88 + 88 + 88 + 88 + IDType + Enable + ID0 + ... +ID3)</p>
+<p>The &quot;CAN to Serial bridge&quot; module will response following packet indicates the setting is valid.</p>
+<p><span style="width:48px">&nbsp;</span>Format (hex): <span style="font-weight: bold;">[BB][66][00]</span></p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Host PC transmitting (UART to CAN) command</span></h3>
+<p>Host PC start transmit data to CAN by send following command to &quot;CAN to Serial bridge&quot; module:</p>
+<p><span style="width:48px">&nbsp;</span>Format (hex):<span style="font-weight: bold;"> [7E][7E][IDType][ID0][ID1][ID2][ID3][DLC][D0][D1][D2][D3][D4][D5][D6][D7][SUM]</span></p>
+<p><span style="width:48px">&nbsp;</span>Where,</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[7E] [7E] - Transmit packet header</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[IDType] - 0 for Extended ID and 1 for Standard ID.</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID0] - ID byte 0, ID[7:0]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID1] - ID byte 1, ID[15:8]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID2] - ID byte 2, ID[23:16]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID3] - ID byte 1, ID[31:24]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[DLC] - Data length code 1-8</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[D0] ... [D7] - CAN data</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[SUM] - Sum of transmitting bytes = uint8(7E + 7E + IDType + ID0 + ... + D7)</p>
+<p>Then the &quot;CAN to Serial bridge&quot; module will response the status of CAN data operation as following format:</p>
+<p><span style="width:48px">&nbsp;</span>Response (hex):<span style="font-weight: bold;"> [7F][7F][sta][SUM]</span></p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[7F] [7F] - Response packet header</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[sta] - CAN transmit status, a zero indicates Success.</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[SUM] - Sum of response bytes = uint8(7F + 7F + sta)</p>
+<h3 class="p_Heading3"><span class="f_Heading3">3. Host PC receiving (CAN-UART)</span></h3>
+<p>When CAN data on the bus match to the filter setting, module CAN to Serial bridge will response following packet to Host PC:</p>
+<p><span style="width:48px">&nbsp;</span>Format (hex):<span style="font-weight: bold;"> [FF][FF][IDType][ID0][ID1][ID2][ID3][DLC][D0][D1][D2][D3][D4][D5][D6][D7][SUM]</span></p>
+<p><span style="width:48px">&nbsp;</span>Where,</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[FF][FF] - Binary packet header</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[IDType] - 0 for Extended ID and 1 for Standard ID.</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID0] - ID byte 0, ID[7:0]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID1] - ID byte 1, ID[15:8]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID2] - ID byte 2, ID[23:16]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[ID3] - ID byte 1, ID[31:24]</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[DLC] - Data length code 1-8</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[D0] ... [D7] - CAN data</p>
+<p><span style="width:48px">&nbsp;</span> &nbsp; &nbsp; &nbsp; &nbsp;[SUM] - Sum of transmitting bytes = uint8(FF + FF + IDType + ID0 + ... + D7)</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Software setup</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Build model for CAN device node (Slave) </span></h3>
+<h3 class="p_Heading3">File: stm32f0_can_slave_demo.mdl</h3>
+<p>This model is a demo of CAN slave device node operating on the bus. It's receive CAN packet sent by master, then response ADC measurement value via CAN message to master.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Build model for CAN to Serial bridge</span></h3>
+<p>File: stm32f0_can_serial_bridge_binary.mdl</p>
+<h3 class="p_Heading3"><span class="f_Heading3">3. Simulation model (Host PC)</span></h3>
+<p>File: hostpc_can.mdl</p>
+<p>To improve Tx and Rx speed, follow the <a href="latency_time_setting.htm" class="topiclink">Latency_time_setting</a> instruction. Run simulation, Display block now showing the reading value (ADC_IN6 and ADC_IN7).</p>
+<p><img src="stm32f0_demo_canserialbridge_model3.png" width="950" height="630" alt="stm32f0_demo_canserialbridge_model3" style="width:950px;height:630px;border:none" /></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

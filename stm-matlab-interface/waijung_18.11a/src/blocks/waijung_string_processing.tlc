@@ -1,0 +1,363 @@
+%implements waijung_string_processing "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %assign stringfunction = CAST("String",SFcnParamSettings.stringfunction)
+  %assign begindelim = CAST("String",SFcnParamSettings.begin_delim)
+  %assign enddelim = CAST("String",SFcnParamSettings.end_delim)
+
+  %assign stringformat = CAST("String",SFcnParamSettings.stringformat)
+  %assign buffersize = CAST("Number",SFcnParamSettings.buffersize)
+  %assign enablestatus = CAST("Number",SFcnParamSettings.enablestatus)
+  %assign datatypestring_len = SIZE(datatypestring)[1]
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid + stringfunction \
+                + stringformat + buffersize + enablestatus + datatypestring_len \
+                + begindelim + enddelim
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STD_LIB_H__) == 0)
+      %assign :: __STD_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   
+   %if (EXISTS(::__STD_IO_H__) == 0)
+      %assign :: __STD_IO_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif   
+
+   %if (EXISTS(::__STD_ARG_H__) == 0)
+      %assign :: __STD_ARG_H__ = 1
+      %openfile tmpBuf
+         #include <stdarg.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif   
+
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * String buffer processing
+      * ########################################################################
+      */
+     int32_t waijung_sprintf_s(char *buffer, uint16_t buffer_len, const char * format, ...);
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * String buffer processing
+      * ########################################################################
+      */
+     int32_t waijung_sprintf_s(char *buffer, uint16_t buffer_len, const char * format, ...)
+     {
+       int res;
+       va_list args;
+       va_start (args, format);
+       res = vsnprintf (buffer, (int)buffer_len, format, args);
+       va_end (args); 
+       return res;
+      }
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+  %if stringfunction == "strextract"
+   %if (EXISTS(::__STR_EXTRACT_HDR__) == 0)
+      %assign :: __STR_EXTRACT_HDR__ = 1
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void waijung_strextract(const char *str, const char *begindelim, const char *enddelim, char *output, int output_len);
+%%void enable_%<blockid>(void);
+   %endif
+  %endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+  %if stringfunction == "strextract"
+    %if (EXISTS(::__STR_EXTRACT_FCN__) == 0)
+      %assign :: __STR_EXTRACT_FCN__ = 1
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void waijung_strextract(const char *str, const char *begindelim, const char *enddelim, char *output, int output_len)
+{
+  const char *h;
+  const char *t;
+  
+  // Initial output
+  output[0] = '\0';
+
+  // Begin
+  if (begindelim[0] != '\0') {
+    h = strstr(str, begindelim);
+    if (!h)
+      return;
+    h += strlen(begindelim);
+  }
+  else
+    h = str;
+
+  // End
+  if (enddelim[0] != '\0') {
+    t = strstr(h, enddelim);
+    if (!t)
+      return;
+  }
+  else
+    t = &str[strlen(str)];
+
+  // Copy
+  if ((t-h) < output_len) {
+    memcpy(output, h, (t-h));
+    output[(t-h)] = '\0';
+  }
+  else {
+    memcpy(output, h, output_len-1);
+    output[output_len-1] = '\0';
+  }
+}
+
+%%*/
+%%void enable_%<blockid>(void){
+%%
+%%}
+    %endif
+  %endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+  %% --- sprintf ---
+  %if stringfunction == "sprintf"
+    /* %<blockid>: '%<block.Name>' */
+    %if enablestatus == 1
+      %assign sta = LibBlockOutputSignal(0, "", "", 0)
+      %<sta> = \
+      %assign buffer = LibBlockOutputSignalAddr(1, "", "", 0)
+      %assign buffer_len = LibBlockOutputSignalWidth(1)
+    %else
+      %assign buffer = LibBlockOutputSignalAddr(0, "", "", 0)
+      %assign buffer_len = LibBlockOutputSignalWidth(0)
+    %endif
+
+    %assign sep = ", "
+    waijung_sprintf_s((char *)%<buffer>, %<buffer_len>, "%<stringformat>"\
+    %foreach idx = LibBlockNumInputPorts(block)
+      %if datatypestring[idx] == "char *"
+        %assign port = LibBlockInputSignalAddr(idx, "", "", 0)
+      %else
+        %assign port = LibBlockInputSignal(idx, "", "", 0)              
+      %endif
+      %<sep> (%<datatypestring[idx]>)%<port>\
+    %endforeach  
+    );
+  %endif
+
+  %% --- sprintf_d ---
+  %if stringfunction == "sprintf_d"
+    /* %<blockid>: '%<block.Name>' */
+    %if enablestatus == 1
+      %assign sta = LibBlockOutputSignal(0, "", "", 0)
+      %<sta> = \
+      %assign buffer = LibBlockOutputSignalAddr(1, "", "", 0)
+      %assign buffer_len = LibBlockOutputSignalWidth(1)
+    %else
+      %assign buffer = LibBlockOutputSignalAddr(0, "", "", 0)
+      %assign buffer_len = LibBlockOutputSignalWidth(0)
+    %endif
+
+    %assign sep = ", "
+    %assign fmt = LibBlockInputSignalAddr(0, "", "", 0)
+    waijung_sprintf_s((char *)%<buffer>, %<buffer_len>, %<fmt>\
+    %foreach idx = LibBlockNumInputPorts(block)
+      %if  idx > 0
+        %if datatypestring[idx] == "char *"
+          %assign port = LibBlockInputSignalAddr(idx, "", "", 0)
+        %else
+          %assign port = LibBlockInputSignal(idx, "", "", 0)              
+        %endif
+        %<sep> (%<datatypestring[idx]>)%<port>\
+      %endif
+    %endforeach  
+    );
+  %endif
+
+  %% --- sscanf ---
+  %if stringfunction == "sscanf"
+    /* %<blockid>: '%<block.Name>' */
+    {
+      char tmp_buffer[%<buffersize+1>]; // buffersize + 1
+      
+      %assign input = LibBlockInputSignalAddr(0, "", "", 0)
+      memcpy(tmp_buffer, %<input>, %<buffersize>);
+      tmp_buffer[%<buffersize>] = '\0';
+      %if enablestatus == 1
+        %assign portIdx = 1
+        %assign portCount = LibBlockNumOutputPorts(block) - 1
+        %assign sta = LibBlockOutputSignal(0, "", "", 0)
+        %<sta> = \
+      %else
+        %assign portIdx = 0
+        %assign portCount = LibBlockNumOutputPorts(block)
+      %endif
+      %assign sep = ", "
+      sscanf(tmp_buffer, "%<stringformat>"\
+      %foreach idx = portCount
+        %assign port = LibBlockOutputSignalAddr(portIdx+idx, "", "", 0)
+        %<sep> %<port>\
+      %endforeach
+      );
+    }
+  %endif
+
+  %% --- strlen ---
+  %if stringfunction == "strlen"
+    /* %<blockid>: '%<block.Name>' */
+    {
+      uint32_T len = 0;
+      const uint8_T *data = %<LibBlockInputSignalAddr(0, "", "", 0)>;
+      %assign maxlen = LibBlockInputSignalWidth(0)
+      while ((data[len] != '\0') && (len<%<maxlen>))
+        len++;
+      %<LibBlockOutputSignal(0, "", "", 0)> = len;
+    }
+  %endif
+
+  %% --- strcmp ---
+  %if stringfunction == "strcmp"
+    /* %<blockid>: '%<block.Name>' */
+    %<LibBlockOutputSignal(0, "", "", 0)> = \
+      strcmp((char *)%<LibBlockInputSignalAddr(0, "", "", 0)>, (char *)%<LibBlockInputSignalAddr(1, "", "", 0)>);
+  %endif
+
+  %% --- strcmp ---
+  %if stringfunction == "strncmp"
+    /* %<blockid>: '%<block.Name>' */
+    %<LibBlockOutputSignal(0, "", "", 0)> = \
+      strncmp((char *)%<LibBlockInputSignalAddr(0, "", "", 0)>, \
+        (char *)%<LibBlockInputSignalAddr(1, "", "", 0)>, \
+        %<LibBlockInputSignal(2, "", "", 0)> \
+        );
+  %endif
+
+  %% --- strextract ---
+  %if stringfunction == "strextract"
+  /* %<blockid>: '%<block.Name>' */
+  %assign input = LibBlockInputSignalAddr(0, "", "", 0)
+  %assign buffer = LibBlockOutputSignalAddr(0, "", "", 0)
+  %assign buffer_len = LibBlockOutputSignalWidth(0)
+  waijung_strextract((char *)%<input>, "%<begindelim>", "%<enddelim>", (char *)%<buffer>, %<buffer_len>);
+  %endif
+  
+  %% --- strsplit ---
+  %if stringfunction == "strsplit"
+    /* %<blockid>: '%<block.Name>' */
+    {
+      char tmp_buffer[%<LibBlockInputSignalWidth(0)+1>]; // Input len + 1
+      char *s;
+      int i, len;
+
+      // Copy string into temporary buffer
+      memcpy(tmp_buffer, %<LibBlockInputSignalAddr(0, "", "", 0)>, %<LibBlockInputSignalWidth(0)>);
+      tmp_buffer[%<LibBlockInputSignalWidth(0)>] = '\0';
+
+      %if enablestatus == 1
+        %assign port_Offset = 1
+      %else
+        %assign port_Offset = 0
+      %endif
+
+      s = &tmp_buffer[0];
+      for (i=0; i<%<(LibBlockNumOutputPorts(block)-port_Offset)>; i++) {
+          
+      }
+
+
+      data = (char *)%<LibBlockInputSignalAddr(0, "", "", 0)>;
+      %assign maxlen = LibBlockInputSignalWidth(0)
+      while ((data[len] != '\0') && (len<%<maxlen>))
+        len++;
+
+      %foreach idx=(LibBlockNumOutputPorts(block)-port_Offset)
+        %if idx == 0
+
+        %else
+
+        %endif
+      %endforeach
+    }
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

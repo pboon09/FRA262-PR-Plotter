@@ -1,0 +1,780 @@
+Library {
+  Name			  "stm32f0_uart_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-874"
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  Created		  "Wed Jul 31 18:48:50 2013"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Dec 01 17:58:51 2014"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:104>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  off
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "PassReuseOutputArgsAs"
+	    Cell		    "PassReuseOutputArgsThreshold"
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    6
+	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
+	    Cell		    "GenerateTraceReport"
+	    Cell		    "GenerateTraceReportSl"
+	    Cell		    "GenerateTraceReportSf"
+	    Cell		    "GenerateTraceReportEml"
+	    PropName		    "DisabledProps"
+	  }
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		17
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"IgnoreTestpoints"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"CPPClassGenCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      ParMdlRefBuildCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      UseMalloc		      off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 243, 69, 1123, 699 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "stm32f0_uart_lib"
+    Location		    [627, 369, 1293, 711]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "UART Rx"
+      Ports		      [0, 2]
+      Position		      [385, 29, 530, 131]
+      FunctionName	      "stm32f0_uart"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,asciiheader,optionstring,head"
+      "erstring,terminatorstring,asciidatatypestring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_uart"
+      MaskDescription	      "UART Module\n - Select module corresponding to \"UART Setup\" block.\nTransfer\n - Blocki"
+      "ng: the block wait until data receiving is ready.\n - Non-Blocking: if data receiving is ready, the block return"
+      " non-zero to READY port otherwise return 0.\nPacket mode:\n - Ascii: receiving data is ascii, Ascii format + End"
+      " of packet.\n - Binary: receiving data is binary format, Header + Data + Terminator\n - String Buffer: Receiving"
+      " data stored into Volatile Data Storage variable block. \nAscii format:\n - %U, %I, %D, %O, %X, %u, %i, %d, %o, "
+      "%x: Uint32\n - %E, %G, %F, %e, %g, %f: Single\n - %C, %c: Int8"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_uart_rx.htm'), '-browser')"
+      MaskPromptString	      "Configuration|UART Module|Baud rate (bps)|Data bits|Parity|Stop bit|Tx pin|Rx pin|Hardwa"
+      "re flow control|HW Flow control, CTS Pin|HW Flow control, RTS Pin|Advance options|Rx buffer size (bytes)|Tx buff"
+      "er size (bytes)|Transfer|Packet mode|Binary header (example: '7E 7E')|Binary terminator (example: '03 03')|Numbe"
+      "r of data port, type DOUBLE|Number of data port, type SINGLE|Number of data port, type INT8|Number of data port,"
+      " type UINT8|Number of data port, type INT16|Number of data port, type UINT16|Number of data port, type INT32|Num"
+      "ber of data port, type UINT32|Ascii format|End of packet|End of packet|Buffer|Var name|Ascii header (printf form"
+      "at)|Sample time (sec)|Enable custom port labels (Ex. In1, In2, In3)|Custom input port labels (Ex. In1, In2, In3)"
+      "|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pin String|Block ID|Input Port Type|Input Port Width|Inpu"
+      "t Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|String"
+      "(s) to be passed to TLC||||Last module selected"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(1|2|3|4),edit,popup(8),popup(No|Odd|Even),popup(0.5|1|1.5|2),pop"
+      "up(Not used|A9|B6),popup(Not used|A10|B7),popup(None|RTS|CTS|RTS/CTS),popup(Not used|A11),popup(Not used|A12),ch"
+      "eckbox,popup(16|32|64|128|256|512),popup(16|32|64|128|256|512),popup(Blocking|Non-Blocking),popup(Ascii|Binary|S"
+      "tring Buffer),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\""
+      ")|CRLF (0x0D 0x0A - \"\\r\\n\")),popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")|Non"
+      "e),popup(<empty>),edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,"
+      "edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f0_uart_callback('conf');|stm32f0_uart_callback('uartmodule');|||||||stm32f0_uart_"
+      "callback('flowcontrol');|||stm32f0_uart_callback('advanceoptions');|||stm32f0_uart_callback('conf');|stm32f0_uar"
+      "t_callback('conf');|stm32f0_uart_callback('binheader');|stm32f0_uart_callback('binterminator');|||||||||stm32f0_"
+      "uart_callback('asciiformat');|||stm32f0_uart_callback('storagename');|||stm32f0_uart_callback('sampletime');|stm"
+      "32f0_uart_callback('enablecustomportlabel');|stm32f0_uart_callback('conf');|stm32f0_uart_callback('conf');||stm3"
+      "2f0_uart_callback('blockid');||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      ",on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,off,off,of"
+      "f,off,off,off,on,on,off,off,off,off,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;baudrate=@3;databits=@4;parity=&5;stopbit=&6;remaptxpin=&7;remaprxpin"
+      "=&8;flowcontrol=&9;remapctspin=&10;remaprtspin=&11;advanceoptions=@12;rxbuffersize=@13;txbuffersize=@14;transfer"
+      "=&15;packetmode=&16;binheader=&17;binterminator=&18;porttype_double=@19;porttype_single=@20;porttype_int8=@21;po"
+      "rttype_uint8=@22;porttype_int16=@23;porttype_uint16=@24;porttype_int32=@25;porttype_uint32=@26;asciiformat=@27;r"
+      "x_asciiterminator=&28;tx_asciiterminator=&29;storagename=&30;varname=&31;asciiheader=&32;sampletime=@33;enablecu"
+      "stomportlabel=@34;cinputportlabel=&35;coutputportlabel=&36;portpinstr=&37;blockid=&38;inputporttype=@39;inputpor"
+      "twidth=@40;inputportlabel=&41;outputporttype=@42;outputportwidth=@43;outputportlabel=&44;compat=&45;optionstring"
+      "=&46;headerstring=&47;terminatorstring=&48;asciidatatypestring=&49;lastmodule=&50;"
+      MaskInitialization      "stm32f0_uart_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, 'Module: USART1_Rx\\nPacket: Ascii\\nTransfer: Non-Blocking\\nTs (sec): 0','v"
+      "er','middle','hor','left'); port_label('output', 1,'READY'); port_label('output', 2,'%f'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Rx|1|115200|8|No|1|A9|A10|None|Not used|Not used|off|64|64|Non-Blocking|Ascii|'7E 7E'|'03"
+      " 03'|0|0|0|0|0|0|0|2|'Value=%1.2f'|CRLF (0x0D 0x0A - \"\\r\\n\")|LF (0x0A - \"\\n\")|<empty>||Value=%1.2f\\n|-1|"
+      "off|de|fff,ff,sdfsd|0|UARTRx|[]|[]|{}|[3  1]|[]|{'READY'  '%f'}|0|[]|[]|[]|[]|1"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "UART Setup"
+      Ports		      []
+      Position		      [20, 29, 165, 131]
+      FunctionName	      "stm32f0_uart"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,asciiheader,optionstring,head"
+      "erstring,terminatorstring,asciidatatypestring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_uart"
+      MaskDescription	      "Default configuration for aMG USB Connect board:\n - UART module: 1\n - Tx pin: A9\n - Rx"
+      " pin: A10\n\nAdvance options\n - Rx buffer size (bytes): max packet length can be received via DMA.\n - Tx buffe"
+      "r size (bytes): max packet length can be transmit via DMA."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_uart_setup.htm'), '-browser')"
+      MaskPromptString	      "Configuration|UART Module|Baud rate (bps)|Data bits|Parity|Stop bit|Tx pin|Rx pin|Hardwa"
+      "re flow control|HW Flow control, CTS Pin|HW Flow control, RTS Pin|Pin type (Push-Pull/Open-Drain)|Advance option"
+      "s|Rx buffer size (bytes)|Tx buffer size (bytes)|Transfer|Packet mode|Binary header (example: '7E 7E')|Binary ter"
+      "minator (example: '03 03')|Number of data port, type DOUBLE|Number of data port, type SINGLE|Number of data port"
+      ", type INT8|Number of data port, type UINT8|Number of data port, type INT16|Number of data port, type UINT16|Num"
+      "ber of data port, type INT32|Number of data port, type UINT32|Ascii format|End of packet|End of packet|Buffer|Va"
+      "r name|Ascii header (printf format)|Sample time (sec)|Enable custom port labels (Ex. In1, In2, In3)|Custom input"
+      " port labels (Ex. In1, In2, In3)|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pin String|Block ID|Input"
+      " Port Type|Input Port Width|Input Port Label|Output Port Type|Output Port Width|Output port label|Compatibility "
+      "(Reserved for future use)|String(s) to be passed to TLC||||Last module selected"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(1|2|3|4),edit,popup(8),popup(No|Odd|Even),popup(0.5|1|1.5|2),pop"
+      "up(Not used|A9|B6),popup(Not used|A10|B7),popup(None|RTS|CTS|RTS/CTS),popup(Not used|A11),popup(Not used|A12),po"
+      "pup(Push Pull|Open Drain),checkbox,popup(16|32|64|128|256|512),popup(16|32|64|128|256|512),popup(Blocking|Non-Bl"
+      "ocking),popup(Ascii|Binary|String Buffer),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,popup(CR (0x0D "
+      "- \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")),popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF"
+      " (0x0D 0x0A - \"\\r\\n\")|None),popup(<empty>),edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,e"
+      "dit,edit,edit,edit,edit,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off"
+      MaskCallbackString      "stm32f0_uart_callback('conf');|stm32f0_uart_callback('uartmodule');|||||||stm32f0_uart_"
+      "callback('flowcontrol');||||stm32f0_uart_callback('advanceoptions');|||stm32f0_uart_callback('conf');|stm32f0_ua"
+      "rt_callback('conf');|stm32f0_uart_callback('binheader');|stm32f0_uart_callback('binterminator');|||||||||stm32f0"
+      "_uart_callback('asciiformat');|||stm32f0_uart_callback('storagename');|||stm32f0_uart_callback('sampletime');|st"
+      "m32f0_uart_callback('enablecustomportlabel');|stm32f0_uart_callback('conf');|stm32f0_uart_callback('conf');||stm"
+      "32f0_uart_callback('blockid');||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      ",on,on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off,off,o"
+      "ff,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;baudrate=@3;databits=@4;parity=&5;stopbit=&6;remaptxpin=&7;remaprxpin"
+      "=&8;flowcontrol=&9;remapctspin=&10;remaprtspin=&11;pintype=&12;advanceoptions=@13;rxbuffersize=@14;txbuffersize="
+      "@15;transfer=&16;packetmode=&17;binheader=&18;binterminator=&19;porttype_double=@20;porttype_single=@21;porttype"
+      "_int8=@22;porttype_uint8=@23;porttype_int16=@24;porttype_uint16=@25;porttype_int32=@26;porttype_uint32=@27;ascii"
+      "format=@28;rx_asciiterminator=&29;tx_asciiterminator=&30;storagename=&31;varname=&32;asciiheader=&33;sampletime="
+      "@34;enablecustomportlabel=@35;cinputportlabel=&36;coutputportlabel=&37;portpinstr=&38;blockid=&39;inputporttype="
+      "@40;inputportwidth=@41;inputportlabel=&42;outputporttype=@43;outputportwidth=@44;outputportlabel=&45;compat=&46;"
+      "optionstring=&47;headerstring=&48;terminatorstring=&49;asciidatatypestring=&50;lastmodule=&51;"
+      MaskInitialization      "stm32f0_uart_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Module: USART1_Setup\\nBaud (Bps): 115200\\nDMA Buffer: 64/64\\nTx/Rx Pin: A9"
+      "/A10','ver','middle','hor','center'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Setup|1|115200|8|No|1|A9|A10|None|Not used|Not used|Push Pull|on|64|64|Non-Blocking|Binar"
+      "y|'7E 7E'|'03 03'|1|1|0|0|0|1|0|0|'%1.2f'|CR (0x0D - \"\\r\")|CR (0x0D - \"\\r\")|<empty>|||-1|off|de|fff,ff,sdf"
+      "sd|0|UARTSetup|[]|[]|{}|[]|[]|{}|0|[]|[]|[]|[]|1"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "UART Tx"
+      Ports		      [1]
+      Position		      [205, 29, 350, 131]
+      FunctionName	      "stm32f0_uart"
+      Parameters	      "conf,inputporttype,inputportwidth,outputporttype,outputportwidth,asciiheader,optionstring,head"
+      "erstring,terminatorstring,asciidatatypestring,sampletime,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f0_uart"
+      MaskDescription	      "UART Module\n - Select module corresponding to \"UART Setup\" block.\nTransfer\n - Blocki"
+      "ng: after write DMA buffer, the block wait until buffer empty.\n - Non-Blocking: the block will not wait for buf"
+      "fer empty.\nPacket mode:\n - Ascii: sending data is ascii, Ascii format + End of packet.\n - Binary: sending dat"
+      "a is binary format, Header + Data + Terminator\n - String Buffer: Volatile Data Storage variable name as sending"
+      " data. \nAscii format:\n - %U, %I, %D, %O, %X, %u, %i, %d, %o, %x: Uint32\n - %E, %G, %F, %e, %g, %f: Single\n -"
+      " %C, %c: Int8\n - %S, %s: (char *), this port is output of Volatile Data Storage Read block, which data type is "
+      "string."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f0_uart_tx.htm'), '-browser')"
+      MaskPromptString	      "Configuration|UART Module|Baud rate (bps)|Data bits|Parity|Stop bit|Tx pin|Rx pin|Hardwa"
+      "re flow control|HW Flow control, CTS Pin|HW Flow control, RTS Pin|Advance options|Rx buffer size (bytes)|Tx buff"
+      "er size (bytes)|Transfer|Packet mode|Binary header (example: '7E 7E')|Binary terminator (example: '03 03')|Numbe"
+      "r of data port, type DOUBLE|Number of data port, type SINGLE|Number of data port, type INT8|Number of data port,"
+      " type UINT8|Number of data port, type INT16|Number of data port, type UINT16|Number of data port, type INT32|Num"
+      "ber of data port, type UINT32|Ascii format|End of packet|End of packet|Buffer|Var name|Ascii header (printf form"
+      "at)|Sample time (sec)|Enable custom port labels (Ex. In1, In2, In3)|Custom input port labels (Ex. In1, In2, In3)"
+      "|Custom output port labels (Ex. Out1, Out2, Out3)|Port Pin String|Block ID|Input Port Type|Input Port Width|Inpu"
+      "t Port Label|Output Port Type|Output Port Width|Output port label|Compatibility (Reserved for future use)|String"
+      "(s) to be passed to TLC||||Last module selected"
+      MaskStyleString	      "popup(Setup|Tx|Rx),popup(1|2|3|4),edit,popup(8),popup(No|Odd|Even),popup(0.5|1|1.5|2),pop"
+      "up(Not used|A9|B6),popup(Not used|A10|B7),popup(None|RTS|CTS|RTS/CTS),popup(Not used|A11),popup(Not used|A12),ch"
+      "eckbox,popup(16|32|64|128|256|512),popup(16|32|64|128|256|512),popup(Blocking|Non-Blocking),popup(Ascii|Binary|S"
+      "tring Buffer),edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\""
+      ")|CRLF (0x0D 0x0A - \"\\r\\n\")),popup(CR (0x0D - \"\\r\")|LF (0x0A - \"\\n\")|CRLF (0x0D 0x0A - \"\\r\\n\")|Non"
+      "e),popup(<empty>),edit,edit,edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,"
+      "edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f0_uart_callback('conf');|stm32f0_uart_callback('uartmodule');|||||||stm32f0_uart_"
+      "callback('flowcontrol');|||stm32f0_uart_callback('advanceoptions');|||stm32f0_uart_callback('conf');|stm32f0_uar"
+      "t_callback('conf');|stm32f0_uart_callback('binheader');|stm32f0_uart_callback('binterminator');|||||||||stm32f0_"
+      "uart_callback('asciiformat');|||stm32f0_uart_callback('storagename');|||stm32f0_uart_callback('sampletime');|stm"
+      "32f0_uart_callback('enablecustomportlabel');|stm32f0_uart_callback('conf');|stm32f0_uart_callback('conf');||stm3"
+      "2f0_uart_callback('blockid');||||||||||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      ",on,on,on,on,on,on,on,on,off,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,off,off,of"
+      "f,off,off,off,on,off,on,off,off,off,on,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "conf=&1;uartmodule=&2;baudrate=@3;databits=@4;parity=&5;stopbit=&6;remaptxpin=&7;remaprxpin"
+      "=&8;flowcontrol=&9;remapctspin=&10;remaprtspin=&11;advanceoptions=@12;rxbuffersize=@13;txbuffersize=@14;transfer"
+      "=&15;packetmode=&16;binheader=&17;binterminator=&18;porttype_double=@19;porttype_single=@20;porttype_int8=@21;po"
+      "rttype_uint8=@22;porttype_int16=@23;porttype_uint16=@24;porttype_int32=@25;porttype_uint32=@26;asciiformat=@27;r"
+      "x_asciiterminator=&28;tx_asciiterminator=&29;storagename=&30;varname=&31;asciiheader=&32;sampletime=@33;enablecu"
+      "stomportlabel=@34;cinputportlabel=&35;coutputportlabel=&36;portpinstr=&37;blockid=&38;inputporttype=@39;inputpor"
+      "twidth=@40;inputportlabel=&41;outputporttype=@42;outputportwidth=@43;outputportlabel=&44;compat=&45;optionstring"
+      "=&46;headerstring=&47;terminatorstring=&48;asciidatatypestring=&49;lastmodule=&50;"
+      MaskInitialization      "stm32f0_uart_callback('init');"
+      MaskDisplay	      "text(0.95, 0.5, 'Module: USART1_Tx\\nPacket: Ascii\\nTransfer: Non-Blocking\\nTs (sec): 0','v"
+      "er','middle','hor','right'); port_label('input', 1,'%f'); "
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "Tx|1|115200|8|No|1|A9|A10|None|Not used|Not used|off|64|64|Non-Blocking|Ascii|'7E 7E'|'03"
+      " 03'|0|0|0|0|0|0|0|2|'Value=%1.2f'|CR (0x0D - \"\\r\")|CRLF (0x0D 0x0A - \"\\r\\n\")|<empty>||Value=%1.2f\\n|-1|"
+      "off|de|fff,ff,sdfsd|0|UARTTx|[ -1]|[]|{ '%f'}|[]|[]|{}|0|[]|[]|[]|[]|1"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Annotation {
+      Name		      "### TODO: \n### UART module 3 and 4 use same DMA channel, need revise later."
+      Position		      [52, 194]
+      HorizontalAlignment     "left"
+      ForegroundColor	      "red"
+      BackgroundColor	      "yellow"
+      DropShadow	      on
+    }
+  }
+}

@@ -1,0 +1,267 @@
+%implements stm32f4_dmadac "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign inputtypestr = CAST("String",SFcnParamSettings.inputtypestr)
+%assign dac1on = CAST("Number",SFcnParamSettings.dac1on)
+%assign dac2on = CAST("Number",SFcnParamSettings.dac2on)
+%assign advancedsettings = CAST("Number",SFcnParamSettings.advancedsettings)
+%assign vref = CAST("String",SFcnParamSettings.vref)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign apb = CAST("String",SFcnParamSettings.apb)
+%assign portstr = SFcnParamSettings.portstr
+%assign portstr_size = SIZE(portstr)
+%assign pinstr = SFcnParamSettings.pinstr
+%assign pinstr_size = SIZE(pinstr)
+%assign pinmat = SFcnParamSettings.pinmat
+%assign dacbufferstr = CAST("String",SFcnParamSettings.dacbufferstr)
+%assign dacmode = CAST("String",SFcnParamSettings.dacmode)
+%assign nbr_pins = CAST("Number",pinmat[0][0])
+%assign dacalignment = CAST("String",SFcnParamSettings.dacalignment)
+%assign dac1val = CAST("Vector",SFcnParamSettings.dac1val)
+%assign dac2val = CAST("Vector",SFcnParamSettings.dac2val)
+%assign dac1val_length = CAST("Number",SFcnParamSettings.dac1val_length)
+%assign dac2val_length = CAST("Number",SFcnParamSettings.dac2val_length)
+%assign dac1address = CAST("String",SFcnParamSettings.dac1address)
+%assign dac2address = CAST("String",SFcnParamSettings.dac2address)
+%assign dmamodestr = CAST("String",SFcnParamSettings.dmamodestr)
+%assign dac1dor = CAST("String",SFcnParamSettings.dac1dor)
+%assign dac2dor = CAST("String",SFcnParamSettings.dac2dor)
+%assign timer = CAST("Number",SFcnParamSettings.timer)
+%assign timarr = CAST("Number",SFcnParamSettings.timarr)
+%assign timprescale = CAST("Number",SFcnParamSettings.timprescale)
+%assign block = block + inputtypestr + dac1on + dac2on + advancedsettings + \
+                vref + sampletime + sampletimestr + blockid + \
+                apb + portstr + portstr_size + pinstr + pinstr_size + \
+                pinmat + dacbufferstr + dacmode + nbr_pins + dacalignment + \
+                dac1val + dac2val + dac1val_length + dac2val_length + \
+                dac1address + dmamodestr + timer + timarr + timprescale + \
+                dac1dor + dac2dor + dac2address 
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO_H__) == 0)
+      %assign :: __STM32F4XX_GPIO_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_DAC_H__) == 0)
+      %assign :: __STM32F4XX_DAC_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dac.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_DMA_H__) == 0)
+      %assign :: __STM32F4XX_DMA_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_TIM_H__) == 0)
+      %assign :: __STM32F4XX_TIM_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %if (nbr_pins > 0)
+      %openfile tmpBuf
+         %if (dac1on==1)
+            /* DAC Output Register Base Address */
+            #define DAC1BaseAddress_%<blockid> 0x%<dac1address>
+         %endif
+
+         %if (dac2on==1)
+            /* DAC Output Register Base Address */
+            #define DAC2BaseAddress_%<blockid> 0x%<dac2address>
+         %endif
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+      %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+      %openfile tmpBuf
+         %if (dac1on==1)
+            /* DAC Channel 1 Data */
+           const uint16_t DAC1DOR_%<blockid>[%<dac1val_length>] = %<dac1dor>;
+         %endif
+        
+         %if (dac2on==1)
+            /* DAC Channel 2 Data */
+           const uint16_t DAC2DOR_%<blockid>[%<dac2val_length>] = %<dac2dor>;
+         %endif
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+      %<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+   %endif      
+   
+   %openfile tmpBuf
+      /* Enable DAC Block %<blockid> */
+      void enable_%<blockid>(void);  
+
+      /* Disable DAC Block: %<blockid> */
+      void disable_%<blockid>(void);  
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* %<blockid> */
+      void enable_%<blockid>(void){ 
+         GPIO_InitTypeDef GPIO_InitStructure;
+         DAC_InitTypeDef DAC_InitStructure;
+         DMA_InitTypeDef DMA_InitStructure;
+         TIM_TimeBaseInitTypeDef    TIM_TimeBaseStructure;
+         /* GPIOA clock enable (to be used with DAC) */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+         /* DAC clock enable */
+         RCC_APB%<apb>PeriphClockCmd(RCC_APB%<apb>Periph_DAC, ENABLE);
+         /* DMA1 clock enable */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+         /* TIM%<timer> Periph clock enable */
+         RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM%<timer>, ENABLE);
+         TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
+         TIM_TimeBaseStructure.TIM_Period = %<timarr>;          
+         TIM_TimeBaseStructure.TIM_Prescaler = %<timprescale>;       
+         TIM_TimeBaseStructure.TIM_ClockDivision = 0;    
+         TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+         TIM_TimeBaseInit(TIM%<timer>, &TIM_TimeBaseStructure);
+         /* TIM%<timer> TRGO selection */
+         TIM_SelectOutputTrigger(TIM%<timer>, TIM_TRGOSource_Update);
+         /* TIM%<timer> enable counter */
+         TIM_Cmd(TIM%<timer>, ENABLE);       
+         /* 
+          * DAC channels (DAC_OUT1 = PA.4)(DAC_OUT2 = PA.5) configuration 
+          * Once the DAC channel is enabled, the corresponding GPIO pin is automatically 
+          * connected to the DAC converter. 
+          * The GPIO pin is configured in analog mode to avoid parasitic consumption.
+          */
+         GPIO_InitStructure.GPIO_Pin = %<pinstr[0]>;
+         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+         GPIO_Init(GPIOA, &GPIO_InitStructure);
+         DAC_DeInit(); 
+         %if (dac1on==1)
+            %assign dacmodule = 1
+            %<setupDac(block, dacmodule)>
+         %endif
+
+         %if (dac2on==1)
+            %assign dacmodule = 2
+            %<setupDac(block, dacmodule)>
+         %endif
+         }
+
+      /* %<blockid> */
+      void disable_%<blockid>(void){ 
+         %if (dac1on==1)
+            %assign dacmodule = 1
+            %assign dmastream = dacmodule + 4
+            /* Disable DMA1_Stream%<dmastream> */
+            DMA_Cmd(DMA1_Stream%<dmastream>, DISABLE);
+            /* Disable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, DISABLE);
+            /* Disable DMA for DAC Channel%<dacmodule> */
+            DAC_DMACmd(DAC_Channel_%<dacmodule>, DISABLE);
+         %endif
+
+         %if (dac2on==1)
+            %assign dacmodule = 2
+            %assign dmastream = dacmodule + 4
+            /* Disable DMA1_Stream%<dmastream> */
+            DMA_Cmd(DMA1_Stream%<dmastream>, DISABLE);
+            /* Disable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, DISABLE);
+            /* Disable DMA for DAC Channel%<dacmodule> */
+            DAC_DMACmd(DAC_Channel_%<dacmodule>, DISABLE);
+         %endif
+      }
+
+      void terminate_%<blockid>(void){ 
+         disable_%<blockid>();
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> */
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   %% terminate_%<blockid>();
+%endfunction
+
+%function setupDac(block, dacmodule) Output
+   %<addParametersToBlock(block)>
+   /* DAC Channel %<dacmodule> Configuration */
+   DAC_InitStructure.DAC_Trigger = DAC_Trigger_T%<timer>_TRGO;
+   DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;
+   DAC_InitStructure.DAC_OutputBuffer = %<dacbufferstr>;
+   DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
+   DAC_Init(DAC_Channel_%<dacmodule>, &DAC_InitStructure);
+
+   %assign dmastream = dacmodule + 4
+   /* DMA1_Stream%<dmastream> channel7 configuration */
+   DMA_DeInit(DMA1_Stream%<dmastream>);
+   DMA_InitStructure.DMA_Channel = DMA_Channel_7;  
+   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) DAC%<dacmodule>BaseAddress_%<blockid>;
+   DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&DAC%<dacmodule>DOR_%<blockid>;
+   DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+   DMA_InitStructure.DMA_BufferSize = %<dac1val_length>;
+   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+   DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+   DMA_InitStructure.DMA_Mode = %<dmamodestr>;
+   DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+   DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+   DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+   DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+   DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+   DMA_Init(DMA1_Stream%<dmastream>, &DMA_InitStructure);            
+   /* Enable DMA1_Stream%<dmastream> */
+   DMA_Cmd(DMA1_Stream%<dmastream>, ENABLE);
+   /* Enable DAC Channel%<dacmodule> */
+   DAC_Cmd(DAC_Channel_%<dacmodule>, ENABLE);
+   /* Enable DMA for DAC Channel%<dacmodule> */
+   DAC_DMACmd(DAC_Channel_%<dacmodule>, ENABLE);
+%endfunction

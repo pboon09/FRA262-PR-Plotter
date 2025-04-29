@@ -1,0 +1,52 @@
+%implements waijung_capturesystickcounter "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+   %assign blockid = CAST("String",SFcnParamSettings.blockid)
+   %assign label = CAST("String",SFcnParamSettings.label)
+   %assign block = block + blockid + label
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>   
+%endfunction
+
+
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* Profiler Capture Systick Counter: %<label> */
+   *profiler_records_ptr++ = systick_count;
+   *profiler_records_ptr++ = profilerGetSystickCounter();
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   %%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   %%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+%endfunction
+

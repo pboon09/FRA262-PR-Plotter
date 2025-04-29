@@ -1,0 +1,1184 @@
+%implements stm32f4_usart "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+
+
+%assign configuration = CAST("String",SFcnParamSettings.configuration)
+%assign module = CAST("String",SFcnParamSettings.module)
+%assign transfer = CAST("String",SFcnParamSettings.transfer)
+%assign inputtypearray = SFcnParamSettings.inputtypearray
+%assign outputtypearray = SFcnParamSettings.outputtypearray
+%assign binheader = SFcnParamSettings.binheader
+%assign binterminator = SFcnParamSettings.binterminator
+%assign asciiheader = CAST("String",SFcnParamSettings.asciiheader)
+%assign asciiterminator = SFcnParamSettings.asciiterminator
+
+%assign bindatalength = CAST("Number",SFcnParamSettings.bindatalength)
+%assign packetmode = CAST("String",SFcnParamSettings.packetmode)
+%assign varname = CAST("String",SFcnParamSettings.varname)
+
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+%% Index: 0
+%% Dummy
+%% Index: 1-3
+%assign txenable      = confstr[1]
+%assign txport        = confstr[2]
+%assign txpin         = confstr[3]
+%% Index: 4-6
+%assign rxenable      = confstr[4]
+%assign rxport        = confstr[5]
+%assign rxpin         = confstr[6]
+%% Index: 7-9
+%assign ctsenable     = confstr[7]
+%assign ctsport       = confstr[8]
+%assign ctspin        = confstr[9]
+%% Index: 10-12
+%assign rtsenable     = confstr[10]
+%assign rtsport       = confstr[11]
+%assign rtspin        = confstr[12]
+%% Index: 13-15
+%assign txdma         = confstr[13]
+%assign txdmach       = confstr[14]
+%assign txdmastream   = confstr[15]
+%% Index: 16-18
+%assign rxdma         = confstr[16]
+%assign rxdmach       = confstr[17]
+%assign rxdmastream   = confstr[18]
+%% Index: 19-20
+%assign txbuffersize  = confstr[19]
+%assign rxbuffersize  = confstr[20]
+%% Index: 21
+%assign uartahbmodule = confstr[21]
+%% Index: 22-27
+%assign uartmodule    = confstr[22]
+%assign bitrate       = confstr[23] 
+%assign databits      = confstr[24]
+%assign parity        = confstr[25]
+%assign stopbit       = confstr[26]
+%assign flowcontrol   = confstr[27]
+%% Index: 28
+%assign uartstr       = confstr[28]
+
+%assign block = block + sampletime + sampletimestr \
+         + blockid + configuration + module + transfer \
+         + txenable + txport + txpin + rxenable + rxport + rxpin + ctsenable \
+         + ctsport + ctspin + rtsenable + rtsport + rtspin + txdma + txdmach \
+         + txdmastream + rxdma + rxdmach + rxdmastream + txbuffersize + rxbuffersize \
+         + uartahbmodule + uartmodule + bitrate + databits + parity + stopbit \
+         + flowcontrol + uartstr + inputtypearray + outputtypearray \
+         + binheader + binterminator + asciiheader + asciiterminator \
+         + bindatalength + packetmode + varname
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_USART__) == 0)
+      %assign :: __STM32F4XX_USART__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_usart.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STD_IO__) == 0)
+      %assign :: __STM32F4XX_STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%openfile tmpBuf
+/* ########################################################################
+ * UART Utilities for packet processing
+ * ########################################################################
+ */
+/* UART packet process struct */
+typedef enum {
+  txIdle = 0,
+  txBusy
+} UART_TX_STATE;
+
+/* Data read structure */
+typedef struct {
+  uint16_t index; /* Index of data in buffer */
+  uint16_t count; /* Return data count */
+  uint8_t *buffer; /* Return buffer pointer of valid data */
+} UARTRX_BUFFER_READ_STRUCT;
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+  %% ==== Setup ====
+  %if configuration == "Setup"
+    %if (txenable == "1")
+      #define UTX%<uartmodule>_BUFFER_SIZE %<txbuffersize>
+      extern uint8_t UART%<uartmodule>_Tx_Buffer[];
+      extern UART_TX_STATE %<blockid>_Tx_State;
+      extern void UART%<uartmodule>_TxUpdate(uint16_t count);
+    %endif
+    %if (rxenable == "1")
+      #define URX%<uartmodule>_BUFFER_SIZE %<rxbuffersize>
+      extern uint8_t UART%<uartmodule>_Rx_Buffer[];
+      extern uint8_t UART%<uartmodule>_Temp_Buffer[];
+      uint16_t UART%<uartmodule>_ReadLine(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                                      const char *terminator, uint16_t terminator_count, \
+                                      uint8_t *buffer, uint16_t buffer_size);
+      uint8_t UART%<uartmodule>_ReadBinary(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                                       const char *header, uint16_t header_count, \
+                                       const char *terminator, uint16_t terminator_count, \
+                                       uint8_t *buffer, uint16_t data_count);
+      void UART%<uartmodule>_RestoreBytes(UARTRX_BUFFER_READ_STRUCT *read_struct, uint16_t count);
+    %endif
+    extern uint16_t UART%<uartmodule>_GetInitNDTR(void);
+    void UART%<uartmodule>_Read(UARTRX_BUFFER_READ_STRUCT *read_struct);
+    void UART%<uartmodule>_ReadEx(UARTRX_BUFFER_READ_STRUCT *read_struct, uint8_t *buffer, uint16_t buffer_size, uint16_t*reading_count);
+    extern void UART%<uartmodule>_Write(uint8_t* data, uint16_t count);
+    extern UART_TX_STATE UART%<uartmodule>_FlushTxBuffer(void);
+  %endif
+
+  %% ==== Rx ====
+  %if configuration == "Rx"
+    extern UARTRX_BUFFER_READ_STRUCT %<blockid>_read_structure;
+    %if (packetmode == "Raw Buffer")
+      uint32_t %<blockid>_ReadRaw(uint8_t *buffer, uint32_t size);
+    %endif
+
+    %if (packetmode == "Read Line")
+      uint32_t %<blockid>_ReadLine(uint8_t *buffer, uint32_t size);
+    %endif
+
+    %if (packetmode == "Raw Buffer")
+    %else
+      %if transfer == "Blocking"
+      void \
+      %else
+      uint8_t \
+      %endif
+      %<blockid>_Receive(uint8_t *buffer, uint16_t size);
+    %endif
+
+	%if (packetmode == "Binary") || (packetmode == "Binary Vector") || (packetmode == "Raw Buffer") || (packetmode == "Read Line")
+
+    %else
+      /* Data */
+      %foreach idx=outputtypearray[0]
+        %if transfer == "Blocking"
+          extern %<typestr[outputtypearray[idx+1]]> %<blockid>_data%<idx>;
+        %else
+          %if idx > 0
+          extern %<typestr[outputtypearray[idx+1]]> %<blockid>_data%<idx-1>;
+          %endif
+        %endif
+      %endforeach
+      #define %<blockid>_terminator_SIZE %<CAST("Number",asciiterminator[0])>
+      extern const char %<blockid>_terminator[];
+	%endif
+  %endif
+
+  %% ==== Tx ====
+
+%if configuration == "Setup"
+  void waijung_usart%<module>_initial(void);
+  #define WAIJUNG_USARt%<module>_INIT()  waijung_usart%<module>_initial()
+%endif
+
+  void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+%% ========== Setup =====================
+%if configuration == "Setup"
+  %if (txenable == "1")
+    /* Tx buffer */
+    uint8_t UART%<uartmodule>_Tx_Buffer[UTX%<uartmodule>_BUFFER_SIZE];
+    UART_TX_STATE %<blockid>_Tx_State;
+  %endif
+  %if (rxenable == "1")
+    /* Rx buffer */
+    uint8_t UART%<uartmodule>_Rx_Buffer[URX%<uartmodule>_BUFFER_SIZE];
+    uint8_t UART%<uartmodule>_Temp_Buffer[URX%<uartmodule>_BUFFER_SIZE];
+  %endif
+  /* DMA Init struct */
+  DMA_InitTypeDef  %<blockid>_DMA_Init;
+  /* Init buffer read */
+  %if (rxenable == "1")
+    void UART%<uartmodule>_RestoreBytes(UARTRX_BUFFER_READ_STRUCT *read_struct, uint16_t count)
+    {
+      uint16_t roll_count = count;
+    
+      /* Remove overflow buffer */
+      while(roll_count > URX%<uartmodule>_BUFFER_SIZE)
+        roll_count -= URX%<uartmodule>_BUFFER_SIZE;
+
+      /* Return bytes back into buffer */
+      if(roll_count > read_struct->index) {
+        read_struct->index = URX%<uartmodule>_BUFFER_SIZE - roll_count + read_struct->index;
+      }
+      else {
+        read_struct->index -= roll_count;
+      }
+    }
+
+    /* Read buffer from DMA
+    ** Return value: Number of bytes vaiable.
+    */
+    void UART%<uartmodule>_Read(UARTRX_BUFFER_READ_STRUCT *read_struct)
+    {
+      __IO uint16_t dma_curr_ndtr;
+      __IO uint16_t dma_curr_index;
+
+      uint16_t data_index = 0;
+      uint16_t data_count = 0;
+
+      /* Get current NDTR */
+      if((dma_curr_ndtr = DMA%<rxdma>_Stream%<rxdmastream>->NDTR) == 0) { /* Not initialize or turn-around state*/
+        read_struct->count = 0;
+        return;
+      }
+
+      /* Get current data indexs */
+      dma_curr_index = URX%<uartmodule>_BUFFER_SIZE - dma_curr_ndtr;
+      if(read_struct->index < dma_curr_index) {
+        /* Data is available */
+        data_index = read_struct->index;
+        data_count = dma_curr_index - read_struct->index;
+        read_struct->index += data_count;
+        read_struct->index &= (URX%<uartmodule>_BUFFER_SIZE-1);
+      }
+      else if(read_struct->index > dma_curr_index) {
+        /* Data is available with overlap */
+        data_index = read_struct->index;
+        data_count = URX%<uartmodule>_BUFFER_SIZE-read_struct->index;
+        read_struct->index = 0;
+      }
+      else { /* No new data */ }
+
+      /* Return the reading */
+      if(data_count > 0) {
+        read_struct->buffer = &UART%<uartmodule>_Rx_Buffer[data_index];
+        read_struct->count = data_count;
+      }
+      else { read_struct->count = 0; }
+    }
+
+    void UART%<uartmodule>_ReadEx(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+             uint8_t *buffer, uint16_t buffer_size, uint16_t*reading_count) {
+      uint16_t bytes_to_read, data_read_index;     
+
+      bytes_to_read = buffer_size; /* Tracking count of data readings */
+      data_read_index = 0; /* Increment buffer index */
+      do {
+        UART%<uartmodule>_Read(read_struct);
+        if(read_struct->count <= bytes_to_read) {
+          memcpy(&buffer[data_read_index], read_struct->buffer, read_struct->count);
+          data_read_index += read_struct->count;
+          bytes_to_read -= read_struct->count;
+        }
+        else {
+          /* Return some byte back to buffer */
+          //read_struct->index -= (read_struct->count - bytes_to_read);
+          UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - bytes_to_read)); /* Fixed: Waijung 14.05a */
+
+          /* Return reading data */
+          memcpy(&buffer[data_read_index], read_struct->buffer, bytes_to_read);          
+          bytes_to_read = 0;
+        }        
+      } while ((bytes_to_read > 0) && (read_struct->count > 0));
+
+      /* Number of reading bytes */
+      *reading_count = buffer_size - bytes_to_read;
+    }
+
+    /* Read Ascii packet
+     * Return char count, exclude NULL
+     * Terminator: "\n", "\r", "\r\n"
+     */
+    uint16_t UART%<uartmodule>_ReadLine(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                              const char *terminator, uint16_t terminator_count, \
+                              uint8_t *buffer, uint16_t buffer_size) {
+      uint16_t count, packet_len = 0, receive_count = 0;
+      uint16_t i;
+      uint16_t terminator_found = 0;
+
+      /* Determine maximum number of bytes to read */
+      count = buffer_size - 1;
+      if(count >= URX%<uartmodule>_BUFFER_SIZE)
+        count = URX%<uartmodule>_BUFFER_SIZE-1;
+
+      /* Ignore terminator is invalid */
+      if(terminator_count < 1)
+        return 0;
+
+      /* Read packet */
+      do {
+        terminator_found = 0;
+        UART%<uartmodule>_Read(read_struct); /* Check DMA buffer */
+        receive_count += read_struct->count; /* Total number of data received */
+
+        /* Search terminator */
+        i = 0;
+        while(!(terminator_found == terminator_count) && (i < read_struct->count)) {
+          if(read_struct->buffer[i] == (uint8_t)terminator[terminator_found/*terminator_count - 1*/])
+            terminator_found ++;
+          i++;
+        }
+        packet_len += i;
+        if(terminator_found == terminator_count) {
+          terminator_found = 0;
+
+          /* Roll-back buffer index */
+          if ((packet_len > count) || (packet_len < terminator_count)) { /* Packet count is invalid, drop it */
+            UART%<uartmodule>_RestoreBytes(read_struct, (receive_count-packet_len));
+            /* Reset */
+            packet_len       = 0;
+            receive_count    = 0;
+          }
+          else {
+            UART%<uartmodule>_RestoreBytes(read_struct, receive_count);
+
+            /* Load data into buffer */
+            UART%<uartmodule>_ReadEx(read_struct, buffer, packet_len, &i);
+            buffer[packet_len] = '\0'; /* Append NULL */
+
+            /* Validate terminator */
+            if(!strncmp((char *)&buffer[packet_len-terminator_count], terminator, terminator_count)) {
+              return packet_len; /* packet reading success, return number of received bytes */
+            }
+            else {
+              /* Invalid terminator */              
+              packet_len       = 0;            
+              receive_count    = 0;
+            }
+          }
+        }
+      } while (read_struct->count > 0);
+
+      /* Could not find the packet terminator, reset reading struct to its original position */
+      if(receive_count > 0) {
+        UART%<uartmodule>_RestoreBytes(read_struct, receive_count);
+      }
+     
+      /* No byte receive */
+      return 0;
+    }
+
+    /* Read Binary packet
+     * 0: Not ready, 1: Data is ready
+     */
+    uint8_t UART%<uartmodule>_ReadBinary(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                                       const char *header, uint16_t header_count, \
+                                       const char *terminator, uint16_t terminator_count, \
+                                       uint8_t *buffer, uint16_t data_count)
+    {
+      uint16_t receive_count = 0, drop_count = 0, binary_state = 0, binary_index = 0;
+      uint16_t i;
+
+      do {
+        UART%<uartmodule>_Read(read_struct); /* Check DMA buffer */
+        receive_count += read_struct->count; /* Total number of data received */
+        
+        /* Binary packet processing */
+        for(i=0; i<read_struct->count; i++) {
+          switch( binary_state ) {
+            case 0: /* Search for header */
+              if(binary_index < header_count) {
+                if(read_struct->buffer[i] == header[binary_index]) {
+                  binary_index ++;
+                }
+                else {
+                  binary_index = 0;                  
+                  drop_count = receive_count - (read_struct->count - i - 1); /* Drop packet */
+                }
+                break;
+              }
+              else { /* Change to DATA state */
+                binary_index = 0;
+                binary_state ++;
+              }
+
+            case 1: /* Wait for data */
+              /* Wait for DATA */
+              if(binary_index < data_count) {
+                buffer[binary_index] = read_struct->buffer[i];
+                binary_index ++;
+
+                /* Check if ready (No terminator) */
+                if ((binary_index >= data_count) && (terminator_count == 0)) {
+                  UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - i - 1)); /* Restore some bytes */
+                  return 1; /* Return success status */
+                }
+                break;
+              }
+              else { /* Change to Terminator state */
+                binary_index = 0;
+                binary_state ++;                
+              }
+
+            case 2: /* Scan for terminator */
+              if(binary_index < terminator_count) {
+                if(read_struct->buffer[i] == terminator[binary_index]) {
+                  binary_index ++;
+                }
+                else {
+                  binary_state = 0;
+                  binary_index = 0;                  
+                  drop_count = receive_count - (read_struct->count - i - 1); /* Drop packet */
+                }
+              }
+
+              if(binary_index >= terminator_count) { /* Success */
+                /* Restore some bytes */
+                UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - i - 1));                
+                return 1; /* Return success status */
+              }
+              break;
+          }
+        }
+      } while (read_struct->count > 0);
+
+      /* Restore bytes */
+      UART%<uartmodule>_RestoreBytes(read_struct, (receive_count - drop_count));
+      return 0;
+    }
+  %endif
+
+  %if (txenable == "1")
+    /* Wait for DMA transfer to completion */    
+    UART_TX_STATE UART%<uartmodule>_FlushTxBuffer(void)
+    {
+      if(%<blockid>_Tx_State != txIdle) {
+        /* Chehck last DMA transmit */
+        while ((DMA_GetFlagStatus(DMA%<txdma>_Stream%<txdmastream>, DMA_FLAG_TCIF%<txdmastream>) == RESET)
+           || (USART_GetFlagStatus(%<uartstr>, USART_FLAG_TC) == RESET)) {  
+        }
+        /* Clear DMA Streams flags */
+        DMA_ClearFlag(DMA%<txdma>_Stream%<txdmastream>, DMA_FLAG_HTIF%<txdmastream> | DMA_FLAG_TCIF%<txdmastream>);                                    
+                                          
+        /* Disable the DMA Streams */
+        DMA_Cmd(DMA%<txdma>_Stream%<txdmastream>, DISABLE);
+      
+        /* Disable the USART Tx DMA request */
+        USART_DMACmd(%<uartstr>, USART_DMAReq_Tx, DISABLE);
+
+        /* Update state */      
+        %<blockid>_Tx_State = txIdle;
+        
+      }
+      return %<blockid>_Tx_State;
+    }
+
+    /* Write to DMA buffer */
+    void UART%<uartmodule>_Write(uint8_t* data, uint16_t count) {
+      if(count > 0) {
+        /* Wait for Tx state to idle */
+        UART%<uartmodule>_FlushTxBuffer();
+
+        /* Setup */
+        memcpy(UART%<uartmodule>_Tx_Buffer, data, count);
+
+        /* Update */
+        UART%<uartmodule>_TxUpdate(count);
+      }
+    }
+
+    /* Update transmit buffer */
+    void UART%<uartmodule>_TxUpdate(uint16_t count) {
+      if(count > 0) {
+        /* Wait for Tx state to idle */
+        UART%<uartmodule>_FlushTxBuffer();
+        %<blockid>_DMA_Init.DMA_BufferSize = (uint16_t)count;
+        DMA_Init(DMA%<txdma>_Stream%<txdmastream>, &%<blockid>_DMA_Init); 
+        /* Enable */
+        USART_DMACmd(%<uartstr>, USART_DMAReq_Tx, ENABLE);      
+        USART_ClearFlag(%<uartstr>, USART_FLAG_TC);
+        DMA_Cmd(DMA%<txdma>_Stream%<txdmastream>, ENABLE);
+        /* Tx is busy */
+        %<blockid>_Tx_State = txBusy;
+      }
+    }
+  %endif
+%endif
+
+%% ========== Rx =====================
+%if configuration == "Rx"
+  /* Data read structure */
+  UARTRX_BUFFER_READ_STRUCT %<blockid>_read_structure = {0, 0, (uint8_t *)0};
+
+  %% Read Line
+  %if (packetmode == "Read Line")
+  uint32_t %<blockid>_ReadLine(uint8_t *buffer, uint32_t size)
+  {
+    const char terminator = 0x0A;
+    uint16_t reading_count = 0;
+    
+    // Read line: \n
+    %if transfer == "Blocking"
+    do {
+    %endif
+    reading_count = UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, \
+                              &terminator, 1, buffer, (uint16_t) size);
+    %if transfer == "Blocking"    
+    while (reading_count <= 0); /* Blocking mode */
+    %endif
+
+    if (reading_count <= 0)
+      buffer[0] = '\0';
+
+    /* Return number of bytes */
+    return (uint32_t)reading_count;
+  } 
+  %endif
+
+  %% Raw Buffer
+  %if (packetmode == "Raw Buffer")
+  uint32_t %<blockid>_ReadRaw(uint8_t *buffer, uint32_t size)
+  {
+    uint16_t reading_count = 0;
+
+    %if transfer == "Blocking"
+    do {
+    %endif
+    UART%<uartmodule>_ReadEx(&%<blockid>_read_structure, buffer, size, &reading_count);
+    %if transfer == "Blocking"    
+    while (reading_count <= 0); /* Blocking mode */
+    %endif
+
+    /* Return number of bytes */
+    return (uint32_t)reading_count;
+  }
+  %endif
+  
+  %% Binary, Binary Vector
+  %if (packetmode == "Binary") || (packetmode == "Binary Vector")
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {    
+    %if binheader[0] > 0
+      const char header[%<CAST("Number", binheader[0])>] = { \
+	  %foreach idx=binheader[0]
+        %if idx > 0
+        ,\
+        %endif
+	    %<CAST("Number",binheader[idx+1])> \
+	  %endforeach
+      }; /* Header */ \
+    %else
+      const char header[1] = {0};\
+    %endif
+        
+    %if binterminator[0] > 0
+      const char terminator[%<CAST("Number", binterminator[0])>] = { \
+      %foreach idx=binterminator[0]
+        %if idx > 0
+        ,\
+        %endif
+	    %<CAST("Number",binterminator[idx+1])> \
+      %endforeach
+      }; /* Terminator */ \
+    %else
+      const char terminator[1] = {0};\
+    %endif
+
+    %if transfer == "Blocking"
+      while(!\
+    %else
+      return (\
+    %endif
+    UART%<uartmodule>_ReadBinary(&%<blockid>_read_structure, header, %<CAST("Number", binheader[0])>, \
+                                     terminator, %<CAST("Number", binterminator[0])>, \
+                                     buffer, size));
+   }
+  %endif
+
+  %% Ascii
+  %if packetmode == "Ascii"
+    /* Data */
+    %foreach idx=outputtypearray[0]
+      %if transfer == "Blocking"
+        %<typestr[outputtypearray[idx+1]]> %<blockid>_data%<idx> = 0;
+      %else
+        %if idx > 0
+          %<typestr[outputtypearray[idx+1]]> %<blockid>_data%<idx-1> = 0;
+        %endif
+      %endif
+    %endforeach
+
+    /* %<transfer> */
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {
+      uint8_T ready = 0;      
+      %if asciiterminator[0] > 0
+        const char terminator[%<CAST("Number", asciiterminator[0])>] = {  \
+        %foreach idx=asciiterminator[0]
+          %if idx > 0
+          ,\
+          %endif
+	      %<CAST("Number",asciiterminator[idx+1])> \
+        %endforeach
+        }; /* Terminator */ \
+      %else
+        const char terminator[1] = {0};
+      %endif
+
+      %if transfer == "Blocking"
+      do { /* Rx Blocking */
+      %else
+        /* Rx Non-Blocking */
+        %endif
+          if(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, terminator, \
+                   %<CAST("Number", asciiterminator[0])>, buffer, size) > 0) {
+            %if transfer == "Blocking"
+              %assign scan_count = CAST("Number", outputtypearray[0])
+            %else
+              %assign scan_count = CAST("Number", outputtypearray[0]-1)
+            %endif
+            %% -----------
+            %if scan_count < 1
+              ready = (uint8_t)(strcmp((const char*)buffer,"%<asciiheader>") == 0);
+            %else
+              ready = (uint8_t)(sscanf((const char*)buffer,"%<asciiheader>"\
+		      %foreach idx=outputtypearray[0]
+                %if transfer == "Blocking"
+		         ,&%<blockid>_data%<idx>\
+                %else
+                  %if idx > 0
+                    ,&%<blockid>_data%<idx-1>\
+                  %endif
+                %endif
+		      %endforeach
+               ) == %<scan_count>);
+            %endif
+            %% -----------
+          }
+        %if transfer == "Blocking"
+        } while (!ready);
+        %else
+          return ready;
+        %endif
+    }
+  %endif
+
+  %% String Buffer
+  %if packetmode == "String Buffer"
+    /* %<transfer> */
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {
+      %if asciiterminator[0] > 0
+        const char terminator[%<CAST("Number", asciiterminator[0])>] = {  \
+        %foreach idx=asciiterminator[0]
+          %if idx > 0
+          ,\
+          %endif
+	      %<CAST("Number",asciiterminator[idx+1])> \
+        %endforeach
+        }; /* Terminator */ \
+      %else
+        const char terminator[1] = {0};
+      %endif
+
+      %if transfer == "Blocking"
+        while (!(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, terminator, %<CAST("Number", asciiterminator[0])>, buffer, size) > 0)); 
+      %else
+        return (uint8_t)(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, terminator, %<CAST("Number", asciiterminator[0])>, buffer, size) > 0);
+      %endif
+    }
+  %endif
+
+%endif
+
+%% ========== Tx =====================
+
+
+%% ========== Enable =====================
+%if configuration == "Setup"   
+  static uint8_t waijung_usart%<module>_ready = 0;
+  void waijung_usart%<module>_initial(void)
+  {
+    USART_InitTypeDef USART_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure; 
+
+    if (!waijung_usart%<module>_ready) {
+      waijung_usart%<module>_ready = 1;
+
+      /* Enable GPIO clock */
+      %if (txport == rxport) && (txenable == "1") && (rxenable == "1")
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<txport>, ENABLE);
+      %else
+        %if (txenable == "1")
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<txport>, ENABLE);
+        %endif
+        %if (rxenable == "1")
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<rxport>, ENABLE);
+        %endif
+      %endif
+
+      /* Enable UART clock */
+      RCC_APB%<uartahbmodule>PeriphClockCmd(RCC_APB%<uartahbmodule>Periph_%<uartstr>, ENABLE);
+	
+      /* Enable the DMA clock */
+      %if (txdma == rxdma) && (txenable == "1") && (rxenable == "1")
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA%<rxdma>, ENABLE);
+      %else
+        %if (txenable == "1")
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA%<txdma>, ENABLE);
+        %endif
+        %if (rxenable == "1")
+          RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA%<rxdma>, ENABLE);
+        %endif
+      %endif
+      %if (txenable == "1")
+      /* Connect PXx to USARTx_Tx*/
+      GPIO_PinAFConfig(GPIO%<txport>, GPIO_PinSource%<txpin>, GPIO_AF_%<uartstr>);
+      %endif
+
+      %if (rxenable == "1")
+      /* Connect PXx to USARTx_Rx*/
+      GPIO_PinAFConfig(GPIO%<rxport>, GPIO_PinSource%<rxpin>, GPIO_AF_%<uartstr>);
+      %endif
+
+      %if (ctsenable == "1")
+      /* Connect PXx to USARTx_CTS*/
+      GPIO_PinAFConfig(GPIO%<ctsport>, GPIO_PinSource%<ctspin>, GPIO_AF_%<uartstr>);
+      %endif
+
+      %if (rtsenable == "1")
+      /* Connect PXx to USARTx_RTS*/
+      GPIO_PinAFConfig(GPIO%<rtsport>, GPIO_PinSource%<rtspin>, GPIO_AF_%<uartstr>);
+      %endif
+
+      /* Configure USART pin as alternate function  */
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+
+      %if (txenable == "1")
+      /* Configure USART Tx */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txpin>;
+      GPIO_Init(GPIO%<txport>, &GPIO_InitStructure);
+      %endif
+
+      %if (rxenable == "1")
+      /* Configure USART Rx */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxpin>;
+      GPIO_Init(GPIO%<rxport>, &GPIO_InitStructure);
+      %endif
+
+      %if (ctsenable == "1")
+      /* Configure USART CTS */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<ctspin>;
+      GPIO_Init(GPIO%<ctsport>, &GPIO_InitStructure);
+      %endif
+
+      %if (rtsenable == "1")
+      /* Configure USART RTS */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rtspin>;
+      GPIO_Init(GPIO%<rtsport>, &GPIO_InitStructure);
+      %endif
+
+      /* USART Configuration */
+      USART_InitStructure.USART_BaudRate = %<bitrate>;
+      USART_InitStructure.USART_WordLength = USART_WordLength_%<databits>b;
+      USART_InitStructure.USART_StopBits = USART_StopBits_%<stopbit>;
+      USART_InitStructure.USART_Parity = USART_Parity_%<parity>;
+      USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_%<flowcontrol>;
+      %if (txenable == "1") && (rxenable == "1")
+      USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+      %elseif (txenable == "1")
+      USART_InitStructure.USART_Mode = USART_Mode_Tx;
+      %elseif (rxenable == "1")
+      USART_InitStructure.USART_Mode = USART_Mode_Rx;
+      %else
+        %error "Rx and Tx cannot set to 'Not used' at same time".
+      %endif
+
+      /* Over sampling x8 */
+      USART_OverSampling8Cmd(%<uartstr>, ENABLE);
+
+      /* USART configuration */
+      USART_Init(%<uartstr>, &USART_InitStructure);
+  
+      /* Enable USART */
+      USART_Cmd(%<uartstr>, ENABLE);
+
+      /* DMA init struct configuration */
+      %<blockid>_DMA_Init.DMA_PeripheralBaseAddr = (uint32_t)(&%<uartstr>->DR);
+      %<blockid>_DMA_Init.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+      %<blockid>_DMA_Init.DMA_MemoryInc = DMA_MemoryInc_Enable;
+      %<blockid>_DMA_Init.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+      %<blockid>_DMA_Init.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+      %<blockid>_DMA_Init.DMA_FIFOMode = DMA_FIFOMode_Disable;
+      %<blockid>_DMA_Init.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+      %<blockid>_DMA_Init.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+      %<blockid>_DMA_Init.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;	
+
+      %if (rxenable == "1")
+      /* Configure DMA controller to manage RX DMA request */  
+      %<blockid>_DMA_Init.DMA_Channel = DMA_Channel_%<rxdmach>;
+      %<blockid>_DMA_Init.DMA_Memory0BaseAddr = (uint32_t)UART%<uartmodule>_Rx_Buffer;  
+      %<blockid>_DMA_Init.DMA_DIR = DMA_DIR_PeripheralToMemory;
+      %<blockid>_DMA_Init.DMA_BufferSize = (uint16_t)URX%<uartmodule>_BUFFER_SIZE;	
+      %<blockid>_DMA_Init.DMA_Mode = DMA_Mode_Circular;
+      %<blockid>_DMA_Init.DMA_Priority = DMA_Priority_VeryHigh;
+      DMA_Init(DMA%<rxdma>_Stream%<rxdmastream>, &%<blockid>_DMA_Init);
+
+      /* Enable the USART Rx DMA requests */  
+      USART_DMACmd(%<uartstr>, USART_DMAReq_Rx , ENABLE);
+
+      /* Enable the DMA Stream */
+      DMA_Cmd(DMA%<rxdma>_Stream%<rxdmastream>, ENABLE);
+      %endif
+
+      %if (txenable == "1")
+      /* Configure DMA controller to manage TX DMA request */  
+      %<blockid>_DMA_Init.DMA_Channel = DMA_Channel_%<txdmach>;
+      %<blockid>_DMA_Init.DMA_Memory0BaseAddr = (uint32_t)UART%<uartmodule>_Tx_Buffer;  
+      %<blockid>_DMA_Init.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+      %<blockid>_DMA_Init.DMA_BufferSize = (uint16_t)UTX%<uartmodule>_BUFFER_SIZE;	
+      %<blockid>_DMA_Init.DMA_Mode = DMA_Mode_Normal;
+      %<blockid>_DMA_Init.DMA_Priority = DMA_Priority_High;
+
+      /* Init Tx state */
+      %<blockid>_Tx_State = txIdle;
+      %endif
+    }
+  }
+%endif
+
+/* Enable UART-DMA module */
+void enable_%<blockid>(void){
+  WAIJUNG_USARt%<module>_INIT();
+
+  %% Rx
+  %if configuration == "Rx"
+    %% Binary
+	%if packetmode == "Binary"
+
+    %endif
+
+    %% Ascii
+    %if packetmode == "Ascii" || packetmode == "String Buffer"
+
+	%endif
+  %endif
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %% === Rx ===
+  %if configuration == "Rx"
+    /* %<blockid>: '%<block.Name>' */
+    %% == Binary ==
+    %if (packetmode == "Binary") || (packetmode == "Binary Vector")
+      %if transfer == "Blocking"
+        %assign portOffset = 0
+        %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], %<bindatalength>); /* Blocking */
+      %else
+        if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], %<bindatalength>)) { /* Non-blocking */
+        %assign portOffset = 1
+      %endif
+
+      %assign data_size_list = [8, 4, 1, 1, 2, 2, 4, 4, 1]
+      %assign portIdx = 0
+      %assign dataIdx = 0
+      %foreach idx=LibBlockNumOutputPorts(block)  
+        %if idx >= portOffset
+          memcpy(%<LibBlockOutputSignalAddr(idx, "", "", 0)>, &UART%<uartmodule>_Temp_Buffer[%<dataIdx>], %<LibBlockOutputSignalWidth(idx)>*sizeof(%<LibBlockOutputSignalDataTypeName(idx, "")>)); /* D%<CAST("Number",idx-portOffset)> [%<LibBlockOutputSignalWidth(idx)>] */
+          %assign dataIdx = dataIdx +  (data_size_list[LibBlockOutputSignalDataTypeId(idx)] * LibBlockOutputSignalWidth(idx))
+        %endif
+      %endforeach
+
+      %if transfer == "Blocking"      
+      %else
+        %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+      }
+      else {
+        %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+      }
+      %endif
+
+    %endif
+
+    %% == Ascii ==
+	%if packetmode == "Ascii" 
+      %if transfer == "Blocking"
+        %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE); /* %<transfer> */
+      %else
+        if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE)) { /* %<transfer> */
+      %endif
+
+      %if transfer == "Blocking"
+        %foreach idx=(outputtypearray[0])
+        %<LibBlockOutputSignal(idx, "", "", 0)> = %<blockid>_data%<idx>; /* D%<idx> */
+        %endforeach
+      %else
+        %foreach idx=(outputtypearray[0])
+          %if idx > 0
+            %<LibBlockOutputSignal(idx, "", "", 0)> = %<blockid>_data%<idx-1>; /* D%<idx-1> */
+          %endif
+        %endforeach 
+        %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+        }
+        else {
+          %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+        }
+      %endif
+    %endif
+
+    %% == String Buffer ==
+    %if packetmode == "String Buffer"
+      %if transfer == "Blocking"
+        %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE); /* %<transfer> */
+      %else
+        if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE)) { /* %<transfer> */
+      %endif
+     
+      if(strlen((const char *)UART%<uartmodule>_Temp_Buffer) < %<varname>_SIZE) { /* Check size */
+        strcpy(%<varname>, (char*)UART%<uartmodule>_Temp_Buffer);
+      }
+      else { /* Truncated */
+        strncpy(%<varname>, (char*)UART%<uartmodule>_Temp_Buffer, %<varname>_SIZE-1);
+        %<varname>[%<varname>_SIZE-1] = '\0';
+      }
+
+      %if transfer == "Blocking"
+      %else
+          %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+        }
+        else {
+          %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+        }
+      %endif
+    %endif
+
+    %% === Raw Buffer ===
+    %if packetmode == "Raw Buffer"
+      %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_ReadRaw(\
+           (uint8_t *)%<LibBlockOutputSignalAddr(1, "", "", 0)>, %<LibBlockOutputSignalWidth(1)>);
+    %endif
+
+    %% === Read Line ===
+    %if packetmode == "Read Line"
+      %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_ReadLine(\
+           (uint8_t *)%<LibBlockOutputSignalAddr(1, "", "", 0)>, %<LibBlockOutputSignalWidth(1)>);
+    %endif
+
+  %endif
+
+  %% === Tx ===
+  %if configuration == "Tx"
+    /* %<blockid>: '%<block.Name>' */
+    %% == Binary || Binary Vector ==        
+    %if (packetmode == "Binary") || (packetmode == "Binary Vector")
+    {
+      /* Flush tx, so we can put data directly to DMA buffer */
+      UART%<uartmodule>_FlushTxBuffer();
+
+      /* Put data into buffer */
+      %assign data_idx = 0
+      %if binheader[0] > 0        
+        %foreach idx=binheader[0]
+          UART%<uartmodule>_Tx_Buffer[%<data_idx>] = %<CAST("Number",binheader[idx+1])>; /* Header %<idx> */
+          %assign data_idx = data_idx + 1
+        %endforeach
+      %endif
+      %if LibBlockNumInputPorts(block) > 0
+        %assign data_size_list = [8, 4, 1, 1, 2, 2, 4, 4, 1]
+        %foreach portIdx=LibBlockNumInputPorts(block)          
+          memcpy(&UART%<uartmodule>_Tx_Buffer[%<data_idx>], \
+                 %<LibBlockInputSignalAddr(portIdx, "", "", 0)>, \
+                 %if LibBlockInputSignalWidth(portIdx) > 1 
+                   %<LibBlockInputSignalWidth(portIdx)>*sizeof(%<LibBlockInputSignalDataTypeName(portIdx, "")>)); /* Data %<portIdx> [%<LibBlockInputSignalWidth(portIdx)>]*/ 
+                 %else
+                   sizeof(%<LibBlockInputSignalDataTypeName(portIdx, "")>)); /* Data %<portIdx> */ 
+                 %endif
+          %assign data_idx = data_idx + (data_size_list[LibBlockInputSignalDataTypeId(portIdx)] * LibBlockInputSignalWidth(portIdx))
+        %endforeach
+      %endif
+      
+      %if binterminator[0] > 0        
+        %foreach idx=binterminator[0]
+          UART%<uartmodule>_Tx_Buffer[%<data_idx>] = %<CAST("Number",binterminator[idx+1])>; /* Terminator %<idx> */
+          %assign data_idx = data_idx + 1
+        %endforeach        
+      %endif
+
+      /* Write to DMA, %<data_idx> bytes */
+      UART%<uartmodule>_TxUpdate(%<data_idx>); /* Only update since data is ready on Tx buffer */
+      %if transfer == "Blocking"          
+        UART%<uartmodule>_FlushTxBuffer(); /* Blocking, wait for DMA buffer */
+      %endif
+    }
+    %endif
+
+    %% == Ascii ==  
+    %if packetmode == "Ascii"
+    {
+      UART%<uartmodule>_FlushTxBuffer(); /* Flush tx, so we can print to DMA buffer directly */    
+      sprintf((char*)UART%<uartmodule>_Tx_Buffer, "%<asciiheader>"\
+      %foreach idx=inputtypearray[0]
+        %if LibBlockInputSignalWidth(idx) > 1
+        ,(char *)%<LibBlockInputSignalAddr(idx, "", "", 0)>\
+        %else
+        ,%<LibBlockInputSignal(idx, "", "", 0)>\
+        %endif
+      %endforeach
+      );
+      UART%<uartmodule>_TxUpdate(strlen((char*)UART%<uartmodule>_Tx_Buffer));
+      %if transfer == "Blocking"
+        /* Blocking, wait for DMA buffer */
+        UART%<uartmodule>_FlushTxBuffer();
+      %endif
+    }
+    %endif
+
+    %% == String Buffer ==
+    %if packetmode == "String Buffer"
+    {
+      int packet_len;
+
+      /* Flush tx, so we can put data directly to DMA buffer */
+      UART%<uartmodule>_FlushTxBuffer();
+
+      /* Load data into Tx buffer */
+      packet_len = strlen(%<varname>);
+      memcpy(UART%<uartmodule>_Tx_Buffer, %<varname>, strlen(%<varname>));
+      
+      %if asciiterminator[0] > 0
+        /* Packet terminator */        
+        %foreach idx=asciiterminator[0]
+          UART%<uartmodule>_Tx_Buffer[packet_len ++] = %<asciiterminator[idx+1]>; /* Terminator%<idx> */
+        %endforeach
+      %endif
+      /* Activate DMA Tx */
+      UART%<uartmodule>_TxUpdate(packet_len);
+      %if transfer == "Blocking"
+        /* Blocking, wait for DMA buffer */
+        UART%<uartmodule>_FlushTxBuffer();
+      %endif    
+    }
+    %endif
+
+    %% === Raw Buffer ===
+    %if packetmode == "Raw Buffer"
+    {
+      uint32_T tx_len;
+
+      tx_len = %<LibBlockInputSignal(0, "", "", 0)>;
+      if (tx_len > %<LibBlockInputSignalWidth(1)>)
+        tx_len = %<LibBlockInputSignalWidth(1)>;
+
+      /* Flush tx, so we can put data directly to DMA buffer */
+      UART%<uartmodule>_FlushTxBuffer();
+
+      /* Copy input to buffer */
+      memcpy(&UART%<uartmodule>_Tx_Buffer[0], %<LibBlockInputSignalAddr(1, "", "", 0)>, tx_len);
+
+      /* Activate DMA Tx */
+      UART%<uartmodule>_TxUpdate(tx_len);
+
+      %if transfer == "Blocking"
+        /* Blocking, wait for DMA buffer */
+        UART%<uartmodule>_FlushTxBuffer();
+      %endif    
+    }
+    %endif
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

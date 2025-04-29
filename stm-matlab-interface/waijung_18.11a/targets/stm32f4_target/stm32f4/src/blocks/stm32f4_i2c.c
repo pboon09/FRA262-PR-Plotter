@@ -1,0 +1,159 @@
+#define S_FUNCTION_NAME  stm32f4_i2c
+#define S_FUNCTION_LEVEL 2
+#include "simstruc.h"
+#define NPAR __PARAM_COUNT /* Total number of block parameters */
+
+enum {
+    ARGC_MODE = 0,
+    ARGC_MODULE,
+    ARGC_TRANSFER,
+    ARGC_CLKSPEED,
+    ARGC_TIMEOUT,
+    ARGC_SDAPIN,
+    ARGC_SCLPIN,
+    ARGC_WRITECOUNT,
+    ARGC_READCOUNT,
+    ARGC_INPUT_ARRAY,
+    ARGC_OUTPUT_ARRAY,
+    ARGC_CONFSTR,
+    
+    ARGC_SAMPLETIME,
+    ARGC_SAMPLETIMESTR,
+    ARGC_BLOCKID, 
+    
+    __PARAM_COUNT
+};
+
+#define SAMPLETIME(S)    mxGetScalar(ssGetSFcnParam(S, ARGC_SAMPLETIME)) /* Sample time (sec) */
+#define SAMPLETIMESTR(S) mxGetScalar(ssGetSFcnParam(S, ARGC_SAMPLETIMESTR)) /* Compiled sample time (sec) in string */
+#define BLOCKID(S)      (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_BLOCKID)) /* BlockID */
+
+static void mdlInitializeSizes(SimStruct *S) {
+    int k;
+    
+    int input_count;
+    int output_count;
+    
+    /* Parameter validatone */    
+    ssSetNumSFcnParams(S, NPAR);
+    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) return;
+    for (k = 0; k < NPAR; k++) {
+        ssSetSFcnParamNotTunable(S, k);
+    }
+    if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) return;
+    
+    input_count = (int)(((double*)mxGetPr(ssGetSFcnParam(S, ARGC_INPUT_ARRAY)))[0]);
+    output_count = (int)(((double*)mxGetPr(ssGetSFcnParam(S, ARGC_OUTPUT_ARRAY)))[0]);
+    
+    /* Configure Input Port */
+    if (!ssSetNumInputPorts(S, input_count)) return; /* Number of input ports */
+    
+    /* Configure Output Port */
+    if (!ssSetNumOutputPorts(S, output_count)) return; /* Number of output ports */
+   
+    /* Port */
+    for(k=0; k<output_count; k++) {
+        ssSetOutputPortWidth(S, k, 1);
+        ssSetOutputPortDataType(S, k, (int)(((double*)mxGetPr(ssGetSFcnParam(S, ARGC_OUTPUT_ARRAY)))[k+1]));
+    }
+
+    for(k=0; k<input_count; k++) {
+        ssSetInputPortDirectFeedThrough(S, k, 1);
+        ssSetInputPortWidth(S, k, 1);
+        ssSetInputPortDataType(S, k, (int)(((double*)mxGetPr(ssGetSFcnParam(S, ARGC_INPUT_ARRAY)))[k+1]));
+    }
+    
+    ssSetNumSampleTimes(S, 1);
+    ssSetOptions(S, SS_OPTION_EXCEPTION_FREE_CODE);
+} /* end mdlInitializeSizes */
+
+static void mdlInitializeSampleTimes(SimStruct *S) {
+    ssSetSampleTime(S, 0, SAMPLETIME(S));
+} /* end mdlInitializeSampleTimes */
+
+#define MDL_ENABLE
+#if defined(MDL_ENABLE) && defined(MATLAB_MEX_FILE)
+void mdlEnable(SimStruct *S){
+}
+#endif
+
+#define MDL_DISABLE
+#if defined(MDL_DISABLE) && defined(MATLAB_MEX_FILE)
+static void mdlDisable(SimStruct *S){
+}
+#endif
+
+#define MDL_START                      /* Change to #undef to remove function */
+#if defined(MDL_START)
+static void mdlStart(SimStruct *S) {
+	
+}
+#endif /*  MDL_START */
+
+static void mdlOutputs(SimStruct *S, int_T tid) {
+    /* do nothing */
+} /* end mdlOutputs */
+
+static void mdlTerminate(SimStruct *S) {
+    /* do nothing */
+} /* end mdlTerminate */
+
+#define MDL_RTW
+/* Use mdlRTW to save parameter values to model.rtw file
+ * for TLC processing. The name appear withing the quotation
+ * "..." is the variable name accessible by TLC.
+ */
+static void mdlRTW(SimStruct *S) {
+    int NOutputPara;
+
+    char* mode;
+    char* module;
+    char* transfer;    
+    char* confstr;
+    char* sampletimestr;
+    char* blockid;
+    
+    mode = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_MODE));
+    module = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_MODULE));
+    transfer = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_TRANSFER));  
+    confstr = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_CONFSTR));  
+    sampletimestr = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_SAMPLETIMESTR));
+    blockid = (char*)mxArrayToString(ssGetSFcnParam(S, ARGC_BLOCKID));
+    
+    NOutputPara = 10; /* Number of parameters to output to model.rtw */
+    if (!ssWriteRTWParamSettings(S, NOutputPara,
+            SSWRITE_VALUE_QSTR, "mode", mode,
+            SSWRITE_VALUE_QSTR, "module", module,
+            SSWRITE_VALUE_QSTR, "transfer", transfer,
+            SSWRITE_VALUE_NUM, "clkspeed", mxGetScalar(ssGetSFcnParam(S, ARGC_CLKSPEED)),
+            SSWRITE_VALUE_NUM, "timeout", mxGetScalar(ssGetSFcnParam(S, ARGC_TIMEOUT)),
+            SSWRITE_VALUE_NUM, "writecount", mxGetScalar(ssGetSFcnParam(S, ARGC_WRITECOUNT)),
+            SSWRITE_VALUE_NUM, "readcount", mxGetScalar(ssGetSFcnParam(S, ARGC_READCOUNT)),
+            SSWRITE_VALUE_NUM, "sampletime", SAMPLETIME(S),
+            SSWRITE_VALUE_QSTR, "sampletimestr", sampletimestr,
+            SSWRITE_VALUE_QSTR, "blockid", blockid
+            )) {
+        return; /* An error occurred which will be reported by SL */
+    }
+    
+    if (!ssWriteRTWStrVectParam(S, "confstr", confstr, 10)){
+        return;
+    }    
+    
+    mxFree(mode);
+    mxFree(module);
+    mxFree(transfer); 
+    mxFree(confstr);
+    mxFree(sampletimestr);
+    mxFree(blockid);   
+}
+
+/* Enforce use of inlined S-function      *
+ * (e.g. must have TLC file stm32f4_i2c.tlc)  *
+ *=======================================*/
+#ifdef    MATLAB_MEX_FILE  /* Is this file being compiled as a MEX-file?    */
+#include "simulink.c"     /* MEX-file interface mechanism                  */
+#else                      /* Prevent usage by RTW if TLC file is not found */
+#error "Attempted use non-inlined S-function stm32f4_i2c.c"
+#endif
+

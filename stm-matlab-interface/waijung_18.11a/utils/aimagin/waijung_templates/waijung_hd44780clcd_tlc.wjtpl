@@ -1,0 +1,79 @@
+%implements waijung_hd44780clcd "C"
+%selectfile NULL_FILE
+
+
+%function addParametersToBlock(block) void
+%assign storagename = CAST("String",SFcnParamSettings.storagename)
+%assign varname = CAST("String",SFcnParamSettings.varname)
+%assign advancedoptions = CAST("Number",SFcnParamSettings.advancedoptions)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("String",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign block = block + storagename + varname + advancedoptions + sampletime + sampletimestr + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%include "waijung_lcd_h.tlc"
+%include "hd44780clcd_c.tlc"
+${section:includeFileinTLC}
+
+%if (EXISTS(::__WAIJUNG_LCD_H__) == 0)
+%assign :: __WAIJUNG_LCD_H__ = 1
+%openfile tmpBuf
+#include "waijung_lcd.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Functions","cIndludes")>
+%<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+%endif
+
+${section:includeGPIOlib}
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+void enable_%<blockid>(void){
+  /* Init LCD */
+  lcd_init();
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Functions","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Functions","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%assign cmd = LibBlockInputSignal(0, "", "", 0)
+%assign xpos = LibBlockInputSignal(0, "", "", 1)
+%assign ypos = LibBlockInputSignal(0, "", "", 2)
+/* call clcd output function %<varname>*/
+lcd_write_str(%<ypos>, %<xpos>, %<varname>);
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%endfunction
+

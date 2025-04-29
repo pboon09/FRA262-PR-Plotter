@@ -1,0 +1,2121 @@
+Model {
+  Name			  "stm32f4_matrix_customcode_demo"
+  Version		  7.3
+  MdlSubVersion		  0
+  GraphicalInterface {
+    NumRootInports	    0
+    NumRootOutports	    0
+    ParameterArgumentNames  ""
+    ComputedModelVersion    "1.362"
+    NumModelReferences	    0
+    NumTestPointedSignals   0
+  }
+  SavedCharacterEncoding  "windows-1252"
+  PreLoadFcn		  "waijung.modelPreload; % Required for working with Waijung Blockset. Do not remove."
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  CloseFcn		  "waijung.modelClose; % Required for working with Waijung Blockset. Do not remove."
+  Created		  "Sun Jul 29 15:08:56 2012"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Krisada"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Tue Feb 07 00:17:39 2017"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:362>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  on
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "all"
+  WideLines		  off
+  ShowLineDimensions	  on
+  ShowPortDataTypes	  on
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  on
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  BufferReuse		  on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "SingleTasking"
+	  Solver		  "FixedStepDiscrete"
+	  SolverName		  "FixedStepDiscrete"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode on
+	  LifeSpan		  "1"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "LittleEndian"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "LittleEndian"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  SystemTargetFile	  "stm32f4.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  off
+	  TemplateMakefile	  "ert_default_tmf"
+	  Description		  "STM32F4 Target"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  on
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ProcessScript		  "stm32f4_make_rtw_hook"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses off
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.STFCustomTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant off
+	      ParMdlRefBuildCompliant off
+	      CompOptLevelCompliant   off
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns on
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    on
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      off
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   off
+	      SupportNonInlinedSFcns  off
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      SystemTargetFile	      "stm32f4.tlc"
+	      DialogCategory	      0
+	      Array {
+		Type			"Handle"
+		Dimension		1
+		Simulink.ERTTargetCC {
+		  $BackupClass		  "Simulink.TargetCC"
+		  $ObjectID		  12
+		  Version		  "1.6.0"
+		  TargetFcnLib		  "ansi_tfl_table_tmw.mat"
+		  TargetLibSuffix	  ""
+		  TargetPreCompLibLocation ""
+		  TargetFunctionLibrary	  "ANSI_C"
+		  UtilityFuncGeneration	  "Auto"
+		  ERTMultiwordTypeDef	  "System defined"
+		  ERTMultiwordLength	  256
+		  MultiwordLength	  2048
+		  GenerateFullHeader	  on
+		  GenerateSampleERTMain	  off
+		  GenerateTestInterfaces  off
+		  IsPILTarget		  off
+		  ModelReferenceCompliant off
+		  ParMdlRefBuildCompliant off
+		  CompOptLevelCompliant	  off
+		  IncludeMdlTerminateFcn  on
+		  CombineOutputUpdateFcns on
+		  SuppressErrorStatus	  off
+		  ERTFirstTimeCompliant	  off
+		  IncludeFileDelimiter	  "Auto"
+		  ERTCustomFileBanners	  on
+		  SupportAbsoluteTime	  on
+		  LogVarNameModifier	  "rt_"
+		  MatFileLogging	  off
+		  MultiInstanceERTCode	  off
+		  SupportNonFinite	  on
+		  SupportComplex	  on
+		  PurelyIntegerCode	  off
+		  SupportContinuousTime	  off
+		  SupportNonInlinedSFcns  off
+		  EnableShiftOperators	  on
+		  ParenthesesLevel	  "Nominal"
+		  PortableWordSizes	  off
+		  ModelStepFunctionPrototypeControlCompliant off
+		  CPPClassGenCompliant	  off
+		  AutosarCompliant	  off
+		  GenerateErtSFunction	  off
+		  GenerateASAP2		  off
+		  ExtMode		  off
+		  ExtModeTransport	  0
+		  ExtModeStaticAlloc	  off
+		  ExtModeStaticAllocSize  1000000
+		  ExtModeTesting	  off
+		  ExtModeMexFile	  "ext_comm"
+		  ExtModeIntrfLevel	  "Level1"
+		  InlinedParameterPlacement "NonHierarchical"
+		  TargetOS		  "BareBoardExample"
+		  MultiInstanceErrorCode  "Error"
+		  RateGroupingCode	  on
+		  RootIOFormat		  "Individual arguments"
+		  RTWCAPISignals	  off
+		  RTWCAPIParams		  off
+		  RTWCAPIStates		  off
+		  ERTSrcFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTHdrFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTDataSrcFileTemplate  "stm32f4_code_template.cgt"
+		  ERTDataHdrFileTemplate  "stm32f4_code_template.cgt"
+		  ERTCustomFileTemplate	  "stm32f4_file_process.tlc"
+		  ModuleNamingRule	  "Unspecified"
+		  SignalDisplayLevel	  10
+		  ParamTuneLevel	  10
+		  GlobalDataDefinition	  "Auto"
+		  DataDefinitionFile	  "global.c"
+		  GlobalDataReference	  "Auto"
+		  DataReferenceFile	  "global.h"
+		  GRTInterface		  off
+		  PreserveExpressionOrder off
+		  PreserveIfCondition	  off
+		  EnableUserReplacementTypes off
+		  Array {
+		    Type		    "Struct"
+		    Dimension		    1
+		    MATStruct {
+		    double		    ""
+		    single		    ""
+		    int32		    ""
+		    int16		    ""
+		    int8		    ""
+		    uint32		    ""
+		    uint16		    ""
+		    uint8		    ""
+		    boolean		    ""
+		    int			    ""
+		    uint		    ""
+		    char		    ""
+		    }
+		    PropName		    "ReplacementTypes"
+		  }
+		  MemSecPackage		  "--- None ---"
+		  MemSecDataConstants	  "Default"
+		  MemSecDataIO		  "Default"
+		  MemSecDataInternal	  "Default"
+		  MemSecDataParameters	  "Default"
+		  MemSecFuncInitTerm	  "Default"
+		  MemSecFuncExecute	  "Default"
+		}
+		PropName		"Components"
+	      }
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "stm32f4_configset"
+      ExtraOptions	      "-aGenerateTraceInfo=0 -aIgnoreTestpoints=0 "
+      CurrentDlgPage	      "Real-Time Workshop/Debug"
+      ConfigPrmDlgPosition    " [ 400, 210, 1280, 840 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  Simulink.ConfigSet {
+    $PropName		    "ActiveConfigurationSet"
+    $ObjectID		    1
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "fixdt(1,16,0)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: Inherit from 'Constant value'"
+      LockScale		      off
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
+    }
+    Block {
+      BlockType		      Demux
+      Outputs		      "4"
+      DisplayOption	      "none"
+      BusSelectionMode	      off
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      OutDataTypeStr	      "Inherit: auto"
+      LockScale		      off
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+      DimensionsMode	      "auto"
+    }
+    Block {
+      BlockType		      Mux
+      Inputs		      "4"
+      DisplayOption	      "none"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      NonVirtualBus	      off
+    }
+    Block {
+      BlockType		      Reshape
+      OutputDimensionality    "1-D array"
+      OutputDimensions	      "[1,1]"
+    }
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      CheckFcnCallInpInsideContextMsg off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+  }
+  System {
+    Name		    "stm32f4_matrix_customcode_demo"
+    Location		    [677, 215, 1509, 838]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Basic Custom Code"
+      Ports		      [4, 3]
+      Position		      [365, 302, 510, 403]
+      FunctionName	      "waijung_basic_customcode"
+      Parameters	      "inputportcount,inputporttypeid,outputportcount,outputporttypeid,sampletime,blockid,cinputportl"
+      "abelstr,coutputportlabelstr,incfilestrarray,outputporttype,inputporttype,initialfuncallstr,enablefuncallstr,outp"
+      "utfuncallstr,disablefuncallstr,inputportdiminfo,outputportdiminfo"
+      EnableBusSupport	      off
+      MaskType		      "waijung_basic_customcode"
+      MaskDescription	      "This block implements a basic custom code block.\n\nAllowed input/output datatype:\ndynam"
+      "ic,double,single,int8,uint8,int16,uint16,int32,uint32,boolean. Leave this field empty if no input or output need"
+      "ed.\n\n\"Path for include files\" defines the include path. All *.h files in these path(s) will be used in the b"
+      "uild process.\n\n\"Path for source files\" defines path to look for each source file(s) defined in the \"Include"
+      "d source file name ...\". All required source file(s) and source file path(s) must be explicitly defined.\n\n\"I"
+      "ncluded header file names ...\" field is used to list any *.h file that will be included in #include statements "
+      "of waijung_hwdrvlib.h.\n\nThe Basic Custom Code Block supports 2-D input/output matrix/vector signals. \n\nThe d"
+      "imensions of input signals are automatically inherited from the supplied input signals.\nThe dimensions of outpu"
+      "t signals must be implicitly defined using the following format.\n\nDataType:nRowsxnCols\n\nIf dimensions are no"
+      "t defined, scalar signal (1x1) is assumed.\n\nFor examples: double:4x5,int8,int16:3x1\n"
+      MaskHelp		      "web(fullfile(waijungdocroot,'waijung_basic_customcode.htm'), '-browser')"
+      MaskPromptString	      "Input port definition (data type) separted by comma e.g. double, single, double, uint8|C"
+      "ustom input port labels (Ex. In1, In2, In3)|Custom input port type string|Input port count|Input port data type "
+      "ID|Output port definition  (data type) separted by comma e.g. double, single, double, uint8|Custom output port l"
+      "abels (Ex. Out1, Out2, Out3)|Custom output port type string|Output port count|Output port data type ID|Path for "
+      "include files (*.h), defined as cell array of string.|Path for source files (*.c), defined as cell array of stri"
+      "ng.|Included header file names with extension (.h), defined as cell array of string.|Included source file names "
+      "with extension (.c), defined as cell array of string.|Initial function call string|Enable function call string|O"
+      "utput function call string|Disable function call string|Sample time (sec)|Sample time string|Block ID|Enable cus"
+      "tom port labels|Header file array|Input Port Dimension Information (Define in cmex)|Output Port Dimension Inform"
+      "ation"
+      MaskStyleString	      "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+      ",edit,edit,edit,checkbox,edit,edit,edit"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off"
+      MaskCallbackString      "waijung_basic_customcode_callback('inputporttype');|waijung_basic_customcode_callback('"
+      "cinputportlabel');||||waijung_basic_customcode_callback('outputporttype');|waijung_basic_customcode_callback('co"
+      "utputportlabel');||||||waijung_basic_customcode_callback('incfiles');||||||waijung_basic_customcode_callback('sa"
+      "mpletime');||waijung_basic_customcode_callback('blockid');||||"
+      MaskEnableString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off"
+      MaskVisibilityString    "on,on,off,off,off,on,on,off,off,off,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "inputporttype=&1;cinputportlabel=&2;cinputportlabelstr=&3;inputportcount=@4;inputporttypeid"
+      "=@5;outputporttype=&6;coutputportlabel=&7;coutputportlabelstr=&8;outputportcount=@9;outputporttypeid=@10;incpath"
+      "=@11;srcpath=@12;incfiles=@13;srcfiles=@14;initialfuncallstr=&15;enablefuncallstr=&16;outputfuncallstr=&17;disab"
+      "lefuncallstr=&18;sampletime=@19;sampletimestr=&20;blockid=&21;enablecustomportlabel=@22;incfilestrarray=&23;inpu"
+      "tportdiminfo=@24;outputportdiminfo=@25;"
+      MaskInitialization      "waijung_basic_customcode_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Ts (sec): 0.01','ver','middle','hor','center');port_label('input', 1,'In1');p"
+      "ort_label('input', 2,'In2');port_label('input', 3,'In3');port_label('input', 4,'In4');port_label('output', 1,'Re"
+      "arrange');port_label('output', 2,'Add');port_label('output', 3,'Substract')"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "double,int8,int8,int16|In1,In2,In3,In4|[\"In1\",\"In2\",\"In3\",\"In4\"]|4|[0  2  2  4]|u"
+      "int8:9x1,int8,double:9x1|Rearrange,Add,Substract|[\"Rearrange\",\"Add\",\"Substract\"]|3|[3  2  0]|{fullfile(pwd"
+      ",'matrix_customcode')}|{fullfile(pwd,'matrix_customcode')}|{'stm32f4_matrix_customcode.h'}|{'stm32f4_matrix_cust"
+      "omcode.c'}||enable_custommatrix();|output_custommatrix(in1,in2,in3, in4 ,out1,out2,out3 );|disable_custommatrix("
+      ");|0.01|0.01|BasicCustomCode|on|[\"stm32f4_matrix_customcode.h\"]|[1  1  1  0;1  1  1  2;1  1  1  2;1  1  1  4]|"
+      "[9  1  9  3;1  1  1  2;9  1  9  0]"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Constant"
+      Position		      [70, 291, 170, 339]
+      Value		      "[1 4 7; 2 5 8;3 6 9]"
+      OutDataType	      "fixdt(1, 16)"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Constant1"
+      Position		      [70, 395, 170, 425]
+      Value		      "int8(1)"
+      OutDataType	      "fixdt(1, 16)"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Constant2"
+      Position		      [70, 531, 190, 579]
+      Value		      "int16([1 2 3 4 5 6 7 8 9])"
+      OutDataType	      "fixdt(1, 16)"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Factor"
+      Position		      [70, 460, 170, 490]
+      Value		      "int8(5)"
+      OutDataType	      "fixdt(1, 16)"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      Mux
+      Name		      "Mux"
+      Ports		      [3, 1]
+      Position		      [550, 409, 555, 461]
+      ShowName		      off
+      Inputs		      "3"
+      DisplayOption	      "bar"
+    }
+    Block {
+      BlockType		      Reshape
+      Name		      "Reshape"
+      Ports		      [1, 1]
+      Position		      [390, 233, 420, 257]
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Simple aMG CLCD Display Setup"
+      Ports		      [4]
+      Position		      [615, 101, 765, 509]
+      CopyFcn		      "set_param(gcbh, 'LinkStatus', 'none')"
+      MinAlgLoopOccurrences   off
+      PropExecContextOutsideSubsystem off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Opaque		      off
+      RequestExecContextInheritance off
+      MaskHideContents	      off
+      System {
+	Name			"Simple aMG CLCD Display Setup"
+	Location		[245, 213, 631, 877]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"A4"
+	PaperUnits		"centimeters"
+	TiledPaperMargins	[1.270000, 1.270000, 1.270000, 1.270000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "Line1 Inputs"
+	  Position		  [60, 228, 90, 242]
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Line2 Inputs"
+	  Position		  [60, 343, 90, 357]
+	  Port			  "2"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Line3 Inputs"
+	  Position		  [60, 458, 90, 472]
+	  Port			  "3"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "Line4 Inputs"
+	  Position		  [60, 578, 90, 592]
+	  Port			  "4"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "fixdt(1, 16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux"
+	  Ports			  [1, 9]
+	  Position		  [140, 190, 145, 280]
+	  ShowName		  off
+	  Outputs		  "9"
+	  DisplayOption		  "bar"
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux1"
+	  Ports			  [1, 9]
+	  Position		  [140, 305, 145, 395]
+	  ShowName		  off
+	  Outputs		  "9"
+	  DisplayOption		  "bar"
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux2"
+	  Ports			  [1, 3]
+	  Position		  [140, 420, 145, 510]
+	  ShowName		  off
+	  Outputs		  "3"
+	  DisplayOption		  "bar"
+	}
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux3"
+	  Ports			  [1, 9]
+	  Position		  [140, 543, 145, 627]
+	  ShowName		  off
+	  Outputs		  "9"
+	  DisplayOption		  "bar"
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "LCD Display"
+	  Ports			  []
+	  Position		  [205, 50, 336, 147]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "LCD Display"
+	    Location		    [426, 263, 813, 838]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "A4"
+	    PaperUnits		    "centimeters"
+	    TiledPaperMargins	    [1.270000, 1.270000, 1.270000, 1.270000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant1"
+	      Position		      [50, 30, 80, 60]
+	      ShowName		      off
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant10"
+	      Position		      [50, 440, 80, 470]
+	      ShowName		      off
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant11"
+	      Position		      [50, 470, 80, 500]
+	      ShowName		      off
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant12"
+	      Position		      [50, 500, 80, 530]
+	      ShowName		      off
+	      Value		      "3"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant2"
+	      Position		      [50, 60, 80, 90]
+	      ShowName		      off
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant3"
+	      Position		      [50, 160, 80, 190]
+	      ShowName		      off
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant4"
+	      Position		      [50, 190, 80, 220]
+	      ShowName		      off
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant5"
+	      Position		      [50, 90, 80, 120]
+	      ShowName		      off
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant6"
+	      Position		      [50, 220, 80, 250]
+	      ShowName		      off
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant7"
+	      Position		      [50, 295, 80, 325]
+	      ShowName		      off
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant8"
+	      Position		      [50, 325, 80, 355]
+	      ShowName		      off
+	      Value		      "0"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant9"
+	      Position		      [50, 355, 80, 385]
+	      ShowName		      off
+	      Value		      "2"
+	      OutDataTypeMode	      "uint8"
+	      OutDataType	      "fixdt(1, 16)"
+	      OutScaling	      "2^0"
+	      OutDataTypeStr	      "uint8"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "amg CLCD Write Line 1"
+	      Ports		      [3]
+	      Position		      [125, 26, 330, 124]
+	      FunctionName	      "amg_clcd"
+	      Parameters	      "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "amg_clcd"
+	      MaskDescription	      "Note for cmd:\n1 - Clear LCD Line before write.\n0 or otherwise - Write into LCD Line wi"
+	      "th existing data.\n"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'amg_clcd_write.htm'), '-browser')"
+	      MaskPromptString	      "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO P"
+	      "ull-Up/Down:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, EN:|GPIO control pin, RW:|GPIO data D[7"
+	      ":4] port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String b"
+	      "uffer|Variable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample t"
+	      "ime (sec) in string|BlockID"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popu"
+	      "p(Push-pull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5"
+	      "|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3"
+	      "|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12"
+	      "|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(Line1|Line2|Line3|Line4),edit,edit,edit,"
+	      "edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	      "f,off,off,off"
+	      MaskCallbackString      "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer'"
+	      ");||amg_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_cal"
+	      "lback('sampletimestr');|amg_clcd_callback('blockid');"
+	      MaskEnableString	      "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,o"
+	      "n,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;c"
+	      "ontrolport=&8;control_rs=&9;control_en=&10;control_rw=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;"
+	      "usestringbuffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime="
+	      "@23;sampletimestr=&24;blockid=&25;"
+	      MaskInitialization      "amg_clcd_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: CLCD1 (Write)\\nBuffer: Line1\\nTs (sec): 0.05','ver','middle','hor'"
+	      ",'center');port_label('input', 1,'cmd');port_label('input', 2,'xpos');port_label('input', 3,'ypos');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|amg CLCD Std|4-bits|4|20|Push-pull|E|15|11|13|A|7|5|3|1|on|Line1|SimpleaMG"
+	      "CLCDDisplaySetupLCDSetupVolatileDataStorage_Line1|[3 -1 -1 -1]|[0]|[\"4\",\"4\",\"20\",\"PP\",\"E\",\"15\",\"11"
+	      "\",\"13\",\"\",\"A\",\"\",\"\",\"\",\"\",\"7\",\"5\",\"3\",\"1\",\"1\",\"SimpleaMGCLCDDisplaySetupLCDSetupVolat"
+	      "ileDataStorage_Line1\",\"1\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\"]|0.05|0.05|SimpleaMGCL"
+	      "CDDisplaySetupLCDDisplayamgCLCDWriteLine1"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "amg CLCD Write Line 2"
+	      Ports		      [3]
+	      Position		      [125, 157, 325, 253]
+	      FunctionName	      "amg_clcd"
+	      Parameters	      "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "amg_clcd"
+	      MaskDescription	      "Note for cmd:\n1 - Clear LCD Line before write.\n0 or otherwise - Write into LCD Line wi"
+	      "th existing data.\n"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'amg_clcd_write.htm'), '-browser')"
+	      MaskPromptString	      "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO P"
+	      "ull-Up/Down:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, EN:|GPIO control pin, RW:|GPIO data D[7"
+	      ":4] port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String b"
+	      "uffer|Variable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample t"
+	      "ime (sec) in string|BlockID"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popu"
+	      "p(Push-pull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5"
+	      "|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3"
+	      "|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12"
+	      "|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(Line1|Line2|Line3|Line4),edit,edit,edit,"
+	      "edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	      "f,off,off,off"
+	      MaskCallbackString      "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer'"
+	      ");||amg_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_cal"
+	      "lback('sampletimestr');|amg_clcd_callback('blockid');"
+	      MaskEnableString	      "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,o"
+	      "n,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;c"
+	      "ontrolport=&8;control_rs=&9;control_en=&10;control_rw=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;"
+	      "usestringbuffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime="
+	      "@23;sampletimestr=&24;blockid=&25;"
+	      MaskInitialization      "amg_clcd_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: CLCD1 (Write)\\nBuffer: Line2\\nTs (sec): 0.05','ver','middle','hor'"
+	      ",'center');port_label('input', 1,'cmd');port_label('input', 2,'xpos');port_label('input', 3,'ypos');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|amg CLCD Std|4-bits|4|20|Push-pull|E|15|11|13|A|7|5|3|1|on|Line2|SimpleaMG"
+	      "CLCDDisplaySetupLCDSetupVolatileDataStorage1_Line2|[3 -1 -1 -1]|[0]|[\"4\",\"4\",\"20\",\"PP\",\"E\",\"15\",\"1"
+	      "1\",\"13\",\"\",\"A\",\"\",\"\",\"\",\"\",\"7\",\"5\",\"3\",\"1\",\"1\",\"SimpleaMGCLCDDisplaySetupLCDSetupVola"
+	      "tileDataStorage1_Line2\",\"1\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\"]|0.05|0.05|SimpleaMG"
+	      "CLCDDisplaySetupLCDDisplayamgCLCDWriteLine2"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "amg CLCD Write Line 3"
+	      Ports		      [3]
+	      Position		      [125, 292, 325, 388]
+	      FunctionName	      "amg_clcd"
+	      Parameters	      "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "amg_clcd"
+	      MaskDescription	      "Note for cmd:\n1 - Clear LCD Line before write.\n0 or otherwise - Write into LCD Line wi"
+	      "th existing data.\n"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'amg_clcd_write.htm'), '-browser')"
+	      MaskPromptString	      "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO P"
+	      "ull-Up/Down:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, EN:|GPIO control pin, RW:|GPIO data D[7"
+	      ":4] port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String b"
+	      "uffer|Variable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample t"
+	      "ime (sec) in string|BlockID"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popu"
+	      "p(Push-pull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5"
+	      "|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3"
+	      "|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12"
+	      "|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(Line1|Line2|Line3|Line4),edit,edit,edit,"
+	      "edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	      "f,off,off,off"
+	      MaskCallbackString      "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer'"
+	      ");||amg_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_cal"
+	      "lback('sampletimestr');|amg_clcd_callback('blockid');"
+	      MaskEnableString	      "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,o"
+	      "n,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;c"
+	      "ontrolport=&8;control_rs=&9;control_en=&10;control_rw=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;"
+	      "usestringbuffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime="
+	      "@23;sampletimestr=&24;blockid=&25;"
+	      MaskInitialization      "amg_clcd_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: CLCD1 (Write)\\nBuffer: Line3\\nTs (sec): 0.05','ver','middle','hor'"
+	      ",'center');port_label('input', 1,'cmd');port_label('input', 2,'xpos');port_label('input', 3,'ypos');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|amg CLCD Std|4-bits|4|20|Push-pull|E|15|11|13|A|7|5|3|1|on|Line3|SimpleaMG"
+	      "CLCDDisplaySetupLCDSetupVolatileDataStorage2_Line3|[3 -1 -1 -1]|[0]|[\"4\",\"4\",\"20\",\"PP\",\"E\",\"15\",\"1"
+	      "1\",\"13\",\"\",\"A\",\"\",\"\",\"\",\"\",\"7\",\"5\",\"3\",\"1\",\"1\",\"SimpleaMGCLCDDisplaySetupLCDSetupVola"
+	      "tileDataStorage2_Line3\",\"1\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\"]|0.05|0.05|SimpleaMG"
+	      "CLCDDisplaySetupLCDDisplayamgCLCDWriteLine3"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "amg CLCD Write Line 4"
+	      Ports		      [3]
+	      Position		      [125, 437, 325, 533]
+	      FunctionName	      "amg_clcd"
+	      Parameters	      "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "amg_clcd"
+	      MaskDescription	      "Note for cmd:\n1 - Clear LCD Line before write.\n0 or otherwise - Write into LCD Line wi"
+	      "th existing data.\n"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'amg_clcd_write.htm'), '-browser')"
+	      MaskPromptString	      "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO P"
+	      "ull-Up/Down:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, EN:|GPIO control pin, RW:|GPIO data D[7"
+	      ":4] port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String b"
+	      "uffer|Variable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample t"
+	      "ime (sec) in string|BlockID"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popu"
+	      "p(Push-pull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5"
+	      "|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3"
+	      "|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12"
+	      "|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(Line1|Line2|Line3|Line4),edit,edit,edit,"
+	      "edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	      "f,off,off,off"
+	      MaskCallbackString      "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer'"
+	      ");||amg_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_cal"
+	      "lback('sampletimestr');|amg_clcd_callback('blockid');"
+	      MaskEnableString	      "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	      MaskVisibilityString    "off,on,off,off,off,off,off,off,off,off,off,off,off,off,off,off,on,on,off,off,off,off,o"
+	      "n,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;c"
+	      "ontrolport=&8;control_rs=&9;control_en=&10;control_rw=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;"
+	      "usestringbuffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime="
+	      "@23;sampletimestr=&24;blockid=&25;"
+	      MaskInitialization      "amg_clcd_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: CLCD1 (Write)\\nBuffer: Line4\\nTs (sec): 0.05','ver','middle','hor'"
+	      ",'center');port_label('input', 1,'cmd');port_label('input', 2,'xpos');port_label('input', 3,'ypos');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Transaction|1|amg CLCD Std|4-bits|4|20|Push-pull|E|15|11|13|A|7|5|3|1|on|Line4|SimpleaMG"
+	      "CLCDDisplaySetupLCDSetupVolatileDataStorage3_Line4|[3 -1 -1 -1]|[0]|[\"4\",\"4\",\"20\",\"PP\",\"E\",\"15\",\"1"
+	      "1\",\"13\",\"\",\"A\",\"\",\"\",\"\",\"\",\"7\",\"5\",\"3\",\"1\",\"1\",\"SimpleaMGCLCDDisplaySetupLCDSetupVola"
+	      "tileDataStorage3_Line4\",\"1\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\"stm32f4\"]|0.05|0.05|SimpleaMG"
+	      "CLCDDisplaySetupLCDDisplayamgCLCDWriteLine4"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	    }
+	    Line {
+	      SrcBlock		      "Constant6"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 2"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant12"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 4"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant11"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 4"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Constant10"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 4"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant9"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 3"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant8"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 3"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Constant7"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 3"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant5"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 1"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant2"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 1"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Constant4"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 2"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Constant3"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 2"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant1"
+	      SrcPort		      1
+	      DstBlock		      "amg CLCD Write Line 1"
+	      DstPort		      1
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  SubSystem
+	  Name			  "LCD Setup"
+	  Ports			  []
+	  Position		  [35, 50, 170, 145]
+	  MinAlgLoopOccurrences	  off
+	  PropExecContextOutsideSubsystem off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Opaque		  off
+	  RequestExecContextInheritance	off
+	  MaskHideContents	  off
+	  System {
+	    Name		    "LCD Setup"
+	    Location		    [243, 334, 912, 641]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "A4"
+	    PaperUnits		    "centimeters"
+	    TiledPaperMargins	    [1.270000, 1.270000, 1.270000, 1.270000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "Volatile Data Storage"
+	      Ports		      []
+	      Position		      [275, 63, 396, 125]
+	      FunctionName	      "waijung_vdata_storage"
+	      Parameters	      "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blo"
+	      "ckid,storagetypestr"
+	      EnableBusSupport	      off
+	      MaskType		      "waijung_vdata_storage"
+	      MaskDescription	      "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nE"
+	      "nable - In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	      MaskHelp		      "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	      MaskPromptString	      "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power"
+	      " on Reset only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset i"
+	      "ntegration|Web CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Co"
+	      "mpiled sample time (sec) in string|BlockID|Type string"
+	      MaskStyleString	      "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edi"
+	      "t,popup(Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup("
+	      "double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storage"
+	      "name');|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_st"
+	      "orage_callback('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callba"
+	      "ck('weboutputformat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampleti"
+	      "mestr');|waijung_vdata_storage_callback('blockid');|"
+	      MaskEnableString	      "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	      MaskVisibilityString    "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,"
+	      MaskVariables	      "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webinte"
+	      "gration=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&1"
+	      "3;storagetypestr=&14;"
+	      MaskInitialization      "waijung_vdata_storage_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Name: Line1\\nType: string','ver','middle','hor','center')"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "string|Line1|0|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage_Line1|64|''|Disable|"
+	      "'%s'|(void*)0|string|-1|0.01|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage|char"
+	      MaskTabNameString	      ",,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "Volatile Data Storage1"
+	      Ports		      []
+	      Position		      [420, 63, 541, 125]
+	      FunctionName	      "waijung_vdata_storage"
+	      Parameters	      "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blo"
+	      "ckid,storagetypestr"
+	      EnableBusSupport	      off
+	      MaskType		      "waijung_vdata_storage"
+	      MaskDescription	      "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nE"
+	      "nable - In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	      MaskHelp		      "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	      MaskPromptString	      "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power"
+	      " on Reset only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset i"
+	      "ntegration|Web CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Co"
+	      "mpiled sample time (sec) in string|BlockID|Type string"
+	      MaskStyleString	      "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edi"
+	      "t,popup(Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup("
+	      "double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storage"
+	      "name');|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_st"
+	      "orage_callback('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callba"
+	      "ck('weboutputformat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampleti"
+	      "mestr');|waijung_vdata_storage_callback('blockid');|"
+	      MaskEnableString	      "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	      MaskVisibilityString    "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,"
+	      MaskVariables	      "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webinte"
+	      "gration=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&1"
+	      "3;storagetypestr=&14;"
+	      MaskInitialization      "waijung_vdata_storage_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Name: Line2\\nType: string','ver','middle','hor','center')"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "string|Line2|0|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage1_Line2|64|''|Disable"
+	      "|'%s'|(void*)0|string|-1|0.01|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage1|char"
+	      MaskTabNameString	      ",,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "Volatile Data Storage2"
+	      Ports		      []
+	      Position		      [275, 148, 396, 210]
+	      FunctionName	      "waijung_vdata_storage"
+	      Parameters	      "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blo"
+	      "ckid,storagetypestr"
+	      EnableBusSupport	      off
+	      MaskType		      "waijung_vdata_storage"
+	      MaskDescription	      "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nE"
+	      "nable - In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	      MaskHelp		      "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	      MaskPromptString	      "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power"
+	      " on Reset only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset i"
+	      "ntegration|Web CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Co"
+	      "mpiled sample time (sec) in string|BlockID|Type string"
+	      MaskStyleString	      "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edi"
+	      "t,popup(Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup("
+	      "double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storage"
+	      "name');|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_st"
+	      "orage_callback('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callba"
+	      "ck('weboutputformat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampleti"
+	      "mestr');|waijung_vdata_storage_callback('blockid');|"
+	      MaskEnableString	      "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	      MaskVisibilityString    "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,"
+	      MaskVariables	      "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webinte"
+	      "gration=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&1"
+	      "3;storagetypestr=&14;"
+	      MaskInitialization      "waijung_vdata_storage_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Name: Line3\\nType: string','ver','middle','hor','center')"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "string|Line3|0|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage2_Line3|64|''|Disable"
+	      "|'%s'|(void*)0|string|-1|0.01|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage2|char"
+	      MaskTabNameString	      ",,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "Volatile Data Storage3"
+	      Ports		      []
+	      Position		      [420, 148, 541, 210]
+	      FunctionName	      "waijung_vdata_storage"
+	      Parameters	      "storagetype,storagename,initval,varname,buffersize,initvalstring,sampletime,sampletimestr,blo"
+	      "ckid,storagetypestr"
+	      EnableBusSupport	      off
+	      MaskType		      "waijung_vdata_storage"
+	      MaskDescription	      "This block implements a volatile Data Storage.\n\nWeb CGI varset/varget integratiopn:\nE"
+	      "nable - In webserver application, allow remote access via http.\nDisable - Variable is use in local only."
+	      MaskHelp		      "web(fullfile(waijungdocroot,'Volatile_Data_Storage.htm'))"
+	      MaskPromptString	      "Storage Type|Storage Name (must be a valid variable name)|Initial value (Apply at Power"
+	      " on Reset only)|Variable name|Size (bytes)|Initial value (Apply at Power on Reset only)|Web CGI varget/varset i"
+	      "ntegration|Web CGI varget output format|Web CGI varset callback|Last selected Storage Type|Sample time (sec)|Co"
+	      "mpiled sample time (sec) in string|BlockID|Type string"
+	      MaskStyleString	      "popup(double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit,edi"
+	      "t,popup(Disable|ReadOnly|Write/ Read|ReadOnly with KeyValuePair|Write/ Read with KeyValuePair),edit,edit,popup("
+	      "double|single|uint32|int32|uint16|int16|uint8|int8|string),edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+	      MaskCallbackString      "waijung_vdata_storage_callback('storagetype');|waijung_vdata_storage_callback('storage"
+	      "name');|waijung_vdata_storage_callback('initval');|waijung_vdata_storage_callback('varname');||waijung_vdata_st"
+	      "orage_callback('initvalstring');|waijung_vdata_storage_callback('webintegration');|waijung_vdata_storage_callba"
+	      "ck('weboutputformat');|||waijung_vdata_storage_callback('sampletime');|waijung_vdata_storage_callback('sampleti"
+	      "mestr');|waijung_vdata_storage_callback('blockid');|"
+	      MaskEnableString	      "on,on,on,off,on,on,on,on,off,on,on,off,off,on"
+	      MaskVisibilityString    "on,on,off,off,on,on,on,off,off,off,on,off,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,"
+	      MaskVariables	      "storagetype=&1;storagename=&2;initval=@3;varname=&4;buffersize=@5;initvalstring=@6;webinte"
+	      "gration=&7;weboutputformat=&8;webcgicallback=&9;laststoragetype=&10;sampletime=@11;sampletimestr=&12;blockid=&1"
+	      "3;storagetypestr=&14;"
+	      MaskInitialization      "waijung_vdata_storage_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Name: Line4\\nType: string','ver','middle','hor','center')"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "string|Line4|0|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage3_Line4|64|''|Disable"
+	      "|'%s'|(void*)0|string|-1|0.01|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage3|char"
+	      MaskTabNameString	      ",,,,,,,,,,,,,"
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "amg CLCD Setup"
+	      Ports		      []
+	      Position		      [15, 60, 215, 180]
+	      FunctionName	      "amg_clcd"
+	      Parameters	      "module,configuration,inputtypearray,outputtypearray,confstr,sampletime,sampletimestr,blockid"
+	      EnableBusSupport	      off
+	      MaskType		      "amg_clcd"
+	      MaskHelp		      "web(fullfile(waijungdocroot,'amg_clcd_setup.htm'), '-browser')"
+	      MaskPromptString	      "Configuration:|Module:|LCD model:|Interface:|Number of lines:|Number of columns:|GPIO P"
+	      "ull-Up/Down:|GPIO control port:|GPIO control pin, RS:|GPIO control pin, RW:|GPIO control pin, EN:|GPIO data D[7"
+	      ":4] port|GPIO data pin, D4:|GPIO data pin, D5:|GPIO data pin, D6:|GPIO data pin, D7:|Use string buffer|String b"
+	      "uffer|Variable name|Input type array|Output type array|Configuration string|Sample time (sec)|Compiled sample t"
+	      "ime (sec) in string|BlockID"
+	      MaskStyleString	      "popup(Setup|Transaction),popup(1|2|3|4),popup(amg CLCD Std),popup(4-bits),edit,edit,popu"
+	      "p(Push-pull|Open-drain),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5"
+	      "|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(A|B|C|D|E|F|G|H|I),popup(0|1|2|3"
+	      "|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12"
+	      "|13|14|15),popup(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15),checkbox,popup(Line3|Line1|Line2|Line4),edit,edit,edit,"
+	      "edit,edit,edit,edit"
+	      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,of"
+	      "f,off,off,off"
+	      MaskCallbackString      "amg_clcd_callback('configuration');||||||||||||||||amg_clcd_callback('usestringbuffer'"
+	      ");||amg_clcd_callback('varname');|||amg_clcd_callback('confstr');|amg_clcd_callback('sampletime');|amg_clcd_cal"
+	      "lback('sampletimestr');|amg_clcd_callback('blockid');"
+	      MaskEnableString	      "on,on,on,off,off,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on,on,on,on"
+	      MaskVisibilityString    "off,on,off,on,off,on,on,on,on,on,on,on,on,on,on,on,off,off,off,off,off,off,off,off,off"
+	      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	      MaskVariables	      "configuration=&1;module=&2;model=&3;interface=&4;linecount=@5;columncount=@6;gpiotype=&7;c"
+	      "ontrolport=&8;control_rs=&9;control_rw=&10;control_en=&11;dataport=&12;data0=&13;data1=&14;data2=&15;data3=&16;"
+	      "usestringbuffer=@17;stringbuffer=&18;varname=&19;inputtypearray=@20;outputtypearray=@21;confstr=&22;sampletime="
+	      "@23;sampletimestr=&24;blockid=&25;"
+	      MaskInitialization      "amg_clcd_callback('init');"
+	      MaskDisplay	      "text(0.5, 0.5, 'Module: CLCD1 (Setup)\\nInterface: 4-bits\\nCntrl: E7/E8/E9\\nD[7:4]: E12/E1"
+	      "3/E14/E15\\nTs (sec): 0.01','ver','middle','hor','center');"
+	      MaskSelfModifiable      on
+	      MaskIconFrame	      on
+	      MaskIconOpaque	      on
+	      MaskIconRotate	      "none"
+	      MaskPortRotate	      "default"
+	      MaskIconUnits	      "normalized"
+	      MaskValueString	      "Setup|1|amg CLCD Std|4-bits|4|16|Push-pull|E|7|8|9|E|12|13|14|15|off|Line2|clcd_demo_4li"
+	      "nesLCDSetupVolatileDataStorage3_Line2|[0]|[0]|[\"4\",\"4\",\"16\",\"PP\",\"E\",\"7\",\"9\",\"8\",\"\",\"E\",\"\""
+	      ",\"\",\"\",\"\",\"12\",\"13\",\"14\",\"15\",\"0\",\"\",\"0\",\"0\",\"0\",\"0\",\"1\",\"0\",\"0\",\"0\",\"0\",\""
+	      "stm32f4\"]|-1|0.01|SimpleaMGCLCDDisplaySetupLCDSetupamgCLCDSetup"
+	      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,"
+	    }
+	  }
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "String Buffer Processing"
+	  Ports			  [9]
+	  Position		  [200, 190, 345, 280]
+	  FunctionName		  "waijung_stringbuffer_processing"
+	  Parameters		  "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sampleti"
+	  "mestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_stringbuffer_processing"
+	  MaskDescription	  "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u, %i, %o"
+	  ", %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+	  MaskPromptString	  "Function|String buffer|Printf format|Enable output status|Variable name|Input type array|Output"
+	  " type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+	  MaskStyleString	  "popup(sprintf|sscanf),popup(Line1|Line2|Line3|Line4|<output>),edit,checkbox,edit,edit,edit,edit,"
+	  "edit,edit,edit,edit"
+	  MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_processing_c"
+	  "allback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_processing_"
+	  "callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer_processing_"
+	  "callback('blockid');"
+	  MaskEnableString	  "on,on,on,on,off,on,on,on,on,on,off,off"
+	  MaskVisibilityString	  "on,on,on,on,off,off,off,off,off,on,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;outputtyp"
+	  "earray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+	  MaskInitialization	  "waijung_stringbuffer_processing_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, '[ sprintf ]\\nBuffer: Line1\\nTs (sec): 0.01','ver','middle','hor','center');port_l"
+	  "abel('input', 1,'%g');port_label('input', 2,'%g');port_label('input', 3,'%g');port_label('input', 4,'%g');port_labe"
+	  "l('input', 5,'%g');port_label('input', 6,'%g');port_label('input', 7,'%g');port_label('input', 8,'%g');port_label('"
+	  "input', 9,'%g');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "sprintf|Line1|'%g%g%g%g%g%g%g%g%g'|off|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage_Line"
+	  "1|[9 -1 -1 -1 -1 -1 -1 -1 -1 -1]|[0]|[\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"float"
+	  "\",\"float\"]|9|-1|0.01|SimpleaMGCLCDDisplaySetupStringBufferProcessing"
+	  MaskTabNameString	  ",,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "String Buffer Processing1"
+	  Ports			  [9]
+	  Position		  [200, 305, 345, 395]
+	  FunctionName		  "waijung_stringbuffer_processing"
+	  Parameters		  "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sampleti"
+	  "mestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_stringbuffer_processing"
+	  MaskDescription	  "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u, %i, %o"
+	  ", %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+	  MaskPromptString	  "Function|String buffer|Printf format|Enable output status|Variable name|Input type array|Output"
+	  " type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+	  MaskStyleString	  "popup(sprintf|sscanf),popup(Line1|Line2|Line3|Line4|<output>),edit,checkbox,edit,edit,edit,edit,"
+	  "edit,edit,edit,edit"
+	  MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_processing_c"
+	  "allback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_processing_"
+	  "callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer_processing_"
+	  "callback('blockid');"
+	  MaskEnableString	  "on,on,on,on,off,on,on,on,on,on,off,off"
+	  MaskVisibilityString	  "on,on,on,on,off,off,off,off,off,on,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;outputtyp"
+	  "earray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+	  MaskInitialization	  "waijung_stringbuffer_processing_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, '[ sprintf ]\\nBuffer: Line2\\nTs (sec): 0.01','ver','middle','hor','center');port_l"
+	  "abel('input', 1,'%g');port_label('input', 2,'%g');port_label('input', 3,'%g');port_label('input', 4,'%g');port_labe"
+	  "l('input', 5,'%g');port_label('input', 6,'%g');port_label('input', 7,'%g');port_label('input', 8,'%g');port_label('"
+	  "input', 9,'%g');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "sprintf|Line2|'%g%g%g%g%g%g%g%g%g'|off|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage1_Lin"
+	  "e2|[9 -1 -1 -1 -1 -1 -1 -1 -1 -1]|[0]|[\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"floa"
+	  "t\",\"float\"]|9|-1|0.01|SimpleaMGCLCDDisplaySetupStringBufferProcessing1"
+	  MaskTabNameString	  ",,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "String Buffer Processing2"
+	  Ports			  [3]
+	  Position		  [200, 420, 345, 510]
+	  FunctionName		  "waijung_stringbuffer_processing"
+	  Parameters		  "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sampleti"
+	  "mestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_stringbuffer_processing"
+	  MaskDescription	  "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u, %i, %o"
+	  ", %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+	  MaskPromptString	  "Function|String buffer|Printf format|Enable output status|Variable name|Input type array|Output"
+	  " type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+	  MaskStyleString	  "popup(sprintf|sscanf),popup(Line1|Line2|Line3|Line4|<output>),edit,checkbox,edit,edit,edit,edit,"
+	  "edit,edit,edit,edit"
+	  MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_processing_c"
+	  "allback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_processing_"
+	  "callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer_processing_"
+	  "callback('blockid');"
+	  MaskEnableString	  "on,on,on,on,off,on,on,on,on,on,off,off"
+	  MaskVisibilityString	  "on,on,on,on,off,off,off,off,off,on,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;outputtyp"
+	  "earray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+	  MaskInitialization	  "waijung_stringbuffer_processing_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, '[ sprintf ]\\nBuffer: Line3\\nTs (sec): 0.01','ver','middle','hor','center');port_l"
+	  "abel('input', 1,'%g');port_label('input', 2,'%g');port_label('input', 3,'%g');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "sprintf|Line3|'%gx%g=%g'|off|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage2_Line3|[3 -1 -"
+	  "1 -1]|[0]|[\"float\",\"float\",\"float\"]|3|-1|0.01|SimpleaMGCLCDDisplaySetupStringBufferProcessing2"
+	  MaskTabNameString	  ",,,,,,,,,,,"
+	}
+	Block {
+	  BlockType		  "S-Function"
+	  Name			  "String Buffer Processing3"
+	  Ports			  [9]
+	  Position		  [200, 541, 345, 629]
+	  FunctionName		  "waijung_stringbuffer_processing"
+	  Parameters		  "configuration,varname,sformat,porttypes,portcount,inputtypearray,outputtypearray,sampletime,sampleti"
+	  "mestr,blockid"
+	  EnableBusSupport	  off
+	  MaskType		  "waijung_stringbuffer_processing"
+	  MaskDescription	  "This block implements string processing, sprintf/ sscanf command.\nSupported format:\n%u, %i, %o"
+	  ", %x: uint32\n%d: int32\n%e, %g, %f: single\n%c: int8\n\nStatus:\n 0: Failed.\n Non-zero: Success."
+	  MaskHelp		  "web(fullfile(waijungdocroot,'String_Buffer_Processing.htm'))"
+	  MaskPromptString	  "Function|String buffer|Printf format|Enable output status|Variable name|Input type array|Output"
+	  " type array|Port type list|Port type count|Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+	  MaskStyleString	  "popup(sprintf|sscanf),popup(Line1|Line2|Line3|Line4|<output>),edit,checkbox,edit,edit,edit,edit,"
+	  "edit,edit,edit,edit"
+	  MaskTunableValueString  "on,off,off,off,off,off,off,off,off,off,off,off"
+	  MaskCallbackString	  "waijung_stringbuffer_processing_callback('configuration');||waijung_stringbuffer_processing_c"
+	  "allback('sformat');|waijung_stringbuffer_processing_callback('enableoutput');||||||waijung_stringbuffer_processing_"
+	  "callback('sampletime');|waijung_stringbuffer_processing_callback('sampletimestr');|waijung_stringbuffer_processing_"
+	  "callback('blockid');"
+	  MaskEnableString	  "on,on,on,on,off,on,on,on,on,on,off,off"
+	  MaskVisibilityString	  "on,on,on,on,off,off,off,off,off,on,off,off"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,"
+	  MaskVariables		  "configuration=&1;storagename=&2;sformat=@3;enableoutput=&4;varname=&5;inputtypearray=@6;outputtyp"
+	  "earray=@7;porttypes=&8;portcount=@9;sampletime=@10;sampletimestr=&11;blockid=&12;"
+	  MaskInitialization	  "waijung_stringbuffer_processing_callback('init');"
+	  MaskDisplay		  "text(0.5, 0.5, '[ sprintf ]\\nBuffer: Line4\\nTs (sec): 0.01','ver','middle','hor','center');port_l"
+	  "abel('input', 1,'%g');port_label('input', 2,'%g');port_label('input', 3,'%g');port_label('input', 4,'%g');port_labe"
+	  "l('input', 5,'%g');port_label('input', 6,'%g');port_label('input', 7,'%g');port_label('input', 8,'%g');port_label('"
+	  "input', 9,'%g');"
+	  MaskSelfModifiable	  on
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskPortRotate	  "default"
+	  MaskIconUnits		  "normalized"
+	  MaskValueString	  "sprintf|Line4|'%g%g%g%g%g%g%g%g%g'|off|SimpleaMGCLCDDisplaySetupLCDSetupVolatileDataStorage3_Lin"
+	  "e4|[9 -1 -1 -1 -1 -1 -1 -1 -1 -1]|[0]|[\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"float\",\"floa"
+	  "t\",\"float\"]|9|-1|0.01|SimpleaMGCLCDDisplaySetupStringBufferProcessing3"
+	  MaskTabNameString	  ",,,,,,,,,,,"
+	}
+	Line {
+	  SrcBlock		  "Line1 Inputs"
+	  SrcPort		  1
+	  DstBlock		  "Demux"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  1
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  2
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  3
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  4
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Line2 Inputs"
+	  SrcPort		  1
+	  DstBlock		  "Demux1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Line3 Inputs"
+	  SrcPort		  1
+	  DstBlock		  "Demux2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  5
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  5
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  6
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  6
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  1
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  2
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  3
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  4
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  5
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  5
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  7
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  7
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  8
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  8
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  9
+	  DstBlock		  "String Buffer Processing"
+	  DstPort		  9
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  6
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  6
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  7
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  7
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  8
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  8
+	}
+	Line {
+	  SrcBlock		  "Demux1"
+	  SrcPort		  9
+	  DstBlock		  "String Buffer Processing1"
+	  DstPort		  9
+	}
+	Line {
+	  SrcBlock		  "Line4 Inputs"
+	  SrcPort		  1
+	  DstBlock		  "Demux3"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux2"
+	  SrcPort		  1
+	  DstBlock		  "String Buffer Processing2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  1
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux2"
+	  SrcPort		  2
+	  DstBlock		  "String Buffer Processing2"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Demux2"
+	  SrcPort		  3
+	  DstBlock		  "String Buffer Processing2"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  2
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  3
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  4
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  5
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  5
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  6
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  6
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  7
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  7
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  8
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  8
+	}
+	Line {
+	  SrcBlock		  "Demux3"
+	  SrcPort		  9
+	  DstBlock		  "String Buffer Processing3"
+	  DstPort		  9
+	}
+	Annotation {
+	  Name			  "Do not forget to change printf format for each line."
+	  Position		  [187, 13]
+	  ForegroundColor	  "white"
+	  BackgroundColor	  "red"
+	}
+      }
+    }
+    Block {
+      BlockType		      Reference
+      Name		      "Target Setup"
+      Ports		      []
+      Position		      [25, 20, 263, 142]
+      Priority		      "100"
+      SourceBlock	      "stm32f4_device_config_lib/Target Setup"
+      SourceType	      "stm32f4_target_setup"
+      compiler		      "GNU ARM"
+      previous_compiler	      "GNU ARM"
+      mcu		      "STM32F417IG (LQFP176)"
+      mcustr		      "STM32F417IG"
+      clockconfig	      "HSEOSC-8MHz"
+      system_stm32f4xx_c_path "F:\\trunk\\targets\\stm32f4_target\\stm32f4\\utils\\system_stm32f4xx_default\\STM32F40_"
+      "41xxx\\hseosc8mhz"
+      showmemoryconfiguration off
+      stacksize		      "0x400"
+      heapsize		      "0x200"
+      enableautocompiledownload	on
+      fullchiperase	      off
+      programmerinterface     "ST-Link"
+      editctrlstr	      on
+      compilercontrolstr      "$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu="
+      "fpv4-sp-d16 -ffast-math -Wall -Wextra -Ofast "
+      assemblercontrolstr     "$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu="
+      "fpv4-sp-d16 -ffast-math -Wall -Wextra -Ofast -Wa,-amhls=$(<:.s=.lst) -D__STACK_SIZE=$(STACK_SIZE) -D__HEAP_SIZE="
+      "$(HEAP_SIZE) "
+      linkercontrolstr	      "-T$(LD_SCRIPT) -g -Wl,-Map=$(MAP),--cref,--no-warn-mismatch -mcpu=cortex-m4 -mthumb -mth"
+      "umb-interwork -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs "
+      runafterdownload	      on
+      execprofile	      "None"
+      profileruart	      "1"
+      profilerbaud	      "115200"
+      profilertxpin	      "D8"
+      profilerinitstr	      "0.01,168000000,1680000,115200,0"
+      manualsetsampletime     off
+      sampletime	      "0.01"
+      blockid		      "TargetSetup"
+      systickreloadvalue      "1680000"
+      hseval		      "8000000"
+      lastprofileruart	      "1"
+      hclk		      "168000000"
+      flashorigin	      "0x8000000"
+      flashlength	      "1024k"
+      ramorigin		      "0x20000000"
+      ramlength		      "128k"
+      useextram		      off
+    }
+    Line {
+      SrcBlock		      "Constant"
+      SrcPort		      1
+      Points		      [70, 0]
+      Branch {
+	Points			[0, -70]
+	DstBlock		"Reshape"
+	DstPort			1
+      }
+      Branch {
+	DstBlock		"Basic Custom Code"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Basic Custom Code"
+      SrcPort		      1
+      Points		      [40, 0; 0, -65]
+      DstBlock		      "Simple aMG CLCD Display Setup"
+      DstPort		      2
+    }
+    Line {
+      SrcBlock		      "Constant1"
+      SrcPort		      1
+      Points		      [85, 0; 0, -70; 55, 0]
+      Branch {
+	DstBlock		"Basic Custom Code"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, 80]
+	DstBlock		"Mux"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Factor"
+      SrcPort		      1
+      Points		      [100, 0; 0, -110; 50, 0]
+      Branch {
+	DstBlock		"Basic Custom Code"
+	DstPort			3
+      }
+      Branch {
+	Points			[0, 70]
+	DstBlock		"Mux"
+	DstPort			2
+      }
+    }
+    Line {
+      SrcBlock		      "Basic Custom Code"
+      SrcPort		      2
+      Points		      [5, 0; 0, 95]
+      DstBlock		      "Mux"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Mux"
+      SrcPort		      1
+      Points		      [20, 0; 0, -80]
+      DstBlock		      "Simple aMG CLCD Display Setup"
+      DstPort		      3
+    }
+    Line {
+      SrcBlock		      "Basic Custom Code"
+      SrcPort		      3
+      Points		      [85, 0]
+      DstBlock		      "Simple aMG CLCD Display Setup"
+      DstPort		      4
+    }
+    Line {
+      SrcBlock		      "Reshape"
+      SrcPort		      1
+      Points		      [20, 0; 0, -90]
+      DstBlock		      "Simple aMG CLCD Display Setup"
+      DstPort		      1
+    }
+    Line {
+      SrcBlock		      "Constant2"
+      SrcPort		      1
+      Points		      [140, 0; 0, -165]
+      DstBlock		      "Basic Custom Code"
+      DstPort		      4
+    }
+  }
+}

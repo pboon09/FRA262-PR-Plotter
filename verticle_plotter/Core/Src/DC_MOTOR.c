@@ -16,34 +16,30 @@
 #include <math.h>
 #include "MathOperation.h"
 
-#define REVOLUTE_MOTOR_EFFICIENCY 0.814122903634464
-#define PRISMATIC_MOTOR_EFFICIENCY 0.867088244587842
-
-#define REVOLUTE_KE 0.575360445895341
-#define PRISMATIC_KE 0.200510144729990
-
 Motor_Constant_Structure ZGX45RGG_150RPM_Constant = {
-    .Ke = REVOLUTE_KE,
-    .Kt = REVOLUTE_KE * REVOLUTE_MOTOR_EFFICIENCY,
+    .Ke = 0.485667365845868,
+    .Kt = 0.485667365845868 * 0.458826928266350,
     .L = 0.157854,
     .R = 1.15,
-    .J = 0.006554324152089,
-    .B = 0.115425638432433,
+    .J = 0.001384174297611,
+    .B = 0.065057814635037,
     .V_max = 12.0,
     .U_max = 65535.0,
-    .qd_max = 15.707963249999999 // rad/s
+    .qd_max = 15.707963249999999, // rad/s
+	.qdd_max =  15.707963249999999 * 0.4
 };
 
 Motor_Constant_Structure ZGX45RGG_400RPM_Constant = {
-    .Ke = PRISMATIC_KE,
-    .Kt = PRISMATIC_KE * PRISMATIC_MOTOR_EFFICIENCY,
+    .Ke = 0.200510144729990,
+    .Kt = 0.200510144729990 * 0.867088244587842,
     .L = 0.149095,
     .R = 1.00,
     .J = 0.000763452454589,
     .B = 0.017519651130878,
     .V_max = 12.0,
     .U_max = 65535.0,
-    .qd_max = 41.887902 // rad/s
+    .qd_max = 41.887902, // rad/s
+	.qdd_max =  41.887902 * 0.5
 };
 
 Environment Disturbance_Constant = {

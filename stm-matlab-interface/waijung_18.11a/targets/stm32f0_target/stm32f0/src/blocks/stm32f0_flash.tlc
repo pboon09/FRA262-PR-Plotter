@@ -1,0 +1,178 @@
+%implements stm32f0_flash "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %%
+  %assign baseaddress = optionstring[0]
+  %assign pagesize = optionstring[1]
+  %assign block = block + baseaddress + pagesize
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_FLASH__) == 0)
+      %assign :: __STM32F0XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_BASE_ADDRESS 0x%<baseaddress>
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+  %if (conf == "Write") || (conf == "Erase")
+  // Unlock flash
+  FLASH_Unlock();
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+  %% Erase
+  %if conf == "Erase"
+    %if LibBlockNumOutputPorts(block) > 0
+    %<LibBlockOutputSignal(0, "", "", 0)> = \
+    %endif
+    FLASH_ErasePage((uint32_t)%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS);
+  %endif
+
+  %% Write
+  %if conf == "Write"
+    %assign datatypeid = LibBlockInputSignalDataTypeId(1)
+    %% Write double
+    %if (datatypeid == 0)
+      {
+        FLASH_Status Sta;
+        uint32_t tmp[2], flash_address;
+
+        flash_address = %<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS;
+        memcpy(&tmp[0], %<LibBlockInputSignalAddr(1, "", "", 0)>, 8);
+        Sta = FLASH_ProgramWord(flash_address, *((uint32_t *)&tmp[0]));
+        if (Sta == FLASH_COMPLETE)
+          Sta = FLASH_ProgramWord(flash_address + 4, *((uint32_t *)&tmp[1]));
+        %if LibBlockNumOutputPorts(block) > 0
+        %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) Sta;
+        %endif
+      }
+    %endif
+    %% Write single
+    %if (datatypeid == 1)
+      {
+        uint32_t tmp[1], flash_address;
+
+        flash_address = %<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS;
+        memcpy(&tmp[0], %<LibBlockInputSignalAddr(1, "", "", 0)>, 4);
+        %if LibBlockNumOutputPorts(block) > 0
+        %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) \
+        %endif
+        FLASH_ProgramWord(flash_address, *((uint32_t *)&tmp[0]));
+      }
+    %endif
+    %% Write int16, uint16
+    %if (datatypeid == 4) || (datatypeid == 5)
+      %if LibBlockNumOutputPorts(block) > 0
+      %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) \
+      %endif
+      FLASH_ProgramHalfWord(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS, (uint32_t)%<LibBlockInputSignal(1, "", "", 0)>);
+    %endif
+    %% Write int32, uint32
+    %if (datatypeid == 6) || (datatypeid == 7)
+      %if LibBlockNumOutputPorts(block) > 0
+      %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) \
+      %endif
+      FLASH_ProgramWord(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS, (uint32_t)%<LibBlockInputSignal(1, "", "", 0)>);      
+    %endif
+  %endif
+
+  %% Read
+  %if conf == "Read"
+    %<LibBlockOutputSignal(0, "", "", 0)> = *((%<LibBlockOutputSignalDataTypeName(0,tRealPart)> *)(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS));
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

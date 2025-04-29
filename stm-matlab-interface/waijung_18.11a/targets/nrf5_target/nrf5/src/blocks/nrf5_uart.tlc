@@ -1,0 +1,913 @@
+%implements nrf5_uart "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign uartmodule   = optionstring1[0]
+  %assign baudrate     = optionstring1[1]
+  %assign txpin        = optionstring1[2]
+  %assign rxpin        = optionstring1[3]
+  %assign flowcontrol  = optionstring1[4]
+  %assign ctspin       = optionstring1[5]
+  %assign rtspin       = optionstring1[6]
+  %assign rxbuffersize = optionstring1[7]
+  %assign txbuffersize = optionstring1[8]
+  %assign transfer     = optionstring1[9]
+  %assign packetmode   = optionstring1[10]
+  %%assign binheader    = optionstring1[11]
+  %%assign binheaderlen = optionstring1[12]
+  %%assign binterminator      = optionstring1[13]
+  %%assign binterminatorlen   = optionstring1[14]
+  %assign asciiformat        = optionstring1[15]
+  %assign asciiterminator    = optionstring1[16]
+  %assign asciiterminatorlen = optionstring1[17]
+  %assign stringbuffer       = optionstring1[18]
+
+  %assign binheaderlen = SIZE(binheader)[1]
+  %assign binterminatorlen = SIZE(binterminator)[1]
+
+  %assign block = block + uartmodule + baudrate + txpin + rxpin + flowcontrol \
+                + ctspin + rtspin + rxbuffersize + txbuffersize + transfer \
+                + packetmode + binheaderlen \
+                + binterminatorlen + asciiformat + asciiterminator \
+                + asciiterminatorlen + stringbuffer
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+/%
+   %if (EXISTS(::__nrf5_GPIO__) == 0)
+      %assign :: __nrf5_GPIO__ = 1
+      %openfile tmpBuf
+         #include "nrf_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "nrf5_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+%/
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_LIB_H__) == 0)
+      %assign :: __STDIO_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <stdlib.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STDIO_IO_H__) == 0)
+      %assign :: __STDIO_IO_H__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   #include "nrf_uart.h"
+   #include "nrf_drv_gpiote.h"
+   #include "app_uart.h"
+/* ########################################################################
+ * Name: UART
+ * ########################################################################
+*/
+  /* Data read structure */
+  typedef struct {
+    uint16_t index; /* Index of data in buffer */
+    uint16_t count; /* Return data count */
+    uint8_t *buffer; /* Return buffer pointer of valid data */
+  } UARTRX_BUFFER_READ_STRUCT;
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Setup"
+//  /* Data read structure */
+//  typedef struct {
+//    uint16_t index; /* Index of data in buffer */
+//    uint16_t count; /* Return data count */
+//    uint8_t *buffer; /* Return buffer pointer of valid data */
+//  } UARTRX_BUFFER_READ_STRUCT;
+
+  #define URX%<uartmodule>_BUFFER_SIZE %<rxbuffersize> /* Must be 2^N ;N=4,5,6,... */
+  #define UTX%<uartmodule>_BUFFER_SIZE %<txbuffersize> /* Must be 2^N ;N=4,5,6,... */
+
+  %if flowcontrol != "None"
+  #define UART%<uartmodule>_HW_FLOW 	1
+  %else
+  #define UART%<uartmodule>_HW_FLOW 	0
+  %endif
+  #define UART%<uartmodule>_TX_PIN  	%<txpin>
+  #define UART%<uartmodule>_RX_PIN	    %<rxpin>
+  %if flowcontrol != "None"
+  #define UART%<uartmodule>_CTS_PIN     %<ctspin>
+  #define UART%<uartmodule>_RTS_PIN     %<rtspin>
+  %else
+  #define UART%<uartmodule>_CTS_PIN     UART_PIN_DISCONNECTED
+  #define UART%<uartmodule>_RTS_PIN     UART_PIN_DISCONNECTED
+  %endif
+  #define UART%<uartmodule>_BAUDRATE %<baudrate>
+
+  extern uint8_t UART%<uartmodule>_Tx_Buffer[UTX%<uartmodule>_BUFFER_SIZE];
+  extern volatile uint8_t UART%<uartmodule>_Rx_Buffer[URX%<uartmodule>_BUFFER_SIZE];
+  extern uint8_t UART%<uartmodule>_Temp_Buffer[URX%<uartmodule>_BUFFER_SIZE];
+
+  uint16_t UART%<uartmodule>_ReadLine(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                            const char *terminator, uint16_t terminator_count, \
+                            uint8_t *buffer, uint16_t buffer_size);
+  uint8_t UART%<uartmodule>_ReadBinary(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                            const char *header, uint16_t header_count, \
+                            const char *terminator, uint16_t terminator_count, \
+                            uint8_t *buffer, uint16_t data_count);
+
+  void UART%<uartmodule>_Write(const uint8_t *data, uint16_t count);
+%else
+  %% --- Tx/Rx Binary ---
+  %if packetmode == "Binary"
+    %if binheaderlen > 0
+      /* Binary header */
+      #define %<blockid>_Header_SIZE %<binheaderlen>
+      extern const char %<blockid>_Header[%<blockid>_Header_SIZE];
+    %endif
+    %if binterminatorlen > 0
+      /* Binary terminator */
+      #define %<blockid>_Terminator_SIZE %<binterminatorlen>
+      extern const char %<blockid>_Terminator[%<blockid>_Terminator_SIZE];
+    %endif
+  %endif
+  %% --- Tx/Rx Ascii ---
+  %if (packetmode == "Ascii") || (packetmode == "String Buffer") || (packetmode == "Read Line")
+    %if asciiterminator != ""
+      /* End of packet, ascii mode */
+      #define %<blockid>_AsciiTerminator_SIZE %<asciiterminatorlen>
+      extern const char %<blockid>_AsciiTerminator[%<blockid>_AsciiTerminator_SIZE];
+    %endif
+  %endif
+%endif
+
+%if conf == "Rx"
+  %if transfer == "Blocking"
+    void \
+  %else
+    uint8_t \
+  %endif
+  %<blockid>_Receive(uint8_t *buffer, uint16_t size);
+  %if packetmode == "Binary"
+  %else
+    /* Data */
+    %foreach idx=SIZE(optionstring2)[1]
+      extern %<optionstring2[idx]> %<blockid>_data%<idx>; /* D%<idx> */
+    %endforeach
+  %endif
+%endif
+
+%if packetmode == "Read Line"
+uint16_t %<blockid>_ReadLine(uint8_t *buffer, uint16_t size);
+%endif
+
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if conf == "Setup"
+  uint8_t UART%<uartmodule>_Tx_Buffer[UTX%<uartmodule>_BUFFER_SIZE];
+  volatile uint8_t UART%<uartmodule>_Rx_Buffer[URX%<uartmodule>_BUFFER_SIZE];          
+  uint8_t UART%<uartmodule>_Temp_Buffer[URX%<uartmodule>_BUFFER_SIZE];
+  //volatile uint16_t UART%<uartmodule>_Rx_Index = 0;
+  volatile uint16_t UART%<uartmodule>_Rx_Count = 0;
+/*
+  void UART%<uartmodule>_IRQHandler(void) {
+    volatile uint8_t data;
+    if ((NRF_UART%<uartmodule>->EVENTS_RXDRDY != 0) && ((NRF_UART%<uartmodule>->INTENSET & UART_INTENSET_RXDRDY_Msk) != 0)) {
+	  NRF_UART%<uartmodule>->EVENTS_RXDRDY = 0;
+	  data = (uint8_t)NRF_UART%<uartmodule>->RXD;
+	  UART%<uartmodule>_Rx_Buffer[UART%<uartmodule>_Rx_Count++] = data;
+      UART%<uartmodule>_Rx_Count &= (URX%<uartmodule>_BUFFER_SIZE-1);
+    }
+  }
+*/
+//volatile uint16_t UART%<uartmodule>_Rx_Count = 0;
+volatile uint8_t UART%<uartmodule>_Tx_Done = 0;
+void uart%<uartmodule>_uart_event_handle(app_uart_evt_t * p_event)
+{
+    uint8_t data;
+    switch (p_event->evt_type)
+    {
+        case APP_UART_DATA_READY:
+            UNUSED_VARIABLE(app_uart_get(&data));
+            UART%<uartmodule>_Rx_Buffer[UART%<uartmodule>_Rx_Count++] = data;
+            UART%<uartmodule>_Rx_Count &= (URX%<uartmodule>_BUFFER_SIZE-1);
+            break;
+
+        case APP_UART_COMMUNICATION_ERROR:
+            //APP_ERROR_HANDLER(p_event->data.error_communication);
+            break;
+
+       case APP_UART_FIFO_ERROR:
+            //APP_ERROR_HANDLER(p_event->data.error_code);
+            break;
+			 case APP_UART_TX_EMPTY:
+				 UART%<uartmodule>_Tx_Done = 1;
+				 break;
+			 
+        default:
+            break;
+    }
+}
+
+  void UART%<uartmodule>_RestoreBytes(UARTRX_BUFFER_READ_STRUCT *read_struct, uint16_t count)
+  {
+    uint16_t roll_count = count;
+    
+    /* Remove overflow buffer */
+    while(roll_count > URX%<uartmodule>_BUFFER_SIZE)
+      roll_count -= URX%<uartmodule>_BUFFER_SIZE;
+
+    /* Return bytes back into buffer */
+    if(roll_count > read_struct->index)
+      read_struct->index = URX%<uartmodule>_BUFFER_SIZE - roll_count + read_struct->index;
+    else
+      read_struct->index -= roll_count;
+  }
+
+  /* Read buffer from DMA
+  ** Return value: Number of bytes vaiable.
+  */
+  void UART%<uartmodule>_Read(UARTRX_BUFFER_READ_STRUCT *read_struct)
+  {
+    volatile uint16_t data_int_curr_count;
+
+    uint16_t data_index = 0;
+    uint16_t data_count = 0;
+
+    /* Current data received count of Rx-buffer */
+    data_int_curr_count = UART%<uartmodule>_Rx_Count;
+
+    /* Read single part of data buffer */
+    if(read_struct->index < data_int_curr_count) { /* Data is available */      
+      data_index = read_struct->index;
+      data_count = data_int_curr_count - read_struct->index;
+      read_struct->index += data_count;
+      read_struct->index &= (URX%<uartmodule>_BUFFER_SIZE-1);
+    }
+    else if(read_struct->index > data_int_curr_count) { /* Data is available with overlap */      
+      data_index = read_struct->index;
+      data_count = URX%<uartmodule>_BUFFER_SIZE-read_struct->index;
+      read_struct->index = 0;
+    }
+    else { /* No new data */
+    }
+
+    /* Return the reading */
+    if(data_count > 0) {
+      read_struct->buffer = (uint8_t *)&UART%<uartmodule>_Rx_Buffer[data_index];
+      read_struct->count = data_count;
+    }
+    else { read_struct->count = 0; }
+  }
+
+  void UART%<uartmodule>_ReadEx(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+           uint8_t *buffer, uint16_t buffer_size, uint16_t*reading_count) {
+    uint16_t bytes_to_read, data_read_index;     
+
+    bytes_to_read = buffer_size; /* Tracking count of data readings */
+    data_read_index = 0; /* Increment buffer index */
+    do {
+      UART%<uartmodule>_Read(read_struct);
+      if(read_struct->count <= bytes_to_read) {
+        memcpy(&buffer[data_read_index], read_struct->buffer, read_struct->count);
+        data_read_index += read_struct->count;
+        bytes_to_read -= read_struct->count;
+      }
+      else {
+        /* Return some byte back to buffer */
+        //read_struct->index -= (read_struct->count - bytes_to_read);
+        UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - bytes_to_read)); /* Fixed: Waijung 14.08a */
+        /* Return reading data */
+        memcpy(&buffer[data_read_index], read_struct->buffer, bytes_to_read);          
+        bytes_to_read = 0;
+      }        
+    } while ((bytes_to_read > 0) && (read_struct->count > 0));
+
+    /* Number of reading bytes */
+    *reading_count = buffer_size - bytes_to_read;
+  }
+
+  /* Read Ascii packet
+   * Return char count, exclude NULL
+   * Terminator: "\n", "\r", "\r\n"
+   */
+  uint16_t UART%<uartmodule>_ReadLine(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                            const char *terminator, uint16_t terminator_count, \
+                            uint8_t *buffer, uint16_t buffer_size) {
+    uint16_t count, packet_len = 0, receive_count = 0;
+    uint16_t i;
+    uint8_t terminator_found = 0;
+
+    /* Determine maximum number of bytes to read */
+    count = buffer_size - 1;
+    if(count >= URX%<uartmodule>_BUFFER_SIZE)
+       count = URX%<uartmodule>_BUFFER_SIZE-1;
+
+    /* Ignore terminator is invalid */
+    if(terminator_count < 1)
+      return 0;
+
+    /* Read packet */
+    do {
+      UART%<uartmodule>_Read(read_struct); /* Check DMA buffer */
+      receive_count += read_struct->count; /* Total number of data received */
+
+      /* Search terminator */
+      i = 0;
+      while(!terminator_found && (i < read_struct->count)) {
+        if(read_struct->buffer[i] == (uint8_t)terminator[terminator_count - 1])
+          terminator_found = 1;
+        i++;
+      }
+      packet_len += i;
+      if(terminator_found) {
+        terminator_found = 0;
+
+        /* Roll-back buffer index */
+        if ((packet_len > count) || (packet_len < terminator_count)) { /* Packet count is invalid, drop it */
+          UART%<uartmodule>_RestoreBytes(read_struct, (receive_count-packet_len));
+          /* Reset */
+          packet_len       = 0;
+          receive_count    = 0;
+        }
+        else {
+          UART%<uartmodule>_RestoreBytes(read_struct, receive_count);
+
+          /* Load data into buffer */
+          UART%<uartmodule>_ReadEx(read_struct, buffer, packet_len, &i);
+          buffer[packet_len] = '\0'; /* Append NULL */
+
+          /* Validate terminator */
+          if(!strncmp((char *)&buffer[packet_len-terminator_count], terminator, terminator_count)) {
+            return packet_len; /* packet reading success, return number of received bytes */
+          }
+          else {
+            /* Invalid terminator */              
+            packet_len       = 0;            
+            receive_count    = 0;
+          }
+        }
+      }
+    } while (read_struct->count > 0);
+
+    /* Could not find the packet terminator, reset reading struct to its original position */
+    if(receive_count > 0) {
+      UART%<uartmodule>_RestoreBytes(read_struct, receive_count);
+    }
+     
+    /* No byte receive */
+    return 0;
+  }
+
+  /* Read Binary packet
+   * 0: Not ready, 1: Data is ready
+   */
+  uint8_t UART%<uartmodule>_ReadBinary(UARTRX_BUFFER_READ_STRUCT *read_struct, \
+                                     const char *header, uint16_t header_count, \
+                                     const char *terminator, uint16_t terminator_count, \
+                                     uint8_t *buffer, uint16_t data_count)
+  {
+    uint16_t receive_count = 0, drop_count = 0, binary_state = 0, binary_index = 0;
+    uint16_t i;
+
+    do {
+      UART%<uartmodule>_Read(read_struct); /* Check DMA buffer */
+      receive_count += read_struct->count; /* Total number of data received */
+       
+      /* Binary packet processing */
+      for(i=0; i<read_struct->count; i++) {
+        switch( binary_state ) {
+          case 0: /* Search for header */
+            if(binary_index < header_count) {
+              if(read_struct->buffer[i] == header[binary_index]) {
+                binary_index ++;
+              }
+              else {
+                binary_index = 0;                  
+                drop_count = receive_count - (read_struct->count - i - 1); /* Drop packet */
+              }
+              break;
+            }
+            else { /* Change to DATA state */
+              binary_index = 0;
+              binary_state ++;
+            }
+
+          case 1: /* Wait for data */
+            /* Wait for DATA */
+            if(binary_index < data_count) {
+              buffer[binary_index] = read_struct->buffer[i];
+              binary_index ++;
+
+              /* Check if ready (No terminator) */
+              if ((binary_index >= data_count) && (terminator_count == 0)) {
+                UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - i - 1)); /* Restore some bytes */
+                return 1; /* Return success status */
+              }
+              break;
+            }
+            else { /* Change to Terminator state */
+              binary_index = 0;
+              binary_state ++;                
+            }
+
+          case 2: /* Scan for terminator */
+            if(binary_index < terminator_count) {
+              if(read_struct->buffer[i] == terminator[binary_index]) {
+                binary_index ++;
+              }
+              else {
+                binary_state = 0;
+                binary_index = 0;                  
+                drop_count = receive_count - (read_struct->count - i - 1); /* Drop packet */
+              }
+            }
+
+            if(binary_index >= terminator_count) { /* Success */
+              /* Restore some bytes */
+              UART%<uartmodule>_RestoreBytes(read_struct, (read_struct->count - i - 1));                
+              return 1; /* Return success status */
+            }
+            break;
+        }
+      }
+    } while (read_struct->count > 0);
+
+    /* Restore bytes */
+    UART%<uartmodule>_RestoreBytes(read_struct, (receive_count - drop_count));
+    return 0;
+  }
+
+/*
+  void UART%<uartmodule>_Write(const uint8_t *data, uint16_t count) { 
+    while (count--) {
+	  NRF_UART%<uartmodule>->EVENTS_TXDRDY=0;
+	  NRF_UART%<uartmodule>->TXD = (uint8_t)*data++;
+	  while (NRF_UART%<uartmodule>->EVENTS_TXDRDY != 1); 
+    }
+  }*/
+
+void UART%<uartmodule>_Write(const uint8_t *data, uint16_t count)
+{
+    uint32_t err_code;
+	
+		UART%<uartmodule>_Tx_Done = 0;
+    for (uint32_t i = 0; i < count; i++)
+    {
+        do
+        {
+            err_code = app_uart_put(data[i]);
+            if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
+            {
+                APP_ERROR_CHECK(err_code);
+            }
+        } while (err_code == NRF_ERROR_BUSY);
+    }
+		
+		// Wait for Tx done
+		int delay_counter = 0;
+		while (!UART%<uartmodule>_Tx_Done && (++delay_counter < 50000 /*500ms*/))
+		{
+			nrf_delay_us(10);
+		}
+}
+%else
+  %% --- Binary mode
+  %if packetmode == "Binary"
+    %if binheaderlen > 0
+      /* Binary header */
+      const char %<blockid>_Header[%<blockid>_Header_SIZE] = \
+      {\
+        %assign sep = ""
+        %foreach idx=binheaderlen
+        %<sep>%<binheader[idx]>\
+        %assign sep = ","
+        %endforeach
+      };
+    %endif
+    %if binterminatorlen > 0
+      /* Binary terminator */
+      const char %<blockid>_Terminator[%<blockid>_Terminator_SIZE] = \
+      {\
+        %assign sep = ""
+        %foreach idx=binterminatorlen
+        %<sep>%<binterminator[idx]>\
+        %assign sep = ","
+        %endforeach
+      };
+    %endif
+  %endif
+
+  %% --- Ascii mode
+  %if (packetmode == "Ascii") || (packetmode == "String Buffer") || (packetmode == "Read Line")
+    %if asciiterminator != ""
+      /* End of packet, ascii mode */
+      const char %<blockid>_AsciiTerminator[%<blockid>_AsciiTerminator_SIZE] =\
+      { %<asciiterminator> };
+    %endif
+  %endif
+%endif
+
+%% === Rx ===
+%if conf == "Rx"
+  /* Data read structure */
+  UARTRX_BUFFER_READ_STRUCT %<blockid>_read_structure = {0, 0, (uint8_t *)0};
+  
+  %% Binary
+  %if packetmode == "Binary"
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {
+    %if transfer == "Blocking"
+      while(!\
+    %else
+      return (\
+    %endif
+    UART%<uartmodule>_ReadBinary(&%<blockid>_read_structure, \
+            %if binheaderlen > 0
+            %<blockid>_Header, %<blockid>_Header_SIZE, \
+            %else
+            (void *)0, 0,\
+            %endif
+            %if binterminatorlen > 0
+            %<blockid>_Terminator, %<blockid>_Terminator_SIZE, \
+            %else
+            (void *)0, 0,\
+            %endif
+            buffer, size));
+   }
+  %endif
+
+  %% Ascii
+  %if packetmode == "Ascii"
+    /* Data */
+    %foreach idx=SIZE(optionstring2)[1]
+      %<optionstring2[idx]> %<blockid>_data%<idx> = 0; /* D%<idx> */
+    %endforeach
+
+    /* %<transfer> */
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {
+      uint8_T ready = 0;
+      %if SIZE(optionstring2)[1] < 1
+      uint16_t len;
+      %endif
+
+      %if transfer == "Blocking"
+      do { /* Rx Blocking */
+      %else
+        /* Rx Non-Blocking */
+        %endif
+          if(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, \
+               %<blockid>_AsciiTerminator, %<blockid>_AsciiTerminator_SIZE, \
+               buffer, size) > 0) {
+            %if SIZE(optionstring2)[1] > 0
+              ready = (uint8_t)(sscanf((const char*)buffer,"%<asciiformat>"\
+              %foreach idx=SIZE(optionstring2)[1]
+              ,&%<blockid>_data%<idx>
+              %endforeach
+              ) == %<SIZE(optionstring2)[1]>);
+            %else
+              // trim
+              len = strlen((const char*)buffer);
+              while (len && ((buffer[len-1] == '\r') || (buffer[len-1] == '\n')))
+                buffer[--len] = 0;
+              ready = (uint8_t)(strcmp((const char*)buffer, "%<asciiformat>") == 0);
+            %endif
+          }
+        %if transfer == "Blocking"
+        } while (!ready);
+        %else
+          return ready;
+        %endif
+    }
+  %endif
+
+  %% String Buffer
+  %if packetmode == "String Buffer"
+    /* %<transfer> */
+    %if transfer == "Blocking"
+    void \
+    %else
+    uint8_t \
+    %endif
+    %<blockid>_Receive(uint8_t *buffer, uint16_t size) {
+      %if transfer == "Blocking"
+        while (!(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, \
+            %<blockid>_AsciiTerminator, %<blockid>_AsciiTerminator_SIZE, \
+            buffer, size) > 0)); 
+      %else
+        return (uint8_t)(UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, \
+            %<blockid>_AsciiTerminator, %<blockid>_AsciiTerminator_SIZE, \
+            buffer, size) > 0);
+      %endif
+    }
+  %endif
+
+  %% Read Line
+  %if packetmode == "Read Line"
+  uint16_t %<blockid>_ReadLine(uint8_t *buffer, uint16_t size)
+  {
+    return UART%<uartmodule>_ReadLine(&%<blockid>_read_structure, \
+               %<blockid>_AsciiTerminator, %<blockid>_AsciiTerminator_SIZE, \
+               buffer, size);
+  }
+  %endif
+%endif
+
+
+void enable_%<blockid>(void){
+  %if conf == "Setup"
+    uint32_t err_code;
+    app_uart_comm_params_t const comm_params =
+    {
+        .rx_pin_no    = UART%<uartmodule>_RX_PIN,
+        .tx_pin_no    = UART%<uartmodule>_TX_PIN,
+        .rts_pin_no   = UART%<uartmodule>_RTS_PIN,
+        .cts_pin_no   = UART%<uartmodule>_CTS_PIN,
+        .flow_control = APP_UART_FLOW_CONTROL_ENABLED,
+        .use_parity   = false,
+#if defined (UART_PRESENT)
+        .baud_rate    = NRF_UART_BAUDRATE_%<baudrate>
+#else
+        .baud_rate    = NRF_UARTE_BAUDRATE_%<baudrate>
+#endif
+    };
+
+    APP_UART_FIFO_INIT(&comm_params,
+                       URX%<uartmodule>_BUFFER_SIZE,
+                       UTX%<uartmodule>_BUFFER_SIZE,
+                       uart%<uartmodule>_uart_event_handle,
+                       APP_IRQ_PRIORITY_HIGH,
+                       err_code);
+    
+    // Reset Read index
+    UART%<uartmodule>_Rx_Count = 0;
+  %endif
+
+  %if conf == "Rx"
+  /* Init Data read structure */
+  memset(&%<blockid>_read_structure, 0, sizeof(UARTRX_BUFFER_READ_STRUCT));
+  %endif
+}
+
+void disable_%<blockid>(void) {
+  %if conf == "Setup"
+  app_uart_close();
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+%if conf != "Setup"
+  /* %<blockid>: '%<block.Name>' 
+   * Packet: %<packetmode>
+   */
+%endif
+
+%% === Rx ===
+%if conf == "Rx"
+  %% Find port index offset
+  %if transfer == "Blocking"
+    %assign portOffset = 0
+  %else
+    %assign portOffset = 1
+  %endif
+
+  %% --- Binary ---
+  %if packetmode == "Binary"
+    %% Find binary data length
+    %assign binary_data_len = 0
+    %assign data_size_list = [8, 4, 1, 1, 2, 2, 4, 4, 1]
+    %foreach idx=LibBlockNumOutputPorts(block)
+      %if idx >= portOffset
+        %assign binary_data_len = binary_data_len + data_size_list[LibBlockOutputSignalDataTypeId(idx)]
+      %endif
+    %endforeach
+
+    %if transfer == "Blocking"
+      %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], %<binary_data_len>); /* Blocking */
+    %else
+      if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], %<binary_data_len>)) { /* Non-blocking */
+    %endif
+
+    %assign dataIdx = 0
+    %foreach idx=LibBlockNumOutputPorts(block)  
+      %if idx >= portOffset
+        memcpy(%<LibBlockOutputSignalAddr(idx, "", "", 0)>, &UART%<uartmodule>_Temp_Buffer[%<dataIdx>], sizeof(%<LibBlockOutputSignalDataTypeName(idx, "")>)); /* D%<CAST("Number",idx-portOffset)> */
+        %assign dataIdx = dataIdx +  data_size_list[LibBlockOutputSignalDataTypeId(idx)]
+      %endif
+    %endforeach
+    %if transfer != "Blocking"      
+      %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+    }
+    else {
+      %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+    }
+    %endif
+  %endif  
+
+  %% --- Ascii ---
+  %if packetmode == "Ascii" 
+    %if transfer == "Blocking"
+      %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE); /* %<transfer> */
+    %else
+      if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE)) { /* %<transfer> */
+    %endif
+
+    %foreach idx=SIZE(optionstring2)[1]
+      %%%<optionstring2[idx]> %<blockid>_data%<idx> = 0; /* D%<idx> */
+      %<LibBlockOutputSignal(idx+portOffset, "", "", 0)> = %<blockid>_data%<idx>; /* D%<idx> */
+    %endforeach
+
+    %if transfer == "Blocking"
+      %%%foreach idx=(outputtypearray[0])
+      %%%<LibBlockOutputSignal(idx, "", "", 0)> = %<blockid>_data%<idx>; /* D%<idx> */
+      %%%endforeach
+    %else
+      %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+      }
+      else {
+        %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+      }
+    %endif
+  %endif
+
+  %% --- String Buffer ---
+  %if packetmode == "String Buffer" 
+    %if transfer == "Blocking"
+      %<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE); /* %<transfer> */
+    %else
+      if(%<blockid>_Receive(&UART%<uartmodule>_Temp_Buffer[0], URX%<uartmodule>_BUFFER_SIZE)) { /* %<transfer> */
+    %endif     
+    if(strlen((const char *)UART%<uartmodule>_Temp_Buffer) < %<stringbuffer>_SIZE) { /* Check size */
+      strcpy(%<stringbuffer>, (char*)UART%<uartmodule>_Temp_Buffer);
+    }
+    else { /* Truncated */
+      strncpy(%<stringbuffer>, (char*)UART%<uartmodule>_Temp_Buffer, %<stringbuffer>_SIZE-1);
+      %<stringbuffer>[%<stringbuffer>_SIZE-1] = '\0';
+    }
+    %if transfer == "Blocking"
+    %else
+        %<LibBlockOutputSignal(0, "", "", 0)> = 1; /* READY */
+      }
+      else {
+        %<LibBlockOutputSignal(0, "", "", 0)> = 0; /* Not READY */
+      }
+    %endif    
+  %endif
+
+  %% --- Read Line ---
+  %if packetmode == "Read Line"
+  %<LibBlockOutputSignal(0, "", "", 0)> = %<blockid>_ReadLine((uint8_t *)%<LibBlockOutputSignalAddr(1, "", "", 0)>, %<LibBlockOutputSignalWidth(1)>);
+  %endif
+  
+
+%endif
+
+%% === Tx ===
+%if conf == "Tx"
+
+  %% --- Binary ---
+  %if packetmode == "Binary"
+    %% Header
+    %if binheaderlen > 0
+      UART%<uartmodule>_Write(&%<blockid>_Header[0], %<blockid>_Header_SIZE); /* Binary header */
+    %endif
+    %% Data
+    %assign data_size_list = [8, 4, 1, 1, 2, 2, 4, 4, 1]
+    %assign data_idx = 0
+    %foreach portIdx=LibBlockNumInputPorts(block)
+      %assign dtname = LibBlockInputSignalDataTypeName(portIdx,tRealPart)
+          UART%<uartmodule>_Write(\
+                 (uint8_t *)%<LibBlockInputSignalAddr(portIdx, "", "", 0)>, \
+                 %if LibBlockInputSignalWidth(portIdx) > 1 
+                   %<LibBlockInputSignalWidth(portIdx)>*sizeof(%<LibBlockInputSignalDataTypeName(portIdx, "")>)); /* Data %<portIdx> [%<LibBlockInputSignalWidth(portIdx)>]*/ 
+                 %else
+                   sizeof(%<LibBlockInputSignalDataTypeName(portIdx, "")>)); /* Data %<portIdx> */ 
+                 %endif      
+      %assign data_idx = data_idx + data_size_list[LibBlockInputSignalDataTypeId(portIdx)]
+    %endforeach
+    %% Terminator
+    %if binterminatorlen > 0
+      UART%<uartmodule>_Write(&%<blockid>_Terminator[0], %<blockid>_Terminator_SIZE); /* Binary terminator */
+    %endif
+  %endif
+
+  %% --- Ascii ---
+  %if packetmode == "Ascii"
+  {
+    int i, str_size;
+    sprintf((char *)&UART%<uartmodule>_Tx_Buffer[0], "%<asciiformat>"
+    %foreach portIdx=LibBlockNumInputPorts(block)
+      ,(%<optionstring2[portIdx]>)%<LibBlockInputSignal(portIdx, "", "", 0)> /* D%<portIdx> */
+    %endforeach
+    );
+    str_size = strlen((char *)&UART%<uartmodule>_Tx_Buffer[0]);
+    %if asciiterminator != ""
+    for (i=0; i<%<blockid>_AsciiTerminator_SIZE; i++)
+     UART%<uartmodule>_Tx_Buffer[str_size ++] = %<blockid>_AsciiTerminator[i];
+    %endif
+    UART%<uartmodule>_Write((uint8_t *)&UART%<uartmodule>_Tx_Buffer[0], str_size); /* Ascii data */
+  }
+  %endif
+
+  %% --- String Buffer ---
+  %if packetmode == "String Buffer"
+    UART%<uartmodule>_Write((uint8_t *)%<stringbuffer>, strlen(%<stringbuffer>)); /* String Buffer */
+    %if asciiterminator != ""
+      UART%<uartmodule>_Write((uint8_t *)&%<blockid>_AsciiTerminator[0], %<blockid>_AsciiTerminator_SIZE); /* Ascii terminator */
+    %endif
+  %endif
+
+  %% --- Raw Buffer ---
+  %if packetmode == "Raw Buffer"
+  {
+    uint16_t len = %<LibBlockInputSignal(0, "", "", 0)>;
+    if (len > %<LibBlockInputSignalWidth(1)>)
+      len = %<LibBlockInputSignalWidth(1)>;
+    UART%<uartmodule>_Write (%<LibBlockInputSignalAddr(1, "", "", 0)>, len);
+  }
+  %endif
+
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

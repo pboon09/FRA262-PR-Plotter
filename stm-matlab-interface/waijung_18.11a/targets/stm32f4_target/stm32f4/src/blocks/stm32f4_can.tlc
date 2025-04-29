@@ -1,0 +1,880 @@
+%implements stm32f4_can "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign canmodule = CAST("String",SFcnParamSettings.canmodule)
+  %assign enableisr = CAST("Number",SFcnParamSettings.enableisr)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+  %assign blockid = block.Identifier
+
+  %% Size of confstr: %<SIZE(confstr)[1]>
+
+  %% === Setup ===
+  %if conf == "Setup"
+    %assign bitrate     = confstr[0]
+    %assign presc       = confstr[1]
+    %assign txportstr   = confstr[2]
+    %assign txpinstr    = confstr[3]
+    %assign rxportstr   = confstr[4]
+    %assign rxpinstr    = confstr[5]
+    %assign sjw         = confstr[6]
+    %assign bs1         = confstr[7]
+    %assign bs2         = confstr[8]
+    %assign nart        = confstr[9]
+
+    %assign block = block + conf + canmodule + bitrate + sampletime + \
+               blockid + presc + txportstr + txpinstr + \
+               rxportstr + rxpinstr + sjw + bs1 + bs2 + nart
+  %endif
+
+  %% === Tx ===
+  %if conf == "Tx"
+    %assign transfer    = confstr[0]
+    %assign timeout     = confstr[1]
+    %assign idtype      = confstr[2]
+    %assign specificid  = confstr[3]
+    %assign id          = confstr[4]
+    %assign specificdlc = confstr[5]
+    %assign dlc         = confstr[6]
+    %assign enablestatus= confstr[7]
+    %assign data0type   = confstr[8]
+    %assign data1type   = confstr[9]
+    %assign data2type   = confstr[10]
+    %assign data3type   = confstr[11]
+    %assign data4type   = confstr[12]
+    %assign data5type   = confstr[13]
+    %assign data6type   = confstr[14]
+    %assign data7type   = confstr[15]
+    %assign block = block + blockid + conf + canmodule + sampletime + \
+              transfer + timeout + idtype + specificid + id + \
+              specificdlc + dlc + enablestatus + data0type + data1type + \
+              data2type + data3type + data4type + data5type + data6type + \
+              data7type
+  %endif
+
+  %% === Rx ===
+  %if conf == "Rx"
+    %assign idtype      = confstr[0]
+    %assign filtertype  = confstr[1]
+    %assign id          = confstr[2]
+    %assign idmask      = confstr[3] 
+    %assign usedlc      = confstr[4]
+
+    %assign data0type   = confstr[5]
+    %assign data1type   = confstr[6]
+    %assign data2type   = confstr[7]
+    %assign data3type   = confstr[8]
+    %assign data4type   = confstr[9]
+    %assign data5type   = confstr[10]
+    %assign data6type   = confstr[11]
+    %assign data7type   = confstr[12]
+
+    %assign buffersize  = confstr[13]
+    %assign id_val_high = confstr[14]
+    %assign id_val_low  = confstr[15]
+    %assign id_mask_high= confstr[16]
+    %assign id_mask_low = confstr[17]
+    %assign block = block + blockid + conf + canmodule + sampletime + \
+              idtype + filtertype + id + idmask + usedlc +\
+              buffersize + enableisr + \
+              id_val_high + id_val_low + id_mask_high + id_mask_low +\
+              data0type + data1type + data2type + data3type + \
+              data4type + data5type + data6type + data7type
+  %endif
+  %% === Msg ===
+  %if conf == "Msg"
+    %assign usedlc    = confstr[0]
+    %assign data0type   = confstr[1]
+    %assign data1type   = confstr[2]
+    %assign data2type   = confstr[3]
+    %assign data3type   = confstr[4]
+    %assign data4type   = confstr[5]
+    %assign data5type   = confstr[6]
+    %assign data6type   = confstr[7]
+    %assign data7type   = confstr[8]
+
+    %assign block = block + blockid + conf + canmodule + sampletime + \              
+              usedlc + \
+              data0type + data1type + data2type + data3type + \
+              data4type + data5type + data6type + data7type
+  %endif
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_CAN__) == 0)
+      %assign :: __STM32F4XX_CAN__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_can.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_CAN_ISR__) == 0)
+      %assign :: __STM32F4XX_CAN_ISR__ = 1
+      %openfile tmpBuf
+         #include "waijung_hwdrvlib.h"
+         #include "%<LibGetMdlPubHdrBaseName()>.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_can_isr")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * CAN
+    * ########################################################################
+   */
+   #define CAN_FILTER_COUNT  14
+
+   /* CAN Transmit status */
+   #define CAN_STA_SUCCESS   0 /* Ok */
+   #define CAN_STA_FAILED    1 /* Failed */
+   #define CAN_STA_PENDING   2 /* Message is pending */
+   #define CAN_STA_NOSLOT    3 /* No mailbox */
+
+   /* CAN%<canmodule> Filter */
+   typedef void (*CAN_FILTER_CALLBACK)(CanRxMsg* pMsg);   
+   typedef struct {
+	 CAN_FILTER_CALLBACK CallBack; /* Call back routine when filter match */
+   } CAN_FILTER_STRUCT;
+   extern CAN_FILTER_STRUCT CAN1_FilterList[];
+   extern CAN_FILTER_STRUCT CAN2_FilterList[];
+   uint8_t CAN1_Filter_Hook(CAN_FILTER_CALLBACK callback);
+   uint8_t CAN2_Filter_Hook(CAN_FILTER_CALLBACK callback);
+   void CAN1_Filter_Free(uint8_t filter_index);
+   void CAN2_Filter_Free(uint8_t filter_index);
+   /* CAN Transmit */
+   uint32_t CANx_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage, uint8_t blocking, float timeout_sec);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * CAN
+    * ########################################################################
+   */
+   uint32_t CANx_Transmit(CAN_TypeDef* CANx, CanTxMsg* TxMessage, uint8_t blocking, float timeout_sec)
+   {
+     SYS_TIMER_uS_STRUCT timer;
+     uint32_t timeout_us;
+     uint8_t mailbox;
+     uint8_t status;
+     /* Transmit */
+     mailbox = CAN_Transmit(CANx, TxMessage);
+     status  = CAN_TransmitStatus(CANx, mailbox);  
+     /* Blocking ? */
+     if(blocking) {       
+       timeout_us = (uint32_t)((float)timeout_sec*1000000);
+       SysTimer_uS_Start(&timer, timeout_us);
+       while ((status == CAN_TxStatus_Pending) && !SysTimer_uS_IsTimeout(&timer)){
+         status  = CAN_TransmitStatus(CANx, mailbox);
+       }
+     }  
+     /* Remap status */
+     switch(status) {
+       case CAN_TxStatus_Ok: return CAN_STA_SUCCESS;
+       case CAN_TxStatus_Pending: return CAN_STA_PENDING;
+       case CAN_TxStatus_NoMailBox: return CAN_STA_NOSLOT;
+       case CAN_TxStatus_Failed: 
+       default:
+         return CAN_STA_FAILED;
+     }    
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+%if conf == "Rx"
+  %if enableisr == 1
+    %addtorecord block AsyncCallerGenCode TLC_TRUE
+  %endif
+%endif
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "Tx"
+  extern CanTxMsg %<blockid>TxMsg;
+%endif
+%if conf == "Rx"
+  %if enableisr == 1
+    void %<blockid>_filter_isr(CanRxMsg* pMsg);
+  %else
+    typedef struct {
+    %assign d_index = 0
+    %foreach idx=8
+      %assign datatype   = confstr[5+idx]
+      %if datatype == "double" 
+        double d%<d_index>;
+      %elseif datatype == "single" 
+        float d%<d_index>;
+      %elseif (datatype == "int8") || (datatype == "uint8")
+        %<datatype>_t d%<d_index>;
+      %elseif (datatype == "int16") || (datatype == "uint16")
+        %<datatype>_t d%<d_index>;
+      %elseif  (datatype == "int32") || (datatype == "uint32")
+        %<datatype>_t d%<d_index>;
+      %else
+      %endif
+
+      %assign d_index = d_index + 1
+    %endforeach
+    } %<blockid>_DATA_STRUCT;
+
+    extern %<blockid>_DATA_STRUCT *%<blockid>_data;
+    extern CanRxMsg %<blockid>_Msg;    
+    uint16_t %<blockid>_GetMsg(CanRxMsg* pMsg);
+  %endif
+%endif
+
+%if conf == "Msg"
+    typedef struct {
+    %assign d_index = 0
+    %foreach idx=8
+      %assign datatype   = confstr[1+idx]
+      %if datatype == "double" 
+        double d%<d_index>;
+      %elseif datatype == "single" 
+        float d%<d_index>;
+      %elseif (datatype == "int8") || (datatype == "uint8")
+        %<datatype>_t d%<d_index>;
+      %elseif (datatype == "int16") || (datatype == "uint16")
+        %<datatype>_t d%<d_index>;
+      %elseif  (datatype == "int32") || (datatype == "uint32")
+        %<datatype>_t d%<d_index>;
+      %else
+      %endif
+
+      %assign d_index = d_index + 1
+    %endforeach
+    } %<blockid>_DATA_STRUCT;
+    extern %<blockid>_DATA_STRUCT *%<blockid>_data;
+%endif
+
+%if conf == "Setup"
+  void waijung_can%<canmodule>_initial(void);
+  #define WAIJUNG_CAN%<canmodule>_INIT()  waijung_can%<canmodule>_initial()
+%endif
+
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%if conf == "Rx"
+  %if canmodule == "1"
+    %if (EXISTS(::__STM32F4XX_CAN1_USED__) == 0)
+       %assign :: __STM32F4XX_CAN1_USED__ = 1
+       %openfile tmpBuf1
+       /* ########################################################################
+        * Handles CAN1 RX0 request
+        * ########################################################################
+        */
+       /* Filter list, number 0-13 */
+       CAN_FILTER_STRUCT CAN1_FilterList[CAN_FILTER_COUNT] = 
+       {
+         {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0},{(void*)0},\
+         {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}
+       };
+       uint8_t CAN1_Filter_Hook(CAN_FILTER_CALLBACK callback)
+       {
+         uint8_t i;
+         /* Find an available filter number */
+         for(i=0; i<CAN_FILTER_COUNT; i++) {
+           if(CAN1_FilterList[i].CallBack == (void*)0) {
+             CAN1_FilterList[i].CallBack = callback;
+             return i;
+           }
+         }
+         /* No slot available */
+         return 0xFF;
+       }
+       void CAN1_Filter_Free(uint8_t filter_index)
+       {
+         if(filter_index < CAN_FILTER_COUNT)
+	       CAN1_FilterList[filter_index].CallBack = (void*)0; /* NULL */
+       }
+
+       void CAN1_RX0_IRQHandler(void)
+       {
+         static CanRxMsg msg;           
+
+         while(CAN_MessagePending(CAN1, CAN_FIFO0) > 0) {
+           /* Get message */
+           CAN_Receive(CAN1, CAN_FIFO0, &msg);
+
+           /* Check message filter index */
+           if(msg.FMI < CAN_FILTER_COUNT) {
+             /* Call back */
+             if(CAN1_FilterList[msg.FMI].CallBack != (void*)0)
+               CAN1_FilterList[msg.FMI].CallBack(&msg);
+           }
+         }
+       }
+       %closefile tmpBuf1
+       %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+       %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+       %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf1)>
+    %endif
+  %endif
+
+  %if canmodule == "2"
+    %if (EXISTS(::__STM32F4XX_CAN2_USED__) == 0)
+       %assign :: __STM32F4XX_CAN2_USED__ = 1
+       %openfile tmpBuf1
+       /* ########################################################################
+        * Handles CAN2 RX0 request
+        * ########################################################################
+        */
+       /* Filter list, number 14-27 */
+       CAN_FILTER_STRUCT CAN2_FilterList[CAN_FILTER_COUNT] = 
+       {
+         {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0},\
+         {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}, {(void*)0}
+       };
+       uint8_t CAN2_Filter_Hook(CAN_FILTER_CALLBACK callback)
+       {
+         uint8_t i;
+
+         /* Find an available filter number */
+         for(i=0; i<CAN_FILTER_COUNT; i++) {
+           if(CAN2_FilterList[i].CallBack == (void*)0) { /* NULL */
+             CAN2_FilterList[i].CallBack = callback;
+             return i;
+           }
+         }
+         /* No slot available */
+         return 0xFF;
+       }
+       void CAN2_Filter_Free(uint8_t filter_index)
+       {
+         if(filter_index < CAN_FILTER_COUNT) 
+	       CAN2_FilterList[filter_index].CallBack = (void*)0; /* NULL */
+       }
+
+       void CAN2_RX1_IRQHandler(void)
+       {
+         static CanRxMsg msg;
+
+         while(CAN_MessagePending(CAN2, CAN_FIFO1) > 0) {
+           /* Get message */
+           CAN_Receive(CAN%<canmodule>, CAN_FIFO1, &msg);
+         
+           /* Check message filter index */
+           if(msg.FMI < CAN_FILTER_COUNT) {
+             /* Call back */
+             if(CAN2_FilterList[msg.FMI].CallBack != (void*)0)
+               CAN2_FilterList[msg.FMI].CallBack(&msg);
+           }
+         }
+       }
+       %closefile tmpBuf1
+       %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+       %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+       %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf1)>
+    %endif
+  %endif
+%endif %% Rx
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+  %% ======================================================================
+  %if conf == "Rx"    
+    CAN_FilterInitTypeDef  %<blockid>_FilterInitStructure;
+    uint8_t %<blockid>_filter_number; /*Filter matched index */
+    %if enableisr == 1
+
+    %else
+      %<blockid>_DATA_STRUCT *%<blockid>_data;
+      CanRxMsg %<blockid>_Msg; /* Temporary message */
+      CanRxMsg %<blockid>_Msg_Buffer[%<buffersize>]; /* Size must be a number of 2^N */
+      volatile uint16_t %<blockid>_Msg_Buffer_RIndex = 0;
+      volatile uint16_t %<blockid>_Msg_Buffer_WIndex = 0;
+      uint16_t %<blockid>_Msg_Buffer_Count(void)
+      {
+        volatile uint16_t read_index;
+        volatile uint16_t write_index;
+
+        /* Get index to local variable, due to global will also access by ISR */
+        read_index = %<blockid>_Msg_Buffer_RIndex;
+        write_index = %<blockid>_Msg_Buffer_WIndex;       
+
+        if(write_index >= read_index) {
+          return (write_index - read_index);
+        }
+        else {
+          return ((%<buffersize>-read_index) + write_index); /* Max count is %<buffersize>-1 */
+        }
+      }
+      uint16_t %<blockid>_GetMsg(CanRxMsg* pMsg)
+      {
+        uint16_t msg_pending;
+        __disable_irq();
+        msg_pending = %<blockid>_Msg_Buffer_Count();
+        if(msg_pending > 0) { //%<blockid>_Msg_Buffer_RIndex != %<blockid>_Msg_Buffer_WIndex) {
+          memcpy(pMsg, &%<blockid>_Msg_Buffer[%<blockid>_Msg_Buffer_RIndex], sizeof(CanRxMsg));
+          %<blockid>_Msg_Buffer_RIndex ++;
+          %<blockid>_Msg_Buffer_RIndex &= (%<buffersize>-1);
+        }
+        __enable_irq();
+        /* Number of pending message, include a reading */
+        return msg_pending;
+      }
+
+      void %<blockid>_filter_isr(CanRxMsg* pMsg)
+      {
+        if(pMsg->IDE == CAN_Id_%<idtype>) { /* Accept only ID %<idtype> */
+          memcpy(&%<blockid>_Msg_Buffer[%<blockid>_Msg_Buffer_WIndex] ,pMsg, sizeof(CanRxMsg));
+          %<blockid>_Msg_Buffer_WIndex ++ ;
+          %<blockid>_Msg_Buffer_WIndex &= (%<buffersize>-1);
+          if(%<blockid>_Msg_Buffer_WIndex == %<blockid>_Msg_Buffer_RIndex) { /* Buffer overflow, Flush an oldest queue */
+            %<blockid>_Msg_Buffer_RIndex ++;
+            %<blockid>_Msg_Buffer_RIndex &= (%<buffersize>-1);
+          }
+        }
+      }
+    %endif
+  %endif
+
+  %% ======================================================================
+  %if conf == "Tx"
+    CanTxMsg %<blockid>TxMsg;
+  %endif
+
+  %if conf == "Msg"
+    %<blockid>_DATA_STRUCT *%<blockid>_data;
+  %endif
+
+  %if conf == "Setup"
+  static uint8_t waijung_can%<canmodule>_ready = 0;
+  void waijung_can%<canmodule>_initial(void)
+  {
+      
+    CAN_InitTypeDef   CAN_InitStructure;
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    NVIC_InitTypeDef  NVIC_InitStructure;
+  
+    if (!waijung_can%<canmodule>_ready) {
+      waijung_can%<canmodule>_ready = 1; // Set ready status
+
+      /* Enable GPIO clock */
+      %if txportstr == rxportstr
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<txportstr>, ENABLE);
+      %else
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<txportstr>, ENABLE);
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<rxportstr>, ENABLE);
+      %endif
+
+      /* Connect CAN pins to AF */
+      GPIO_PinAFConfig(GPIO%<txportstr>, GPIO_PinSource%<txpinstr>, GPIO_AF_CAN%<canmodule>);
+      GPIO_PinAFConfig(GPIO%<rxportstr>, GPIO_PinSource%<rxpinstr>, GPIO_AF_CAN%<canmodule>); 
+
+      /* Configure CAN RX and TX pins */
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+      GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<txpinstr>;
+      GPIO_Init(GPIO%<txportstr>, &GPIO_InitStructure);
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<rxpinstr>;
+      GPIO_Init(GPIO%<rxportstr>, &GPIO_InitStructure);
+
+      /* Enable CAN clock */
+      %if canmodule == "1"
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+      %else
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1 | RCC_APB1Periph_CAN2, ENABLE);
+      %endif
+
+      /* Configures the NVIC for CAN */
+      %if canmodule == "1"
+      NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
+      %else
+      NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX1_IRQn;
+      %endif
+
+      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0;
+      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0;
+      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+      NVIC_Init(&NVIC_InitStructure);
+
+      /* CAN cell init */
+      CAN_InitStructure.CAN_TTCM = DISABLE;
+      CAN_InitStructure.CAN_ABOM = ENABLE;
+      CAN_InitStructure.CAN_AWUM = DISABLE;
+      CAN_InitStructure.CAN_NART = %<nart>; //ENABLE;
+      CAN_InitStructure.CAN_RFLM = DISABLE;
+      CAN_InitStructure.CAN_TXFP = DISABLE;
+      CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
+      CAN_InitStructure.CAN_SJW = CAN_SJW_%<sjw>;
+  
+      /* CAN Baudrate = %<bitrate> bps */
+      CAN_InitStructure.CAN_BS1 = CAN_BS1_%<bs1>;
+      CAN_InitStructure.CAN_BS2 = CAN_BS2_%<bs2>;
+      CAN_InitStructure.CAN_Prescaler = %<presc>;
+      CAN_Init(CAN%<canmodule>, &CAN_InitStructure);
+
+      %if canmodule == "1"
+      /* Enable FIFO 0 message pending Interrupt */
+      CAN_ITConfig(CAN%<canmodule>, CAN_IT_FMP0, ENABLE);
+      %else
+      /* Enable FIFO 1 message pending Interrupt */
+      CAN_ITConfig(CAN%<canmodule>, CAN_IT_FMP1, ENABLE);
+      %endif
+    }
+  }
+  %endif
+
+  void enable_%<blockid>(void){
+
+    // Initial the module
+    WAIJUNG_CAN%<canmodule>_INIT ();
+
+    %if conf == "Tx"
+      /* Transmit Structure */
+      %if idtype == "Standard"
+      %<blockid>TxMsg.StdId = %<id>;
+      %<blockid>TxMsg.ExtId = 0;
+      %else
+      %<blockid>TxMsg.StdId = 0;
+      %<blockid>TxMsg.ExtId = %<id>;
+      %endif
+      %<blockid>TxMsg.RTR = CAN_RTR_DATA;
+      %<blockid>TxMsg.IDE = CAN_Id_%<idtype>;
+      %<blockid>TxMsg.DLC = %<dlc>;
+    %endif
+
+    %if conf == "Rx"
+      /* Enable CAN clock */
+      %if canmodule == "1"
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+      %else
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1 | RCC_APB1Periph_CAN2, ENABLE);
+      %endif
+
+      /* Get available filter number */
+      %<blockid>_filter_number = CAN%<canmodule>_Filter_Hook(%<blockid>_filter_isr);
+      if(%<blockid>_filter_number < CAN_FILTER_COUNT) {
+        /* CAN filter init:
+          ID Type: %<idtype>, Filter: %<filtertype>
+        */
+        %if canmodule == "1"
+          %<blockid>_FilterInitStructure.CAN_FilterNumber = %<blockid>_filter_number;
+        %else
+          %<blockid>_FilterInitStructure.CAN_FilterNumber = (%<blockid>_filter_number + CAN_FILTER_COUNT);
+        %endif
+        %<blockid>_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+        %<blockid>_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
+
+        %% ---
+        %<blockid>_FilterInitStructure.CAN_FilterIdHigh = 0x%<id_val_high>;
+        %<blockid>_FilterInitStructure.CAN_FilterIdLow = 0x%<id_val_low>;
+        %<blockid>_FilterInitStructure.CAN_FilterMaskIdHigh = 0x%<id_mask_high>;
+        %<blockid>_FilterInitStructure.CAN_FilterMaskIdLow = 0x%<id_mask_low>;
+
+        %% ---
+        %<blockid>_FilterInitStructure.CAN_FilterFIFOAssignment = \
+        %if canmodule == "1"
+          0;
+        %else
+          1;
+        %endif
+        %<blockid>_FilterInitStructure.CAN_FilterActivation = ENABLE;
+        CAN_FilterInit(&%<blockid>_FilterInitStructure);
+      }
+      else {
+        %if canmodule == "1"
+        /* Error: No filter avalable, All (0-13) already acquired */
+        %else
+        /* Error: No filter avalable, All (14-27) already acquired */
+        %endif
+      }
+      %if enableisr == 0
+        /* Initial buffer */
+        %<blockid>_Msg_Buffer_RIndex = 0;
+        %<blockid>_Msg_Buffer_WIndex = 0;
+      %endif
+    %endif %% Rx
+  }
+
+  void disable_%<blockid>(void)
+  {
+    %if conf == "Rx"
+      /* Disable filter */
+      %<blockid>_FilterInitStructure.CAN_FilterActivation = DISABLE;
+      CAN_FilterInit(&%<blockid>_FilterInitStructure);
+      /* Release hook */
+      CAN%<canmodule>_Filter_Free(%<blockid>_filter_number);
+
+      %if enableisr == 0
+        /* Free buffer */
+        %<blockid>_Msg_Buffer_RIndex = 0;
+        %<blockid>_Msg_Buffer_WIndex = 0;
+      %endif
+    %endif
+  }
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if conf == "Tx"
+    /* %<blockid>: '%<block.Name>' */
+    %assign port_idx = 0
+
+    %% --- ID ---
+    %if specificid == "off"
+      %assign u = LibBlockInputSignal(port_idx, "", "", 0)
+      %if idtype == "Standard"
+        %<blockid>TxMsg.StdId = (uint32_t)%<u>;
+      %else
+        %<blockid>TxMsg.ExtId = (uint32_t)%<u>;
+      %endif
+      %assign port_idx = port_idx + 1
+    %endif
+
+    %% --- DLC ---
+    %if specificdlc == "off"
+      %assign u = LibBlockInputSignal(port_idx, "", "", 0)
+      %<blockid>TxMsg.DLC = (uint8_t)%<u>;
+      %assign port_idx = port_idx + 1
+    %endif
+   
+    %% --- Data ---
+    %assign d_index = 0
+    %foreach idx=8
+      %assign datatype = confstr[8+idx]
+
+      %% Double
+      %if datatype == "double"
+        %if port_idx < LibBlockNumInputPorts(block)
+          %if LibBlockInputSignalConnected(port_idx) == 1
+            %assign u = LibBlockInputSignalAddr(port_idx, "", "", 0)
+            memcpy(&(%<blockid>TxMsg.Data[%<d_index>]), %<u>, 8); /* D0: double */
+          %else            
+            memset(&(%<blockid>TxMsg.Data[%<d_index>]), 0, 8); /* D0: double */
+          %endif
+          %assign port_idx = port_idx + 1
+          %assign d_index = d_index + 8 
+        %endif        
+      %endif
+      %% Single, Int32, UInt32
+      %if (datatype == "single") || (datatype == "int32") || (datatype == "uint32")
+        %if port_idx < LibBlockNumInputPorts(block)
+          %if LibBlockInputSignalConnected(port_idx) == 1
+            %assign u = LibBlockInputSignalAddr(port_idx, "", "", 0)
+            memcpy(&(%<blockid>TxMsg.Data[%<d_index>]), %<u>, 4); /* D%<idx>: %<datatype> */
+          %else
+            memset(&(%<blockid>TxMsg.Data[%<d_index>]), 0, 4); /* D%<idx>: %<datatype> */
+          %endif
+          %assign port_idx = port_idx + 1
+          %assign d_index = d_index + 4
+        %endif        
+      %endif
+      %% Int8, UInt8
+      %if (datatype == "int8") || (datatype == "uint8")
+        %if port_idx < LibBlockNumInputPorts(block)
+          %assign u = LibBlockInputSignal(port_idx, "", "", 0)          
+          %<blockid>TxMsg.Data[%<d_index>] = %<u>; /* D%<idx>: %<datatype> */
+          %assign port_idx = port_idx + 1
+          %assign d_index = d_index + 1
+        %endif
+      %endif
+      %% Int16, Uint16
+      %if (datatype == "int16") || (datatype == "uint16")
+        %if port_idx < LibBlockNumInputPorts(block)
+          %if LibBlockInputSignalConnected(port_idx) == 1
+            %assign u = LibBlockInputSignalAddr(port_idx, "", "", 0)        
+            memcpy(&(%<blockid>TxMsg.Data[%<d_index>]), %<u>, 2); /* D%<idx>: %<datatype> */
+          %else
+            memset(&(%<blockid>TxMsg.Data[%<d_index>]), 0, 2); /* D%<idx>: %<datatype> */
+          %endif
+          %assign port_idx = port_idx + 1
+          %assign d_index = d_index + 2
+        %endif
+      %endif
+    %endforeach
+    
+    %% --- Status ---
+    %assign blocking = 0
+    %if transfer == "Blocking"
+      %assign blocking = 1
+    %endif
+    %if enablestatus == "on"      
+      %<LibBlockOutputSignal(0, "", "", 0)> = \
+    %endif
+    CANx_Transmit(CAN%<canmodule>, &%<blockid>TxMsg, %<blocking>, %<timeout>); /* Transmit message */
+  %endif %% Tx
+
+  %if conf == "Rx"
+    %% --- ISR ---
+    %if enableisr == 1
+      %if LibBlockOutputSignalConnected(0)
+        %% Get the downstream block
+        %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+        %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+        %if !block.GenCodeForTopAsyncSS     
+          %%Don't generate code for downstream f-c subsystem
+          %%if GenCodeForTopAsyncSS is not set yet.
+          %return
+        %endif
+
+        %% Call the downstream function call subsystem
+        %openfile tmpBuf
+          %<LibBlockExecuteFcnCall(block, callIdx)>\
+        %closefile tmpBuf   
+
+        %% Always create the ISR function
+        %openfile funcbuf
+          /* ########################################################################
+           * Block Name: %<block.Name>
+           * Block ID: %<blockid>
+           * ########################################################################
+           * Function call: %<blockid> IRQ
+           */
+          void %<blockid>_filter_isr(CanRxMsg* pMsg) {
+          %if WHITE_SPACE(tmpBuf)
+            /* Nothing to do for system: %<ssBlock.Name> */
+          %else
+            /* Call the system: %<ssBlock.Name> */
+            %<tmpBuf>
+          %endif
+          }
+        %closefile funcbuf
+        %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_can_isr")
+        %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+        %<LibSetSourceFileCustomSection(file,"cFunctions",funcbuf)>    
+      %else
+        %openfile tmpBuf
+
+          /* ########################################################################
+           * Block Name: %<block.Name>
+           * Block ID: %<blockid>
+           * ########################################################################
+           * Function call: %<blockid> IRQ
+           */
+          void %<blockid>_filter_isr(CanRxMsg* pMsg) {
+            /* Ouput ISR block is not connected */
+          }
+        %closefile tmpBuf
+        %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_can_isr")
+        %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+        %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+      %endif
+    %% --- Normal ---
+    %else
+      /* %<blockid>: '%<block.Name>' */
+      %assign port_idx = 0
+      %% Pending
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_GetMsg(&%<blockid>_Msg); /* Message and Pending count */
+      %<blockid>_data = (%<blockid>_DATA_STRUCT*)&(%<blockid>_Msg.Data[0]);
+      %assign port_idx = port_idx + 1
+      %% ID
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> =\
+      %if idtype == "Standard"
+        %<blockid>_Msg.StdId; /* Standard ID */
+      %else
+        %<blockid>_Msg.ExtId; /* Extended ID */
+      %endif
+      %assign port_idx = port_idx + 1
+      %% DLC
+      %if usedlc == "on"
+        %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_Msg.DLC; /* DLC */
+        %assign port_idx = port_idx + 1
+      %endif
+      %% Data
+      %foreach idx=8
+        %assign datatype   = confstr[5+idx]
+        %if datatype != "Not used"
+          %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_data->d%<idx>; /* Data%<idx>: %<datatype> */
+          %assign port_idx = port_idx + 1
+        %endif
+      %endforeach      
+    %endif
+  %endif %% Rx
+
+  %if conf == "Msg"
+    /* %<blockid>: '%<block.Name>' */
+    %assign port_idx = 0
+    %<blockid>_data = (%<blockid>_DATA_STRUCT*)&(pMsg->Data[0]);
+    %% ID
+    if(pMsg->IDE == 0)
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = pMsg->StdId; /* Standard ID */
+    else
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = pMsg->ExtId; /* Extended ID */
+    %assign port_idx = port_idx + 1
+    %% DLC
+    %if usedlc == "on"
+      %<LibBlockOutputSignal(port_idx, "", "", 0)> = pMsg->DLC; /* DLC */
+      %assign port_idx = port_idx + 1
+    %endif
+    %% Data
+      %% Data
+      %foreach idx=8
+        %assign datatype   = confstr[1+idx]
+        %if datatype != "Not used"
+          %<LibBlockOutputSignal(port_idx, "", "", 0)> = %<blockid>_data->d%<idx>; /* Data%<idx>: %<datatype> */          
+          %assign port_idx = port_idx + 1
+        %endif
+      %endforeach   
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

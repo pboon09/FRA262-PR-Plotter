@@ -1,0 +1,3626 @@
+%implements waijung_atcmd_gsmgprs "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign module        = optionstring[0]
+  %assign uart_module   = optionstring[1]
+  %assign connectiontype= optionstring[2]
+  %assign apn           = optionstring[3]
+  %assign pwrkey_port   = optionstring[4]
+  %assign pwrkey_pin    = optionstring[5]
+  %assign reset_port    = optionstring[6]
+  %assign reset_pin     = optionstring[7]
+  %assign sslenable     = optionstring[8]
+  %assign httpresponse  = optionstring[9]
+  %assign logname       = optionstring[10]
+  %assign logpass       = optionstring[11]
+
+  %assign block = block + module + uart_module + connectiontype + apn + pwrkey_port \
+                  + pwrkey_pin + reset_port + reset_pin + sslenable + httpresponse \
+                  + logname + logpass
+
+  %if httpresponse == "on"
+    %assign http_header = CAST("String",SFcnParamSettings.string3)
+    %assign http_terminator = CAST("String",SFcnParamSettings.string4)
+  %else
+    %assign http_header = ""
+    %assign http_terminator = ""
+  %endif
+
+  %assign block = block + http_header + http_terminator
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_RNG__) == 0)
+      %assign :: __STM32F4XX_RNG__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_rng.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_DMA__) == 0)
+      %assign :: __STM32F4XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_EXTI__) == 0)
+      %assign :: __STM32F4XX_EXTI__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_exti.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * GSM GPRS Interface
+      * ########################################################################
+      */
+     #include "ff.h"
+     #include "stm32f4xx.h"
+     #include "amg_utils.h"
+
+     typedef enum {
+       GSMGPRS_WAIT = 0,
+       GSMGPRS_BUSY,
+       GSMGPRS_DATAREADY,
+       GSMGPRS_SUCCESS,
+       GSMGPRS_ERROR
+     } GSMGPRS_RESULT;
+
+     /* Resource access management */
+     typedef struct {                       /* Synchronize object to access UART port */
+       uint8_t InQueue;
+       uint8_t Set;                         /* Active status of Locker */
+       uint8_t Index;                       /* Max count of object is 256 */  
+     } GSM_GPRS_LOCK_STRUCT;
+
+     typedef enum {
+	   GSMGPRS_IDLE = 0,
+	   GSMGPRS_RESET,
+	   GSMGPRS_POWERUP	
+     } GSMGPRS_NONBLOCKING_STATE;
+
+     /* GSM/GPRS processing struct */
+     typedef struct {
+	   GSM_GPRS_LOCK_STRUCT LockStatus;
+	   GSMGPRS_NONBLOCKING_STATE Working_State; // Current processing for non-blocking state
+	   GSMGPRS_NONBLOCKING_STATE Previous_State; // Previous processing for non-blocking state
+	   //uint8_t OnEnterEvt; // Enter state event
+	   char *WorkingBuffer; // Working buffer
+	   uint16_t WorkingBuffer_Size; // Working buffer size
+	   uint16_t WorkingBuffer_Index; // Working buffer index	
+     } GSM_GPRS_STRUCT;
+
+     #define GSM_GPRS%<module>_TX_BUFFER_SIZE UTX%<uart_module>_BUFFER_SIZE
+     #define GSM_GPRS%<module>_RX_BUFFER_SIZE URX%<uart_module>_BUFFER_SIZE
+     #define GSM_GPRS%<module>_UART_Write UART%<uart_module>_Write
+     #define GSM_GPRS%<module>_UART_TxFlush UART%<uart_module>_FlushTxBuffer
+     #define GSM_GPRS%<module>_UART_Read UART%<uart_module>_ReadEx
+     #define GSM_GPRS%<module>_TmpBuffer ((char*)UART%<uart_module>_Temp_Buffer)
+     #define GSM_GPRS%<module>_RestoreBytes UART%<uart_module>_RestoreBytes
+     //extern char GSM_GPRS1_TmpBuffer[];
+
+     /* Power Key and Reset control */
+     #define GSM_GPRS%<module>_PWRKEY_HIGH()   {GPIO_SetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);}
+     #define GSM_GPRS%<module>_PWRKEY_LOW()   {GPIO_ResetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);}
+     #define GSM_GPRS%<module>_RESET_HIGH()    {GPIO_SetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);}
+     #define GSM_GPRS%<module>_RESET_LOW()    {GPIO_ResetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);}
+
+     /* Internet connection */
+     #define GSM_GPRS%<module>_CONTYPE_DEFAULT "%<connectiontype>"
+     #define GSM_GPRS%<module>_APN_DEFAULT "%<apn>"
+     #define GSM_GPRS%<module>_USERNAME_DEFAULT "%<logname>" // Default User name
+     #define GSM_GPRS%<module>_PASSWORD_DEFAULT "%<logpass>" // Default Password
+     extern char GSM_GPRS%<module>_CONTYPE[];
+     extern char GSM_GPRS%<module>_APN[];
+     extern char GSM_GPRS%<module>_USERNAME[];
+     extern char GSM_GPRS%<module>_PASSWORD[];
+
+     /* Lock */
+     uint8_t GSM_GPRS%<module>_Resource_Lock(GSM_GPRS_LOCK_STRUCT *lock);
+     void GSM_GPRS%<module>_Resource_UnLock(GSM_GPRS_LOCK_STRUCT *lock);
+  
+     /* Prototype */
+     uint16_t gsm_strlen_s(const char *s, uint16_t maxlen);
+     void GSM_GPRS%<module>_StartTimer(uint32_t ms);
+     int GSM_GPRS%<module>_IsTimerTimeout(void);
+     uint16_t GSM_GPRS%<module>_ReadOldData(char *buffer, uint16_t count);
+     uint16_t GSM_GPRS%<module>_Read(char *buffer, uint16_t buffer_size);
+     void GSM_GPRS%<module>_RX_Flush(void);
+     void GSM_GPRS%<module>_Write(const char *buffer, uint16_t buffer_size);
+     uint8_t GSM_GPRS%<module>_PowerUP(void);
+     void GSM_GPRS%<module>_Reset(void);
+     void GSM_GPRS%<module>_IOCntrl_Configure(void);
+
+     uint8_t GSM_GPRS1_SMTP(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+          uint8_t enable_ssl, \
+          const char *server, uint16_t server_len, uint32_t server_port, \
+          const char *user, uint16_t user_len, \
+          const char *password, uint16_t password_len, \
+          const char *sender, uint16_t sender_len, \
+          const char *to_recipient, uint16_t to_recipient_len, \
+          const char *cc_recipient, uint16_t cc_recipient_len, \
+          const char *subject, uint16_t subject_len, \
+          const char *msg, uint16_t msg_len, \
+          uint32_t timeout);
+     uint8_t GSM_GPRS1_SendSMS(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock,
+        const char *dest, const char *msg);
+     uint8_t GSM_GPRS1_SyncNetworkTime(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+          const char *url, int32_t timezone, uint32_t *datetime);
+     uint8_t GSM_GPRS1_GetStatus(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock,
+        uint32_t *datetime, char *operatorname, uint32_t *signalstrength);
+     uint8_t GSM_GPRS1_HttpPOST(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  const char *content_type, uint16_t content_type_len,\
+                  const char *data, uint16_t data_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator);
+     uint8_t GSM_GPRS1_HttpGET(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator);
+     uint8_t GSM_GPRS1_HttpDOWNLOAD(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  uint32_t timeout, const char *filename);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+     /* ########################################################################
+      * GSM GPRS Interface
+      * ########################################################################
+      */
+     char GSM_GPRS%<module>_CONTYPE[8]; // Expect: "GPRS"
+     char GSM_GPRS%<module>_APN[32]; // Expect: "Internet"
+     char GSM_GPRS%<module>_USERNAME[64];
+     char GSM_GPRS%<module>_PASSWORD[64];
+
+     //char GSM_GPRS1_TmpBuffer[2048]; // Working buffer
+     static UARTRX_BUFFER_READ_STRUCT GSM_Interface_read_struct = {0,0,0};
+
+     /* Timer utility */
+     static SYS_TIMER_STRUCT GSM_Interface_timer_ms = {0UL,0UL};
+     static SYS_TIMER_STRUCT GSM_Interface_powerup_timer_ms = {0UL,0UL};
+
+     uint16_t gsm_strlen_s(const char *s, uint16_t maxlen)
+     {
+         uint16_t i;
+
+         i = 0;
+         while ((s[i] != '\0') && (i<maxlen))
+           i++;
+         return i;
+     }
+
+     void GSM_GPRS%<module>_StartTimer(uint32_t ms) {
+       SysTimer_Start(&GSM_Interface_timer_ms, ms);
+     }
+
+    int GSM_GPRS%<module>_IsTimerTimeout(void) {
+      return SysTimer_IsTimeout(&GSM_Interface_timer_ms);
+    }
+
+    /* Read old data */
+    uint16_t GSM_GPRS%<module>_ReadOldData(char *buffer, uint16_t count)
+    {
+      GSM_GPRS%<module>_RestoreBytes(&GSM_Interface_read_struct, count);
+      return GSM_GPRS%<module>_Read(buffer, count);
+    }
+
+    /* UART Tx/Rx interface
+     */
+    uint16_t GSM_GPRS%<module>_Read(char *buffer, uint16_t buffer_size)
+    {
+        uint16_t reading_count = 0;
+        GSM_GPRS%<module>_UART_Read(&GSM_Interface_read_struct, (uint8_t *)buffer, buffer_size-1, &reading_count);
+        buffer[reading_count] = '\0';
+        return reading_count;
+    }
+
+    void GSM_GPRS%<module>_RX_Flush(void)
+    {
+        uint8_t tmp[256];
+        uint16_t reading_count;
+        do { GSM_GPRS%<module>_UART_Read(&GSM_Interface_read_struct, tmp, 256, &reading_count);
+        } while (reading_count > 0);
+    }
+
+    void GSM_GPRS%<module>_Write(const char *buffer, uint16_t buffer_size) {
+        GSM_GPRS%<module>_RX_Flush(); /* Flush Rx before write */	
+        GSM_GPRS%<module>_UART_Write((uint8_t*)buffer, buffer_size);
+        GSM_GPRS%<module>_UART_TxFlush();
+    }
+
+    /* Resource access Lock control
+    */
+    static uint8_t GSM_GPRS%<module>_current_locked_index = 0;
+    static uint8_t GSM_GPRS%<module>_current_locked_count = 0;
+
+    /* Return non-zero if access allowed */
+    uint8_t GSM_GPRS%<module>_Resource_Lock(GSM_GPRS_LOCK_STRUCT *lock)
+    {
+        /* Check if first access */
+        if(lock->InQueue == 0) {
+           lock->InQueue = 1; /* Indicate it is already in queue */
+           lock->Index = GSM_GPRS%<module>_current_locked_count;
+           GSM_GPRS%<module>_current_locked_count ++;
+        }
+
+        /* Lock? */
+        if(lock->Index == GSM_GPRS%<module>_current_locked_index) {
+            return 1; /* Allow to access resource */
+        }
+
+        /* Resource did not accquired */
+        return 0;
+    }
+
+    void GSM_GPRS%<module>_Resource_UnLock(GSM_GPRS_LOCK_STRUCT *lock)
+    {
+        if(lock->Index == GSM_GPRS%<module>_current_locked_index) {
+            GSM_GPRS%<module>_current_locked_index ++;
+            lock->InQueue = 0;
+        }
+    }
+
+    /* Power sequence for GSM/GPRS module
+    */
+    uint8_t GSM_GPRS%<module>_PowerUP(void)
+    {
+        static uint8_t powerup_sequence = 0;
+        static uint8_t retry_count = 0;
+
+        /* Delay */
+        if(!SysTimer_IsTimeout(&GSM_Interface_powerup_timer_ms))
+            return 0;
+
+        /* --- Power up sequence --- */
+
+        /* Setup */
+        if(powerup_sequence == 0) {
+            retry_count = 0;
+            powerup_sequence ++;
+        }
+
+        /* 1: Synchronize-1 */	
+        if (powerup_sequence == 1) {
+            GSM_GPRS%<module>_Write("AT\r", strlen("AT\r"));
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 200UL); /* 200mS */
+            powerup_sequence ++; /* Next state */
+        }
+        /* 2: Get response synchronize status */
+        else if (powerup_sequence == 2) {
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            if(!strcmp(GSM_GPRS%<module>_TmpBuffer, "AT\r\r\nOK\r\n")) {		
+                powerup_sequence += 6; /* Next state */
+            }
+            else {
+                if(retry_count++ < 3)
+                    powerup_sequence --; /* Retry */
+                else
+                    powerup_sequence ++; /* Out of retry, reset module. */
+            }
+        }
+        /* 3: Reset Low, PwrKey High */
+        else if (powerup_sequence == 3) {
+            retry_count = 0;
+
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 100); /* Reset Low for 100mS, the minumum defined in the spec is 50uS */
+            GSM_GPRS%<module>_RESET_LOW();
+            GSM_GPRS%<module>_PWRKEY_HIGH();
+            powerup_sequence ++; /* Next state */
+        }
+        /* 4: Reset High */
+        else if (powerup_sequence == 4) {
+            GSM_GPRS%<module>_RESET_HIGH();
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 2000UL); /* Reset High for 2 Seconds */
+            powerup_sequence ++; /* Next state */
+        }
+        /* 5: PWRKEY Low*/
+        else if (powerup_sequence == 5) {
+            GSM_GPRS%<module>_PWRKEY_LOW();
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 1500UL); /* Reset High for 1.5 Seconds */
+            powerup_sequence ++; /* Next state */
+        }
+        /* 6: PWRKEY High */
+        else if (powerup_sequence == 6) {
+            GSM_GPRS%<module>_PWRKEY_HIGH();
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 3000UL); /* Reset High for 3 Seconds */
+            powerup_sequence ++; /* Next state */
+        }
+        /* 7: Check power down status */
+        else if (powerup_sequence == 7) {
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            powerup_sequence = 0; /* Retry check */
+        }	
+        /* 8: Register to the network */
+        else if (powerup_sequence == 8) {
+            GSM_GPRS%<module>_Write("AT+CGREG?\r", strlen("AT+CGREG?\r"));
+            SysTimer_Start(&GSM_Interface_powerup_timer_ms, 1000UL); /* 1 Second */
+            powerup_sequence ++; /* Next state */
+        }
+        /* 9: Get network registration status */
+        else if (powerup_sequence == 9) {
+            int n = -1, sta = -1;
+            char *s;
+            GSM_GPRS%<module>_Read(GSM_GPRS%<module>_TmpBuffer, GSM_GPRS%<module>_RX_BUFFER_SIZE);
+            if (((s = strstr(GSM_GPRS%<module>_TmpBuffer, "+CGREG: ")) != (char *)0) \
+                && (sscanf(s, "+CGREG: %d,%d\r\n", &n, &sta) == 2) \
+                && (n == 0) && (sta == 1)) {
+                    /* Success */
+                    powerup_sequence = 0;
+                    return 1;
+            }
+            else {
+                if((retry_count > 4) && (!s))
+                    powerup_sequence = 3; /* Not response */
+                else if(retry_count++ < 120) /* 2 minutes */
+                    powerup_sequence --; /* Retry */
+                else
+                    powerup_sequence = 3; /* Out of retry, re-start from beginning. */
+            }
+        }	
+
+        /* Module power up is not yet ready */
+        return 0;
+    }
+
+    GSMGPRS_RESULT GSM_GPRS1_BearerProfile(uint8_t init, char *work_buffer, uint16_t work_buffer_size)
+    {        
+	    static uint8_t setbearer_sequence = 0;
+	    static uint8_t setbearer_sequence_last = 0xFF; // Last
+	    static uint8_t setbearer_onenterstate = 0; // OnEnterState
+	    static uint16_t work_buffer_index = 0;
+        GSMGPRS_RESULT result = GSMGPRS_BUSY;
+	
+	    if (init != 0) {
+		    setbearer_sequence = 0;
+		    setbearer_sequence_last = 0xFF;		
+	    }
+	
+	    // Determine OnEnter state
+	    if (setbearer_sequence != setbearer_sequence_last) {
+		    setbearer_onenterstate = 1;
+            work_buffer_index = 0; // buffer index
+		    setbearer_sequence_last = setbearer_sequence;
+	    }
+	    else { 
+		    setbearer_onenterstate = 0; 
+	    }
+	
+	    /* State process */
+	    switch (setbearer_sequence)
+        {
+		    /* Connection type */
+		    case 0:
+			    if (setbearer_onenterstate) {
+                    sprintf(GSM_GPRS1_TmpBuffer, "AT+SAPBR=3,1,\"Contype\",\"%s\"\r", GSM_GPRS1_CONTYPE);
+                    GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+			        GSM_GPRS1_StartTimer(1000UL); /* 1S */				    
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        setbearer_sequence ++; /* Next */
+                    else if(GSM_GPRS1_IsTimerTimeout()) {
+                        result = GSMGPRS_ERROR;
+                    }
+			    }
+			    break;
+		
+		    // APN
+	        case 1:
+                if(setbearer_onenterstate) {
+                    sprintf(GSM_GPRS1_TmpBuffer, "AT+SAPBR=3,1,\"APN\",\"%s\"\r", GSM_GPRS1_APN);
+                    GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+			        GSM_GPRS1_StartTimer(1000UL); /* 1S */
+                    work_buffer_index = 0;
+                }
+                else {
+				    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        setbearer_sequence ++; /* Next */
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        result = GSMGPRS_ERROR;
+                }			
+                break;
+
+            // USER
+            case 2:                
+                if(setbearer_onenterstate) {
+                    if ((GSM_GPRS1_USERNAME[0] != 0) || (GSM_GPRS1_PASSWORD[0] != 0)) {
+                        sprintf(GSM_GPRS1_TmpBuffer, "AT+SAPBR=3,1,\"USER\",\"%s\"\r", GSM_GPRS1_USERNAME);
+                        GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+			            GSM_GPRS1_StartTimer(1000UL); /* 1S */
+                        work_buffer_index = 0;
+                    }
+                    else {
+                      setbearer_sequence ++; /* Next */
+                    }
+                }
+                else {
+				    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        setbearer_sequence ++; /* Next */
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        result = GSMGPRS_ERROR;
+                }			
+                break;
+
+            // PWD
+            case 3:                
+                if(setbearer_onenterstate) {
+                    if ((GSM_GPRS1_USERNAME[0] != 0) || (GSM_GPRS1_PASSWORD[0] != 0)) {
+                        sprintf(GSM_GPRS1_TmpBuffer, "AT+SAPBR=3,1,\"PWD\",\"%s\"\r", GSM_GPRS1_PASSWORD);
+                        GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+			            GSM_GPRS1_StartTimer(1000UL); /* 1S */
+                        work_buffer_index = 0;
+                    }
+                    else {
+                      setbearer_sequence ++; /* Next */
+                    }
+                }
+                else {
+				    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        setbearer_sequence ++; /* Next */
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        result = GSMGPRS_ERROR;
+                }			
+                break;
+			
+		    // Get Bearer status
+		    case 4:
+			    if(setbearer_onenterstate) {
+				    const char *s = "AT+SAPBR=2,1\r";
+                    GSM_GPRS1_Write(s, strlen(s));
+				    GSM_GPRS1_StartTimer(1000UL); /* 1S */
+                }
+                else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n")) {
+                        int cid = -1, sta = -1;
+                        char *s = &(work_buffer[0]);
+			            if (((s = strstr(work_buffer, "+SAPBR: ")) != (char *)0) \
+					        && (sscanf(s, "+SAPBR: %d,%d\r\n", &cid, &sta) == 2)) {
+				            if(sta == 1) /* Connected */
+							    setbearer_sequence = 6; /* Success */
+				            else if (sta == 3) /* Disconnected */
+					            setbearer_sequence ++; /* Next */
+				            else {
+                                result = GSMGPRS_ERROR;
+                            }
+			            }
+			            else { /* Re-check network connection */
+				            setbearer_sequence = 0;
+                            result = GSMGPRS_ERROR;
+			            }
+                    }
+                    else if(GSM_GPRS1_IsTimerTimeout()) {
+                        setbearer_sequence = 0; /* Re-check network connection */
+                        result = GSMGPRS_ERROR;
+                    }
+                }
+			    break;
+		
+		    // Open Bearer
+		    case 5:
+		        if(setbearer_onenterstate) {
+			        const char *str = "AT+SAPBR=1,1\r"; /* Enable */
+			        GSM_GPRS1_Write(str, strlen(str));
+			        GSM_GPRS1_StartTimer(5000UL); /* 5S */
+		        }
+		        else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        setbearer_sequence --; /* Verify */
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        result = GSMGPRS_ERROR;
+                }              
+			    break;
+		
+		    // Success
+		    case 6:
+                result = GSMGPRS_SUCCESS;
+			    break;
+		
+            // Un expected
+		    default:
+			    setbearer_sequence = 0;
+			    break;		
+	    }
+
+        /* Error or In progress */
+	    return result;
+    }
+
+    GSMGPRS_RESULT GSM_GPRS1_HTTPSInit(uint8_t init, uint8_t ssl_enable, char *work_buffer, uint16_t work_buffer_size)
+    {
+        static uint8_t http_retry_count = 0;
+	    static uint8_t https_sequence = 0;
+	    static uint8_t https_sequence_last = 0xFF; // Last
+	    static uint8_t https_onenterstate = 0; // OnEnterState
+	    static uint16_t work_buffer_index = 0;
+        GSMGPRS_RESULT result = GSMGPRS_BUSY;
+	
+	    if (init != 0) {
+		    https_sequence = 0;
+		    https_sequence_last = 0xFF;
+            //
+            http_retry_count = 0;
+	    }
+	
+	    // Determine OnEnter state
+	    if (https_sequence != https_sequence_last) {
+		    https_onenterstate = 1;
+            work_buffer_index = 0; // buffer index
+		    https_sequence_last = https_sequence;
+	    }
+	    else {
+		    https_onenterstate = 0; 
+	    }
+
+        /* HTTPS state processing */
+        switch (https_sequence) {
+            // HTTP Init
+            case 0:
+			    if (https_onenterstate) {
+                    strcpy(work_buffer, "AT+HTTPINIT\r");
+                    GSM_GPRS1_Write(work_buffer, strlen(work_buffer));
+			        GSM_GPRS1_StartTimer(1000UL); /* 1S */				
+				    work_buffer_index = 0;
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n")) {
+                        https_sequence ++; /* Next */
+                    }
+                    else if(strstr(work_buffer, "\r\nERROR\r\n")) {
+                        if(http_retry_count ++ < 3)
+                            https_sequence = 3; // Close
+                        else
+                            result = GSMGPRS_ERROR;
+                    }
+                    else {
+                        if(GSM_GPRS1_IsTimerTimeout())
+                            result = GSMGPRS_ERROR;
+                    }
+			    }
+                break;
+
+            // HTTP SSL Enable
+            case 1:
+			    if (https_onenterstate) {
+                    sprintf(work_buffer, "AT+HTTPSSL=%u\r", (unsigned int)ssl_enable);
+                    GSM_GPRS1_Write(work_buffer, strlen(work_buffer));
+			        GSM_GPRS1_StartTimer(1000UL); /* 1S */
+				    work_buffer_index = 0;
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n")) {
+                        https_sequence ++; /* Next */
+                    }
+                    else {
+                        if(GSM_GPRS1_IsTimerTimeout())
+                            result = GSMGPRS_ERROR;
+                    }
+                }
+               break;
+
+            // HTTP CID
+            case 2:
+			    if (https_onenterstate) {
+                    sprintf(work_buffer, "AT+HTTPPARA=\"CID\",%u\r", 1);
+                    GSM_GPRS1_Write(work_buffer, strlen(work_buffer));
+			        GSM_GPRS1_StartTimer(1000UL); /* 1S */
+				    work_buffer_index = 0;
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n")) {
+                        https_sequence = 4; /* Success */
+                    }
+                    else {
+                        if(GSM_GPRS1_IsTimerTimeout())
+                            result = GSMGPRS_ERROR;
+                    }
+                }
+               break;
+
+            // HTTP Close
+            case 3:
+			    if (https_onenterstate) {
+                    strcpy(work_buffer, "AT+HTTPTERM\r");
+                    GSM_GPRS1_Write(work_buffer, strlen(work_buffer));
+			        GSM_GPRS1_StartTimer(2000UL); /* 2S */
+				    work_buffer_index = 0;
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        https_sequence = 0; /* Init */
+                    else if(strstr(work_buffer, "\r\nERROR\r\n"))
+                        https_sequence = 0; /* Also Init */
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        https_sequence = 0; /* Also Init anyway */
+			    }
+               break;
+
+            // HTTP Success
+            case 4:
+              result = GSMGPRS_SUCCESS;
+              break;
+        }
+
+        return result;     
+    }
+
+    GSMGPRS_RESULT GSM_GPRS1_HTTPSTerminate(uint8_t init, char *work_buffer, uint16_t work_buffer_size)
+    {
+	    static uint8_t https_sequence = 0;
+	    static uint8_t https_sequence_last = 0xFF; // Last
+	    static uint8_t https_onenterstate = 0; // OnEnterState
+	    static uint16_t work_buffer_index = 0;
+        GSMGPRS_RESULT result = GSMGPRS_BUSY;
+	
+	    if (init != 0) {
+		    https_sequence = 0;
+		    https_sequence_last = 0xFF;
+	    }
+	
+	    // Determine OnEnter state
+	    if (https_sequence != https_sequence_last) {
+		    https_onenterstate = 1;
+            work_buffer_index = 0; // buffer index
+		    https_sequence_last = https_sequence;
+	    }
+	    else {
+		    https_onenterstate = 0; 
+	    }
+
+        /* HTTPS state processing */
+        switch (https_sequence) {
+            // Http terminate
+            case 0:
+			    if (https_onenterstate) {
+                    strcpy(work_buffer, "AT+HTTPTERM\r");
+                    GSM_GPRS1_Write(work_buffer, strlen(work_buffer));
+			        GSM_GPRS1_StartTimer(2000UL); /* 2S */
+				    work_buffer_index = 0;
+			    }
+			    else {
+                    work_buffer_index += \
+                        GSM_GPRS1_Read(&(work_buffer[work_buffer_index]), work_buffer_size-work_buffer_index);
+                    if(strstr(work_buffer, "\r\nOK\r\n"))
+                        https_sequence ++; // Success
+                    else if(strstr(work_buffer, "\r\nERROR\r\n"))
+                        result = GSMGPRS_ERROR;
+                    else if(GSM_GPRS1_IsTimerTimeout())
+                        result = GSMGPRS_ERROR;
+			    }
+                break;
+       
+            // Success
+            default:
+                result = GSMGPRS_SUCCESS;
+                break;
+        }
+
+        return result;
+    }
+
+    void GSM_GPRS%<module>_Reset(void)
+    {
+      GSM_GPRS%<module>_RESET_LOW();
+      SysTimer_delay_us(1000);
+      GSM_GPRS%<module>_RESET_HIGH();
+      SysTimer_delay_us(1000);
+    }
+
+     void GSM_GPRS%<module>_IOCntrl_Configure(void)
+     {
+       GPIO_InitTypeDef GPIO_InitStructure;
+
+       %if pwrkey_port == reset_port
+         /* GPIO clock configuration for PWR_KEY pin */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<pwrkey_port>, ENABLE);
+       %else
+         /* GPIO clock configuration for RESET pin */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<pwrkey_port>, ENABLE);
+         /* GPIO clock configuration for PWR_KEY and RESET pin */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<reset_port>, ENABLE);
+       %endif
+
+       /* Set output pin to high, prevent glitch */
+       GPIO_SetBits(GPIO%<pwrkey_port>, GPIO_Pin_%<pwrkey_pin>);
+       GPIO_SetBits(GPIO%<reset_port>, GPIO_Pin_%<reset_pin>);
+
+       /* # %<pwrkey_port>%<pwrkey_pin> - PWR_KEY (OUT_OD)	*/	
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pwrkey_pin>;
+       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+       GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+       GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		
+       GPIO_Init(GPIO%<pwrkey_port>, &GPIO_InitStructure);		
+
+       /* # %<reset_port>%<reset_pin> - RESET (OUT_OD)	*/
+       GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<reset_pin>;
+       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+       GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+       GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+       GPIO_Init(GPIO%<reset_port>, &GPIO_InitStructure);         
+     }
+
+     /* ===================================================================
+      * SMTP
+      */
+     typedef enum {
+	     SMTP_IDLE = 0,
+         SMTP_WAIT,
+	     SMTP_POWER_DOWN,
+         SMTP_POWER_UP,
+         SMTP_BEARER_CONFIGURE,
+         SMTP_CONFIGURE_SSL,
+         SMTP_CONFIGURE_CID,
+         SMTP_CONFIGURE_TIMEOUT,
+         SMTP_CONFIGURE_SERVER,
+         SMTP_CONFIGURE_AUTHENTICATION,
+         SMTP_CONFIGURE_SENDER,
+         SMTP_CONFIGURE_RECIPTIENT_TO,
+         SMTP_CONFIGURE_RECIPTIENT_TOx,
+         SMTP_CONFIGURE_RECIPTIENT_CC,
+         SMTP_CONFIGURE_RECIPTIENT_CCx,
+         SMTP_CONFIGURE_SUBJECT,
+         SMTP_CONFIGURE_BODY_START,
+         SMTP_CONFIGURE_BODY_CONTENT,
+         SMTP_SEND,
+
+         SMTP_TERMINATE,
+         SMTP_SUCCESS,
+	     SMTP_ERROR
+     } SMTP_STATE;
+
+     int GSM_GPRS1_SMTP_getaddress(const char *input, int index, char *name, char *addr)
+     {
+         const char *start, *end, *sep;
+         int i;
+         name[0] = '\0';
+         addr[0] = '\0';
+         if (input[0] == 0) {
+             return -1;
+         }
+
+         start = input;
+         i = 0;
+         while ((start != 0) && (i < index)) {
+             start = strstr(start, ",");
+		    if (start)
+               start ++;
+            i ++;
+          }
+
+          if (start == 0)
+              return -1;
+          while(*start == ' ') // Remove while space
+              start ++;
+          end = strstr(start, ",");
+          if (end == 0)
+              end = &start[strlen(start)];
+          sep = strstr(start, ":");
+          if (sep != 0) {
+              strncpy(name, start, sep-start);
+              name[sep-start] = '\0';
+              strncpy(addr, sep+1, end-sep);
+              addr[end-sep-1] = '\0';
+          } else {
+              strncpy(name, start, end-start);
+              name[end-start] = '\0';
+              strncpy(addr, start, end-start);
+              addr[end-start] = '\0';
+          }
+
+          if ((addr[0] == 0) || (name[0] == 0))
+              return -1;
+
+          // Success
+          return 0;
+     }
+
+     uint8_t GSM_GPRS1_SMTP(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+          uint8_t enable_ssl, \
+          const char *server, uint16_t server_len, uint32_t server_port, \
+          const char *user, uint16_t user_len, \
+          const char *password, uint16_t password_len, \
+          const char *sender, uint16_t sender_len, \
+          const char *to_recipient, uint16_t to_recipient_len, \
+          const char *cc_recipient, uint16_t cc_recipient_len, \
+          const char *subject, uint16_t subject_len, \
+          const char *msg, uint16_t msg_len, \
+          uint32_t timeout)
+     {
+         static SMTP_STATE smtp_sequence = SMTP_IDLE;
+         static SMTP_STATE smtp_sequence_last = SMTP_WAIT;
+         static uint8_t smtp_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t smtp_retrycount = 0;
+         static uint16_t smtp_success_status = 0;
+
+         static uint16_t smtp_recipient_to_index = 0;
+         static uint16_t smtp_recipient_cc_index = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         char email_name[64];
+         char email_addr[64];
+
+         // Determine OnEnter state
+         if (smtp_sequence != smtp_sequence_last) {
+             smtp_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             smtp_sequence_last = smtp_sequence;
+         } else {
+             smtp_onenterstate = 0;
+         }
+
+         /* SMTP state processing */
+         switch (smtp_sequence) {
+		     case SMTP_IDLE:
+			     smtp_retrycount = 0;
+                 smtp_success_status = 0;
+                 if (init != 0) {
+				     smtp_sequence = SMTP_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case SMTP_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     smtp_sequence = SMTP_POWER_UP;
+			     }
+			     break;
+			
+		     // Power Down
+		     case SMTP_POWER_DOWN:
+			     if (smtp_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     smtp_sequence = SMTP_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case SMTP_POWER_UP:
+			     if (smtp_onenterstate) {
+				     if (++smtp_retrycount > 2) {
+					     smtp_sequence = SMTP_POWER_DOWN;
+					     smtp_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP()) {
+					     smtp_sequence = SMTP_BEARER_CONFIGURE;
+                         smtp_recipient_to_index = 0;
+                         smtp_recipient_cc_index = 0;
+                     }
+			     }
+                 break;
+
+		     // Config Bearer profile
+		     case SMTP_BEARER_CONFIGURE:
+			     if (smtp_onenterstate) {
+			         GSM_GPRS1_BearerProfile(1, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);								
+			     }
+			     else {
+			         GSMGPRS_RESULT res = GSM_GPRS1_BearerProfile(0, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+				         smtp_sequence = SMTP_CONFIGURE_SSL;
+				     else if (res == GSMGPRS_ERROR)
+				         smtp_sequence = SMTP_POWER_DOWN;
+			     }
+			     break;
+
+             // Configuration
+             case SMTP_CONFIGURE_SSL:
+                 if (smtp_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+EMAILSSL=%u\r", (unsigned int)enable_ssl);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_CID ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // CID
+             case SMTP_CONFIGURE_CID:
+                 if (smtp_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+EMAILCID=1\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_TIMEOUT ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             case SMTP_CONFIGURE_TIMEOUT:
+                 if (smtp_onenterstate) {
+                     uint32_t emailtimeout = (timeout+10);
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+EMAILTO=%u\r", emailtimeout);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_SERVER ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;       
+
+             case SMTP_CONFIGURE_SERVER:
+                 if (smtp_onenterstate) {
+                     char *s;
+                     // "AT+SMTPSRV=\"%s\",%u\r"
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+SMTPSRV=\"");
+                     s = &GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)];
+                     strncpy(s, server, server_len);
+                     s += server_len;
+                     sprintf(s, "\",%u\r", server_port);                     
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_AUTHENTICATION ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             case SMTP_CONFIGURE_AUTHENTICATION:
+                 if (smtp_onenterstate) {
+                     char *s;
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+SMTPAUTH=1,\"");
+                     s = &GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)];
+                     strncpy(s, user, user_len);
+                     s += user_len;
+                     strcpy(s, "\",\"");
+                     s = &s[strlen(s)];
+                     strncpy(s, password, password_len);
+                     s += password_len;
+                     strcpy(s, "\"\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_SENDER ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             case SMTP_CONFIGURE_SENDER:
+                 if (smtp_onenterstate) {
+                     strncpy(GSM_GPRS1_TmpBuffer, sender, sender_len);
+                     GSM_GPRS1_TmpBuffer[sender_len] = '\0';
+                     if (GSM_GPRS1_SMTP_getaddress(GSM_GPRS1_TmpBuffer, 0, email_name, email_addr) == 0) {
+                         sprintf(GSM_GPRS1_TmpBuffer, "AT+SMTPFROM=\"%s\",", email_addr);
+                         sprintf(&GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)], "\"%s\"\r", email_name);
+                         GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                         GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                         work_buffer_index = 0;
+                     }
+                     else {
+                         smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_TO ;
+                     }
+                     else if (strstr(GSM_GPRS1_TmpBuffer, "\r\nERROR\r\n")!= 0) { 
+                         smtp_sequence = SMTP_TERMINATE;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }                     
+                 }
+                 break;
+
+             // Reciptient
+             case SMTP_CONFIGURE_RECIPTIENT_TO:
+                 if (smtp_onenterstate) {
+                     strncpy(GSM_GPRS1_TmpBuffer, to_recipient, to_recipient_len);
+                     GSM_GPRS1_TmpBuffer[to_recipient_len] = '\0';
+                     if (GSM_GPRS1_SMTP_getaddress(GSM_GPRS1_TmpBuffer, smtp_recipient_to_index, email_name, email_addr) == 0) {
+                         sprintf(GSM_GPRS1_TmpBuffer, "AT+SMTPRCPT=0,%u,\"%s\",", (unsigned int)smtp_recipient_to_index, email_addr);
+                         sprintf(&GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)], "\"%s\"\r", email_name);
+                         GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                         GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                         work_buffer_index = 0;
+                     }
+                     else {
+                         if (smtp_recipient_to_index > 0)
+                             smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_CC;
+                         else
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_TOx ;
+                     }
+                     else if (strstr(GSM_GPRS1_TmpBuffer, "\r\nERROR\r\n")!= 0) { 
+                         smtp_sequence = SMTP_TERMINATE;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }                     
+                 }
+                 break;
+
+             // Reciptient TOx
+             case SMTP_CONFIGURE_RECIPTIENT_TOx:                 
+                 smtp_recipient_to_index ++;
+                 smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_TO;
+                 break;
+
+             // Reciptient CC
+             case SMTP_CONFIGURE_RECIPTIENT_CC:
+                 if (smtp_onenterstate) {
+                     strncpy(GSM_GPRS1_TmpBuffer, cc_recipient, cc_recipient_len);
+                     GSM_GPRS1_TmpBuffer[cc_recipient_len] = '\0';
+                     email_name[0] = '\0';
+                     email_addr[0] = '\0';
+                     if (GSM_GPRS1_SMTP_getaddress(GSM_GPRS1_TmpBuffer, smtp_recipient_cc_index, email_name, email_addr) == 0) {
+                         if (email_addr[0] != 0) {
+                             sprintf(GSM_GPRS1_TmpBuffer, "AT+SMTPRCPT=1,%u,\"%s\",", (unsigned int)smtp_recipient_cc_index, email_addr);
+                             sprintf(&GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)], "\"%s\"\r", email_name);
+                             GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                             GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                             work_buffer_index = 0;
+                         }
+                         else {
+                             smtp_sequence = SMTP_CONFIGURE_SUBJECT;
+                         }
+                     }
+                     else {
+                         smtp_sequence = SMTP_CONFIGURE_SUBJECT;
+                     }
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_CCx; ;
+                     }
+                     else if (strstr(GSM_GPRS1_TmpBuffer, "\r\nERROR\r\n")!= 0) { 
+                         smtp_sequence = SMTP_TERMINATE;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }                     
+                 }
+                 break;
+
+
+             // Reciptient CCx
+             case SMTP_CONFIGURE_RECIPTIENT_CCx:
+                 smtp_recipient_cc_index ++;
+                 smtp_sequence = SMTP_CONFIGURE_RECIPTIENT_CC;
+                 break;
+
+             // Subject
+             case SMTP_CONFIGURE_SUBJECT:
+                 if (smtp_onenterstate) {
+                     char *s;
+                     int l;
+                     l = gsm_strlen_s(subject, subject_len);
+
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+SMTPSUB=\"");
+                     s = &GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)];
+                     strncpy(s, subject, l);
+                     s += l;
+                     strcpy(s, "\"\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL);    /* 10S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_BODY_START;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }                     
+                 }
+                 break;
+
+             // Body start
+             case SMTP_CONFIGURE_BODY_START:
+                 if (smtp_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+SMTPBODY\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL);    /* 10S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\n>")!= 0) { 
+                         smtp_sequence = SMTP_CONFIGURE_BODY_CONTENT ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+ 
+             // Body content
+             case SMTP_CONFIGURE_BODY_CONTENT:
+                 if (smtp_onenterstate) {
+                     int l;
+                     l = gsm_strlen_s(msg, msg_len);
+                     strncpy(GSM_GPRS1_TmpBuffer, msg, l);
+                     GSM_GPRS1_TmpBuffer[l] = 0x1A;
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, l+1);
+                     GSM_GPRS1_StartTimer(10000UL);    /* 10S */
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")!= 0) { 
+                         smtp_sequence = SMTP_SEND ;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             case SMTP_SEND:
+                 if (smtp_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+SMTPSEND\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(timeout*1000 + 10000);
+                     work_buffer_index = 0;
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                         GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\n+SMTPSEND: 1\r\n")!= 0) { 
+                         smtp_sequence = SMTP_TERMINATE;
+                         smtp_success_status = 1; // Success
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             smtp_sequence = SMTP_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Terminate, with specify result of operation
+             case SMTP_TERMINATE:
+                 if (smtp_success_status != 0)
+                     smtp_sequence = SMTP_SUCCESS;
+                 else
+                     smtp_sequence = SMTP_ERROR;
+                 break;
+
+             case SMTP_SUCCESS:
+                 result = GSMGPRS_SUCCESS;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 smtp_sequence = SMTP_IDLE;
+                 break; 
+
+	         case SMTP_ERROR:
+                 result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 smtp_sequence = SMTP_IDLE;
+                 break; 
+
+             default:
+                 break; 
+         }
+
+         return (uint8_t) result;
+     }
+
+     /* ===================================================================
+      * Send SMS
+      */
+     typedef enum {
+	     SMS_IDLE = 0,
+         SMS_WAIT,
+	     SMS_POWER_DOWN,
+         SMS_POWER_UP,
+         SMS_ACTIVATE,
+         SMS_NUMBER,
+         SMS_MESSAGE,
+         SMS_SEND,
+         SMS_TERMINATE,
+         SMS_SUCCESS,
+	     SMS_ERROR
+     } SMS_STATE;
+
+     uint8_t GSM_GPRS1_SendSMS(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock,
+        const char *dest, const char *msg)
+     {
+         static SMS_STATE sms_sequence = SMS_IDLE;
+         static SMS_STATE sms_sequence_last = SMS_WAIT;
+         static uint8_t sms_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t sms_retrycount = 0;
+         static uint16_t sms_success_status = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         // Determine OnEnter state
+         if (sms_sequence != sms_sequence_last) {
+             sms_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             sms_sequence_last = sms_sequence;
+         } else {
+             sms_onenterstate = 0;
+         }
+
+         /* SMS state processing */
+         switch (sms_sequence) {
+		     case SMS_IDLE:
+			     sms_retrycount = 0;
+                 sms_success_status = 0;
+                 if (init != 0) {
+				     sms_sequence = SMS_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case SMS_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     sms_sequence = SMS_POWER_UP;
+			     }
+			     break;
+			
+		     // Power Down
+		     case SMS_POWER_DOWN:
+			     if (sms_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     sms_sequence = SMS_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case SMS_POWER_UP:
+			     if (sms_onenterstate) {
+				     if (++sms_retrycount > 2) {
+					     sms_sequence = SMS_POWER_DOWN;
+					     sms_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     sms_sequence = SMS_ACTIVATE;
+			     }
+                 break;
+
+             case SMS_ACTIVATE:
+                 if (sms_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+CMGF=1\r");
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n");
+                     if (h!= 0) { 
+                         sms_sequence = SMS_NUMBER;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             sms_sequence = SMS_TERMINATE;
+                     }
+                 }  
+                 break;
+
+             case SMS_NUMBER:
+                 if (sms_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+CMGS=\"%s\"\r", dest);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(3000UL);    /* 3S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\n>");
+                     if (h!= 0) { 
+                         sms_sequence = SMS_MESSAGE;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             sms_sequence = SMS_TERMINATE;
+                     }
+                 }
+                 break;
+
+             case SMS_MESSAGE:
+                 if (sms_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "%s\x1A", msg);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(8000UL);    /* 8S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n");
+                     if (h!= 0) { 
+                         sms_success_status = 1;
+                         sms_sequence = SMS_TERMINATE;
+                     }
+                     else {
+                         h = strstr(GSM_GPRS1_TmpBuffer, "\r\nERROR\r\n");
+                         if (h!= 0) { 
+                            sms_sequence = SMS_TERMINATE;
+                         }
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             sms_sequence = SMS_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Terminate, with specify result of operation
+             case SMS_TERMINATE:
+                 if (sms_success_status != 0)
+                     sms_sequence = SMS_SUCCESS;
+                 else
+                     sms_sequence = SMS_ERROR;
+                 break;
+
+             case SMS_SUCCESS:
+                 result = GSMGPRS_SUCCESS;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 sms_sequence = SMS_IDLE;
+                 break; 
+
+	         case SMS_ERROR:
+                 result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 sms_sequence = SMS_IDLE;
+                 break; 
+
+             default:
+                 break; 
+         }
+
+         return (uint8_t) result;
+     }
+
+     /* ===================================================================
+      * Sync network time
+      */
+     typedef enum {
+	     SYNC_TIME_IDLE = 0,
+         SYNC_TIME_WAIT,
+	     SYNC_TIME_POWER_DOWN,
+         SYNC_TIME_POWER_UP,
+         SYNC_TIME_BEARER_CONFIGURE,
+         SYNC_TIME_CONFIGURE,
+         SYNC_TIME_DATETIME,
+         SYNC_TIME_TERMINATE,
+         SYNC_TIME_SUCCESS,
+	     SYNC_TIME_ERROR
+     } SYNC_TIME_STATE;
+
+     uint8_t GSM_GPRS1_SyncNetworkTime(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+          const char *url, int32_t timezone, uint32_t *datetime)
+     {
+         static SYNC_TIME_STATE synctime_sequence = SYNC_TIME_IDLE;
+         static SYNC_TIME_STATE synctime_sequence_last = SYNC_TIME_WAIT;
+         static uint8_t synctime_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t synctime_retrycount = 0;
+         static uint16_t synctime_success_status = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         // Determine OnEnter state
+         if (synctime_sequence != synctime_sequence_last) {
+             synctime_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             synctime_sequence_last = synctime_sequence;
+         } else {
+             synctime_onenterstate = 0;
+         }
+
+         /* SYNC TIME state processing */
+         switch (synctime_sequence) {
+		     case SYNC_TIME_IDLE:
+			     synctime_retrycount = 0;
+                 synctime_success_status = 0;
+                 if (init != 0) {
+				     synctime_sequence = SYNC_TIME_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case SYNC_TIME_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     synctime_sequence = SYNC_TIME_POWER_UP;
+			     }
+			     break;
+			
+		     // Power Down
+		     case SYNC_TIME_POWER_DOWN:
+			     if (synctime_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     synctime_sequence = SYNC_TIME_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case SYNC_TIME_POWER_UP:
+			     if (synctime_onenterstate) {
+				     if (++synctime_retrycount > 2) {
+					     synctime_sequence = SYNC_TIME_POWER_DOWN;
+					     synctime_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     synctime_sequence = SYNC_TIME_BEARER_CONFIGURE;
+			     }
+                 break;
+
+		     // Config Bearer profile
+		     case SYNC_TIME_BEARER_CONFIGURE:
+			     if (synctime_onenterstate) {
+			         GSM_GPRS1_BearerProfile(1, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);								
+			     }
+			     else {
+			         GSMGPRS_RESULT res = GSM_GPRS1_BearerProfile(0, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+				         synctime_sequence = SYNC_TIME_CONFIGURE;
+				     else if (res == GSMGPRS_ERROR)
+				         synctime_sequence = SYNC_TIME_POWER_DOWN;
+			     }
+			     break;
+
+             // Sync configuration
+             case SYNC_TIME_CONFIGURE:
+                 if (synctime_onenterstate) {
+                     if (url != 0) {
+                         sprintf(GSM_GPRS1_TmpBuffer, "AT+CNTP=\"%s\",%d,1,2\r", url, timezone); // GET current clock
+                         GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                         GSM_GPRS1_StartTimer(5000UL);    /* 5S */
+                         work_buffer_index = 0;
+                     }
+                     else {
+                         synctime_sequence = SYNC_TIME_TERMINATE;
+                     }
+                 }
+                 else {
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\nOK");
+                     if (h!= 0) { 
+                        synctime_sequence = SYNC_TIME_DATETIME;
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             synctime_sequence = SYNC_TIME_TERMINATE;
+                     }
+                 }                 
+                 break;
+
+             // Sync date and time
+             case SYNC_TIME_DATETIME:
+                 if (synctime_onenterstate) {
+                     if (url != 0) {
+                         sprintf(GSM_GPRS1_TmpBuffer, "AT+CNTP\r"); // execute
+                         GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                         GSM_GPRS1_StartTimer(5000UL);    /* 5S */
+                         work_buffer_index = 0;
+                     }
+                     else {
+                         synctime_sequence = SYNC_TIME_TERMINATE;
+                     }
+                 }
+                 else {
+                     char *h, *p;
+                     uint32_t yy,mo,dd,hh,mm,ss;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\n+CNTP:");
+                     if ((h!= 0) && (strstr(h+2, "\r\n") != 0)) { 
+                         p = strstr(h,"\"");
+                         if (p != 0) {
+                             p++;
+                             h = p;
+                             while (*h) {
+                               if (*h == '/') *h = ',';
+                               if (*h == ':') *h = ',';
+                               if (*h == '+') *h = ',';
+                               h++;
+                             }
+                             if (sscanf(p, "%u,%u,%u,%u,%u,%u", &yy,&mo,&dd,&hh,&mm,&ss) == 6) {
+                                 datetime[0] = yy; // Year
+                                 datetime[1] = mo; // Month
+                                 datetime[2] = dd; // Day
+                                 datetime[3] = hh; // Hour
+                                 datetime[4] = mm; // Minute
+                                 datetime[5] = ss; // Second
+                                 synctime_success_status = 1;
+                                 synctime_sequence = SYNC_TIME_TERMINATE;
+                             }
+                             else {
+                                 synctime_sequence = SYNC_TIME_TERMINATE;
+                             }
+                         }
+                         else {
+                             synctime_sequence = SYNC_TIME_TERMINATE;
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             synctime_sequence = SYNC_TIME_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Terminate, with specify result of operation
+             case SYNC_TIME_TERMINATE:
+                 if (synctime_success_status != 0)
+                     synctime_sequence = SYNC_TIME_SUCCESS;
+                 else
+                     synctime_sequence = SYNC_TIME_ERROR;
+                 break;
+
+             case SYNC_TIME_SUCCESS:
+                 result = GSMGPRS_SUCCESS;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 synctime_sequence = SYNC_TIME_IDLE;
+                 break; 
+
+	         case SYNC_TIME_ERROR:
+                 result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 synctime_sequence = SYNC_TIME_IDLE;
+                 break; 
+
+             default:
+                 break; 
+         }
+
+         return (uint8_t) result;
+     }
+
+     /* ===================================================================
+      * Get Status
+      */
+     typedef enum {
+	     GET_STATUS_IDLE = 0,
+         GET_STATUS_WAIT,
+	     GET_STATUS_POWER_DOWN,
+         GET_STATUS_POWER_UP,
+         GET_STATUS_DATETIME,
+         GET_STATUS_OPERATOR,
+         GET_STATUS_SIGNALSTRENGTH,
+         GET_STATUS_TERMINATE,
+         GET_STATUS_SUCCESS,
+	     GET_STATUS_ERROR
+     } GET_STATUS_STATE;
+
+     uint8_t GSM_GPRS1_GetStatus(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock,
+        uint32_t *datetime, char *operatorname, uint32_t *signalstrength)
+     {
+         static GET_STATUS_STATE getstatus_sequence = GET_STATUS_IDLE;
+         static GET_STATUS_STATE getstatus_sequence_last = GET_STATUS_WAIT;
+         static uint8_t getstatus_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t getstatus_retrycount = 0;
+         static uint16_t getstatus_success_status = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         // Determine OnEnter state
+         if (getstatus_sequence != getstatus_sequence_last) {
+             getstatus_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             getstatus_sequence_last = getstatus_sequence;
+         } else {
+             getstatus_onenterstate = 0;
+         }
+
+         /* GET STATUS state processing */
+         switch (getstatus_sequence) {
+		     case GET_STATUS_IDLE:
+			     getstatus_retrycount = 0;
+                 getstatus_success_status = 0;
+                 if (init != 0) {
+				     getstatus_sequence = GET_STATUS_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case GET_STATUS_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     getstatus_sequence = GET_STATUS_POWER_UP;
+			     }
+			     break;
+			
+		     // Power Down
+		     case GET_STATUS_POWER_DOWN:
+			     if (getstatus_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     getstatus_sequence = GET_STATUS_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case GET_STATUS_POWER_UP:
+			     if (getstatus_onenterstate) {
+				     if (++getstatus_retrycount > 2) {
+					     getstatus_sequence = GET_STATUS_POWER_DOWN;
+					     getstatus_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     getstatus_sequence = GET_STATUS_DATETIME;
+			     }
+                 break;
+
+             // Get date and time
+             case GET_STATUS_DATETIME:
+                 if (getstatus_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+CCLK?\r"); // GET current clock
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL);    /* 5S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h, *p;
+                     uint32_t yy,mo,dd,hh,mm,ss;
+                     int32_t tz;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\n+CCLK:");
+                     if ((h!= 0) && (strstr(h+2, "\r\n") != 0)) { 
+                         // "\r\n+CCLK: "14/09/17,00:31:11+28"\r..."
+                         p = strstr(h,"\"");
+                         if (p != 0) {
+                             p++;
+                             h = p;
+                             while (*h) {
+                               if (*h == '/') *h = ',';
+                               if (*h == ':') *h = ',';
+                               if (*h == '+') *h = ',';
+                               h++;
+                             }
+                             if (sscanf(p, "%u,%u,%u,%u,%u,%u,%d", &yy,&mo,&dd,&hh,&mm,&ss,&tz) == 7) {
+                                 datetime[0] = yy; // Year
+                                 datetime[1] = mo; // Month
+                                 datetime[2] = dd; // Day
+                                 datetime[3] = hh; // Hour
+                                 datetime[4] = mm; // Minute
+                                 datetime[5] = ss; // Second
+                                 getstatus_sequence = GET_STATUS_OPERATOR;
+                             }
+                             else {
+                                 getstatus_sequence = GET_STATUS_TERMINATE;
+                             }
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             getstatus_sequence = GET_STATUS_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Get operator name
+             case GET_STATUS_OPERATOR:
+                 if (getstatus_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+COPS?\r"); // GET current clock
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL);    /* 5S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h, *p;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\n+COPS:");
+                     if ((h!= 0) && (strstr(h+2, "\r\n") != 0)) { 
+                         p = strstr(h,"\"");
+                         if (p != 0) {
+                             p++;
+                             h = strstr(p,"\"");
+                             if (h != 0) *h = '\0';
+                             if (strlen(p) >= 32) {
+                                 strncpy(operatorname, p, 31);
+                                 operatorname[31] = '\0';
+                             }
+                             else {
+                                 strcpy(operatorname, p);
+                             }
+                             getstatus_sequence = GET_STATUS_SIGNALSTRENGTH;
+                         }
+                         else {
+                             getstatus_sequence = GET_STATUS_TERMINATE;
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             getstatus_sequence = GET_STATUS_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Get signal strength
+             case GET_STATUS_SIGNALSTRENGTH:
+                 if (getstatus_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+CSQ\r"); // GET current clock
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL);    /* 5S */
+                     work_buffer_index = 0;
+                 } else {
+                     char *h;
+                     uint32_t rssi, ber;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "\r\n+CSQ:");
+                     if ((h!= 0) && (strstr(h+2, "\r\n") != 0)) { 
+                         // +CSQ: 21,0\r\n
+                         h += 2;
+                         if (sscanf(h,"+CSQ: %u,%u\r\n",&rssi, &ber) == 2) {
+                             *signalstrength = rssi;
+                             getstatus_success_status = 1; // Success
+                             getstatus_sequence = GET_STATUS_TERMINATE;  
+                         }
+                         else {
+                           getstatus_sequence = GET_STATUS_TERMINATE;
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             getstatus_sequence = GET_STATUS_TERMINATE;
+                     }
+                 }
+                 break;
+
+             // Terminate, with specify result of operation
+             case GET_STATUS_TERMINATE:
+                 if (getstatus_success_status != 0)
+                     getstatus_sequence = GET_STATUS_SUCCESS;
+                 else
+                     getstatus_sequence = GET_STATUS_ERROR;
+                 break;
+
+             case GET_STATUS_SUCCESS:
+                 result = GSMGPRS_SUCCESS;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 getstatus_sequence = GET_STATUS_IDLE;
+                 break; 
+
+	         case GET_STATUS_ERROR:
+                 result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 getstatus_sequence = GET_STATUS_IDLE;
+                 break; 
+
+             default:
+                 break; 
+         }
+
+         return (uint8_t) result;
+     }
+
+     /* ===================================================================
+      * HTTP DOWNLOAD
+      */
+     typedef enum {
+	     HTTP_DOWNLOAD_IDLE = 0,
+         HTTP_DOWNLOAD_WAIT,
+	     HTTP_DOWNLOAD_GSMGPRS_POWER_DOWN,
+         HTTP_DOWNLOAD_GSMGPRS_POWER_UP,
+         HTTP_DOWNLOAD_BEARER_CONFIGURE,
+         HTTP_DOWNLOAD_CONFIGURE,
+         HTTP_DOWNLOAD_URL,
+         HTTP_DOWNLOAD_ACTION,
+         HTTP_DOWNLOAD_READ,
+         HTTP_DOWNLOAD_READNEXT,
+         HTTP_DOWNLOAD_REDIRECT_START,
+         HTTP_DOWNLOAD_REDIRECT_END,
+         HTTP_DOWNLOAD_TERMINATE,
+         HTTP_DOWNLOAD_SUCCESS,
+	     HTTP_DOWNLOAD_ERROR
+     } HTTP_DOWNLOAD_STATE;
+
+     static SYS_TIMER_STRUCT http_download_timer_ms = {0UL,0UL}; 
+
+     static FIL *GSM_GPRS1_FILE = (FIL *)0;
+     static char GSM_GPRS1_Redirect_FileName[512] = {0};
+
+     uint8_t GSM_GPRS1_HttpDOWNLOAD(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  uint32_t timeout, const char *filename)
+     {
+         static HTTP_DOWNLOAD_STATE httpsdownload_sequence = HTTP_DOWNLOAD_IDLE;
+         static HTTP_DOWNLOAD_STATE httpsdownload_sequence_last = HTTP_DOWNLOAD_WAIT;
+         static uint8_t httpsdownload_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t httpdownload_retrycount = 0;
+         static uint16_t httpsdownload_success_status = 0;
+
+         static uint32_t httpsdownload_filesize = 0;
+         static uint32_t httpsdownload_fileindex = 0;
+         static uint8_t working_buffer_started = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         static uint8_t httpdownload_redirect_url_enable = 0;
+         static uint8_t httpdownload_redirect_url_level = 0;
+         char tmp_dir[256]; // Max directory length will be 256 bytes
+         int namepos;
+
+         // Determine OnEnter state
+         if (httpsdownload_sequence != httpsdownload_sequence_last) {
+             httpsdownload_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             httpsdownload_sequence_last = httpsdownload_sequence;
+         } else {
+             httpsdownload_onenterstate = 0;
+         }
+
+         /* HTTPS GET state processing */
+         switch (httpsdownload_sequence) {
+		     case HTTP_DOWNLOAD_IDLE:
+			     httpdownload_retrycount = 0;
+                 httpsdownload_success_status = 0;
+                 if (init != 0) {
+                     // Wait for aquiring resource
+				     httpsdownload_sequence = HTTP_DOWNLOAD_WAIT;
+
+                     // Reset redirect state
+                     httpdownload_redirect_url_enable = 0;
+                     httpdownload_redirect_url_level = 0;
+                     GSM_GPRS1_Redirect_FileName[0] = '\0';
+                 }
+			     break;
+		
+		     case HTTP_DOWNLOAD_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_UP;
+			     }
+			     break;
+			
+		     // Power Down
+		     case HTTP_DOWNLOAD_GSMGPRS_POWER_DOWN:
+			     if (httpsdownload_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case HTTP_DOWNLOAD_GSMGPRS_POWER_UP:
+			     if (httpsdownload_onenterstate) {
+                     ++httpdownload_retrycount;
+                     if (httpdownload_retrycount > 5) {
+                         httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE;
+                     }
+				     else if (httpdownload_retrycount > 2) {
+					     httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_DOWN;
+					     httpdownload_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     httpsdownload_sequence = HTTP_DOWNLOAD_BEARER_CONFIGURE;
+			     }
+                 break;
+
+		     // Config Bearer profile
+		     case HTTP_DOWNLOAD_BEARER_CONFIGURE:
+			     if (httpsdownload_onenterstate) {
+			         GSM_GPRS1_BearerProfile(1, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);								
+			     }
+			     else {
+			         GSMGPRS_RESULT res = GSM_GPRS1_BearerProfile(0, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+				         httpsdownload_sequence = HTTP_DOWNLOAD_CONFIGURE;
+				     else if (res == GSMGPRS_ERROR)
+				         httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_DOWN;
+			     }
+			     break;
+
+		     // Http init
+             case HTTP_DOWNLOAD_CONFIGURE:
+			     if (httpsdownload_onenterstate) {
+				     GSM_GPRS1_HTTPSInit(1, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+			     }
+			     else {
+				     GSMGPRS_RESULT res = GSM_GPRS1_HTTPSInit(0, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+					     httpsdownload_sequence = HTTP_DOWNLOAD_URL;
+				     else if (res == GSMGPRS_ERROR)
+					     httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_DOWN;				
+			     }
+			     break;
+			
+		     // URL
+             case HTTP_DOWNLOAD_URL:
+			     if (httpsdownload_onenterstate) {
+                     const char *h = "AT+HTTPPARA=\"URL\",\"";
+                     const char *t = "\"\r";
+
+                     //sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPPARA=\"URL\",\"%s\"\r", url);
+                     GSM_GPRS1_Write(h, strlen(h));
+                     if (httpdownload_redirect_url_enable) {
+                         GSM_GPRS1_Write(GSM_GPRS1_Redirect_FileName, strlen(GSM_GPRS1_Redirect_FileName));
+                     }
+                     else {
+                         GSM_GPRS1_Write(url, url_len);
+                     }
+
+                     GSM_GPRS1_Write(t, strlen(t));
+                     GSM_GPRS1_StartTimer(2000UL);    /* 2S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         httpsdownload_sequence = HTTP_DOWNLOAD_ACTION;
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsdownload_sequence = HTTP_DOWNLOAD_GSMGPRS_POWER_UP;
+                     }
+                 }
+  		         break;
+				
+             // HTTP_DOWNLOAD_ACTION,
+             case HTTP_DOWNLOAD_ACTION:
+			     if (httpsdownload_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPACTION=0\r"); // GET action
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL + timeout*1000);    /* 10+ S */
+                     work_buffer_index = 0;
+                 } else {
+                     int32_t action, errcode;
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "+HTTPACTION:");
+                     if ((h!= 0) && (strstr(h, "\r\n") != 0)) { 
+                         // +HTTPACTION:0,200,331<CR><LF>
+                         if (sscanf(h, "+HTTPACTION:%d,%d,%u\r\n", &action, &errcode, &httpsdownload_filesize) == 3) {
+                             if (errcode == 302) {
+                                 // Redirect URL of file
+                                 httpdownload_redirect_url_enable = 1;
+                                 //httpdownload_redirect_url_level ++;
+
+                                 // TODO: limit the trl redirect level.
+
+                                 // Reset data index
+                                 httpsdownload_fileindex = 0;
+                                 httpsdownload_sequence = HTTP_DOWNLOAD_READ;
+                             }
+                             else if (errcode == 200) {
+                                 // URL is direct file for download
+                                 httpdownload_redirect_url_enable = 0;
+
+                                 // Reset data index
+                                 httpsdownload_fileindex = 0;
+                                 httpsdownload_sequence = HTTP_DOWNLOAD_READ;
+
+                                 /* Create dir if not existing */
+                                 namepos = _fname_pos(filename);
+                                 if((namepos > 0) && (namepos < 255)) {
+                                     memcpy(&tmp_dir[0], filename, namepos);
+                                     tmp_dir[namepos] = '\0';
+                                     if (_dir_create(tmp_dir) != 0) {
+                                         // 
+                                     }
+                                 }
+
+                                 GSM_GPRS1_FILE = _fopen(filename, "wb");
+                                 if (GSM_GPRS1_FILE) {
+                                     httpsdownload_sequence = HTTP_DOWNLOAD_READ;
+                                 }
+                                 else {
+                                     // I/O Error
+                                     httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE; // Terminate with ERROR
+                                 }
+                             }
+                             else { // Network error
+                                 httpdownload_redirect_url_level ++;
+                                 httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE; // Terminate with ERROR
+                             }
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE; // Terminate with ERROR
+                     }
+                 }
+                 break;
+
+             // HTTP_DOWNLOAD_READ,
+             case HTTP_DOWNLOAD_READ:
+			     if (httpsdownload_onenterstate) {
+                     int bytes_read_count;
+                     
+                     bytes_read_count = httpsdownload_filesize - httpsdownload_fileindex;
+                     if (bytes_read_count > (GSM_GPRS%<module>_RX_BUFFER_SIZE>>1))
+                         bytes_read_count = (GSM_GPRS%<module>_RX_BUFFER_SIZE>>1);
+
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPREAD=%d,%d\r", httpsdownload_fileindex, bytes_read_count);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL); // Wait 10 sec
+                     SysTimer_Start(&http_download_timer_ms, 10000);
+
+                     working_buffer_started = 0;
+                     work_buffer_index = 0;
+                 } else {
+                     char *h, *d;
+                     int size, bytetoread;
+                     UINT bw;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+
+                     // Start timer
+                     if ((work_buffer_index > 0) && (!working_buffer_started)) {
+                         working_buffer_started = 1;
+                         SysTimer_Start(&http_download_timer_ms, 100);
+                     }
+                     
+                     if (SysTimer_IsTimeout(&http_download_timer_ms)) {
+                         // +HTTPREAD:331<CR><LF>
+                         h = strstr(GSM_GPRS1_TmpBuffer, "+HTTPREAD:");
+                         if ((h!= 0) && (strstr(h, "\r\n") != 0)) {
+                             if (sscanf(h, "+HTTPREAD:%d\r\n", &bytetoread) == 1) {
+                                 d = strstr(h, "\r\n");
+                                 d+= 2;
+                                 size = (uint32_t)&(GSM_GPRS1_TmpBuffer[work_buffer_index])-(uint32_t)d;
+                                 if (size > 6)
+                                     size -= 6; // remove tail: \r\nOK\r\n
+                                 // All bytes received
+                                 if (bytetoread == size) {
+                                     // If URL redirect
+                                     if (httpdownload_redirect_url_enable) {
+                                         uint8_t redirect_url_valid = 0;
+                                         char *url_start;
+                                         char *url_end;
+                                         uint32_t url_len;
+                                         // Ul Parser
+                                         url_start = strstr(d, "\"http");
+                                         if (url_start){
+                                             url_start ++; // Remove '"'
+                                             url_end = strstr(url_start, "\"");
+                                             if (url_end) {                                                 
+                                                 redirect_url_valid = 1; // Copy URL
+                                                 url_len = (uint32_t)url_end - (uint32_t)url_start;
+                                                 memcpy(GSM_GPRS1_Redirect_FileName, url_start, url_len);
+                                                 GSM_GPRS1_Redirect_FileName[url_len] = '\0'; // NULL terminator string
+                                             }
+                                         }
+                                         if (redirect_url_valid) {
+                                             // Terminate current session, retry with redirect URL
+                                             httpsdownload_success_status = 1;
+                                             httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE;
+                                         }
+                                         else {
+                                             // Invalid, terminate and return Error
+                                             httpsdownload_success_status = 0;
+                                             httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE;                                             
+                                         }
+                                     }
+                                     else {
+                                         if ((httpsdownload_fileindex + size) >= httpsdownload_filesize)
+                                             size = httpsdownload_filesize - httpsdownload_fileindex;
+                                         // Write packet
+                                         if (f_write (GSM_GPRS1_FILE, d, size, &bw) == FR_OK) {
+                                             httpsdownload_fileindex += size;
+                                             if (httpsdownload_fileindex >= httpsdownload_filesize) {
+                                                 // Success
+                                                 httpsdownload_success_status = 1;
+                                                 httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE;
+                                             }
+                                             else {
+                                                 httpsdownload_sequence = HTTP_DOWNLOAD_READNEXT;
+                                                 result = GSMGPRS_DATAREADY;
+                                             }
+                                         }
+                                         else {
+                                             // I/O Error
+                                             httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE; // Terminate with ERROR
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                         else {
+                              if (GSM_GPRS1_IsTimerTimeout())
+                                 httpsdownload_sequence = HTTP_DOWNLOAD_TERMINATE; // Terminate with ERROR
+                         }
+                     }
+                 }
+                 break;
+
+             // HTTP_DOWNLOAD_READNEXT
+             case HTTP_DOWNLOAD_READNEXT:
+                 httpsdownload_sequence = HTTP_DOWNLOAD_READ;
+                 break;
+
+             // HTTP_DOWNLOAD_REDIRECT_START
+             case HTTP_DOWNLOAD_REDIRECT_START:
+                 break;
+ 
+             // HTTP_DOWNLOAD_REDIRECT_END
+             case HTTP_DOWNLOAD_REDIRECT_END:
+                 break;
+
+             // HTTP_DOWNLOAD_TERMINATE,
+             case HTTP_DOWNLOAD_TERMINATE:
+			     if (httpsdownload_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+HTTPTERM\r"); // Terminate http
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL); // 10Sec
+                     SysTimer_Start(&http_download_timer_ms, 3000);
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         if (SysTimer_IsTimeout(&http_download_timer_ms)) {
+                             if (httpsdownload_success_status) {
+                                 if ((httpdownload_redirect_url_enable) && (++httpdownload_redirect_url_level < 6)){
+                                     // Redirect URL                                 
+                                     httpsdownload_sequence = HTTP_DOWNLOAD_CONFIGURE;
+                                 }
+                                 else {
+                                    httpsdownload_sequence = HTTP_DOWNLOAD_SUCCESS;
+                                 }
+                             }
+                             else
+                                 httpsdownload_sequence = HTTP_DOWNLOAD_ERROR;
+                         }
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsdownload_sequence = HTTP_DOWNLOAD_ERROR;                            
+                     }
+                 }
+                 break;
+             
+             // Success, Error
+             case HTTP_DOWNLOAD_SUCCESS:
+	         case HTTP_DOWNLOAD_ERROR:
+                 // Close file
+                 if (GSM_GPRS1_FILE) {
+                     _fclose(GSM_GPRS1_FILE);
+                     GSM_GPRS1_FILE = (FIL *)0;
+                 }
+                 // Return operation status
+                 if (httpsdownload_sequence == HTTP_DOWNLOAD_SUCCESS)
+                     result = GSMGPRS_SUCCESS;
+                 else
+                     result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 // Back to Idle state
+                 httpsdownload_sequence = HTTP_DOWNLOAD_IDLE;
+		         break;
+
+		     default:
+			     break;
+         }
+
+         return (uint8_t) result;
+     }
+
+     /* ===================================================================
+      * HTTP GET
+      */
+     typedef enum {
+	     HTTP_GET_IDLE = 0,
+         HTTP_GET_WAIT,
+	     HTTP_GET_GSMGPRS_POWER_DOWN,
+         HTTP_GET_GSMGPRS_POWER_UP,
+         HTTP_GET_BEARER_CONFIGURE,
+         HTTP_GET_CONFIGURE,
+         HTTP_GET_URL,
+         HTTP_GET_ACTION,
+         HTTP_GET_READ,
+         HTTP_GET_TERMINATE,
+         HTTP_GET_SUCCESS,
+	     HTTP_GET_ERROR
+     } HTTP_GET_STATE;
+
+     static SYS_TIMER_STRUCT http_get_timer_ms = {0UL,0UL};
+
+     uint8_t GSM_GPRS1_HttpGET(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator)
+     {
+         static HTTP_GET_STATE httpsget_sequence = HTTP_GET_IDLE;
+         static HTTP_GET_STATE httpsget_sequence_last = HTTP_GET_WAIT;
+         static uint8_t httpsget_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t httpget_retrycount = 0;
+         static uint16_t httpsget_success_status = 0;
+
+         static uint8_t httpget_redirect_url_enable = 0;
+         static uint8_t httpget_redirect_url_level = 0;
+
+         static uint8_t httpget_retry_cout = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         // Determine OnEnter state
+         if (httpsget_sequence != httpsget_sequence_last) {
+             httpsget_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             httpsget_sequence_last = httpsget_sequence;
+         } else {
+             httpsget_onenterstate = 0;
+         }
+
+         /* HTTPS GET state processing */
+         switch (httpsget_sequence) {
+		     case HTTP_GET_IDLE:
+			     httpget_retrycount = 0;
+                 httpsget_success_status = 0;
+                 if (init != 0) {
+                     httpget_retry_cout = 0;
+                     httpget_redirect_url_enable = 0;
+                     httpget_redirect_url_level = 0;
+                     GSM_GPRS1_Redirect_FileName[0] = '\0';
+				     httpsget_sequence = HTTP_GET_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case HTTP_GET_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     httpsget_sequence = HTTP_GET_GSMGPRS_POWER_UP;
+                     if (output && (output_size > 0)) {
+                         output[0] = '\0';
+                     }
+			     }
+			     break;
+			
+		     // Power Down
+		     case HTTP_GET_GSMGPRS_POWER_DOWN:
+			     if (httpsget_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     httpsget_sequence = HTTP_GET_GSMGPRS_POWER_UP;
+			     }
+			     break;
+		   
+             // Power up
+             case HTTP_GET_GSMGPRS_POWER_UP:
+			     if (httpsget_onenterstate) {
+				     if (++httpget_retrycount > 2) {
+					     httpsget_sequence = HTTP_GET_TERMINATE; //HTTP_GET_GSMGPRS_POWER_DOWN;
+					     httpget_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     httpsget_sequence = HTTP_GET_BEARER_CONFIGURE;
+			     }
+                 break;
+
+		     // Config Bearer profile
+		     case HTTP_GET_BEARER_CONFIGURE:
+			     if (httpsget_onenterstate) {
+			         GSM_GPRS1_BearerProfile(1, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);								
+			     }
+			     else {
+			         GSMGPRS_RESULT res = GSM_GPRS1_BearerProfile(0, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+				         httpsget_sequence = HTTP_GET_CONFIGURE;
+				     else if (res == GSMGPRS_ERROR)
+				         httpsget_sequence = HTTP_GET_GSMGPRS_POWER_DOWN;
+			     }
+			     break;
+
+		     // Http init
+             case HTTP_GET_CONFIGURE:
+			     if (httpsget_onenterstate) {
+				     GSM_GPRS1_HTTPSInit(1, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+			     }
+			     else {
+				     GSMGPRS_RESULT res = GSM_GPRS1_HTTPSInit(0, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+					     httpsget_sequence = HTTP_GET_URL;
+				     else if (res == GSMGPRS_ERROR)
+					     httpsget_sequence = HTTP_GET_GSMGPRS_POWER_DOWN;				
+			     }
+			     break;
+			
+		     // URL
+             case HTTP_GET_URL:
+			     if (httpsget_onenterstate) {
+                     const char *h = "AT+HTTPPARA=\"URL\",\"";
+                     const char *t = "\"\r";
+                     int idx = 0;
+                     char *p;
+                     char *s;
+
+                     //sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPPARA=\"URL\",\"%s\"\r", url);
+                     GSM_GPRS1_Write(h, strlen(h));
+                     if (httpget_redirect_url_enable) {
+                         // Do nothing
+                     }
+                     else {
+                         memcpy(GSM_GPRS1_Redirect_FileName,url,url_len);
+                         GSM_GPRS1_Redirect_FileName[url_len] = '\0';
+                     }
+                     s = (char *)GSM_GPRS1_Redirect_FileName;
+                         GSM_GPRS1_TmpBuffer[0] = '\0';
+                         idx = 0;
+                         while (strstr(s, "&amp;"))
+                         {
+                             p = strstr(s, "&amp;");
+                             if (p)
+                             {
+                                memcpy(&GSM_GPRS1_TmpBuffer[idx],s,(p-s));
+                                idx += (p-s);
+                                GSM_GPRS1_TmpBuffer[idx] = '&';
+                                idx++;
+                                s = p+5;
+                             }
+                         }
+                         if (*s)
+                         {
+                             strcpy(&GSM_GPRS1_TmpBuffer[idx],s);
+                         }
+                         else 
+                         {
+                             GSM_GPRS1_TmpBuffer[idx] = 0;
+                         }
+
+                         // &amp; ===> &
+                         // GSM_GPRS1_TmpBuffer
+                         //GSM_GPRS1_Write(GSM_GPRS1_Redirect_FileName, strlen(GSM_GPRS1_Redirect_FileName));
+                         GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+
+
+                     GSM_GPRS1_Write(t, strlen(t));
+                     GSM_GPRS1_StartTimer(2000UL);    /* 2S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         httpsget_sequence = HTTP_GET_ACTION;
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsget_sequence = HTTP_GET_GSMGPRS_POWER_UP;
+                     }
+                 }
+  		         break;
+				
+             // HTTP_GET_ACTION,
+             case HTTP_GET_ACTION:
+			     if (httpsget_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPACTION=0\r"); // GET action
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL + timeout*1000);    /* 10+ S */
+                     work_buffer_index = 0;
+                 } else {
+                     int32_t action, errcode;
+                     uint32_t response_size;
+                     char *h;
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     //
+                     h = strstr(GSM_GPRS1_TmpBuffer, "+HTTPACTION:");
+                     if ((h!= 0) && (strstr(h, "\r\n") != 0)) { 
+                         // +HTTPACTION:0,200,331<CR><LF>
+                         if (sscanf(h, "+HTTPACTION:%d,%d,%u\r\n", &action, &errcode, &response_size) == 3) {
+                             if (errcode == 200) {
+                                 httpget_redirect_url_enable = 0;
+                                 httpsget_sequence = HTTP_GET_READ;
+                             }
+                             else if (errcode == 302) {
+                                 // Redirect URL of file
+
+                                 httpget_redirect_url_enable = 1;
+                                 
+
+                                 httpsget_sequence = HTTP_GET_READ;
+
+                                 // TODO: limit the url redirect level.
+                             }
+                             else if (errcode >= 600) {
+                                if (++httpget_retry_cout > 4)
+                                  httpsget_sequence = HTTP_GET_TERMINATE;
+                                else
+                                  httpsget_sequence = HTTP_GET_GSMGPRS_POWER_DOWN;
+                             }
+                             else
+                                 httpsget_sequence = HTTP_GET_TERMINATE;
+                         }
+                     }
+                     else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsget_sequence = HTTP_GET_TERMINATE; // Terminate with ERROR
+                     }
+                 }
+                 break;
+
+             // HTTP_GET_READ,
+             case HTTP_GET_READ:
+			     if (httpsget_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPREAD=0,%d\r", GSM_GPRS1_RX_BUFFER_SIZE-1);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL); // Wait 5 sec
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (GSM_GPRS1_IsTimerTimeout()) {
+                         // Read data is Ready
+                         // If URL redirect
+                         if (httpget_redirect_url_enable) {
+                             uint8_t redirect_url_valid = 0;
+                             char *url_start;
+                             char *url_end;
+                             char *d = GSM_GPRS1_TmpBuffer;
+                             uint32_t url_len;
+                             
+                             // Ul Parser
+                             url_start = strstr(d, "\"http");
+                             if (url_start) {
+                                 url_start ++; // Remove '"'
+                                 url_end = strstr(url_start, "\"");
+                                 if (url_end) {                                                 
+                                     redirect_url_valid = 1; // Copy URL
+                                     url_len = (uint32_t)url_end - (uint32_t)url_start;
+                                     memcpy(GSM_GPRS1_Redirect_FileName, url_start, url_len);
+                                     GSM_GPRS1_Redirect_FileName[url_len] = '\0'; // NULL terminator string
+                                 }
+                             }
+                             if (redirect_url_valid) {
+                                 // Terminate current session, retry with redirect URL
+                                 httpsget_success_status = 1;
+                                 httpsget_sequence = HTTP_GET_TERMINATE;
+                             }
+                             else {
+                                 // Invalid, terminate and return Error
+                                 httpsget_success_status = 0;
+                                 httpsget_sequence = HTTP_GET_TERMINATE;                                             
+                             }
+                         }
+                         else {
+                             if (output && (output_size > 0)) {
+                                 uint16_t data_size;
+                                 char *pheader = 0;
+                                 char *pterminator = 0;
+                                 output[0] = '\0';
+
+                                 if (header && (strlen(header) > 0))
+                                     pheader = strstr (GSM_GPRS1_TmpBuffer, header);
+                                 else
+                                     pheader = &(GSM_GPRS1_TmpBuffer[0]);
+
+                                 if (pheader) {
+                                     pheader += strlen(header); // Exclude header
+                                     if (terminator && (strlen(terminator) > 0))
+                                         pterminator = strstr (pheader, terminator);
+                                     else
+                                         pterminator = &(GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)-1]);
+
+                                     if (pterminator)
+                                         data_size = (uint16_t)(pterminator - pheader);
+                                     else
+                                         data_size = strlen(pheader);
+                                     if (data_size >= output_size)
+                                         data_size = (output_size - 1);
+                                     strncpy(output, pheader, data_size);
+                                     output[data_size] = '\0';
+                                 }
+
+                                 result = GSMGPRS_DATAREADY;
+                             }
+                             httpsget_sequence = HTTP_GET_TERMINATE;
+                             httpsget_success_status = 1; // Indicate Success
+                         }
+                     }                                            
+                 }
+                 break;
+
+             // HTTP_GET_TERMINATE,
+             case HTTP_GET_TERMINATE:
+			     if (httpsget_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+HTTPTERM\r"); // Terminate http
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL); // 2Sec
+                     work_buffer_index = 0;
+                     SysTimer_Start(&http_get_timer_ms, 5000);
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         if (SysTimer_IsTimeout(&http_get_timer_ms)) {
+                             if (httpsget_success_status)
+                             {
+                                 if ((httpget_redirect_url_enable) && (++httpget_redirect_url_level < 6)){
+                                     // Redirect URL                                 
+                                     httpsget_sequence = HTTP_GET_CONFIGURE;
+                                 }
+                                 else {
+                                    httpsget_sequence = HTTP_GET_SUCCESS;
+                                 }
+                             }
+                             else
+                                 httpsget_sequence = HTTP_GET_ERROR;
+                         }
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpsget_sequence = HTTP_GET_ERROR;                            
+                     }
+                 }
+                 break;
+             
+             // Success, Error
+             case HTTP_GET_SUCCESS:
+	         case HTTP_GET_ERROR:
+                 if (httpsget_sequence == HTTP_GET_SUCCESS)
+                     result = GSMGPRS_SUCCESS;
+                 else
+                     result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 // Back to Idle state
+                 httpsget_sequence = HTTP_GET_IDLE;
+		         break;
+
+		     default:
+			     break;
+         }
+
+         return (uint8_t) result;
+     }
+     
+     /* ===================================================================
+      * HTTP POST
+      */
+     typedef enum {
+	     HTTP_POST_IDLE = 0,
+         HTTP_POST_WAIT,
+	     HTTP_POST_GSMGPRS_POWER_DOWN,
+         HTTP_POST_GSMGPRS_POWER_UP,
+         HTTP_POST_BEARER_CONFIGURE,
+         HTTP_POST_CONFIGURE,
+         HTTP_POST_URL,
+         HTTP_POST_CONTENTTYPE,
+         HTTP_POST_DATALEN_TIMEOUT,
+         HTTP_POST_DATA,
+         HTTP_POST_ACTION,
+         HTTP_POST_READ,
+         HTTP_POST_TERMINATE,
+         HTTP_POST_SUCCESS,
+	     HTTP_POST_ERROR
+     } HTTP_POST_STATE;
+
+     uint8_t GSM_GPRS1_HttpPOST(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock, \
+                  uint8_t ssl_enable, const char *url, uint16_t url_len,\
+                  const char *content_type, uint16_t content_type_len,\
+                  const char *data, uint16_t data_len,\
+                  uint32_t timeout, \
+                  char *output, uint16_t output_size, \
+                  const char *header, const char *terminator)
+     {
+         static HTTP_POST_STATE httpspost_sequence = HTTP_POST_IDLE;
+         static HTTP_POST_STATE httpspost_sequence_last = HTTP_POST_WAIT;
+         static uint8_t httpspost_onenterstate = 0;// OnEnterState
+         static uint16_t work_buffer_index = 0;
+	     static uint16_t httpspost_retrycount = 0;
+         static uint16_t httpspost_success_status = 0;
+	
+         GSMGPRS_RESULT result = GSMGPRS_BUSY;
+
+         // Determine OnEnter state
+         if (httpspost_sequence != httpspost_sequence_last) {
+             httpspost_onenterstate = 1;
+             work_buffer_index = 0; // buffer index
+             httpspost_sequence_last = httpspost_sequence;
+         } else {
+             httpspost_onenterstate = 0;
+         }
+
+         /* HTTPS POST state processing */
+         switch (httpspost_sequence) {
+		     case HTTP_POST_IDLE:
+			     httpspost_retrycount = 0;
+                 httpspost_success_status = 0;
+                 if (init != 0) {
+				     httpspost_sequence = HTTP_POST_WAIT; // Wait for aquiring resource
+                 }
+			     break;
+		
+		     case HTTP_POST_WAIT:
+			     // Check if resource is usable
+			     if (GSM_GPRS1_Resource_Lock(gsmgprs_lock)) {
+				     httpspost_sequence = HTTP_POST_GSMGPRS_POWER_UP;
+                     if (output && (output_size > 0)) {
+                         output[0] = '\0';
+                     }
+			     }
+			     break;
+			
+		     // Power Down
+		     case HTTP_POST_GSMGPRS_POWER_DOWN:
+			     if (httpspost_onenterstate) {			
+			         GSM_GPRS1_PWRKEY_LOW();
+				     GSM_GPRS1_StartTimer(1500);
+			     }
+			     else {
+					 if (GSM_GPRS1_IsTimerTimeout())
+					     httpspost_sequence = HTTP_POST_GSMGPRS_POWER_UP;
+			     }    
+			     break;
+		
+             // Power up
+             case HTTP_POST_GSMGPRS_POWER_UP:
+			     if (httpspost_onenterstate) {
+				     if (++httpspost_retrycount > 3) {
+					     httpspost_sequence = HTTP_POST_TERMINATE;
+					     httpspost_retrycount = 0;
+				     }
+			     }
+			     else {
+				     if (GSM_GPRS1_PowerUP())
+					     httpspost_sequence = HTTP_POST_BEARER_CONFIGURE;
+			     }
+                 break;
+
+		     // Config Bearer profile
+		     case HTTP_POST_BEARER_CONFIGURE:
+			     if (httpspost_onenterstate) {
+			         GSM_GPRS1_BearerProfile(1, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);								
+			     }
+			     else {
+			         GSMGPRS_RESULT res = GSM_GPRS1_BearerProfile(0, GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+				         httpspost_sequence = HTTP_POST_CONFIGURE;
+				     else if (res == GSMGPRS_ERROR)
+				         httpspost_sequence = HTTP_POST_GSMGPRS_POWER_DOWN;
+			     }
+			     break;
+
+		     // Http init
+             case HTTP_POST_CONFIGURE:
+			     if (httpspost_onenterstate) {
+				     GSM_GPRS1_HTTPSInit(1, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+			     }
+			     else {
+				     GSMGPRS_RESULT res = GSM_GPRS1_HTTPSInit(0, ssl_enable,  GSM_GPRS1_TmpBuffer, GSM_GPRS1_RX_BUFFER_SIZE);
+				     if (res == GSMGPRS_SUCCESS)
+					     httpspost_sequence = HTTP_POST_URL;
+				     else if (res == GSMGPRS_ERROR)
+					     httpspost_sequence = HTTP_POST_GSMGPRS_POWER_DOWN;				
+			     }
+			     break;
+			
+		     // URL
+             case HTTP_POST_URL:
+			     if (httpspost_onenterstate) {
+                     const char *h = "AT+HTTPPARA=\"URL\",\"";
+                     const char *t = "\"\r";
+
+                     //sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPPARA=\"URL\",\"%s\"\r", url);
+                     GSM_GPRS1_Write(h, strlen(h));
+                     GSM_GPRS1_Write(url, url_len);
+                     GSM_GPRS1_Write(t, strlen(t));
+                     GSM_GPRS1_StartTimer(2000UL);    /* 2S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         httpspost_sequence = HTTP_POST_CONTENTTYPE;
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpspost_sequence = HTTP_POST_GSMGPRS_POWER_UP;
+                     }
+                 }
+  		         break;
+		
+		     // CONTENT
+		     case HTTP_POST_CONTENTTYPE:
+			     if (httpspost_onenterstate) {
+                     const char *h = "AT+HTTPPARA=\"CONTENT\",\"";
+                     const char *t = "\"\r";
+
+                     //sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPPARA=\"CONTENT\",\"%s\"\r", content_type);
+                     //GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_Write(h, strlen(h));
+                     GSM_GPRS1_Write(content_type, content_type_len);
+                     GSM_GPRS1_Write(t, strlen(t));
+
+                     GSM_GPRS1_StartTimer(2000UL);    /* 2S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         httpspost_sequence = HTTP_POST_DATALEN_TIMEOUT;
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpspost_sequence = HTTP_POST_GSMGPRS_POWER_UP;
+                     }
+                 }
+			     break;
+
+		     // DATA LEN & TIMEOUT
+             case HTTP_POST_DATALEN_TIMEOUT:
+			     if (httpspost_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPDATA=%u,%u\r", data_len, timeout*1000);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL);    /* 2S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nDOWNLOAD\r\n")) {
+                         httpspost_sequence = HTTP_POST_DATA;
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpspost_sequence = HTTP_POST_GSMGPRS_POWER_UP;
+                     }
+                 }			
+			     break;
+		
+		     // HTTP_POST_DATA,
+		     case HTTP_POST_DATA:
+			     if (httpspost_onenterstate) {
+                     GSM_GPRS1_Write(data, data_len);
+                     GSM_GPRS1_StartTimer(2000UL);    /* 2S */
+                 }
+                 else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         httpspost_sequence = HTTP_POST_ACTION;
+                     }
+                     else if (GSM_GPRS1_IsTimerTimeout())
+                         httpspost_sequence = HTTP_POST_TERMINATE; // Terminate with ERROR
+                 }
+			     break;
+
+             // HTTP_POST_ACTION,
+             case HTTP_POST_ACTION:
+			     if (httpspost_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+HTTPACTION=1\r"); // POST action
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(10000UL + timeout*1000);    /* 10+ S */
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\n+HTTPACTION:")) {
+                         uint32_t a, b, c;
+                         char *p = strstr(GSM_GPRS1_TmpBuffer, "+HTTPACTION:");                         
+                         if (p && (strstr(p, "\r\n") > 0)) {
+                             //+HTTPACTION:1,404,2641
+                             //+HTTPACTION:1,200,2641
+                             if (sscanf(p, "+HTTPACTION:%u,%u,%u", &a, &b, &c) == 3) {
+                                 if (output && (output_size > 0)) {
+                                     httpspost_sequence = HTTP_POST_READ;
+                                 }
+                                 else {
+                                     httpspost_sequence = HTTP_POST_TERMINATE;
+                                     if (b == 200) { // Success
+                                         httpspost_success_status = 1; // Indicate Success
+                                     }
+                                     else if (b >= 600) {
+                                         httpspost_sequence = HTTP_POST_GSMGPRS_POWER_DOWN;
+                                     }
+                                 }
+                             }
+                             else {
+                                 // Error: could not get http error satus
+                                 httpspost_sequence = HTTP_POST_TERMINATE;
+                             }
+                         }
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpspost_sequence = HTTP_POST_TERMINATE; // Terminate with ERROR
+                     }
+                 }
+                 break;
+
+             // HTTP_POST_READ,
+             case HTTP_POST_READ:
+			     if (httpspost_onenterstate) {
+                     sprintf(GSM_GPRS1_TmpBuffer, "AT+HTTPREAD=0,%d\r", GSM_GPRS1_RX_BUFFER_SIZE-1);
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL); // Wait 5 sec
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+                     if (GSM_GPRS1_IsTimerTimeout()) {
+                         // Read data is Ready
+                         if (output && (output_size > 0)) {
+                             uint16_t data_size;
+                             char *pheader = 0;
+                             char *pterminator = 0;
+                             output[0] = '\0';
+
+                             if (header && (strlen(header) > 0))
+                                 pheader = strstr (GSM_GPRS1_TmpBuffer, header);
+                             else
+                                 pheader = &(GSM_GPRS1_TmpBuffer[0]);
+
+                             if (pheader) {
+                                 pheader += strlen(header); // Exclude header
+                                 if (terminator && (strlen(terminator) > 0))
+                                     pterminator = strstr (pheader, terminator);
+                                 else
+                                     pterminator = &(GSM_GPRS1_TmpBuffer[strlen(GSM_GPRS1_TmpBuffer)-1]);
+
+                                 if (pterminator)
+                                     data_size = (uint16_t)(pterminator - pheader);
+                                 else
+                                     data_size = strlen(pheader);
+                                 if (data_size >= output_size)
+                                     data_size = (output_size - 1);
+                                 strncpy(output, pheader, data_size);
+                                 output[data_size] = '\0';
+                             }
+                             // Data is ready at buffer output data port
+                             result = GSMGPRS_DATAREADY;
+                         }
+                         httpspost_sequence = HTTP_POST_TERMINATE;
+                         httpspost_success_status = 1; // Indicate Success
+                     }                                            
+                 }
+                 break;
+
+             // HTTP_POST_TERMINATE,
+             case HTTP_POST_TERMINATE:
+			     if (httpspost_onenterstate) {
+                     strcpy(GSM_GPRS1_TmpBuffer, "AT+HTTPTERM\r"); // Terminate http
+                     GSM_GPRS1_Write(GSM_GPRS1_TmpBuffer, strlen(GSM_GPRS1_TmpBuffer));
+                     GSM_GPRS1_StartTimer(5000UL); // 2Sec
+                     work_buffer_index = 0;
+                 } else {
+                     work_buffer_index += GSM_GPRS1_Read(&(GSM_GPRS1_TmpBuffer[work_buffer_index]),
+                     GSM_GPRS1_RX_BUFFER_SIZE-work_buffer_index);
+
+                     if (strstr(GSM_GPRS1_TmpBuffer, "\r\nOK\r\n")) {
+                         if (GSM_GPRS1_IsTimerTimeout()) {
+                           if (httpspost_success_status)
+                             httpspost_sequence = HTTP_POST_SUCCESS;
+                           else
+                             httpspost_sequence = HTTP_POST_ERROR;
+                         }
+                     } else {
+                         if (GSM_GPRS1_IsTimerTimeout())
+                             httpspost_sequence = HTTP_POST_ERROR;                            
+                     }
+                 }
+                 break;
+             
+             // Success, Error
+             case HTTP_POST_SUCCESS:
+	         case HTTP_POST_ERROR:
+                 if (httpspost_sequence == HTTP_POST_SUCCESS)
+                     result = GSMGPRS_SUCCESS;
+                 else
+                     result = GSMGPRS_ERROR;
+                 GSM_GPRS%<module>_Resource_UnLock(gsmgprs_lock);
+                 // Back to Idle state
+                 httpspost_sequence = HTTP_POST_IDLE;
+		         break;
+
+		     default:
+			     break;
+         }
+
+         return (uint8_t) result;
+     }
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if conf == "HttpPOST"
+extern GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock;
+uint8_t %<blockid>_HttpPOST(uint8_t trig, \
+                       const char *url, uint16_t url_len,\
+                       const char *content_type, uint16_t content_type_len,\
+                       const char *data, uint16_t data_len,\
+                       uint32_t timeout, \
+                       char *output, uint16_t output_size);
+%endif
+%if conf == "HttpGET"
+uint8_t %<blockid>_HttpGET(uint8_t trig, const char *url, uint16_t url_len, \
+                       uint32_t timeout, char *output, uint16_t output_size);
+%endif
+
+%if conf == "HttpDOWNLOAD"
+uint8_t %<blockid>_HttpDOWNLOAD(uint8_t trig, const char *url, uint16_t url_len, \
+                       uint32_t timeout, const char *filename);
+%endif
+
+%if conf == "GetStatus"
+uint8_t %<blockid>_GetStatus(uint8_t trig, uint32_t *datatime, \
+                       char *operator_buffer, uint32_t *signal_strength);
+%endif
+             
+%if conf == "SyncNetworkTime"
+uint8_t %<blockid>_SyncNetworkTime(uint8_t trig, const char *url, \
+                       int32_t timezone, uint32_t *datetime);
+%endif
+
+%if conf == "SendSMS"
+uint8_t %<blockid>_SendSMS(uint8_t trig, const char *dest, const char *msg);
+%endif
+
+%if conf == "SMTP"
+uint8_t %<blockid>_SMTP(uint8_t trig, \
+          uint8_t enable_ssl, \
+          const char *server, uint16_t server_len, uint32_t server_port, \
+          const char *user, uint16_t user_len, \
+          const char *password, uint16_t password_len, \
+          const char *sender, uint16_t sender_len, \
+          const char *to_recipient, uint16_t to_recipient_len, \
+          const char *cc_recipient, uint16_t cc_recipient_len, \
+          const char *subject, uint16_t subject_len, \
+          const char *msg, uint16_t msg_len, \
+          uint32_t timeout);
+%endif
+
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if conf == "HttpPOST"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_HttpPOST(uint8_t trig, \
+                       const char *url, uint16_t url_len,\
+                       const char *content_type, uint16_t content_type_len,\
+                       const char *data, uint16_t data_len,\
+                       uint32_t timeout, \
+                       char *output, uint16_t output_size)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig) {
+           state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {
+            sta = GSM_GPRS1_HttpPOST(1, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len,\
+                  content_type, content_type_len, data, data_len, timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+            state ++;
+        }
+    }
+    else {
+        sta = GSM_GPRS1_HttpPOST(0, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len,\
+                  content_type, content_type_len, data, data_len, timeout, output, output_size, "%<http_header>", "%<http_terminator>");        
+        if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+%if conf == "HttpGET"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_HttpGET(uint8_t trig, const char *url, uint16_t url_len, \
+                       uint32_t timeout, char *output, uint16_t output_size)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig) {
+           state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {        
+            sta = GSM_GPRS1_HttpGET(1, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len, \
+                  timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+            state ++;
+        }
+    }
+    else {
+        sta = GSM_GPRS1_HttpGET(0, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len, \
+             timeout, output, output_size, "%<http_header>", "%<http_terminator>");
+        if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+%if conf == "GetStatus"
+//     uint8_t GSM_GPRS1_GetStatus(uint8_t init, GSM_GPRS_LOCK_STRUCT *gsmgprs_lock,
+//        uint32_t *datetime, char *operator, uint32_t *signalstrength);
+
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_GetStatus(uint8_t trig, uint32_t *datatime, char *operator_buffer, uint32_t *signal_strength)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig) {
+           state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {        
+            sta = GSM_GPRS1_GetStatus(1, &%<blockid>_gsmgprs_lock, datatime, operator_buffer, signal_strength);
+            state ++;
+        }
+    }
+    else {
+        sta = GSM_GPRS1_GetStatus(0, &%<blockid>_gsmgprs_lock, datatime, operator_buffer, signal_strength);
+        if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+%if conf == "HttpDOWNLOAD"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_HttpDOWNLOAD(uint8_t trig, const char *url, uint16_t url_len, \
+                       uint32_t timeout, const char *filename)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    // Wait for Trig
+    if (state == 0) {
+        if (trig) {
+           state ++;
+        }
+    }
+    // Wait for Lock
+    else if (state == 1) {
+        if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {
+            sta = GSM_GPRS1_HttpDOWNLOAD(1, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len, \
+                  timeout, filename);
+            state ++;
+        }
+    }
+    // Execute
+    else {
+        sta = GSM_GPRS1_HttpDOWNLOAD(0, &%<blockid>_gsmgprs_lock, %<sslenable>, url, url_len, \
+              timeout, filename);
+        if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+             state = 0;
+        }
+    }
+    return sta;
+}
+%endif
+
+%if conf == "SyncNetworkTime"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_SyncNetworkTime(uint8_t trig, const char *url, int32_t timezone, uint32_t *datetime)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    switch (state)
+    {
+        case 0: // Wait for Trig
+            if (trig)
+                state ++;
+            break;
+
+        case 1: // Wait for Lock
+            if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {
+                sta = GSM_GPRS1_SyncNetworkTime(1, &%<blockid>_gsmgprs_lock, url, timezone, datetime);
+                state ++;
+            }
+            break;
+
+        default:
+            sta = GSM_GPRS1_SyncNetworkTime(0, &%<blockid>_gsmgprs_lock, url, timezone, datetime);
+            if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+                state = 0;
+            }
+            break;
+    }
+    return sta;
+}
+%endif
+
+%if conf == "SendSMS"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_SendSMS(uint8_t trig, const char *dest, const char *msg)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    switch (state)
+    {
+        case 0: // Wait for Trig
+            if (trig)
+                state ++;
+            break;
+
+        case 1: // Wait for Lock
+            if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {
+                sta = GSM_GPRS1_SendSMS(1, &%<blockid>_gsmgprs_lock, dest, msg);
+                state ++;
+            }
+            break;
+
+        default:
+            sta = GSM_GPRS1_SendSMS(0, &%<blockid>_gsmgprs_lock, dest, msg);
+            if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+                state = 0;
+            }
+            break;
+    }
+    return sta;
+}
+%endif
+
+%if conf == "SMTP"
+GSM_GPRS_LOCK_STRUCT %<blockid>_gsmgprs_lock = {0, 0, 0};
+uint8_t %<blockid>_SMTP(uint8_t trig, \
+          uint8_t enable_ssl, \
+          const char *server, uint16_t server_len, uint32_t server_port, \
+          const char *user, uint16_t user_len, \
+          const char *password, uint16_t password_len, \
+          const char *sender, uint16_t sender_len, \
+          const char *to_recipient, uint16_t to_recipient_len, \
+          const char *cc_recipient, uint16_t cc_recipient_len, \
+          const char *subject, uint16_t subject_len, \
+          const char *msg, uint16_t msg_len, \
+          uint32_t timeout)
+{
+    static uint8_t state = 0;
+    uint8_t sta = (uint8_t)GSMGPRS_WAIT;
+
+    switch (state)
+    {
+        case 0: // Wait for Trig
+            if (trig)
+                state ++;
+            break;
+
+        case 1: // Wait for Lock
+            if (GSM_GPRS1_Resource_Lock(&%<blockid>_gsmgprs_lock)) {
+                sta = GSM_GPRS1_SMTP(1, &%<blockid>_gsmgprs_lock, \
+                      enable_ssl, server, server_len, server_port, \
+                      user, user_len, password, password_len, \
+                      sender, sender_len, to_recipient, to_recipient_len, \
+                      cc_recipient, cc_recipient_len, subject, subject_len, \
+                      msg, msg_len, timeout);
+                state ++;
+            }
+            break;
+
+        default:
+            sta = GSM_GPRS1_SMTP(0, &%<blockid>_gsmgprs_lock, \
+                  enable_ssl, server, server_len, server_port, \
+                  user, user_len, password, password_len, \
+                  sender, sender_len, to_recipient, to_recipient_len, \
+                  cc_recipient, cc_recipient_len, subject, subject_len, \
+                  msg, msg_len, timeout);
+            if ((sta == (uint8_t)GSMGPRS_SUCCESS) || (sta == (uint8_t)GSMGPRS_ERROR)) {
+                state = 0;
+            }
+            break;
+    }
+    return sta;
+}
+%endif
+
+void enable_%<blockid>(void){
+  /* Enable GPIO pin */
+  GSM_GPRS%<module>_IOCntrl_Configure();
+  %if conf == "HttpDOWNLOAD"
+    /* Init File system */
+    stdio_init();
+  %endif
+
+  %if conf == "Setup"
+    // Configuration
+    strcpy(GSM_GPRS%<module>_CONTYPE, GSM_GPRS%<module>_CONTYPE_DEFAULT);
+    strcpy(GSM_GPRS%<module>_APN, GSM_GPRS%<module>_APN_DEFAULT);
+    strcpy(GSM_GPRS%<module>_USERNAME, GSM_GPRS%<module>_USERNAME_DEFAULT);
+    strcpy(GSM_GPRS%<module>_PASSWORD, GSM_GPRS%<module>_PASSWORD_DEFAULT);
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%% --- HTTP POST ---
+%if conf == "HttpPOST"
+  /* %<blockid>: '%<block.Name>' */
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+  %assign url = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign url_len = LibBlockInputSignalWidth(1)
+  %assign contype = LibBlockInputSignalAddr(2, "", "", 0)
+  %assign contype_len = LibBlockInputSignalWidth(2)
+  %assign data = LibBlockInputSignalAddr(3, "", "", 0)
+  %assign data_len = LibBlockInputSignalWidth(3)
+  %assign timeout = LibBlockInputSignal(4, "", "", 0)
+  
+  %if LibBlockNumOutputPorts(block) > 1
+    %assign out = LibBlockOutputSignalAddr(1, "", "", 0)
+    %assign size = LibBlockOutputSignalWidth(1)
+  %endif
+  %<status> = %<blockid>_HttpPOST(%<trig>, \
+                (char *)%<url>, gsm_strlen_s((char *)%<url>, %<url_len>), \
+                (char *)%<contype>, gsm_strlen_s((char *)%<contype>, %<contype_len>),\
+                (char *)%<data>, gsm_strlen_s((char *)%<data>, %<data_len>), \
+                %<timeout>, \
+                %if LibBlockNumOutputPorts(block) > 1
+                (char *)%<out>, %<size>);
+                %else
+                (char *)0, 0);
+                %endif
+%endif
+
+%% --- HTTP GET ---
+%if conf == "HttpGET"
+  /* %<blockid>: '%<block.Name>' */
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+  %assign url = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign url_len = LibBlockInputSignalWidth(1)
+  %assign timeout = LibBlockInputSignal(2, "", "", 0)
+  
+  %if LibBlockNumOutputPorts(block) > 1
+    %assign out = LibBlockOutputSignalAddr(1, "", "", 0)
+    %assign size = LibBlockOutputSignalWidth(1)
+  %endif
+  %<status> = %<blockid>_HttpGET(%<trig>, \
+                (char *)%<url>, gsm_strlen_s((char *)%<url>, %<url_len>), \
+                %<timeout>, \
+                %if LibBlockNumOutputPorts(block) > 1
+                (char *)%<out>, %<size>);
+                %else
+                (char *)0, 0);
+                %endif  
+%endif
+
+%% --- HTTP DOWNLOAD ---
+%if conf == "HttpDOWNLOAD"
+  /* %<blockid>: '%<block.Name>' */
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+  %assign url = LibBlockInputSignalAddr(1, "", "", 0)
+  %assign url_len = LibBlockInputSignalWidth(1)
+  %assign timeout = LibBlockInputSignal(2, "", "", 0)
+  %assign filename = LibBlockInputSignalAddr(3, "", "", 0)
+  %assign filename_len = LibBlockInputSignalWidth(3)
+  {
+    char filename[512]; // Limit max file name length
+    %if filename_len > 511
+      %assign filename_len = 511
+    %endif
+    strncpy(filename, (const char *)%<filename>, %<filename_len>);
+    filename[%<filename_len>] = '\0';    
+    %<status> = %<blockid>_HttpDOWNLOAD(%<trig>, \
+                (char *)%<url>, gsm_strlen_s((char *)%<url>, %<url_len>), \
+                %<timeout>, filename);
+  }
+%endif
+
+%% --- Get Status ---
+%if conf == "GetStatus"
+  /* %<blockid>: '%<block.Name>' */
+  %assign trig = LibBlockInputSignal(0, "", "", 0)
+
+  %assign status = LibBlockOutputSignal(0, "", "", 0)
+  %assign datetime = LibBlockOutputSignalAddr(1, "", "", 0)
+  %assign operator = LibBlockOutputSignalAddr(2, "", "", 0)
+  %assign signal = LibBlockOutputSignalAddr(3, "", "", 0)
+  %<status> = %<blockid>_GetStatus((uint8_t)(%<trig> != 0), %<datetime>, (char *)%<operator>, (uint32_t *)%<signal>);
+%endif
+
+%% --- SyncNetworkTime ---
+%if conf == "SyncNetworkTime"
+  /* %<blockid>: '%<block.Name>' */
+  %if LibBlockInputSignalConnected(1)    
+    {
+       %assign trig = LibBlockInputSignal(0, "", "", 0)
+       %assign ntpserver = LibBlockInputSignalAddr(1, "", "", 0)
+       %assign timezone = LibBlockInputSignal(2, "", "", 0)
+
+       %assign status = LibBlockOutputSignal(0, "", "", 0)
+       %assign datetime = LibBlockOutputSignalAddr(1, "", "", 0)
+       char url[256];
+       %if LibBlockInputSignalWidth(1) >= 256
+           memcpy(url, (char*)%<ntpserver>, 255);
+           url[255] = '\0';
+       %else
+           memcpy(url, (char*)%<ntpserver>, %<LibBlockInputSignalWidth(1)>);
+           url[%<LibBlockInputSignalWidth(1)>] = '\0';
+       %endif
+       %<status> = %<blockid>_SyncNetworkTime((uint8_t)(%<trig> != 0), url, %<timezone>, %<datetime>);
+    }
+  %endif
+%endif
+
+%% --- SendSMS ---
+%if conf == "SendSMS"
+  /* %<blockid>: '%<block.Name>' */
+  %if LibBlockInputSignalConnected(1) && LibBlockInputSignalConnected(2)
+  {
+    %assign trig = LibBlockInputSignal(0, "", "", 0)
+    %assign dest = LibBlockInputSignalAddr(1, "", "", 0)
+    %assign msg  = LibBlockInputSignalAddr(2, "", "", 0)
+    char dest[32];
+    char msg[129];
+
+    // Destination number
+    %if LibBlockInputSignalWidth(1) >= 32
+       memcpy(dest, (char*)%<dest>, 31);
+       dest[31] = '\0';
+    %else
+       memcpy(dest, (char*)%<dest>, %<LibBlockInputSignalWidth(1)>);
+       dest[%<LibBlockInputSignalWidth(1)>] = '\0';
+    %endif
+
+    // Message
+    %if LibBlockInputSignalWidth(2) >= 129
+       memcpy(msg, (char*)%<msg>, 128);
+       msg[128] = '\0';
+    %else
+       memcpy(msg, (char*)%<msg>, %<LibBlockInputSignalWidth(2)>);
+       msg[%<LibBlockInputSignalWidth(2)>] = '\0';
+    %endif
+
+    %assign status = LibBlockOutputSignal(0, "", "", 0)
+    %<status> = %<blockid>_SendSMS((uint8_t)(%<trig> != 0), dest, msg);
+  }
+  %endif
+%endif
+
+%% --- SMTP ---
+%if conf == "SMTP"
+    /* %<blockid>: '%<block.Name>' */
+    %assign trig = LibBlockInputSignal(0, "", "", 0)
+    %assign server = LibBlockInputSignalAddr(1, "", "", 0)
+    %assign server_len = LibBlockInputSignalWidth(1)
+    %assign server_port = LibBlockInputSignal(2, "", "", 0)
+    %assign user = LibBlockInputSignalAddr(3, "", "", 0)
+    %assign user_len = LibBlockInputSignalWidth(3)
+    %assign password = LibBlockInputSignalAddr(4, "", "", 0)
+    %assign password_len = LibBlockInputSignalWidth(4)
+    %assign sender = LibBlockInputSignalAddr(5, "", "", 0)
+    %assign sender_len = LibBlockInputSignalWidth(5)
+    %assign to_recipient = LibBlockInputSignalAddr(6, "", "", 0)
+    %assign to_recipient_len = LibBlockInputSignalWidth(6)
+    %assign cc_recipient = LibBlockInputSignalAddr(7, "", "", 0)
+    %assign cc_recipient_len = LibBlockInputSignalWidth(7)
+    %assign subject = LibBlockInputSignalAddr(8, "", "", 0)
+    %assign subject_len = LibBlockInputSignalWidth(8)
+    %assign msg = LibBlockInputSignalAddr(9, "", "", 0)
+    %assign msg_len = LibBlockInputSignalWidth(9)
+    %assign timeout = LibBlockInputSignal(10, "", "", 0)
+
+    %assign status = LibBlockOutputSignal(0, "", "", 0)
+
+    %if LibBlockInputSignalConnected(1) && LibBlockInputSignalConnected(3) \
+            && LibBlockInputSignalConnected(4) && LibBlockInputSignalConnected(5) \
+            && LibBlockInputSignalConnected(6)
+    %<status> = %<blockid>_SMTP(%<trig>, %<sslenable>, \
+               (char *)%<server>, %<server_len>, %<server_port>, \
+               (char *)%<user>, %<user_len>, \
+               (char *)%<password>, %<password_len>, \
+               (char *)%<sender>, %<sender_len>, \
+               (char *)%<to_recipient>, %<to_recipient_len>, \
+               (char *)%<cc_recipient>, %<cc_recipient_len>, \
+               (char *)%<subject>, %<subject_len>, \
+               (char *)%<msg>, %<msg_len>, %<timeout>);
+    %endif
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

@@ -104,11 +104,11 @@ float SteadyStateKalmanFilter(KalmanFilter* filter, float32_t Vin,float32_t Velo
 	  return  filter->Kalman_Speed;
 }
 
-void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix){
-	filter->Q = 0.05f; //0.05
-	filter->R[0] = 1.0f;
+void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix, float32_t Q, float32_t R){
+	filter->Q = Q; //1.0
+	filter->R[0] = R; //0.05
 
-	float32_t c[4] = {0.0f, 1.0f, 0.0f, 0.0f};
+	float32_t c[4] = {1.0f, 0.0f, 0.0f, 0.0f};
 
 	float32_t g[4] = {0.0f,
 					  1.0f,

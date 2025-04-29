@@ -1,0 +1,720 @@
+Library {
+  Name			  "stm32f4_device_config_lib"
+  Version		  7.3
+  MdlSubVersion		  0
+  SavedCharacterEncoding  "windows-1252"
+  PreLoadFcn		  "waijung.modelPreload; % Required for working with Waijung Blockset. Do not remove."
+  LibraryType		  "BlockLibrary"
+  SaveDefaultBlockParams  on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  CloseFcn		  "waijung.modelClose; % Required for working with Waijung Blockset. Do not remove."
+  InitFcn		  "waijung.modelInit; % Required for working with Waijung Blockset. Do not remove."
+  Created		  "Sat Jul 21 21:02:54 2012"
+  Creator		  "Krisada"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "Navy"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Wed Oct 31 16:49:42 2018"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:417>"
+  ConfigurationManager	  "None"
+  SampleTimeColors	  on
+  SampleTimeAnnotations	  off
+  LibraryLinkDisplay	  "all"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  on
+  ShowSignalResolutionIcons on
+  ShowViewerIcons	  on
+  SortedOrder		  on
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  CovModelRefEnable	  "Off"
+  CovExternalEMLEnable	  off
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock on
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.6.0"
+      Array {
+	Type			"Handle"
+	Dimension		8
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.6.0"
+	  StartTime		  "0.0"
+	  StopTime		  "10.0"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ZcThreshold		  "auto"
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "auto"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "SingleTasking"
+	  Solver		  "ode3"
+	  SolverName		  "ode3"
+	  ShapePreserveControl	  "DisableAll"
+	  ZeroCrossControl	  "UseLocalSettings"
+	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  InsertRTBMode		  "Whenever possible"
+	  SignalSizeVariationType "Allow only fixed size"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.6.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t, u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  "xInitial"
+	  LimitDataPoints	  on
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveCompleteFinalSimState off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Version		  "1.6.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  off
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  on
+	  BufferReuse		  on
+	  EnhancedBackFolding	  off
+	  StrengthReduction	  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  on
+	  EnableMemcpy		  on
+	  MemcpyThreshold	  64
+	  PassReuseOutputArgsAs	  "Structure reference"
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  on
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  off
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  EfficientMapNaN2IntZero on
+	  OptimizeModelRefInitCode on
+	  LifeSpan		  "1"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.6.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"warning"
+	  CheckSSInitialOutputMsg on
+	  UnderspecifiedInitializationDetection	"Classic"
+	  MergeDetectMultiDrivingBlocksExec "none"
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	  BlockIODiagnostic	  "none"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.6.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "LittleEndian"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "LittleEndian"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "ARM Compatible->Cortex - M4"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.6.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.SFSimCC {
+	  $ObjectID		  8
+	  Version		  "1.6.0"
+	  SFSimEnableDebug	  on
+	  SFSimOverflowDetection  on
+	  SFSimEcho		  on
+	  SimBlas		  on
+	  SimUseLocalCustomCode	  off
+	  SimBuildMode		  "sf_incremental_build"
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  9
+	  Version		  "1.6.0"
+	  SystemTargetFile	  "stm32f4.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  off
+	  TemplateMakefile	  "ert_default_tmf"
+	  Description		  "STM32F4  Target"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ProcessScript		  "stm32f4_make_rtw_hook"
+	  ConfigAtBuild		  off
+	  RTWUseLocalCustomCode	  off
+	  RTWUseSimCustomCode	  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  GenerateTraceReport	  off
+	  GenerateTraceReportSl	  off
+	  GenerateTraceReportSf	  off
+	  GenerateTraceReportEml  off
+	  GenerateCodeInfo	  off
+	  RTWCompilerOptimization "Off"
+	  CheckMdlBeforeBuild	  "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      10
+	      Version		      "1.6.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses off
+	      IgnoreTestpoints	      off
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	      UseSimReservedNames     off
+	    }
+	    Simulink.STFCustomTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      11
+	      Version		      "1.6.0"
+	      TargetFcnLib	      "ansi_tfl_table_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      TargetFunctionLibrary   "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      ERTMultiwordTypeDef     "System defined"
+	      ERTMultiwordLength      256
+	      MultiwordLength	      2048
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant off
+	      ParMdlRefBuildCompliant off
+	      CompOptLevelCompliant   off
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns on
+	      SuppressErrorStatus     off
+	      ERTFirstTimeCompliant   off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    on
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      off
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   off
+	      SupportNonInlinedSFcns  off
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      CPPClassGenCompliant    off
+	      AutosarCompliant	      off
+	      SystemTargetFile	      "stm32f4.tlc"
+	      DialogCategory	      0
+	      Array {
+		Type			"Handle"
+		Dimension		1
+		Simulink.ERTTargetCC {
+		  $BackupClass		  "Simulink.TargetCC"
+		  $ObjectID		  12
+		  Version		  "1.6.0"
+		  TargetFcnLib		  "ansi_tfl_table_tmw.mat"
+		  TargetLibSuffix	  ""
+		  TargetPreCompLibLocation ""
+		  TargetFunctionLibrary	  "ANSI_C"
+		  UtilityFuncGeneration	  "Auto"
+		  ERTMultiwordTypeDef	  "System defined"
+		  ERTMultiwordLength	  256
+		  MultiwordLength	  2048
+		  GenerateFullHeader	  on
+		  GenerateSampleERTMain	  off
+		  GenerateTestInterfaces  off
+		  IsPILTarget		  off
+		  ModelReferenceCompliant off
+		  ParMdlRefBuildCompliant off
+		  CompOptLevelCompliant	  off
+		  IncludeMdlTerminateFcn  on
+		  CombineOutputUpdateFcns on
+		  SuppressErrorStatus	  off
+		  ERTFirstTimeCompliant	  off
+		  IncludeFileDelimiter	  "Auto"
+		  ERTCustomFileBanners	  on
+		  SupportAbsoluteTime	  on
+		  LogVarNameModifier	  "rt_"
+		  MatFileLogging	  off
+		  MultiInstanceERTCode	  off
+		  SupportNonFinite	  on
+		  SupportComplex	  on
+		  PurelyIntegerCode	  off
+		  SupportContinuousTime	  off
+		  SupportNonInlinedSFcns  off
+		  EnableShiftOperators	  on
+		  ParenthesesLevel	  "Nominal"
+		  PortableWordSizes	  off
+		  ModelStepFunctionPrototypeControlCompliant off
+		  CPPClassGenCompliant	  off
+		  AutosarCompliant	  off
+		  GenerateErtSFunction	  off
+		  GenerateASAP2		  off
+		  ExtMode		  off
+		  ExtModeTransport	  0
+		  ExtModeStaticAlloc	  off
+		  ExtModeStaticAllocSize  1000000
+		  ExtModeTesting	  off
+		  ExtModeMexFile	  "ext_comm"
+		  ExtModeIntrfLevel	  "Level1"
+		  InlinedParameterPlacement "NonHierarchical"
+		  TargetOS		  "BareBoardExample"
+		  MultiInstanceErrorCode  "Error"
+		  RateGroupingCode	  on
+		  RootIOFormat		  "Individual arguments"
+		  RTWCAPISignals	  off
+		  RTWCAPIParams		  off
+		  RTWCAPIStates		  off
+		  ERTSrcFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTHdrFileBannerTemplate "stm32f4_code_template.cgt"
+		  ERTDataSrcFileTemplate  "stm32f4_code_template.cgt"
+		  ERTDataHdrFileTemplate  "stm32f4_code_template.cgt"
+		  ERTCustomFileTemplate	  "stm32f4_file_process.tlc"
+		  ModuleNamingRule	  "Unspecified"
+		  SignalDisplayLevel	  10
+		  ParamTuneLevel	  10
+		  GlobalDataDefinition	  "Auto"
+		  DataDefinitionFile	  "global.c"
+		  GlobalDataReference	  "Auto"
+		  DataReferenceFile	  "global.h"
+		  GRTInterface		  off
+		  PreserveExpressionOrder off
+		  PreserveIfCondition	  off
+		  EnableUserReplacementTypes off
+		  Array {
+		    Type		    "Struct"
+		    Dimension		    1
+		    MATStruct {
+		    double		    ""
+		    single		    ""
+		    int32		    ""
+		    int16		    ""
+		    int8		    ""
+		    uint32		    ""
+		    uint16		    ""
+		    uint8		    ""
+		    boolean		    ""
+		    int			    ""
+		    uint		    ""
+		    char		    ""
+		    }
+		    PropName		    "ReplacementTypes"
+		  }
+		  MemSecPackage		  "--- None ---"
+		  MemSecDataConstants	  "Default"
+		  MemSecDataIO		  "Default"
+		  MemSecDataInternal	  "Default"
+		  MemSecDataParameters	  "Default"
+		  MemSecFuncInitTerm	  "Default"
+		  MemSecFuncExecute	  "Default"
+		}
+		PropName		"Components"
+	      }
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "stm32f4_configset"
+      CurrentDlgPage	      "Solver"
+      ConfigPrmDlgPosition    " [ 400, 210, 1280, 840 ] "
+    }
+    PropName		    "ConfigurationSets"
+  }
+  BlockDefaults {
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+    BlockRotation	    0
+    BlockMirror		    off
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      "S-Function"
+      FunctionName	      "system"
+      SFunctionModules	      "''"
+      PortCounts	      "[]"
+      SFunctionDeploymentMode off
+    }
+  }
+  System {
+    Name		    "stm32f4_device_config_lib"
+    Location		    [385, 248, 979, 586]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "100"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Read Unique ID"
+      Ports		      [0, 1]
+      Position		      [90, 198, 210, 262]
+      FunctionName	      "stm32f4_uidread"
+      Parameters	      "sampletime,sampletimestr,blockid"
+      EnableBusSupport	      off
+      MaskType		      "stm32f4_uidread"
+      MaskDescription	      "This block reads unique ID of STM32F4xx MCU.\nThe output signal is a 3-by-1 array of uint"
+      "32."
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_uidread.htm'),'-browser');"
+      MaskPromptString	      "Sample time (sec)|Compiled sample time (sec) in string|BlockID"
+      MaskStyleString	      "edit,edit,edit"
+      MaskTunableValueString  "off,off,off"
+      MaskCallbackString      "stm32f4_uidread_callback('sampletime');||stm32f4_uidread_callback('blockid');"
+      MaskEnableString	      "on,off,off"
+      MaskVisibilityString    "off,off,off"
+      MaskToolTipString	      "on,on,on"
+      MaskVarAliasString      ",,"
+      MaskVariables	      "sampletime=@1;sampletimestr=&2;blockid=&3;"
+      MaskInitialization      "stm32f4_uidread_callback('init');"
+      MaskDisplay	      "text(0.05, 0.5, 'Ts (sec): 0','ver','middle','hor','left'); port_label('output', 1,'UID')"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "inf|0|stm32f4_device_config_libReadUniqueID"
+      MaskTabNameString	      ",,"
+    }
+    Block {
+      BlockType		      "S-Function"
+      Name		      "Target Setup"
+      Ports		      []
+      Position		      [30, 20, 268, 142]
+      Priority		      "100"
+      FunctionName	      "stm32f4_target_setup"
+      Parameters	      "compiler,stacksize,heapsize,sampletime,blockid,systickreloadvalue,hseval,hclk"
+      EnableBusSupport	      off
+      MaskType		      "stm32f4_target_setup"
+      MaskDescription	      "Use this block to setup STM32F4 Target in a Simulink model.\n\nThe sample time of this bl"
+      "ock is the system base sampletime. It is automatically computed based on sampletime of every block in the system"
+      " model and is used to configure Systick Counter of the target.\n\nBoard:\n1. FiO2: STM32F417IG (LQFP176)"
+      MaskHelp		      "web(fullfile(waijungdocroot,'stm32f4_target_setup.htm'),'-browser')"
+      MaskPromptString	      "Compiler|Compiler (hidden)|MCU|MCU String|Clock Configuration|Path for system_stm32f4xx."
+      "c|Show memory configuration|Stack size (Hex)|Heap size (Hex)|Enable Auto Compile and Download|Full Chip Erase be"
+      "fore Download|Programmer/Debugger|Show/Edit Control Strings (Recommended for advanced users only)|Compiler Contr"
+      "ol String|Assembler Control String|Linker Control String|Run Application After Download|Enable Execution Time Pr"
+      "ofiler|Profiler Ouput UART Module|Profiler Ouput UART Baud rate (bps)|Profiler Ouput UART Tx Pin|Profiler Initia"
+      "lize String (Sample time, HCLK, Systick Reload, Baud, Capture points, CP labels ...)|Manually set base sample ti"
+      "me|Sample time (sec)|BlockID|SysTick Reload Value|XTAL Frequency (HSEVAL)|Last Profiler UART|HCLK (Hz)|Flash Ori"
+      "gin (Hex)|Flash Length (Hex)|RAM Origin (Hex)|RAM Length (Hex)|Use external RAM"
+      MaskStyleString	      "popup(None|GNU ARM|MDK-ARM|EWARM),edit,popup(STM32F401CB (UFQFPN48)|STM32F401CC (UFQFPN48"
+      ")|STM32F401CD (UFQFPN48)|STM32F401CE (UFQFPN48)|STM32F401RB (LQFP64)|STM32F401RC (LQFP64)|STM32F401RD (LQFP64)|S"
+      "TM32F401RE (LQFP64)|STM32F401VB (LQFP100)|STM32F401VC (LQFP100)|STM32F401VD (LQFP100)|STM32F401VE (LQFP100)|STM3"
+      "2F405OE (WLCSP90)|STM32F405OG (WLCSP90)|STM32F405RG (LQFP64)|STM32F405VG (LQFP100)|STM32F405ZG (LQFP144)|STM32F4"
+      "07IE (LQFP176)|STM32F407IG (LQFP176)|STM32F407VE (LQFP100)|STM32F407VG (LQFP100)|STM32F407ZE (LQFP144)|STM32F407"
+      "ZG (LQFP144)|STM32F415OG (WLCSP90)|STM32F415RG (LQFP64)|STM32F415VG (LQFP100)|STM32F415ZG (LQFP144)|STM32F417IE "
+      "(LQFP176)|STM32F417IG (LQFP176)|STM32F417VE (LQFP100)|STM32F417VG (LQFP100)|STM32F417ZE (LQFP144)|STM32F417ZG (L"
+      "QFP144)|STM32F410C8 (UFQFPN48)|STM32F410CB (LQFP48)|STM32F410R8 (LQFP64)|STM32F410RB (LQFP64)|STM32F410T8 (WLCSP"
+      "36)|STM32F410TB (WLCSP36)|STM32F411CC (UFQFPN48)|STM32F411CE (UFQFPN48)|STM32F411RC (LQFP64)|STM32F411RE (LQFP64"
+      ")|STM32F411VC (LQFP100)|STM32F411VE (LQFP100)|STM32F412CE (UFQFPN48)|STM32F412CG (UFQFPN48)|STM32F412RE (LQFP64)"
+      "|STM32F412RG (LQFP64)|STM32F412VE (LQFP100)|STM32F412VG (LQFP100)|STM32F412ZE (LQFP144)|STM32F412ZG (LQFP144)|ST"
+      "M32F427AG (BGA168)|STM32F427AI (BGA168)|STM32F427IG (BGA176)|STM32F427II (BGA176)|STM32F427VG (LQFP100)|STM32F42"
+      "7VI (LQFP100)|STM32F427ZG (LQFP144)|STM32F427ZI (LQFP144)|STM32F429AG (BGA168)|STM32F429AI (BGA168)|STM32F429BE "
+      "(LQFP208)|STM32F429BG (LQFP208)|STM32F429BI (LQFP208)|STM32F429IE (BGA176)|STM32F429IG (BGA176)|STM32F429II (BGA"
+      "176)|STM32F429NE (BGA216)|STM32F429NG (BGA216)|STM32F429NI (BGA216)|STM32F429VE (LQFP100)|STM32F429VG (LQFP100)|"
+      "STM32F429VI (LQFP100)|STM32F429ZE (LQFP144)|STM32F429ZG (LQFP144)|STM32F429ZI (LQFP144)|STM32F437AI (BGA168)|STM"
+      "32F437IG (BGA176)|STM32F437II (BGA176)|STM32F437VG (LQFP100)|STM32F437VI (LQFP100)|STM32F437ZG (LQFP144)|STM32F4"
+      "37ZI (LQFP144)|STM32F439AI (BGA168)|STM32F439BG (LQFP208)|STM32F439BI (LQFP208)|STM32F439IG (BGA176)|STM32F439II"
+      " (BGA176)|STM32F439NG (BGA216)|STM32F439NI (BGA216)|STM32F439VG (LQFP100)|STM32F439VI (LQFP100)|STM32F439ZG (LQF"
+      "P144)|STM32F439ZI (LQFP144)|STM32F446MC (WLCSP81)|STM32F446ME (WLCSP81)|STM32F446RC (LQFP64)|STM32F446RE (LQFP64"
+      ")|STM32F446VC (LQFP100)|STM32F446VE (LQFP100)|STM32F446ZC (LQFP144)|STM32F446ZE (LQFP144)|STM32F469AE (BGA168)|S"
+      "TM32F469AG (BGA168)|STM32F469AI (BGA168)|STM32F469BE (LQFP208)|STM32F469BG (LQFP208)|STM32F469BI (LQFP208)|STM32"
+      "F469IE (BGA176)|STM32F469IG (BGA176)|STM32F469II (BGA176)|STM32F469NE (BGA216)|STM32F469NG (BGA216)|STM32F469NI "
+      "(BGA216)|STM32F469VI (LQFP100)|STM32F469ZI (LQFP144)|STM32F479AG (BGA168)|STM32F479AI (BGA168)|STM32F479BG (LQFP"
+      "208)|STM32F479BI (LQFP208)|STM32F479IG (BGA176)|STM32F479II (LQFP176)|STM32F479NG (BGA216)|STM32F479NI (BGA216)|"
+      "STM32F479VI (LQFP100)|STM32F479ZI (LQFP144)),edit,popup(HSEOSC-8MHz|HSEOSC-25MHz|Custom (system_stm32f4xx.c)),ed"
+      "it,checkbox,edit,edit,checkbox,checkbox,popup(None|ST-Link),checkbox,edit,edit,edit,checkbox,popup(None|Real-tim"
+      "e output),popup(1|2|3|4|5|6),edit,popup(B10|C10|D8),edit,checkbox,edit,edit,edit,edit,edit,edit,edit,edit,edit,e"
+      "dit,checkbox"
+      MaskTunableValueString  "off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off,off"
+      ",off,off,off,off,off,off,off,off,off,off,off,off"
+      MaskCallbackString      "stm32f4_target_setup_callback('compiler');||stm32f4_target_setup_callback('mcu');|stm32"
+      "f4_target_setup_callback('mcustr');|stm32f4_target_setup_callback('clockconfig');||stm32f4_target_setup_callback"
+      "('showmemoryconfiguration');|||stm32f4_target_setup_callback('enableautocompiledownload');|stm32f4_target_setup_"
+      "callback('fullchiperase');||stm32f4_target_setup_callback('editctrlstr');||||stm32f4_target_setup_callback('runa"
+      "fterdownload');|stm32f4_target_setup_callback('execprofile');|stm32f4_target_setup_callback('profileruart');|stm"
+      "32f4_target_setup_callback('profilerbaud');|||stm32f4_target_setup_callback('manualsetsampletime');|stm32f4_targ"
+      "et_setup_callback('sampletime');|stm32f4_target_setup_callback('blockid');|||||||||"
+      MaskEnableString	      "on,on,on,off,on,off,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,off,off,off,on"
+      ",on,on,on,on,on,on"
+      MaskVisibilityString    "on,off,on,off,on,off,on,off,off,on,on,on,on,on,on,on,on,on,off,off,off,off,on,off,off,o"
+      "ff,off,off,off,off,off,off,off,off"
+      MaskToolTipString	      "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,"
+      "on,on,on,on,on"
+      MaskVarAliasString      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+      MaskVariables	      "compiler=&1;previous_compiler=&2;mcu=&3;mcustr=&4;clockconfig=&5;system_stm32f4xx_c_path=&6"
+      ";showmemoryconfiguration=@7;stacksize=&8;heapsize=&9;enableautocompiledownload=@10;fullchiperase=@11;programmeri"
+      "nterface=&12;editctrlstr=&13;compilercontrolstr=&14;assemblercontrolstr=&15;linkercontrolstr=&16;runafterdownloa"
+      "d=@17;execprofile=@18;profileruart=&19;profilerbaud=&20;profilertxpin=&21;profilerinitstr=&22;manualsetsampletim"
+      "e=&23;sampletime=@24;blockid=&25;systickreloadvalue=&26;hseval=&27;lastprofileruart=&28;hclk=@29;flashorigin=&30"
+      ";flashlength=&31;ramorigin=&32;ramlength=&33;useextram=&34;"
+      MaskInitialization      "stm32f4_target_setup_callback('init');"
+      MaskDisplay	      "text(0.5, 0.5, 'Waijung: 18.10a\\nCompiler: GNU ARM\\nMCU: STM32F417IG\\nAuto Compile Downloa"
+      "d: ON\\nFull Chip Erase: OFF\\nAuto run app: ON\\nExecution Profiler: None\\nBase Ts (sec): 0.01','ver','middle'"
+      ",'hor','center')"
+      MaskSelfModifiable      on
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskPortRotate	      "default"
+      MaskIconUnits	      "normalized"
+      MaskValueString	      "GNU ARM|GNU ARM|STM32F417IG (LQFP176)|STM32F417IG|HSEOSC-8MHz|C:\\waijung\\targets\\stm32"
+      "f4_target\\stm32f4\\utils\\system_stm32f4xx_default\\STM32F40_41xxx\\hseosc8mhz|off|0x2000|0x2000|on|off|ST-Link"
+      "|on|$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffast-ma"
+      "th -Wall -Wextra -Ofast |$(patsubst %, -I%, .) -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu="
+      "fpv4-sp-d16 -ffast-math -Wall -Wextra -Ofast -Wa,-amhls=$(<:.s=.lst) -D__STACK_SIZE=$(STACK_SIZE) -D__HEAP_SIZE="
+      "$(HEAP_SIZE) |-T$(LD_SCRIPT) -g -Wl,-Map=$(MAP),--cref,--no-warn-mismatch -mcpu=cortex-m4 -mthumb -mthumb-interw"
+      "ork -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs |on|None|3|500000|D8|0.01,168000000,1680000,500000,0|o"
+      "ff|0.01|TargetSetup|1680000|8000000|3|168000000|0x8000000|1024k|0x20000000|128k|off"
+      MaskTabNameString	      ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+    }
+  }
+}

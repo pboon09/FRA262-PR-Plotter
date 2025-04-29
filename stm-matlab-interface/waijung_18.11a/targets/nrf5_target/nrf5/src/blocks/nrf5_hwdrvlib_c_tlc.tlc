@@ -1,0 +1,158 @@
+%openfile tmpBuf
+   #include "waijung_hwdrvlib.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+%<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+%<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%openfile tmpBuf
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+    %if (EXISTS(::__WAIJUNG_TICKSTEP__) == 0)
+      %assign :: __WAIJUNG_TICKSTEP__ = 1
+       %openfile tmpBuf
+      /* ########################################################################
+      * Timer
+      * ########################################################################
+      */
+      #define SYS_CURRENT_TICK (NRF_RTC1->COUNTER)
+      typedef struct {
+        uint32_t tick_start;
+        uint32_t tick_length;
+      } SYS_TIMER_STRUCT;
+
+      #define SYSTIMER_FLAGS_TIMEOUT  0x01
+      typedef struct {
+        uint8_t flags;
+	    uint32_t tid; /* Tick count */
+	    uint32_t tick; /* Capture cuttent tick */
+	    uint32_t target_us; /* Target of systick */
+      } SYS_TIMER_uS_STRUCT;
+
+      void SysTimer_Start(SYS_TIMER_STRUCT* timer, uint32_t ms);
+      int SysTimer_IsTimeout(SYS_TIMER_STRUCT* timer);
+
+      void SysTimer_uS_Start(SYS_TIMER_uS_STRUCT *timer, uint32_t us);
+      int SysTimer_uS_IsTimeout(SYS_TIMER_uS_STRUCT* timer);
+
+      void SysTimer_delay(uint32_t ms);
+      void SysTimer_delay_us(uint32_t us);
+
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+      %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+      %%%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+      %%%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__WAIJUNG_TIMER__) == 0)
+      %assign :: __WAIJUNG_TIMER__ = 1
+      %openfile tmpBuf
+
+     /* ########################################################################
+     * Timer
+     * ########################################################################
+     */
+     void SysTimer_Start(SYS_TIMER_STRUCT* timer, uint32_t ms)
+     {
+	   volatile uint32_t tmp;
+	
+	   /* Get current tick count */
+	   tmp = (systick_count & 0x00FFFFFF); /* Limit counter to 24bits */
+       timer->tick_start = tmp;
+	
+	   /* Calculate number of Tick for the delay */
+	   timer->tick_length = ms*__SYSTICK_FREQUENCY;
+	   tmp = timer->tick_length % 1000UL;	
+	   timer->tick_length /= 1000UL;
+	   if(tmp) {
+         if (timer->tick_length == 0)
+		   timer->tick_length ++;
+	   }
+     }
+
+     int SysTimer_IsTimeout(SYS_TIMER_STRUCT* timer)
+     {
+       volatile uint32_t tmp;
+	
+	   /* Check if it is alreasy timeout */
+	   if(timer->tick_length == 0)
+		 return 1; /* Timeout */
+	
+	   /* Get current running tick */
+	   tmp = (systick_count & 0x00FFFFFF); /* Limit counter to 24bits */
+	
+	   if(timer->tick_start == tmp) {
+		 /* Same tick count since started */
+	   }
+       /* No oveflow */
+	   else if(timer->tick_start < tmp) {
+		 /* Timeout? */
+		 if((tmp - timer->tick_start) >= timer->tick_length) {
+	 	   timer->tick_length = 0;
+		   return 1; /* Timeout */
+		 }
+		 else {
+		   timer->tick_length -= (tmp - timer->tick_start);
+		   timer->tick_start = tmp;
+		 }
+	   }
+	   /* Detect overflow */
+	   else {
+		 /* Part #1 */
+		 if((0x01000000 - timer->tick_start) >= timer->tick_length) {
+		   timer->tick_length = 0;
+		   return 1; /* Timeout */			
+		 }
+		 else {
+		   timer->tick_length -= (0x01000000 - timer->tick_start);
+		   timer->tick_start = 0;			
+		 }
+		 /* Part #2 */
+		 if(tmp >= timer->tick_length) {
+		   timer->tick_length = 0;
+		   return 1; /* Timeout */						
+		 }
+		 else {
+		   timer->tick_length -= tmp;
+		   timer->tick_start = tmp;
+		 }
+	   }
+	
+	   /* Timer not timeout */
+	   return 0;
+     }
+
+      /* Improved precision non-Blocking delay timer.
+      ** Relolution of timer is 1/(2^16) uS.
+      */
+
+      void SysTimer_delay_us(uint32_t us)
+      {
+	    if(us) {
+		  nrf_delay_us(us);
+	    }
+      }
+
+      void SysTimer_delay(uint32_t ms)
+      {
+	    int i;
+        for(i=0; i< ms; i++) {
+		  nrf_delay_us(1000);
+        }
+      }
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+  %endif

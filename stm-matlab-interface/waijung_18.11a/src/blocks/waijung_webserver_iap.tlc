@@ -1,0 +1,202 @@
+%implements waijung_webserver_iap "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of confstr: %<SIZE(confstr)[1]>
+  %assign block = block + conf + sampletime + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_IAPINF_ISR__) == 0)
+      %assign :: __STM32F4XX_IAPINF_ISR__ = 1
+      %openfile tmpBuf
+         #include "waijung_hwdrvlib.h"
+         #include "%<LibGetMdlPubHdrBaseName()>.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_iapinf_isr")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %%openfile tmpBuf
+   %%closefile tmpBuf
+   %%assign file = LibCreateSourceFile("Source", "Custom", "webserver_iap_handler")
+   %%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+%if conf == "ISR"
+%addtorecord block AsyncCallerGenCode TLC_TRUE
+%endif
+
+%openfile tmpBuf
+%%/* ########################################################################
+%% * Name: %<Name>
+%% * Id: %<blockid>
+%% * ########################################################################
+%%*/
+%%#include "webserver_iap_handler.h"
+%%void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%%/* ########################################################################
+%% * Name: %<Name>
+%% * Id: %<blockid> 
+%% * ########################################################################
+%%*/
+%%void enable_%<blockid>(void){
+%%
+%%}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+
+%% === ISR ===
+%if conf == "ISR"
+  %if LibBlockOutputSignalConnected(0)
+    %% Get the downstream block
+    %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+    %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+    %if !block.GenCodeForTopAsyncSS     
+      %%Don't generate code for downstream f-c subsystem
+      %%if GenCodeForTopAsyncSS is not set yet.
+      %return
+    %endif
+
+    %% Call the downstream function call subsystem
+    %openfile tmpBuf
+      %<LibBlockExecuteFcnCall(block, callIdx)>\
+    %closefile tmpBuf   
+
+    %% Always create the ISR function
+    %openfile funcbuf
+      /* ########################################################################
+       * Block Name: %<block.Name>
+       * Block ID: %<blockid>
+       * ########################################################################
+       */
+      void webserver_iap_interface_isr(unsigned int state, \
+           unsigned int device, \
+           unsigned int offset, \
+           unsigned int tot_size, \
+           unsigned int data, \
+           unsigned int *status) {
+      %if WHITE_SPACE(tmpBuf)
+        /* Nothing to do for system: %<ssBlock.Name> */
+      %else
+        /* Call the system: %<ssBlock.Name> */
+        %<tmpBuf>
+      %endif
+      }
+    %closefile funcbuf
+    %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_iapinf_isr")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",funcbuf)>    
+  %else
+    %openfile tmpBuf
+
+      /* ########################################################################
+       * Block Name: %<block.Name>
+       * Block ID: %<blockid>
+       * ########################################################################
+       */
+      void webserver_iap_interface_isr(unsigned int state, \
+           unsigned int device, \
+           unsigned int offset, \
+           unsigned int tot_size, \
+           unsigned int data, \
+           unsigned int *status) {
+        /* Ouput ISR block is not connected */
+      }
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_iapinf_isr")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+  %endif
+%endif %%conf == "ISR"
+
+%% === State ===
+%if conf == "Packet"
+  /* %<blockid>: '%<block.Name>' */
+  %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0, "")>)state;
+  %<LibBlockOutputSignal(1, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0, "")>)device;
+  %<LibBlockOutputSignal(2, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0, "")>)offset;
+  %<LibBlockOutputSignal(3, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0, "")>)tot_size;
+  %<LibBlockOutputSignal(4, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0, "")>)data;
+%endif
+
+%% === Ack ===
+%if conf == "Ack"
+  /* %<blockid>: '%<block.Name>' */
+  *status = (unsigned int)%<LibBlockInputSignal(0, "", "", 0)>;
+%endif %%conf == "Ack"
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

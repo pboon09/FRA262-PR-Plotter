@@ -1,0 +1,18 @@
+%% SYSTLC: nRF5 Target TMF: ert_default_tmf MAKE: make_rtw EXTMODE: ext_comm
+%selectfile NULL_FILE
+%assign CodeFormat = "Embedded-C"
+%assign TargetType = "RT"
+%assign Language   = "C"
+%include "codegenentry.tlc"
+
+/%
+  BEGIN_RTW_OPTIONS
+  %----------------------------------------%
+  % Configure RTW code generation settings %
+  %----------------------------------------%
+  rtwgensettings.BuildDirSuffix = '_nrf5';
+  rtwgensettings.DerivedFrom = 'ert.tlc';
+  rtwgensettings.Version = '1';
+  END_RTW_OPTIONS
+%/
+

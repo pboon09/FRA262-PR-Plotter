@@ -1,0 +1,231 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Hardware Modules Demos &gt; aMG SQLite Data Server &gt; Basic UART-SQLite query demo</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Basic UART-SQLite query demo">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "communication_test_demo.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Basic UART-SQLite query demo</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?communication_test_demo.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="add-on_hardware_modules_demos.htm">Hardware Modules Demos</a> &gt; <a href="amg_sqlite_data_server.htm">aMG SQLite Data Server</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Basic UART-SQLite query demo</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="amg_sqlite_data_server.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="amg_sqlite_data_server.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="use_waijung_blockset_for_sqlit.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>The demo showing to communicate with aMG SQLite Data Server board via UART. It helpful for understanding the command/ protocol to start develop your own software to communicate with aMG SQLite Data Server board.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Hardware requirement:</span></h3>
+<p>1. aMG USB Converter N board (Or other USB-serial device which 3.3V interface).</p>
+<p>2. aMG SQLite Data Server Board.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Hardware setup</span></h3>
+<p>Follow below hardware setup, connection between aMG USB Coverter N and aMG SQLite Data Server board.</p>
+<p><span style="width:48px">&nbsp;</span><span style="font-weight: bold;">Tx pin</span> of aMG USB Converter N ---&gt; <span style="font-weight: bold;">Rx pin</span> of aMG SQLite Data Server</p>
+<p><span style="width:48px">&nbsp;</span><span style="font-weight: bold;">Rx pin</span> of aMG USB Converter N &lt;--- <span style="font-weight: bold;">Tx pin</span> of aMG SQLite Data Server</p>
+<p>&nbsp;</p>
+<p><img src="amgsqlite_hwsetup1.png" width="950" height="472" alt="amgsqlite_hwsetup1" style="width:950px;height:472px;border:none" /></p>
+<p>&nbsp;</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Software setup</span></h3>
+<p>The use putty.exe for communication software, download from: <a href="http://www.putty.org/" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.putty.org/</a></p>
+<p>1. UART port configuration</p>
+<p><img src="amgsqlite_softwaresetup1.png" width="950" height="448" alt="amgsqlite_softwaresetup1" style="width:950px;height:448px;border:none" /></p>
+<p><img src="amgsqlite_softwaresetup3.png" width="950" height="448" alt="amgsqlite_softwaresetup3" style="width:950px;height:448px;border:none" /></p>
+<p>2. Terminal configuration</p>
+<p><img src="amgsqlite_softwaresetup2.png" width="950" height="448" alt="amgsqlite_softwaresetup2" style="width:950px;height:448px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Testing</span></h3>
+<p>1. press Enter, to display main prompt &quot;&gt;&quot;.</p>
+<p>2. Ask for board firmware version, by keying &quot;version&quot; + press Enter key.</p>
+<p><img src="amgsqlite_softwaretesting1.png" width="950" height="168" alt="amgsqlite_softwaretesting1" style="width:950px;height:168px;border:none" /></p>
+<p>3. Enter SQLite3 prompt mode, by keying &quot;sqlite dbname.db&quot; + press Enter key.</p>
+<p><img src="amgsqlite_softwaretesting2.png" width="950" height="360" alt="amgsqlite_softwaretesting2" style="width:950px;height:360px;border:none" /></p>
+<p><span style="color: #ff0000;">Note: If database name not specified when switch to SQLite prompt, it will use the default &quot;database.db&quot;.</span></p>
+<p>4. Now try to create data table, to store temperature measure at room no.1, no.2 and no.3 for every minutes.</p>
+<p>Given:</p>
+<p> T1 - Temperature measure at room no.1</p>
+<p>T2 - &nbsp;Temperature measure at room no.2</p>
+<p>T3 - &nbsp;Temperature measure at room no.3</p>
+<p><img src="amgsqlite_softwaretesting3.png" width="950" height="360" alt="amgsqlite_softwaretesting3" style="width:950px;height:360px;border:none" /></p>
+<p><span style="color: #ff0000;">Note: aMG SQLite Data Server board did not implement command history, it not support Arrow key.</span></p>
+<p>5. Display data in table name &quot;temperature&quot;, by using &quot;SELECT&quot; statement.</p>
+<p><img src="amgsqlite_softwaretesting4.png" width="950" height="360" alt="amgsqlite_softwaretesting4" style="width:950px;height:360px;border:none" /></p>
+<p>6. Disconnect from SQLite prompt mode, exit to main prompt. By keying &quot;.quit&quot; + press Enter key.</p>
+<p><img src="amgsqlite_softwaretesting5.png" width="950" height="360" alt="amgsqlite_softwaretesting5" style="width:950px;height:360px;border:none" /></p>
+<p>Repeat step3 if you want to enter SQLite prompt again.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Checking SD card for generated database file</span></h3>
+<p><img src="amgsqlite_softwaretesting6.png" width="950" height="260" alt="amgsqlite_softwaretesting6" style="width:950px;height:260px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Open database file on Host PC (Process database)</span></h3>
+<p>1. Download sqlite3.exe, from <a href="http://www.sqlite.org/download.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.sqlite.org/download.html</a> at section &quot;Precompiled Binaries for Windows&quot;.</p>
+<p>2. Extract executable file to &quot;C:\sqlite&quot;, also copy database file &quot;dbname.db&quot; from SD Card place into same directory.</p>
+<p><img src="amgsqlite_softwaretesting7.png" width="950" height="257" alt="amgsqlite_softwaretesting7" style="width:950px;height:257px;border:none" /></p>
+<p>3. Start windows command line prompt, cmd.exe</p>
+<p><img src="amgsqlite_softwaretesting8.png" width="950" height="235" alt="amgsqlite_softwaretesting8" style="width:950px;height:235px;border:none" /></p>
+<p>4. At windows command prompt, change current directory to &quot;C:\sqlite&quot;. Type command &quot;cd \&quot; to change to root directory &quot;C:\&quot;, then type &quot;cd sqlite&quot;.</p>
+<p>5. Run sqlite3.exe with specify database name &quot;dbname.db&quot;</p>
+<p>6. Display data storing in database by &quot;SELECT&quot; statement.</p>
+<p><img src="amgsqlite_softwaretesting9.png" width="950" height="354" alt="amgsqlite_softwaretesting9" style="width:950px;height:354px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Export data to CSV format</span></h3>
+<p><img src="amgsqlite_softwaretesting10.png" width="950" height="354" alt="amgsqlite_softwaretesting10" style="width:950px;height:354px;border:none" /></p>
+<p><img src="amgsqlite_softwaretesting11.png" width="950" height="257" alt="amgsqlite_softwaretesting11" style="width:950px;height:257px;border:none" /></p>
+<p><img src="amgsqlite_softwaretesting12.png" width="950" height="320" alt="amgsqlite_softwaretesting12" style="width:950px;height:320px;border:none" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

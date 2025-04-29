@@ -1,0 +1,39 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".mk"
+# Make file generated with Waijung Blockset
+
+CC = armcc
+AS = armasm
+LD = armlink
+EF = fromelf
+
+#---------------- Parameters ----------------
+MODELNAME = %<LibGetModelName()>
+${section:includeString}
+
+${section:controlString}
+
+
+EFLAGS = --output=$(MODELNAME).$(OUTFILETYPE) $(MODELNAME).axf
+${section:startUp}
+SRCS = $(wildcard *.c)
+OBJS = $(SRCS:.c=.o)
+LIBS = 
+
+#---------------- Rules ----------------
+$(MODELNAME).$(OUTFILETYPE): $(MODELNAME).axf
+	$(EF) $(EFOUTTYPE) $(EFLAGS)
+	$(EF) --i32 --output=$(MODELNAME).hex $(MODELNAME).axf
+	
+$(MODELNAME).axf: $(OBJS) $(STARTUP)
+	$(LD) $(OBJS) $(LIBS) $(STARTUP) $(LFLAGS) 
+
+%assign str = "%" + ".o : " + "%" + ".c"
+%<str>
+	$(CC) $(CFLAGS) $< -o $@
+
+%assign str = "%" + ".o : " + "%" + ".s"
+%<str>
+	$(AS) $(AFLAGS) $<
+	
+%closefile tmpBuf
+

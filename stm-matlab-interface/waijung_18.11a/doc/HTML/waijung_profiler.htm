@@ -1,0 +1,264 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Waijung Blockset &gt; Block References &gt; Profiler</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Profiler">
+   <meta name="description" content="Profiler">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "waijung_profiler.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Profiler</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?waijung_profiler.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="waijung.htm">Waijung Blockset</a> &gt; <a href="waijung_block_references.htm">Block References</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Profiler</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="waijung_systimer_ms.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="waijung_block_references.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="waijung_capturesystickcounter.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>Profiler is a Waijung add-on tool for use to measure and analyze execution time of an embedded system.</p>
+<p>It works by capturing time at user-defined points: the <span style="font-weight: bold;">time capture-point</span>. The captured information is transmitted in real-time to the host PC via USART port.</p>
+<p>Users can use Profile viewer to view elapse time between various capture points.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">How it works</span></h2>
+<p>To use Waijung profiler, follow the following steps.</p>
+<p>1. <a href="waijung_profiler.htm#1.setuptargetsystemmodel" class="topiclink">Setup target system model</a> to capture execution time </p>
+<p style="margin: 5px 0px 5px 24px;">a) Insert  <a href="waijung_capturesystickcounter.htm" class="topiclink">Target Capture Systick Counter Block</a> to define time capture-points.</p>
+<p style="margin: 5px 0px 5px 24px;">b) Enable profile data transmission in Target Setup Block. Currently, execution time can be transmitted via UART only.</p>
+<p>2. <a href="waijung_profiler.htm#2.setupuarthardware" class="topiclink">Setup target hardware</a> to enable profile data to be transmitted from the target to the host PC via selected UART module.</p>
+<p>3. <a href="waijung_profiler.htm#3.startwaijungprofiler" class="topiclink">Setup Waijung Profiler</a> on the host PC to receive profile data.</p>
+<p>4. <a href="waijung_profiler.htm#4.startprofilingprocess" class="topiclink">Start profiling process </a>to capture profiling data and analysis.</p>
+<p>5. <a href="waijung_profiler.htm#5.analyzetheresult" class="topiclink">Analyze the result</a>.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">View and Menus</span></h2>
+<p><img src="blankprofilerwindow_withinitstring.png" width="950" height="350" alt="blankprofilerwindow_withinitstring" style="width:950px;height:350px;border:none" /></p>
+<p><img src="profilemenu_settings.png" width="950" height="350" alt="profilemenu_settings" style="width:950px;height:350px;border:none" /></p>
+<p><img src="profilemenu_view.png" width="950" height="350" alt="profilemenu_view" style="width:950px;height:350px;border:none" /></p>
+<p>&quot;<span style="font-weight: bold;">Save Setting as</span>&quot; will save only COM port, Profiler Init String, Profile interval, and Task definitions. It is suitable for uses with &quot;<span style="font-weight: bold;">Load Setting</span>&quot; to collect a new set of profile data based on previous configuration.</p>
+<p>&quot;<span style="font-weight: bold;">Save Setting + Raw Data from MAT-File</span>&quot; will save not only COM port, Profiler Init String, Profile interval, and Task definitions but also recorded profile data. It is suitable for uses with &quot;<span style="font-weight: bold;">Load Setting + Raw Data from MAT-File</span>&quot; to save and profile data for analysis at later time. Use &quot;<span style="font-weight: bold;">View</span>&quot; and &quot;<span style="font-weight: bold;">Report</span>&quot; to view analysis result.</p>
+<p>&quot;<span style="font-weight: bold;">Save Raw Data as CSV File</span>&quot; will save only capture point time in seconds as a comma separated value file.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Details Description</span></h2>
+<h3 class="p_Heading3"><a id="1.setuptargetsystemmodel"></a><span class="f_Heading3">1. Setup target system model</span></h3>
+<p style="margin: 5px 0px 5px 24px;">a) Insert  <a href="waijung_capturesystickcounter.htm" class="topiclink">Target Capture Systick Counter Block</a> to define time capture-points</p>
+<p style="margin: 5px 0px 5px 24px;">In your Simulink model for target, insert as many <a href="waijung_capturesystickcounter.htm" class="topiclink">Target Capture Systick Counter Block</a> as you need to define time capture-points. </p>
+<p style="margin: 5px 0px 5px 24px;">At least, <span style="font-weight: bold;">two </span>time capture-points must be defined so that elapsed time can be computed. </p>
+<p style="margin: 5px 0px 5px 24px;">Use combination of <a href="http://www.mathworks.com/help/simulink/ug/controlling-and-displaying-the-sorted-order.html#f13-91958" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">Block's priority</a> and <a href="waijung_capturesystickcounter.htm" class="topiclink">Target Capture Systick Counter Block</a>'s &quot;enable input port&quot; feature to control placement of each time capture-point <a href="http://www.mathworks.com/help/simulink/ug/controlling-and-displaying-the-sorted-order.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">execution (sorted) order</a>. </p>
+<p style="margin: 5px 0px 5px 24px;">b) Enable profile data transmission in Target Setup Block</p>
+<p style="margin: 5px 0px 5px 24px;">Enable execution time profiler by selecting Real-time output in the Enable Execution Time Profiler combo box In the Target Setup Block.</p>
+<p style="margin: 5px 0px 5px 24px;">Configure target UART module as desired.</p>
+<p style="margin: 5px 0px 5px 24px;"><span style="font-weight: bold;">IMPORTANT!!! Do NOT modify the Profiler Initialize String. This string is automatically generated and will be copied for use later on.</span></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p><img src="stm32f4_profiler_targetsetup_real-time.png" width="950" height="655" alt="stm32f4_profiler_targetsetup_real-time" style="width:950px;height:655px;border:none" /></p>
+<p><a id="2.setupuarthardware"></a><span class="f_Heading3">2. Setup UART hardware</span></p>
+<p style="margin: 5px 0px 5px 24px;">This step depends on the actual hardware setup. The following picture shows an example of using aMG USB Converter - N to provide a bridge between the target UART module and host PC USB port, following the above settings.</p>
+<p>The following picture shows a sample connection between STM32F4DISCOVERY and <a href="amg_usbconverter_n2.htm" class="topiclink">aMG USB Converter - N</a>.</p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p><img src="profilerhardwareuart.png" width="950" height="596" alt="profilerhardwareuart" style="width:950px;height:596px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p style="margin: 5px 0px 5px 24px;"><span style="text-decoration: underline;">Remarks</span></p>
+<p style="margin: 5px 0px 5px 24px;">When configure UART to transmit at very high BAUD rate, e.g. 5Mbps, pay special attention to hardware design (short connections, pull-up, etc).</p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p><a id="3.startwaijungprofiler"></a><span class="f_Heading3">3. Start Waijung Profiler</span></p>
+<p style="margin: 5px 0px 5px 24px;">a) At Matlab Command Windows run waijung.profilerOn.</p>
+<p><img src="blankprofilerwindow.png" width="950" height="344" alt="blankprofilerwindow" style="width:950px;height:344px;border:none" /></p>
+<p>&nbsp;</p>
+<p style="margin: 5px 0px 5px 24px;">b) Initialize Waijung Profiler by:</p>
+<p style="margin: 5px 0px 5px 48px;">i) Copy Profiler Initialize Sting from the <a href="stm32f4_target_setup.htm" class="topiclink">Target Setup Block</a> and paste in the Profiler Init Sting box.</p>
+<p style="margin: 5px 0px 5px 48px;">ii) Select appropriate serial port</p>
+<p style="margin: 5px 0px 5px 48px;">ii) Setup capture final time</p>
+<p><img src="blankprofilerwindow_withinitstring.png" width="950" height="350" alt="blankprofilerwindow_withinitstring" style="width:950px;height:350px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">c) Setup tasks. Each task must have start and end time capture-points and it is the time interval that need profiling.</p>
+<p><img src="setupprofilertasks.png" width="950" height="350" alt="setupprofilertasks" style="width:950px;height:350px;border:none" /></p>
+<h3 class="p_Heading3"><a id="4.startprofilingprocess"></a><span class="f_Heading3">4. Start profiling process</span></h3>
+<p style="margin: 5px 0px 5px 24px;">a) First, press and hold the reset button to keep target from start running.</p>
+<p style="margin: 5px 0px 5px 24px;">b) Press Start Profiler button on Waijung Profiler. This will put Waijung Profiler to listen to selected COM port.</p>
+<p style="margin: 5px 0px 5px 24px;">c) Release the Reset button on the target to let it run the program. </p>
+<p style="margin: 5px 0px 5px 24px;">After sufficient data has been captured, profiling information will automatically be displayed at the end of the process.</p>
+<p><img src="startprofiler.png" width="950" height="596" alt="startprofiler" style="width:950px;height:596px;border:none" /></p>
+<p>&nbsp;</p>
+<p style="margin: 5px 0px 5px 24px;"><span style="text-decoration: underline;">Remark </span></p>
+<p style="margin: 5px 0px 5px 24px;">Waijung Profiler will collect data for a period defined by the Profiler final time parameter. </p>
+<p style="margin: 5px 0px 5px 24px;">The execution time is absolute time since the target start running.</p>
+<p style="margin: 5px 0px 5px 24px;">By releasing the Reset button after pressing the Start Profiler button on Waijung Profiler, profile start time will be 0 seconds.</p>
+<p style="margin: 5px 0px 5px 24px;">Otherwise, the profile start time will not be 0. </p>
+<p style="margin: 5px 0px 5px 24px;">If your objective is to analyze relative time during an interval, then it is not necessary to start the target after Waijung Profiler starts.</p>
+<h3 class="p_Heading3"><a id="5.analyzetheresult"></a><span class="f_Heading3">5. Analyze the result</span></h3>
+<p style="margin: 5px 0px 5px 24px;">Waijung Profiler display 3 kinds of results.</p>
+<p style="margin: 5px 0px 5px 24px;">a) <a href="waijung_profiler.htm#absolutetimeforeachtimecapture-points" class="topiclink">Absolute time for each time capture-points</a></p>
+<p style="margin: 5px 0px 5px 24px;">b) <a href="waijung_profiler.htm#tasktimeintervalandhistogram" class="topiclink">Task time interval and histogram</a></p>
+<p style="margin: 5px 0px 5px 24px;">c) <a href="waijung_profiler.htm#tasktimingsequence" class="topiclink">Task timing sequence</a></p>
+<p style="margin: 5px 0px 5px 24px;">d) <a href="waijung_profiler.htm#minimummeanandmaximumexecutiontime" class="topiclink">Minimum, Mean, and Maximum execution time</a></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<h4 class="p_Heading4"><a id="absolutetimeforeachtimecapture-points"></a><span class="f_Heading4">Absolute time for each time capture-points</span></h4>
+<p><img src="profileranalysisresult01.png" width="950" height="506" alt="profileranalysisresult01" style="width:950px;height:506px;border:none" /></p>
+<p>&nbsp;</p>
+<h4 class="p_Heading4"><a id="tasktimeintervalandhistogram"></a><span class="f_Heading4">Task time interval and histogram</span></h4>
+<p><img src="profileranalysisresult02.png" width="950" height="506" alt="profileranalysisresult02" style="width:950px;height:506px;border:none" /></p>
+<p><img src="profileranalysisresult03.png" width="950" height="506" alt="profileranalysisresult03" style="width:950px;height:506px;border:none" /></p>
+<p>&nbsp;</p>
+<h4 class="p_Heading4"><a id="tasktimingsequence"></a><span class="f_Heading4">Task timing sequence</span></h4>
+<p><img src="profileranalysisresult04.png" width="950" height="506" alt="profileranalysisresult04" style="width:950px;height:506px;border:none" /></p>
+<h4 class="p_Heading4"><a id="minimummeanandmaximumexecutiontime"></a><span class="f_Heading4">Minimum, Mean, and Maximum execution time</span></h4>
+<p><img src="profileranalysisresult05.png" width="950" height="344" alt="profileranalysisresult05" style="width:950px;height:344px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Accessing Raw Data</span></h2>
+<p>Absolute time for all capture points is available in <span style="font-weight: bold;">wjprofiler_data</span> struct variable in the <span style="font-weight: bold;">wjprofiler_data.report.data</span> field.</p>
+<p>Each row represents each capture point. The top row is the first capture point in the array.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<p><a href="execution_time_profiler.htm" class="topiclink">Execution Time Profiler</a></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

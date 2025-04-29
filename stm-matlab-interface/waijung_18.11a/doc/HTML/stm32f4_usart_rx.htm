@@ -1,0 +1,470 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Block References &gt; On-chip Peripherals &gt; UART &gt; UART Rx</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="UART Rx">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f4_usart_rx.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">UART Rx</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f4_usart_rx.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="blockset_references.htm">Block References</a> &gt; <a href="on-chip_peripherals.htm">On-chip Peripherals</a> &gt; <a href="uart.htm">UART</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">UART Rx</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="stm32f4_usart_setup.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="uart.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f4_usart_tx.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">Blocking mode</span></h3>
+<p><img src="uart_rx_block.png" width="950" height="144" alt="uart_rx_block" style="width:950px;height:144px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">Non-Blocking mode</span></h3>
+<p><img src="uart_rx_nonblocking_block.png" width="950" height="144" alt="uart_rx_nonblocking_block" style="width:950px;height:144px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Blocking mode</span></h3>
+<h3 class="p_Heading3"><span class="f_Heading3">1.1 Receive Binary packet</span></h3>
+<p>This is configuration mode is to use UART Rx block as &quot;Blocking&quot; with &quot;Binary&quot; packet.</p>
+<p><img src="uart_rx_blocking_binary_mask.png" width="950" height="812" alt="uart_rx_blocking_binary_mask" style="width:950px;height:812px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>UART Module</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1| 2| 3| 4| 5| 6</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select UART/ USART module to receive the Rx data from</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transfer mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Blocking| Non-Blocking</p>
+<p>Note: This configuration mode is &quot;Blocking&quot; </p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Blocking</span>: The CPU process will wait for data until full packet received, then exit the Rx block to continue execute the other block. This mode is suitable for real-time processing with HIL.</p>
+<p><span style="font-weight: bold;">Non-Block</span>: This configuration is working as asynchronous (software interrupt or callback), the output of Rx block for this mode is call-back to Function-call subsystem.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Packet mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Binary| Ascii| String Buffer</p>
+<p>Note: This configuration is &quot;Binary&quot;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Binary</span>: This packet mode is will accept the packet contains binary data, by specify the Header, Data format and Terminator of a packet to receive. The block will not accept the packet which contains invalid Header or Terminator.</p>
+<p><span style="font-weight: bold;">Ascii</span>: This packet mode will accept the packet contains ascii data (string), by specify the sscanf format. The block will create the output port corresponding to the sscanf % format.</p>
+<p>Example: for packet format &quot;Value=%d&quot;, the output port of block will be uint32. If packet &quot;Value=100&quot; is received, the the block will return 100 to output port of block.</p>
+<p><span style="font-weight: bold;">String Buffer</span>: This packet mode is receive the raw string data and store into string buffer directly without processing the packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Header</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Specify the Header pattern of packet to receive)</p>
+<p>Example: If a packet contains 2 bytes of header, [0x7E 0x7E]</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>This header is used for packet synchronization, the block will continue search for header, once header is matched then next bytes will be data.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type DOUBLE</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">double</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 8bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type SINGLE</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">single</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 4bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type INT8</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">int8</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 1byte in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type UINT8</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">uint8</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 1byte in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type INT16</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">int16</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 2bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type UINT16</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">uint16</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 2bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type INT32</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">int32</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 4bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Number of data port, type UINT32</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Number of data type <span style="font-weight: bold;">uint32</span> in packet)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 data port of this data type is combined from 4bytes in packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Terminator</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Specify the terminator pattern of packet to receive)</p>
+<p>Example: If a packet contains 2 bytes of terminator, [0x03 0x03]</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>This terminator is used for packet validation, once header is matched and all data types are received, the next bytes will be terminator. if terminator is not matched, the block will reject the previous bytes (Header and data), and continue searching for new packet start with header again.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Sample Time (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Sample time configuration of a block</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><br />
+</td>
+</tr>
+</table>
+</div>
+<h3 class="p_Heading3"><span class="f_Heading3">1.2 Receive Ascii packet</span></h3>
+<p>This is configuration mode is to use UART Rx block as &quot;Blocking&quot; with &quot;Ascii&quot; packet.</p>
+<p><img src="uart_rx_blocking_ascii_mask.png" width="950" height="395" alt="uart_rx_blocking_ascii_mask" style="width:950px;height:395px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>UART Module</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1| 2| 3| 4| 5| 6</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transfer mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Blocking| Non-Blocking</p>
+<p>Note: This configuration mode is &quot;Blocking&quot; </p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Packet mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Binary| Ascii| String Buffer</p>
+<p>Note: This configuration is &quot;Ascii&quot;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Format</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Ascii format pattern for sscanf</p>
+<p>Example: &quot;Value=%d&quot;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Scanf format specifier, start with %. Below is supported by block.</p>
+<p><span style="font-weight: bold;">%u, %i, %d, %o, %x</span> : sscanf output will be type of uint32</p>
+<p><span style="font-weight: bold;">%e, %g, %f</span> : sscanf output will be type of single</p>
+<p><span style="font-weight: bold;">%s</span> : sscanf output will be type of string. Note: output buffer of %s will be limit to 127 charactor maximum, so recommended to use %127s instead of %s.</p>
+<p><span style="font-weight: bold;">%c</span> : sscanf output will return int8</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Terminator</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>LF| CR| CRLF</p>
+<p>(Specify the terminator pattern of packet to receive)</p>
+<p>&nbsp;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Terminator in ascii mode is used for detect the end of packet. The block will continue receive ascii and store in a buffer, and detect terminator in the same time. After found and match terminator, the block will perform sscanf function to extract the value in a packet.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Sample Time (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Sample time configuration of a block</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><br />
+</td>
+</tr>
+</table>
+</div>
+<h3 class="p_Heading3"><span class="f_Heading3">1.3 Receive ascii to String Buffer</span></h3>
+<p>This is configuration mode is to use UART Rx block as &quot;Blocking&quot; with &quot;Ascii&quot;, the reading packet will stored in a String Buffer.</p>
+<p><img src="uart_rx_blocking_stringbuffer_mask.png" width="950" height="369" alt="uart_rx_blocking_stringbuffer_mask" style="width:950px;height:369px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Configuration item</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Selectable option/ Value</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Description</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>UART Module</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1| 2| 3| 4| 5| 6</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transfer mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Blocking| Non-Blocking</p>
+<p>Note: This configuration mode is &quot;Blocking&quot; </p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Packet mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Binary| Ascii| String Buffer</p>
+<p>Note: This configuration is &quot;String Buffer&quot;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(See previous topic)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Buffer</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select String Buffer name to store the receiving packet</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Note: The buffer name will available for selection when drop the volatile data storage block with configure type as string.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Terminator</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>LF| CR| CRLF</p>
+<p>(Specify the terminator pattern of packet to receive)</p>
+<p>&nbsp;</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Terminator in ascii mode is used for detect the end of packet. The block will continue receive ascii and store in a buffer, and detect terminator in the same time. After found and match terminator, the block will perform copy the packet to the specified string buffer.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Sample Time (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Sample time configuration of a block</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><br />
+</td>
+</tr>
+</table>
+</div>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Non-Blocking mode</span></h3>
+<p>This configuration mode is similar to the previous mode except for the addition of an output port &quot;READY&quot;. This port will output:</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">A value of 1 when a new data packet becomes available.</td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 24px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">A value of 0 when new data is not available.</td></tr></table></div><p>Received data from a <span style="font-weight: bold;">Non-Blocking</span> UART RX Block may be processed in an Enable Subsystem where READY signal is used to enable the subsystem. For example usage of non-blocking mode see <a href="two_boards_communication__non-.htm" class="topiclink">Two boards communication, non-blocking mode</a> demo.</p>
+<p>&nbsp;</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Limitation</span></h2>
+<p>1. Same UART module, cannot place block with Ascii and Binary together. Example:</p>
+<p><img src="uart_limitation1.png" width="950" height="596" alt="uart_limitation1" style="width:950px;height:596px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">When to use this block?</span></h2>
+<p>Use this block to receive data from UART when application need communication between device to device via UART protocol.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">How does this block work?</span></h2>
+<p>The block will get the data from selected UART module buffer (DMA Rx buffer), then processing the packet. By using DMA feature, the received bytes will store into buffer automatically while CPU busy with other block in same time step without losing bytes.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">1.</span></td><td style="border:none"><a href="host_pc_and_target.htm" class="topiclink">Host PC and Target</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">2.</span></td><td style="border:none"><a href="host_pc_and_target_hi-speed_co.htm" class="topiclink">Host PC and Target hi-speed communication</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">3.</span></td><td style="border:none"><a href="uart_two_boards_communication.htm" class="topiclink">Two boards communication, blocking mode</a></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:16px"><span style="font-size:11pt; font-family: 'Calibri';color:#000000;">4.</span></td><td style="border:none"><a href="two_boards_communication__non-.htm" class="topiclink">Two boards communication, non-blocking mode</a></td></tr></table></div><p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,294 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Hardware Modules &gt; aMG SQLite Database Server &gt; Waijung simulink block support &gt; SQLite Database Query</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="SQLite Database Query">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "sqlite_database_query.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">SQLite Database Query</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?sqlite_database_query.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="amg_related_hardware.htm">Hardware Modules</a> &gt; <a href="amg_sqlite.htm">aMG SQLite Database Server</a> &gt; <a href="simulink_block_support.htm">Waijung simulink block support</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">SQLite Database Query</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="sqlite_database_setup.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="simulink_block_support.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="limitation.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="sqlite_database_query_block.png" width="950" height="120" alt="sqlite_database_query_block" style="width:950px;height:120px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="sqlite_database_query_mask.png" width="950" height="675" alt="sqlite_database_query_mask" style="width:950px;height:675px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Transfer</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Non-Blocking | Blocking</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Blocking: CPU will wait until SQLite statement is done (Not recommended).</p>
+<p>Non-Blocking: CPU able to process other block function during waiting for SQLite statement to complete.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Statement</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>INSERT | UPDATE | SELECT | CREATE</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>INSERT: see <a href="http://www.sqlite.org/lang_insert.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.sqlite.org/lang_insert.html</a></p>
+<p>UPDATE: see <a href="http://www.sqlite.org/lang_update.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.sqlite.org/lang_update.html</a></p>
+<p>SELECT: see <a href="http://www.sqlite.org/lang_select.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.sqlite.org/lang_select.html</a></p>
+<p>CREATE: see <a href="http://www.sqlite.org/lang_createtable.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">http://www.sqlite.org/lang_createtable.html</a></p>
+<p>&nbsp;</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Database option</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specific | Variable</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select option for database filename.</p>
+<p>Specific: database filename is specific and cannot be changed at runtime.</p>
+<p>Variable: database filename is variable at runtime.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Database</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Specify database filename)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Available when Database option is select to Specific.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Table option</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specific | Variable</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select option for table name.</p>
+<p>Specific: table name is specific and cannot be changed at runtime.</p>
+<p>Variable: table name is variable at runtime.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Columns format</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Specify column name and type)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Valid data type is:</p>
+<p>1. <span style="font-weight: bold;">int</span> or <span style="font-weight: bold;">integer</span> - int32</p>
+<p>2. <span style="font-weight: bold;">numeric</span> - uint32</p>
+<p>3. <span style="font-weight: bold;">real</span> - single</p>
+<p>4. <span style="font-weight: bold;">text</span> - string (Volatile Data Storage block type string)</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Preview</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Read only)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Preview the SQLite statement.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Enable output status</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Checked | Unchecked</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Checked: Output port status available, use for indicate query status.</p>
+<p>Unchecked: Output status is not available.</p>
+<p>Output status:</p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;0: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Success</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;1: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Init</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;2: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_GetPrompt</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;3: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_EnterSQLitePrompt</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;4: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_WaitSQLitePrompt</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;5: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_WriteQueryString</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;6: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_GetResult</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;7: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Finallize</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;8: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Timeout</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;9: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_IO_Error</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;10: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Query_Error</span></p>
+<p style="margin: 0px 0px 0px 0px;"><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp;11: </span><span style="font-size: 10pt; font-family: 'Courier New'; font-weight: bold;">SQLITE_Buffer_Error</span><span style="font-size: 10pt; font-family: 'Courier New';"> &nbsp; </span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Sample time (sec)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Sample time)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specify block sample time.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo</span></h2>
+<p>1. <a href="communication_test_demo.htm" class="topiclink">Basic UART-SQLite query demo</a></p>
+<p>2. <a href="use_waijung_blockset_for_sqlit.htm" class="topiclink">Use Waijung Blockset for SQLite data logger demo</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

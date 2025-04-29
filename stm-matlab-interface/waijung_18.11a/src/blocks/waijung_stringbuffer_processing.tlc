@@ -1,0 +1,148 @@
+%implements waijung_stringbuffer_processing "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+        
+%assign configuration = CAST("String",SFcnParamSettings.configuration)
+%assign varname = CAST("String",SFcnParamSettings.varname)
+%assign format = CAST("String",SFcnParamSettings.format)
+%assign datacount = CAST("Number",SFcnParamSettings.datacount)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%%datatypes
+
+%assign block = block + sampletime + blockid \
+         + configuration + varname + format + datacount
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>   
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_STD_IO__) == 0)
+      %assign :: __STM32F4XX_STD_IO__ = 1
+      %openfile tmpBuf
+         #include <stdio.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+  %openfile tmpBuf
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid>
+   * ########################################################################
+  */
+  #include "sprintf_s.h"
+  %closefile tmpBuf
+  %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+  %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+  %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+  %if (configuration == "sscanf") & (datacount > 0)
+    %openfile tmpBuf
+    /* ########################################################################
+     * Name: %<Name>
+     * Id: %<blockid>
+     * ########################################################################
+     */
+     typedef struct {
+       %foreach idx=datacount
+       %<datatypes[idx]> data%<idx>;
+       %endforeach
+     } %<blockid>_STRUCT;
+     extern %<blockid>_STRUCT %<blockid>;
+
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+    %openfile tmpBuf
+    /* ########################################################################
+     * Name: %<Name>
+     * Id: %<blockid>
+     * ########################################################################
+     */
+     %<blockid>_STRUCT %<blockid>;
+    %closefile tmpBuf
+    %assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+    %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+    %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+  %endif
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid> */
+  %if (configuration == "sprintf") || (configuration == "sprintf_s")
+    %%assign y = LibBlockOutputSignal(0, "", "", 0)
+    %if LibBlockNumOutputPorts(block) > 0
+    %<LibBlockOutputSignal(0, "", "", 0)> = (uint8_t)(\
+    %endif
+    %<configuration>((char*)%<varname>, \
+    %if configuration == "sprintf_s"
+    %<varname>_SIZE,\
+    %endif
+    "%<format>"\
+    %foreach idx=datacount
+      %assign u = LibBlockInputSignal(idx, "", "", 0)
+      ,(%<datatypes[idx]>)%<u>
+    %endforeach
+    )\
+    %if LibBlockNumOutputPorts(block) > 0
+     >= 0)\
+    %endif
+    ;
+  %elseif configuration == "sscanf"    
+    if(sscanf((char*)%<varname>, "%<format>"
+    %foreach idx=datacount
+      ,&(%<blockid>.data%<idx>)
+    %endforeach
+    ) == %<datacount>) { /* Success */
+      %foreach idx=datacount
+        %if LibBlockNumOutputPorts(block) > datacount
+        %<LibBlockOutputSignal(idx+1, "", "", 0)> = %<blockid>.data%<idx>;     
+        %else
+        %<LibBlockOutputSignal(idx, "", "", 0)> = %<blockid>.data%<idx>;     
+        %endif
+      %endforeach
+      %if LibBlockNumOutputPorts(block) > datacount
+      %<LibBlockOutputSignal(0, "", "", 0)> = 1;
+      %endif
+    }
+    %if LibBlockNumOutputPorts(block) > datacount
+    else { /* Fail */
+      %<LibBlockOutputSignal(0, "", "", 0)> = 0;
+    }
+    %endif
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

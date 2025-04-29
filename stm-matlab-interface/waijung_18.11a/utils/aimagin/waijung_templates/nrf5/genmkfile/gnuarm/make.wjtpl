@@ -1,0 +1,149 @@
+%openfile tmpBuf = "Makefile"
+# Make file generated with Waijung Blockset
+
+PROJECT_NAME 	 := %<LibGetModelName()>
+TARGETS          := nrf5x
+OUTPUT_DIRECTORY := _gnuarm_build
+
+BINARY_FILE_NAME := %<LibGetModelName()>.bin
+HEX_FILE_NAME := %<LibGetModelName()>.hex
+
+SDK_ROOT := .
+PROJ_DIR := .
+
+$(OUTPUT_DIRECTORY)/nrf5x.out: \\
+
+  LINKER_SCRIPT  := nrf5_xxaa.ld
+
+# Source files common to all targets
+SRC_FILES += $(wildcard ./*.c)
+SRC_FILES += $(wildcard ./*.s)
+
+# Include folders common to all targets
+INC_FOLDERS += .
+
+# Libraries common to all targets
+LIB_FILES += \\
+
+# HEAP and STACK size
+${section:stackHeapSize}
+
+# Optimization flags
+OPT = -O3 -g3 -std=gnu99
+# Uncomment the line below to enable link time optimization
+#OPT += -flto
+
+# C flags common to all targets
+CFLAGS += $(OPT)
+# CFLAGS += -DBOARD_PCA10040
+# CFLAGS += -DCONFIG_GPIO_AS_PINRESET
+# CFLAGS += -DFLOAT_ABI_HARD
+# CFLAGS += -DNRF52
+# CFLAGS += -Dnrf5x
+# CFLAGS += -DNRF52_PAN_74
+# CFLAGS += -DNRF_SD_BLE_API_VERSION=6
+# CFLAGS += -DS132
+# CFLAGS += -DSOFTDEVICE_PRESENT
+# CFLAGS += -DSWI_DISABLE0
+# CFLAGS += -mcpu=cortex-m4
+# CFLAGS += -mthumb -mabi=aapcs
+# CFLAGS += -Wall -Werror
+# CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+# # keep every function in a separate section, this allows linker to discard unused ones
+# CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
+# CFLAGS += -fno-builtin -fshort-enums
+
+# C++ flags common to all targets
+CXXFLAGS += $(OPT)
+
+# Assembler flags common to all targets
+ASMFLAGS += -g3
+# ASMFLAGS += -mcpu=cortex-m4
+# ASMFLAGS += -mthumb -mabi=aapcs
+# ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+# ASMFLAGS += -DBOARD_PCA10040
+# ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
+# ASMFLAGS += -DFLOAT_ABI_HARD
+# ASMFLAGS += -DNRF52
+# ASMFLAGS += -Dnrf5x
+# ASMFLAGS += -DNRF52_PAN_74
+# ASMFLAGS += -DNRF_SD_BLE_API_VERSION=6
+# ASMFLAGS += -DS132
+# ASMFLAGS += -DSOFTDEVICE_PRESENT
+# ASMFLAGS += -DSWI_DISABLE0
+
+# Linker flags
+LDFLAGS += $(OPT)
+LDFLAGS += -T$(LINKER_SCRIPT)
+# LDFLAGS += -mthumb -mabi=aapcs -L$(SDK_ROOT)/modules/nrfx/mdk -T$(LINKER_SCRIPT)
+# LDFLAGS += -mcpu=cortex-m4
+# LDFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+# # let linker dump unused sections
+# LDFLAGS += -Wl,--gc-sections
+# # use newlib in nano version
+# LDFLAGS += --specs=nano.specs
+
+# nrf5x: CFLAGS += -D__HEAP_SIZE=8192
+# nrf5x: CFLAGS += -D__STACK_SIZE=8192
+# nrf5x: ASMFLAGS += -D__HEAP_SIZE=8192
+# nrf5x: ASMFLAGS += -D__STACK_SIZE=8192
+
+# Compiler and linker flags
+${section:controlString}
+
+# Add standard libraries at the very end of the linker input, after all objects
+# that may need symbols provided by these libraries.
+LIB_FILES += -lc -lnosys -lm
+
+
+.PHONY: default help
+
+# Default target - first one defined
+default: nrf5x
+
+# Print all targets that can be built
+help:
+	@echo following targets are available:
+	@echo		nrf5x
+	@echo		flash_softdevice
+	@echo		sdk_config - starting external tool for editing sdk_config.h
+	@echo		flash      - flashing binary
+
+TEMPLATE_PATH := $(SDK_ROOT)/components/toolchain/gcc
+
+
+include Makefile.common
+
+$(foreach target, $(TARGETS), $(call define_target, $(target)))
+
+.PHONY: flash flash_softdevice erase
+
+# Flash the program
+flash: $(OUTPUT_DIRECTORY)/nrf5x.hex
+	@echo Flashing: $<
+	nrfjprog -f nrf52 --program $< --sectorerase
+	nrfjprog -f nrf52 --reset
+
+# Flash softdevice
+flash_softdevice:
+	@echo Flashing: s132_nrf52_6.0.0_softdevice.hex
+	nrfjprog -f nrf52 --program $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.0.0_softdevice.hex --sectorerase
+	nrfjprog -f nrf52 --reset
+
+erase:
+	nrfjprog -f nrf52 --eraseall
+
+SDK_CONFIG_FILE := ../config/sdk_config.h
+CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
+sdk_config:
+	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
+
+
+%closefile tmpBuf
+
+
+%openfile tmpBuf = "Makefile.windows"
+${section:toolchain}
+GNU_VERSION := 7.2.1 20170904
+GNU_PREFIX := arm-none-eabi
+%closefile tmpBuf

@@ -1,0 +1,650 @@
+%implements waijung_socket "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign protocol = optionstring[0]
+  %assign port = optionstring[1]
+  %assign addr0 = optionstring[2]
+  %assign addr1 = optionstring[3]
+  %assign addr2 = optionstring[4]
+  %assign addr3 = optionstring[5]
+  %assign transfer = optionstring[6]
+  %assign datasource = optionstring[7]
+  %assign datatype = optionstring[8]
+  %assign datacount = optionstring[9]
+  %assign mode = optionstring[10]
+  %assign udpecho = optionstring[11]
+  %assign variableipport = optionstring[12]
+
+  %assign streamsource = optionstring[13]
+  %assign streambuffername = optionstring[14]
+  %assign streambufferdatatype = optionstring[15]
+  %assign streambuffersize = optionstring[16]
+  %assign stream_bytes_size = optionstring[17]
+  %assign streampacketsize = optionstring[18]
+
+  %assign block = block + protocol + port + addr0 + addr1 + addr2 + addr3 \
+                + transfer + datasource + datatype + datacount + mode + udpecho \
+                + variableipport + streamsource + streambuffername \
+                + streambufferdatatype + streambuffersize + stream_bytes_size \
+                + streampacketsize
+
+  %% Block Input size
+  %assign input_data_bytes = 0
+  %foreach idx=LibBlockNumInputPorts(block) 
+    %switch LibBlockInputSignalDataTypeId(idx)
+      %case 0
+        %assign input_data_bytes = input_data_bytes + 8*LibBlockInputSignalWidth(idx)
+        %break
+      %case 1
+        %assign input_data_bytes = input_data_bytes + 4*LibBlockInputSignalWidth(idx)
+        %break
+      %case 2
+        %assign input_data_bytes = input_data_bytes + 1*LibBlockInputSignalWidth(idx)
+        %break
+      %case 3
+        %assign input_data_bytes = input_data_bytes + 1*LibBlockInputSignalWidth(idx)
+        %break
+      %case 4
+        %assign input_data_bytes = input_data_bytes + 2*LibBlockInputSignalWidth(idx)
+        %break
+      %case 5
+        %assign input_data_bytes = input_data_bytes + 2*LibBlockInputSignalWidth(idx)
+        %break
+      %case 6
+        %assign input_data_bytes = input_data_bytes + 4*LibBlockInputSignalWidth(idx)
+        %break
+      %case 7
+        %assign input_data_bytes = input_data_bytes + 4*LibBlockInputSignalWidth(idx)
+        %break
+    %endswitch
+  %endforeach
+ 
+  %% Block output data
+  %assign output_data_startidx = 0
+  %if transfer == "Blocking"
+    %assign output_data_startidx = 2
+  %else
+    %assign output_data_startidx = 3
+  %endif
+
+  %assign output_data_bytes = 0
+  %foreach idx=LibBlockNumOutputPorts(block) 
+    %if idx >= output_data_startidx
+      %switch LibBlockOutputSignalDataTypeId(idx)
+        %case 0
+          %assign output_data_bytes = output_data_bytes + 8*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 1
+          %assign output_data_bytes = output_data_bytes + 4*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 2
+          %assign output_data_bytes = output_data_bytes + 1*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 3
+          %assign output_data_bytes = output_data_bytes + 1*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 4
+          %assign output_data_bytes = output_data_bytes + 2*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 5
+          %assign output_data_bytes = output_data_bytes + 2*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 6
+          %assign output_data_bytes = output_data_bytes + 4*LibBlockOutputSignalWidth(idx)
+          %break
+        %case 7
+          %assign output_data_bytes = output_data_bytes + 4*LibBlockOutputSignalWidth(idx)
+          %break
+      %endswitch
+    %endif
+  %endforeach
+
+  %assign block = block + input_data_bytes + output_data_bytes
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F4XX_FLASH__) == 0)
+      %assign :: __STM32F4XX_FLASH__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_flash.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * UDP Status
+    * ########################################################################
+    */
+     #define UDP_STATUS_OK           0
+     #define UDP_STATUS_NOT_READY    1
+     #define UDP_STATUS_NOT_AVAILBLE 2
+     #define UDP_STATUS_CONN_ERROR   3 /* Error in UDP Send */
+     #define UDP_STATUS_BIND_ERROR   4 /* Error in UDP Receive */
+     #define UDP_STATUS_NO_BUFF      5 /* Error in UDP Send, no available out buffer */
+     #define UDP_STATUS_NO_DATA      6 /* Staus in Receive, no data receive */
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%if mode == "Receive"
+#define %<blockid>_PORT  %<port>
+%endif
+
+%if mode == "Send"
+  #define %<blockid>_DEST_PORT  %<port>
+  #define %<blockid>_DEST_ADDR0 %<addr0>
+  #define %<blockid>_DEST_ADDR1 %<addr1>
+  #define %<blockid>_DEST_ADDR2 %<addr2>
+  #define %<blockid>_DEST_ADDR3 %<addr3>
+%endif
+
+%if (datasource == "PortData") || (datasource == "VectorData")
+  %if mode == "Send"
+  #define %<blockid>_DATA_LENTH %<input_data_bytes>
+  %else
+  #define %<blockid>_DATA_LENTH %<output_data_bytes>
+  %endif
+  extern uint8_t %<blockid>_buffer[];
+%endif
+
+%if datasource == "BufferStream"
+  #define %<blockid>_TOT_LENGTH %<stream_bytes_size>
+  #define %<blockid>_PKT_LENGTH %<streampacketsize>
+  #define %<blockid>_DATA_LENTH (4U + %<streampacketsize>) /* Stream index + Data Packet */
+  extern uint8_t %<blockid>_buffer[];
+%endif
+
+%if datasource == "VectorStream"
+  #define %<blockid>_TOT_LENGTH %<stream_bytes_size>
+  #define %<blockid>_PKT_LENGTH %<streampacketsize>
+  #define %<blockid>_DATA_LENTH (4U + %<streampacketsize>) /* Stream index + Data Packet */
+  extern uint8_t %<blockid>_buffer[];
+%endif
+
+%if mode == "Send"
+uint32_t %<blockid>_%<mode>(const void *buffer, uint16_t len, uint8_t *ip, uint16_t port);
+%else
+uint32_t %<blockid>_%<mode>(void);
+extern uint8_t %<blockid>_remote_ip[];
+extern uint16_t %<blockid>_remote_port;
+%endif
+void enable_%<blockid>(void);
+void disable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+static int %<blockid>_ready = 0; /* Init once */
+static struct udp_pcb *%<blockid>_upcb = NULL;
+%if (datasource == "PortData") || (datasource == "VectorData") || (datasource == "BufferStream") || (datasource == "VectorStream")
+  %if (mode == "Send") && (datasource == "VectorData")
+  %else
+  uint8_t %<blockid>_buffer[%<blockid>_DATA_LENTH]; 
+  %endif
+%endif
+
+%if (mode == "Receive")
+int %<blockid>_buffer_ready;
+uint8_t %<blockid>_remote_ip[4];
+uint16_t %<blockid>_remote_port;
+%endif
+
+void %<blockid>_receive_callback(void *arg, struct udp_pcb *upcb, \
+  struct pbuf *p, struct ip_addr *addr, u16_t port) {
+  %if (mode == "Receive")
+    /* Copy data */
+    if(p->tot_len == %<blockid>_DATA_LENTH) {
+      uint8_t *pdata;
+      struct pbuf *ptmp;
+
+      /* Roll */
+      ptmp = p;
+      pdata = (uint8_t*)&%<blockid>_buffer[0];
+      while(ptmp != NULL) {
+        memcpy(pdata, ptmp->payload, ptmp->len);
+        pdata += (uint32_t)(ptmp->len);
+        ptmp = ptmp->next;
+      }
+
+      /* Copy remote IP and Port */
+      memcpy(%<blockid>_remote_ip, &(addr->addr), 4);
+      %<blockid>_remote_port = port;
+
+      /* Activate buffer ready status */
+      %<blockid>_buffer_ready = 1;
+    }
+    %if (udpecho == "on")
+      /* Connect to the remote client */
+      udp_connect(%<blockid>_upcb, addr, port);
+    
+      /* Tell the client that we have accepted it */
+      udp_send(%<blockid>_upcb, p);
+
+      /* free the UDP connection, so we can accept new clients */
+      udp_disconnect(%<blockid>_upcb);      
+    %endif  
+  %endif
+  /* Free receive pbuf */
+  pbuf_free(p);
+}
+
+uint32_t %<blockid>_%<mode>(\
+%if mode == "Send"
+const void *buffer, uint16_t len, uint8_t *ip, uint16_t port) {
+%else
+void) {
+%endif  
+  %if mode == "Send"
+  struct ip_addr DestIPaddr;
+  struct pbuf *p;
+  %endif
+  err_t err;
+
+  /* Initial socket */
+  if(!ETHERNET_APP_READY()) { /* Ethernet application is not ready */
+    return 1;
+  }
+
+  /* Create connection */
+  if(!%<blockid>_ready) {
+    /* Create a new UDP control block  */
+    if(%<blockid>_upcb == NULL) {
+      if((%<blockid>_upcb = udp_new()) == NULL)
+        return 2; /* Failed to create connection */
+    }
+
+    %if mode == "Send"
+    /*assign destination IP address */
+    //IP4_ADDR( &DestIPaddr, %<blockid>_DEST_ADDR0, %<blockid>_DEST_ADDR1, %<blockid>_DEST_ADDR2, %<blockid>_DEST_ADDR3);
+    IP4_ADDR( &DestIPaddr, ip[0], ip[1], ip[2], ip[3]);
+  
+    /* configure destination IP address and port */
+    //err= udp_connect(%<blockid>_upcb, &DestIPaddr, %<blockid>_DEST_PORT);
+    err= udp_connect(%<blockid>_upcb, &DestIPaddr, port);
+    if(err != ERR_OK) {
+      return 3; /* Could not connect to destination */
+    }    
+    %endif
+    
+    %if mode == "Receive"
+    /* Bind the upcb to the UDP_PORT port */
+    /* Using IP_ADDR_ANY allow the upcb to be used by any local interface */
+    err = udp_bind(%<blockid>_upcb, IP_ADDR_ANY, %<blockid>_PORT);
+    if(err != ERR_OK) {
+      return 4; /* Could bind udp port */
+    } 
+    %endif
+
+    /* Set a receive callback for the upcb */
+    udp_recv(%<blockid>_upcb, %<blockid>_receive_callback, NULL);
+    
+    /* Init is ready */
+    %<blockid>_ready = 1;
+  }
+
+  %if mode == "Send"
+  /* allocate pbuf from pool*/
+  p = pbuf_alloc(PBUF_TRANSPORT,len, PBUF_POOL);
+  if(p == NULL) { /* Fail to allocate buffer */
+    return UDP_STATUS_NO_BUFF;
+  }
+  if(p->tot_len != len) {
+    pbuf_free(p);
+    return UDP_STATUS_NO_BUFF;
+  }
+
+  /* Copy data into buffer */
+  pbuf_take(p, buffer, len);
+
+  /* Send */
+  udp_send(%<blockid>_upcb, p); 
+
+  /* free pbuf */
+  pbuf_free(p);
+  %endif
+
+  %if (mode == "Receive")
+  /* If data not ready yet */
+  if(%<blockid>_buffer_ready == 0)
+    return 6;
+  %<blockid>_buffer_ready = 0; /* Reset data ready status */
+  %endif
+  /* No error detected! */
+  return 0;
+}
+
+void enable_%<blockid>(void){
+  %<blockid>_ready = 0;
+  %<blockid>_upcb = NULL;
+
+  %if (mode == "Receive")
+  %<blockid>_buffer_ready = 0;
+  %endif
+}
+
+void disable_%<blockid>(void) {
+  /* Remove connection */
+  if(%<blockid>_upcb)
+    udp_remove(%<blockid>_upcb); 
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  /* %<blockid>: '%<block.Name>' */
+  %% datasource:
+  %% 1. StringBuffer
+  %% 2. VDataArray
+  %% 3. PortData
+  %% 4. VectorData
+  %switch (datasource)
+    %% 1. String buffer
+    %case "StringBuffer"
+      
+      %break
+
+    %% 2. VDataArray
+    %case "BufferStream"
+      {
+      %if mode == "Send" 
+        SYS_TIMER_uS_STRUCT udp_service_timer;
+        uint8_T *pBuff;
+        uint32_T Sta = 0, Idx = 0;
+        %if variableipport == "on"
+          uint16_T port = %<LibBlockInputSignal(0, "", "", 0)>;
+          uint8_T *ip = %<LibBlockInputSignalAddr(1, "", "", 0)>;
+        %else
+          uint16_T port = %<port>;
+          uint8_T ip[4] = {%<addr0>, %<addr1>, %<addr2>, %<addr3>};
+        %endif 
+        
+        pBuff = (uint8_T*)&(%<streambuffername>[0]);
+        while((Idx < %<blockid>_TOT_LENGTH) && (Sta == UDP_STATUS_OK)){
+          /* Stream index */
+          memcpy(&%<blockid>_buffer[0], &Idx, sizeof(Idx));
+          /* Stream data */
+          memcpy(&%<blockid>_buffer[4], &(pBuff[Idx]), %<blockid>_PKT_LENGTH);
+          
+          do { /* To prevent lock loop, make sure UDP buffer is sufficient for transmit. */
+            /* Transmit */
+            Sta = %<blockid>_%<mode>(%<blockid>_buffer, %<blockid>_DATA_LENTH, ip, port);
+
+            /* Force Ethernet handle process */
+            ethernet_app_handle();
+
+          } while (Sta == UDP_STATUS_NO_BUFF);
+
+          ///* Some delay for packet */
+          SysTimer_uS_Start(&udp_service_timer, 200);
+          while(!SysTimer_uS_IsTimeout(&udp_service_timer)) {
+            /* Force Ethernet handle process */
+            ethernet_app_handle();
+          }
+
+          /* Next packet */
+          if(Sta == UDP_STATUS_OK) {
+            Idx += %<blockid>_PKT_LENGTH;
+          }
+        }
+        /* Update Status */
+        %<LibBlockOutputSignal(0, "", "", 0)> = Sta;
+      %else
+        #error "UDP Buffer streaming not support in Receive mode."
+      %endif
+      }
+      %break
+
+    %% 3. PortData
+    %case "PortData"
+      %% Send
+      %if mode == "Send"        
+        {
+          %assign data_size_list = [8,4,1,1,2,2,4,4]
+
+          %if variableipport == "on"
+            uint16_T port = %<LibBlockInputSignal(0, "", "", 0)>;
+            uint8_T *ip = %<LibBlockInputSignalAddr(1, "", "", 0)>;
+            %assign portIdx = 2
+          %else
+            uint16_T port = %<port>;
+            uint8_T ip[4] = {%<addr0>, %<addr1>, %<addr2>, %<addr3>};            
+            %assign portIdx = 0
+          %endif 
+
+          %assign data_idx = 0
+
+        %foreach idx=LibBlockNumInputPorts(block) 
+          %if idx >= portIdx         
+            %assign typeid = LibBlockInputSignalDataTypeId(idx)
+            %assign data_size = data_size_list[typeid]
+            memcpy(&%<blockid>_buffer[%<data_idx>], %<LibBlockInputSignalAddr(idx, "", "", 0)>, %<data_size>);
+            %assign data_idx = data_idx + data_size
+          %endif
+        %endforeach
+        %if transfer == "Blocking"
+        %else
+          %assign y = LibBlockOutputSignal(0, "", "", 0)
+          %<y> = \
+        %endif
+        %<blockid>_%<mode>(&%<blockid>_buffer[0], %<data_idx>, ip, port);
+        }
+      %% Receive
+      %else
+        %assign portIdx = 0
+        %% Port-0(Status)
+        %if transfer == "Blocking"
+          if(%<blockid>_%<mode>() == 0) {
+        %else
+          %assign y = LibBlockOutputSignal(portIdx, "", "", 0)
+          %assign portIdx = portIdx + 1
+          %<y> = %<blockid>_%<mode>();
+          if(%<y>==0) {
+        %endif
+          %% Port-1 (Remote port)
+          %<LibBlockOutputSignal(portIdx, "", "", 0)> = %<blockid>_remote_port; /* Remote port */
+          %assign portIdx = portIdx + 1
+          %% Port-2 (Remote address)
+          memcpy(%<LibBlockOutputSignalAddr(portIdx, "", "", 0)>, %<blockid>_remote_ip, 4); /* Remote IP */
+          %assign portIdx = portIdx + 1
+          %% Port-3... (Data)
+          %assign data_size_list = [8,4,1,1,2,2,4,4]
+          %assign datidx = 0
+          %assign arridx = 0
+          %foreach idx=LibBlockNumOutputPorts(block)          
+            %if idx >= portIdx
+              %assign dtname = LibBlockOutputSignalDataTypeName(idx,"")
+              %assign typeid = LibBlockOutputSignalDataTypeId(idx)
+              %assign data_size = data_size_list[typeid]
+              %<LibBlockOutputSignal(idx, "", "", 0)> = *((%<dtname>*)&%<blockid>_buffer[%<arridx>]); /* D%<datidx> */
+              %assign datidx = datidx + 1
+              %assign arridx = arridx + data_size
+            %endif
+          %endforeach
+        }
+      %endif     
+      %break   
+
+    %% 4. Data vector
+    %case "VectorData"
+      %% Send
+      %if mode == "Send"
+        {
+          %if variableipport == "on"
+            uint16_T port = %<LibBlockInputSignal(0, "", "", 0)>;
+            uint8_T *ip = %<LibBlockInputSignalAddr(1, "", "", 0)>;
+            %assign portIdx = 2
+          %else
+            uint16_T port = %<port>;
+            uint8_T ip[4] = {%<addr0>, %<addr1>, %<addr2>, %<addr3>};
+            %assign portIdx = 0
+          %endif 
+
+          %assign dtname = LibBlockInputSignalDataTypeName(portIdx,"")
+          %assign uAddr = LibBlockInputSignalAddr(portIdx, "", "", 0)
+          %if transfer == "Blocking"
+          %else
+            %assign y = LibBlockOutputSignal(0, "", "", 0)
+            %<y> = \
+          %endif
+          %<blockid>_%<mode>(%<uAddr>, %<LibBlockInputSignalWidth(portIdx)>*sizeof(%<dtname>), ip, port);
+        }
+
+      %% Receive
+      %else
+        %assign portIdx = 0
+        %% Port-0 (Status)
+        %if transfer == "Blocking"          
+          if(%<blockid>_%<mode>() == 0) {
+        %else
+          %assign y = LibBlockOutputSignal(0, "", "", 0)
+          %assign portIdx = portIdx + 1
+          %<y> = %<blockid>_%<mode>();
+          if(%<y>==0) {
+        %endif
+          %% Port-1 (Remote port)
+          %<LibBlockOutputSignal(portIdx, "", "", 0)> = %<blockid>_remote_port; /* Remote port */
+          %assign portIdx = portIdx + 1
+          %% Port-2 (Remote address)
+          memcpy(%<LibBlockOutputSignalAddr(portIdx, "", "", 0)>, %<blockid>_remote_ip, 4); /* Remote IP */
+          %assign portIdx = portIdx + 1
+          %% Port-3 (Data)
+          %assign dtname = LibBlockOutputSignalDataTypeName(portIdx,"")
+          memcpy(%<LibBlockOutputSignalAddr(portIdx, "", "", 0)>, \
+                 %<blockid>_buffer, %<output_data_bytes>); /* Data */
+        }
+      %endif
+      %break   
+
+    %case "VectorStream"
+{
+      %if mode == "Send" 
+        SYS_TIMER_uS_STRUCT udp_service_timer;
+        uint8_T *pBuff;
+        uint32_T Sta = 0, Idx = 0;
+        %if variableipport == "on"
+          uint16_T port = %<LibBlockInputSignal(0, "", "", 0)>;
+          uint8_T *ip = %<LibBlockInputSignalAddr(1, "", "", 0)>;
+          %assign portIdx = 2
+          %assign bytes_len = input_data_bytes - 6  
+        %else
+          uint16_T port = %<port>;
+          uint8_T ip[4] = {%<addr0>, %<addr1>, %<addr2>, %<addr3>};
+          %assign portIdx = 0
+          %assign bytes_len = input_data_bytes
+        %endif 
+        
+        pBuff = (uint8_T*)%<LibBlockInputSignalAddr(portIdx, "", "", 0)>;
+        while((Idx < %<bytes_len>) && (Sta == UDP_STATUS_OK)){
+          /* Stream index */
+          memcpy(&%<blockid>_buffer[0], &Idx, sizeof(Idx));
+          /* Stream data */
+          memcpy(&%<blockid>_buffer[4], &(pBuff[Idx]), %<blockid>_PKT_LENGTH);
+          
+          do { /* To prevent lock loop, make sure UDP buffer is sufficient for transmit. */
+            /* Transmit */
+            Sta = %<blockid>_%<mode>(%<blockid>_buffer, %<blockid>_DATA_LENTH, ip, port);
+
+            /* Force Ethernet handle process */
+            ethernet_app_handle();
+
+          } while (Sta == UDP_STATUS_NO_BUFF);
+
+          ///* Some delay for packet */
+          SysTimer_uS_Start(&udp_service_timer, 10);
+          while(!SysTimer_uS_IsTimeout(&udp_service_timer)) {
+            /* Force Ethernet handle process */
+            ethernet_app_handle();
+          }
+
+          /* Next packet */
+          if(Sta == UDP_STATUS_OK) {
+            Idx += %<blockid>_PKT_LENGTH;
+          }
+        }
+        /* Update Status */
+        %<LibBlockOutputSignal(0, "", "", 0)> = Sta;
+      %else
+        #error "UDP Buffer streaming not support in Receive mode."
+      %endif
+      }
+      %break
+  %endswitch
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

@@ -1,0 +1,201 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Demos &gt; Waijung Demos &gt; Network Monitoring and Control &gt; Web ADC wtih W2D</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="W2D,Web Monitor and Control">
+   <meta name="description" content="Web ADC wtih W2D">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "web_adc_wtih_w2d.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Web ADC wtih W2D</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?web_adc_wtih_w2d.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="demo_home.htm">Demos</a> &gt; <a href="waijung_demos.htm">Waijung Demos</a> &gt; <a href="network_monitoring_and_control.htm">Network Monitoring and Control</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Web ADC wtih W2D</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="web_control_wtih_w2d.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="network_monitoring_and_control.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="web_accessible_logging_with_w2.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p><span style="font-weight: bold;">demo File</span>: web_adc.mdl</p>
+<p>This model is for target <span style="font-weight: bold;">STM32F4 Discovery</span>, update model then build to program to target board. See here for <a href="w2d_model_setting_up.htm#setup_model" class="topiclink">Setup Blocks information</a>.</p>
+<p><img src="w2d_web_adc_detail.png" width="950" height="642" alt="w2d_web_adc_detail" style="width:950px;height:642px;border:none" /></p>
+<p><img src="w2d_setup_detail.png" width="950" height="395" alt="w2d_setup_detail" style="width:950px;height:395px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Description</span></h2>
+<p>Using <span style="font-weight: bold;">Waijung WebPage Designer (W2D)</span> tool to make a web interface for reading ADC value into <span style="font-weight: bold;">Text Output</span> and <span style="font-weight: bold;">Chart</span>. <span style="font-weight: bold;">4 LEDs</span> on MCU webserver will change as the ADC value changes. You also have an <span style="font-weight: bold;">Override Switch</span> to directly control the Blue LED. </p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware Setup</span></h2>
+<p><img src="w2d_hardware_adc.png" width="950" height="633" alt="w2d_hardware_adc" style="width:950px;height:633px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Web Interface Setup</span></h2>
+<p>Drag &amp; Drop 2 Frames, 2 Display Labels, 1 ON-OFF Switch, 1 Text Input and 1 Chart into Drop Target.</p>
+<p><img src="w2d_web_adc_design.png" width="950" height="891" alt="w2d_web_adc_design" style="width:950px;height:891px;border:none" /></p>
+<p> Configure each item using the following information. Notice the order of each item id. <a href="w2d_web_interface_setting_up.htm#detail_item_prop" class="topiclink">More details here</a>.</p>
+<p><img src="w2d_web_adc_sqlite.png" width="950" height="615" alt="w2d_web_adc_sqlite" style="width:950px;height:615px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">What should be happening?</span></h2>
+<p><span style="font-weight: bold;">WebPage</span> interface show <span style="font-weight: bold;">ADC Value</span> read from SQLite table as <span style="font-weight: bold;">Text Output</span> and <span style="font-weight: bold;">Chart</span>. Text Output refresh every <span style="font-weight: bold;">500 ms</span> and Chart reload every <span style="font-weight: bold;">1000 ms</span>. The ADC pin CO is connect to <a href="https://www.aimagin.com/amg-photocell-a.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink" title="aMG Photocell - A">aMG Photocell - A</a> V<span style="font-size: 7pt; vertical-align: sub;">sense</span> reading ADC value between 0V (Bright) and 3.3V (Dark) according to the light ambient. </p>
+<p style="margin: 5px 0px 5px 24px;">When ADC value read &gt;= 1.5V <span style="color: #008000;">Green</span> LED is on.</p>
+<p style="margin: 5px 0px 5px 24px;">When ADC value read &gt;= 1.9V <span style="color: #008000;">Green</span> and <span style="color: #f79646;">Orange</span> LEDs are on.</p>
+<p style="margin: 5px 0px 5px 24px;">When ADC value read &gt;= 1.5V <span style="color: #008000;">Green</span>, <span style="color: #f79646;">Orange</span> and <span style="color: #ff0000;">Red</span> LEDs are on.</p>
+<p style="margin: 5px 0px 5px 24px;">When ADC value read &gt;= 1.5V <span style="color: #008000;">Green</span>, <span style="color: #f79646;">Orange</span>, <span style="color: #ff0000;">Red</span> and <span style="color: #0000ff;">Blue</span> LEDs are on.</p>
+<p>Once you press <span style="font-weight: bold;">Blue LED Override Switch ON</span>, the <span style="font-weight: bold;">Blue</span> LED will <span style="font-weight: bold;">light up</span> no matter what the ADC value is.</p>
+<p><img src="w2d_web_adc_page.png" width="950" height="733" alt="w2d_web_adc_page" style="width:950px;height:733px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2" style="text-decoration: underline;">The Appearance on Chome for Android</span></h2>
+<p><img src="w2d_web_adc_page_mobile.png" width="950" height="569" alt="w2d_web_adc_page_mobile" style="width:950px;height:569px;border:none" /></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

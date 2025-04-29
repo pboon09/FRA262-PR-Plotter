@@ -1,0 +1,601 @@
+%implements stm32f0_adc "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %%%assign blockid = CAST("String",SFcnParamSettings.blockid)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %% ======================================================================
+  %assign module = CAST("Number",optionstring[0])
+  %assign sampling = optionstring[1]
+  %assign dummy1 = optionstring[2]
+  %assign dummy2 = optionstring[3]
+  %assign dummy3 = optionstring[4]
+  %% --- 5-7, adc_ch0 ---
+  %assign adc_ch0_used = CAST("Number",optionstring[5])
+  %assign adc_ch0_port = CAST("String",optionstring[6])
+  %assign adc_ch0_pin  = CAST("Number",optionstring[7])
+  %% --- 8-10, adc_ch1 ---
+  %assign adc_ch1_used = CAST("Number",optionstring[8])
+  %assign adc_ch1_port = CAST("String",optionstring[9])
+  %assign adc_ch1_pin  = CAST("Number",optionstring[10])
+  %% --- 11-13, adc_ch2 ---
+  %assign adc_ch2_used = CAST("Number",optionstring[11])
+  %assign adc_ch2_port = CAST("String",optionstring[12])
+  %assign adc_ch2_pin  = CAST("Number",optionstring[13])
+  %% --- 14-16, adc_ch3 ---
+  %assign adc_ch3_used = CAST("Number",optionstring[14])
+  %assign adc_ch3_port = CAST("String",optionstring[15])
+  %assign adc_ch3_pin  = CAST("Number",optionstring[16])
+  %% --- 17-19, adc_ch4 ---
+  %assign adc_ch4_used = CAST("Number",optionstring[17])
+  %assign adc_ch4_port = CAST("String",optionstring[18])
+  %assign adc_ch4_pin  = CAST("Number",optionstring[19])
+  %% --- 20-22, adc_ch5 ---
+  %assign adc_ch5_used = CAST("Number",optionstring[20])
+  %assign adc_ch5_port = CAST("String",optionstring[21])
+  %assign adc_ch5_pin  = CAST("Number",optionstring[22])
+  %% --- 23-25, adc_ch6 ---
+  %assign adc_ch6_used = CAST("Number",optionstring[23])
+  %assign adc_ch6_port = CAST("String",optionstring[24])
+  %assign adc_ch6_pin  = CAST("Number",optionstring[25])
+  %% --- 26-28, adc_ch7 ---
+  %assign adc_ch7_used = CAST("Number",optionstring[26])
+  %assign adc_ch7_port = CAST("String",optionstring[27])
+  %assign adc_ch7_pin  = CAST("Number",optionstring[28])
+  %% --- 29-31, adc_ch8 ---
+  %assign adc_ch8_used = CAST("Number",optionstring[29])
+  %assign adc_ch8_port = CAST("String",optionstring[30])
+  %assign adc_ch8_pin  = CAST("Number",optionstring[31])
+  %% --- 32-34, adc_ch9 ---
+  %assign adc_ch9_used = CAST("Number",optionstring[32])
+  %assign adc_ch9_port = CAST("String",optionstring[33])
+  %assign adc_ch9_pin  = CAST("Number",optionstring[34])
+  %% --- 35-37, adc_ch10 ---
+  %assign adc_ch10_used = CAST("Number",optionstring[35])
+  %assign adc_ch10_port = CAST("String",optionstring[36])
+  %assign adc_ch10_pin  = CAST("Number",optionstring[37])
+  %% --- 38-40, adc_ch11 ---
+  %assign adc_ch11_used = CAST("Number",optionstring[38])
+  %assign adc_ch11_port = CAST("String",optionstring[39])
+  %assign adc_ch11_pin  = CAST("Number",optionstring[40])
+  %% --- 41-43, adc_ch12 ---
+  %assign adc_ch12_used = CAST("Number",optionstring[41])
+  %assign adc_ch12_port = CAST("String",optionstring[42])
+  %assign adc_ch12_pin  = CAST("Number",optionstring[43])
+  %% --- 44-46, adc_ch13 ---
+  %assign adc_ch13_used = CAST("Number",optionstring[44])
+  %assign adc_ch13_port = CAST("String",optionstring[45])
+  %assign adc_ch13_pin  = CAST("Number",optionstring[46])
+  %% --- 47-49, adc_ch14 ---
+  %assign adc_ch14_used = CAST("Number",optionstring[47])
+  %assign adc_ch14_port = CAST("String",optionstring[48])
+  %assign adc_ch14_pin  = CAST("Number",optionstring[49])
+  %% --- 50-52, adc_ch15 ---
+  %assign adc_ch15_used = CAST("Number",optionstring[50])
+  %assign adc_ch15_port = CAST("String",optionstring[51])
+  %assign adc_ch15_pin  = CAST("Number",optionstring[52])
+  %% --- 53-55, adc_ch16 ---
+  %assign adc_ch16_used = CAST("Number",optionstring[53])
+  %assign adc_ch16_port = CAST("String",optionstring[54])
+  %assign adc_ch16_pin  = CAST("Number",optionstring[55])
+  %% --- 56-58, adc_ch17 ---
+  %assign adc_ch17_used = CAST("Number",optionstring[56])
+  %assign adc_ch17_port = CAST("String",optionstring[57])
+  %assign adc_ch17_pin  = CAST("Number",optionstring[58])
+  %% --- 59-61, adc_ch18 ---
+  %assign adc_ch18_used = CAST("Number",optionstring[59])
+  %assign adc_ch18_port = CAST("String",optionstring[60])
+  %assign adc_ch18_pin  = CAST("Number",optionstring[61])
+  %% --- adc_ch_used_count ---
+  %assign adc_ch_used_count = CAST("Number",optionstring[62])
+  %% --- gpio port used ---
+  %assign port_a_used = CAST("Number",optionstring[63])
+  %assign port_b_used = CAST("Number",optionstring[64])
+  %assign port_c_used = CAST("Number",optionstring[65])
+  %assign port_d_used = CAST("Number",optionstring[66])
+  %assign port_e_used = CAST("Number",optionstring[67])
+  %assign port_f_used = CAST("Number",optionstring[68])
+
+  %assign outputdatatype = CAST("String",optionstring[69])
+
+  %assign block = block + module + sampling \
+                + adc_ch0_used + adc_ch0_port + adc_ch0_pin \
+                + adc_ch1_used + adc_ch1_port + adc_ch1_pin \
+                + adc_ch2_used + adc_ch2_port + adc_ch2_pin \
+                + adc_ch3_used + adc_ch3_port + adc_ch3_pin \
+                + adc_ch4_used + adc_ch4_port + adc_ch4_pin \
+                + adc_ch5_used + adc_ch5_port + adc_ch5_pin \
+                + adc_ch6_used + adc_ch6_port + adc_ch6_pin \
+                + adc_ch7_used + adc_ch7_port + adc_ch7_pin \
+                + adc_ch8_used + adc_ch8_port + adc_ch8_pin \
+                + adc_ch9_used + adc_ch9_port + adc_ch9_pin \
+                + adc_ch10_used + adc_ch10_port + adc_ch10_pin \
+                + adc_ch11_used + adc_ch11_port + adc_ch11_pin \
+                + adc_ch12_used + adc_ch12_port + adc_ch12_pin \
+                + adc_ch13_used + adc_ch13_port + adc_ch13_pin \
+                + adc_ch14_used + adc_ch14_port + adc_ch14_pin \
+                + adc_ch15_used + adc_ch15_port + adc_ch15_pin \
+                + adc_ch16_used + adc_ch16_port + adc_ch16_pin \
+                + adc_ch17_used + adc_ch17_port + adc_ch17_pin \
+                + adc_ch18_used + adc_ch18_port + adc_ch18_pin \
+                + adc_ch_used_count + port_a_used + port_b_used + port_c_used \
+                + port_d_used + port_e_used + port_f_used \
+                + outputdatatype
+
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+      %assign :: __STM32F0XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_ADC__) == 0)
+      %assign :: __STM32F0XX_ADC__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_adc.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %if (EXISTS(::__STM32F0XX_DMA__) == 0)
+      %assign :: __STM32F0XX_DMA__ = 1
+      %openfile tmpBuf
+         #include "stm32f0xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * ADC
+    * ########################################################################
+    */
+   #define ADC1_CHANNEL_COUNT 19
+   #define ADC1_DR_ADDRESS    0x40012440
+
+   void ADC1_Init_Common(void);
+   void ADC1_Start_GetValue(uint32_t Channels, uint32_t samplingtime, uint16_t *values);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * ADC
+    * ########################################################################
+    */
+   uint8_t ADC1_Initial_Flag = 0;
+   void ADC1_Init_Common(void)
+   {     
+     ADC_InitTypeDef     ADC_InitStructure;
+     
+     /* Check if ADC module not initialize */
+     if (ADC1_Initial_Flag == 0) {
+       /* --- ADC ---*/
+       /* ADC1 DeInit */  
+       ADC_DeInit(ADC1);
+       
+       /* ADC1 Periph clock enable */
+       RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+       /* Initialize ADC structure */
+       ADC_StructInit(&ADC_InitStructure);
+  
+       /* Configure the ADC1 */
+       ADC_InitStructure.ADC_Resolution           = ADC_Resolution_12b;
+       ADC_InitStructure.ADC_ContinuousConvMode   = DISABLE; 
+       ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+       ADC_InitStructure.ADC_DataAlign            = ADC_DataAlign_Right;
+       ADC_InitStructure.ADC_ScanDirection        = ADC_ScanDirection_Upward;
+       ADC_Init(ADC1, &ADC_InitStructure);
+
+       /* ADC Calibration */
+       ADC_GetCalibrationFactor(ADC1);
+
+       /* --- DMA --- */
+       /* DMA1 clock enable */
+       RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
+
+
+       /* Activate module initial flag */
+       ADC1_Initial_Flag = 1;
+     }     
+   }
+
+   void ADC1_Start_GetValue(uint32_t Channels, uint32_t samplingtime, uint16_t *values)
+   {
+     uint8_t i;
+     uint8_t CH_Count;
+
+     /* Get number of channels */
+     CH_Count = 0;
+     for (i=0; i<ADC1_CHANNEL_COUNT; i++) {
+       if ((Channels & (1 << i)) != 0)
+         CH_Count ++;
+     }
+
+     if (CH_Count == 0) {
+       return; /* No conversion */
+     }
+
+     /* Clear channel selection */
+     ADC1->CHSELR &= ~(0x7FF);
+
+     /* Convert single channel */
+     if (CH_Count == 1) {
+       /* Select ADC conversion channel */
+       ADC_ChannelConfig(ADC1, Channels , samplingtime);
+
+       /* Enable the ADC peripheral */
+       ADC_Cmd(ADC1, ENABLE); 
+
+       /* Wait the ADRDY flag */
+       while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+  
+       /* ADC1 regular Software Start Conv */ 
+       ADC_StartOfConversion(ADC1);
+
+       /* Wait for End Of Conversion */
+       while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);
+
+       /* Get ADC1 converted data */
+       *values = ADC_GetConversionValue(ADC1);
+
+       /* Stop ADC conversion */
+       ADC_StopOfConversion (ADC1);
+       while ((ADC1->CR & (uint32_t)ADC_CR_ADSTP) != 0);
+
+       /* Disable the ADC peripheral */
+       ADC_Cmd(ADC1, DISABLE); 
+       while ((ADC1->CR & (uint32_t)ADC_CR_ADDIS) != 0);
+     }
+     /* Convert multi-channel using DMA */
+     else {
+       DMA_InitTypeDef   DMA_InitStructure;
+
+       /* Select ADC conversion channel 0-15 */
+       ADC_ChannelConfig(ADC1, Channels & 0xFFFF , samplingtime);
+      
+       /* Select ADC conversion channel 16: TempSensor */
+       ADC_ChannelConfig(ADC1, ADC_CHSELR_CHSEL16 , samplingtime);
+       ADC_TempSensorCmd(ENABLE);
+
+       /* Select ADC conversion channel 17: Vrefint */
+       ADC_ChannelConfig(ADC1, ADC_CHSELR_CHSEL17 , samplingtime);
+       ADC_VrefintCmd(ENABLE);
+
+       /* Select ADC conversion channel 18: Vbat */
+       ADC_ChannelConfig(ADC1, ADC_CHSELR_CHSEL18 , samplingtime);
+       ADC_VbatCmd(ENABLE);
+
+       /* ADC DMA request in oneshot mode */
+       ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_OneShot);
+  
+       /* Enable ADC_DMA */
+       ADC_DMACmd(ADC1, ENABLE);  
+  
+       /* Enable the ADC peripheral */
+       ADC_Cmd(ADC1, ENABLE);     
+  
+       /* Wait the ADRDY flag */
+       while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+
+       /* DMA1 Channel1 Config */
+       DMA_DeInit(DMA1_Channel1);
+       DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_ADDRESS;
+       DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)values;
+       DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+       DMA_InitStructure.DMA_BufferSize = (uint32_t)CH_Count;
+       DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+       DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+       DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+       DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+       DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+       DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+       DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+       DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+       /* DMA1 Channel1 enable */
+       DMA_Cmd(DMA1_Channel1, ENABLE);
+  
+       /* ADC1 regular Software Start Conv */ 
+       ADC_StartOfConversion(ADC1);
+
+       /* Test DMA1 TC flag */
+       while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET ); 
+    
+       /* Clear DMA TC flag */
+       DMA_ClearFlag(DMA1_FLAG_TC1);
+     }
+     return;     
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_CHCOUNT %<adc_ch_used_count>
+extern %<outputdatatype> %<blockid>_Data[];
+void %<blockid>_Convert(void);
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+%if adc_ch_used_count > 0
+%<outputdatatype> %<blockid>_Data[%<blockid>_CHCOUNT];
+void %<blockid>_Convert(void)
+{
+  uint32_t Channels;
+  %if outputdatatype != "uint16_t"
+    int i;
+    uint16_t adc_buffer[%<blockid>_CHCOUNT];
+  %endif
+
+  /* Conversion channels */
+  Channels = 0;
+  %if adc_ch0_used == 1
+  Channels |= ADC_Channel_0;
+  %endif
+  %if adc_ch1_used == 1
+  Channels |= ADC_Channel_1;
+  %endif
+  %if adc_ch2_used == 1
+  Channels |= ADC_Channel_2;
+  %endif
+  %if adc_ch3_used == 1
+  Channels |= ADC_Channel_3;
+  %endif
+  %if adc_ch4_used == 1
+  Channels |= ADC_Channel_4;
+  %endif
+  %if adc_ch5_used == 1
+  Channels |= ADC_Channel_5;
+  %endif
+  %if adc_ch6_used == 1
+  Channels |= ADC_Channel_6;
+  %endif
+  %if adc_ch7_used == 1
+  Channels |= ADC_Channel_7;
+  %endif
+  %if adc_ch8_used == 1
+  Channels |= ADC_Channel_8;
+  %endif
+  %if adc_ch9_used == 1
+  Channels |= ADC_Channel_9;
+  %endif
+  %if adc_ch10_used == 1
+  Channels |= ADC_Channel_10;
+  %endif
+  %if adc_ch11_used == 1
+  Channels |= ADC_Channel_11;
+  %endif
+  %if adc_ch12_used == 1
+  Channels |= ADC_Channel_12;
+  %endif
+  %if adc_ch13_used == 1
+  Channels |= ADC_Channel_13;
+  %endif
+  %if adc_ch14_used == 1
+  Channels |= ADC_Channel_14;
+  %endif
+  %if adc_ch15_used == 1
+  Channels |= ADC_Channel_15;
+  %endif
+  %if adc_ch16_used == 1
+  Channels |= ADC_Channel_16;
+  %endif
+  %if adc_ch17_used == 1
+  Channels |= ADC_Channel_17;
+  %endif
+  %if adc_ch18_used == 1
+  Channels |= ADC_Channel_18;
+  %endif
+
+  ADC1_Start_GetValue(Channels, %<sampling>, \
+  %if outputdatatype != "uint16_t"
+  &adc_buffer[0]);
+  for (i=0; i<%<blockid>_CHCOUNT; i++)
+    %<blockid>_Data[i] = (%<outputdatatype>) adc_buffer[i];
+  %else
+  &%<blockid>_Data[0]);
+  %endif
+}
+%endif
+
+void enable_%<blockid>(void){
+  GPIO_InitTypeDef    GPIO_InitStructure;
+  
+  /* GPIO Periph clock enable */
+  %if port_a_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+  %endif
+  %if port_b_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+  %endif
+  %if port_c_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+  %endif
+  %if port_d_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+  %endif
+  %if port_e_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOE, ENABLE);
+  %endif
+  %if port_f_used == 1
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+  %endif
+
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_Level_1;
+  
+  %if adc_ch0_used == 1
+  /* ADC_AIN0 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch0_pin> ;
+  GPIO_Init(GPIO%<adc_ch0_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch1_used == 1
+  /* ADC_AIN1 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch1_pin> ;
+  GPIO_Init(GPIO%<adc_ch1_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch2_used == 1
+  /* ADC_AIN2 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch2_pin> ;
+  GPIO_Init(GPIO%<adc_ch2_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch3_used == 1
+  /* ADC_AIN3 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch3_pin> ;
+  GPIO_Init(GPIO%<adc_ch3_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch4_used == 1
+  /* ADC_AIN4 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch4_pin> ;
+  GPIO_Init(GPIO%<adc_ch4_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch5_used == 1
+  /* ADC_AIN5 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch5_pin> ;
+  GPIO_Init(GPIO%<adc_ch5_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch6_used == 1
+  /* ADC_AIN6 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch6_pin> ;
+  GPIO_Init(GPIO%<adc_ch6_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch7_used == 1
+  /* ADC_AIN7 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch7_pin> ;
+  GPIO_Init(GPIO%<adc_ch7_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch8_used == 1
+  /* ADC_AIN8 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch8_pin> ;
+  GPIO_Init(GPIO%<adc_ch8_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch9_used == 1
+  /* ADC_AIN9 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch9_pin> ;
+  GPIO_Init(GPIO%<adc_ch9_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch10_used == 1
+  /* ADC_AIN10 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch10_pin> ;
+  GPIO_Init(GPIO%<adc_ch10_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch11_used == 1
+  /* ADC_AIN11 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch11_pin> ;
+  GPIO_Init(GPIO%<adc_ch11_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch12_used == 1
+  /* ADC_AIN12 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch12_pin> ;
+  GPIO_Init(GPIO%<adc_ch12_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch13_used == 1
+  /* ADC_AIN13 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch13_pin> ;
+  GPIO_Init(GPIO%<adc_ch13_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch14_used == 1
+  /* ADC_AIN14 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch14_pin> ;
+  GPIO_Init(GPIO%<adc_ch14_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch15_used == 1
+  /* ADC_AIN15 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch15_pin> ;
+  GPIO_Init(GPIO%<adc_ch15_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch16_used == 1
+  /* ADC_AIN16 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch16_pin> ;
+  GPIO_Init(GPIO%<adc_ch16_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch17_used == 1
+  /* ADC_AIN17 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch17_pin> ;
+  GPIO_Init(GPIO%<adc_ch17_port>, &GPIO_InitStructure);
+  %endif
+  %if adc_ch18_used == 1
+  /* ADC_AIN18 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<adc_ch18_pin> ;
+  GPIO_Init(GPIO%<adc_ch18_port>, &GPIO_InitStructure);
+  %endif
+
+  /* ADC Init */
+  ADC1_Init_Common();
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%if adc_ch_used_count < 1
+  // ! No channel conversion
+%else
+  %<blockid>_Convert();
+  %foreach idx=LibBlockNumOutputPorts(block)
+    %assign y = LibBlockOutputSignal(idx, "", "", 0)
+    %<y> = %<blockid>_Data[%<idx>];
+  %endforeach
+%endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

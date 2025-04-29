@@ -1,0 +1,10 @@
+%openfile tmpBuf = "%<LibGetModelName()>" + ".bat"
+echo off
+
+${section:addPath}
+
+echo on
+gnumake382-w32 -f %<LibGetModelName()>.mk
+
+%closefile tmpBuf
+

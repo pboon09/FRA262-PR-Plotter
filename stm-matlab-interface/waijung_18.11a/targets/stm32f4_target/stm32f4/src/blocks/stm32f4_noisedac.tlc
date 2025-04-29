@@ -1,0 +1,202 @@
+%implements stm32f4_noisedac "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign dac1on = CAST("Number",SFcnParamSettings.dac1on)
+%assign dac2on = CAST("Number",SFcnParamSettings.dac2on)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign apb = CAST("String",SFcnParamSettings.apb)
+%assign portstr = SFcnParamSettings.portstr
+%assign portstr_size = SIZE(portstr)
+%assign pinstr = SFcnParamSettings.pinstr
+%assign pinstr_size = SIZE(pinstr)
+%assign pinmat = SFcnParamSettings.pinmat
+%assign dacbufferstr = CAST("String",SFcnParamSettings.dacbufferstr)
+%assign nbr_pins = CAST("Number",pinmat[0][0])
+%assign timer = CAST("Number",SFcnParamSettings.timer)
+%assign timarr = CAST("Number",SFcnParamSettings.timarr)
+%assign timprescale = CAST("Number",SFcnParamSettings.timprescale)
+%assign dac1seed = CAST("String",SFcnParamSettings.dac1seed)
+%assign dac2seed = CAST("String",SFcnParamSettings.dac2seed)
+%assign dac1maskselstr = CAST("String",SFcnParamSettings.dac1maskselstr)
+%assign dac2maskselstr = CAST("String",SFcnParamSettings.dac2maskselstr)
+%assign block = block + dac1on + dac2on + \
+                sampletime + blockid + apb + portstr + portstr_size + \
+                pinstr + pinstr_size + pinmat + dacbufferstr + nbr_pins + \
+                timer + timarr + timprescale + dac1seed + dac2seed + \
+                dac1maskselstr + dac2maskselstr
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+   %<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_GPIO_H__) == 0)
+      %assign :: __STM32F4XX_GPIO_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_DAC_H__) == 0)
+      %assign :: __STM32F4XX_DAC_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dac.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_DMA_H__) == 0)
+      %assign :: __STM32F4XX_DMA_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_dma.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+
+   %if (EXISTS(::__STM32F4XX_TIM_H__) == 0)
+      %assign :: __STM32F4XX_TIM_H__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_tim.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+      %<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+   %endif
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+   %<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+      /* Enable DAC Block %<blockid> */
+      void enable_%<blockid>(void);  
+
+      /* Disable DAC Block: %<blockid> */
+      void disable_%<blockid>(void);  
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* %<blockid> */
+      void enable_%<blockid>(void){ 
+         GPIO_InitTypeDef GPIO_InitStructure;
+         DAC_InitTypeDef DAC_InitStructure;
+         TIM_TimeBaseInitTypeDef    TIM_TimeBaseStructure;
+         /* GPIOA clock enable (to be used with DAC) */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+         /* DAC clock enable */
+         RCC_APB%<apb>PeriphClockCmd(RCC_APB%<apb>Periph_DAC, ENABLE);
+         /* DMA1 clock enable */
+         RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+         /* TIM%<timer> Periph clock enable */
+         RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM%<timer>, ENABLE);
+         TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
+         TIM_TimeBaseStructure.TIM_Period = %<timarr>;          
+         TIM_TimeBaseStructure.TIM_Prescaler = %<timprescale>;       
+         TIM_TimeBaseStructure.TIM_ClockDivision = 0;    
+         TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+         TIM_TimeBaseInit(TIM%<timer>, &TIM_TimeBaseStructure);
+         /* TIM%<timer> TRGO selection */
+         TIM_SelectOutputTrigger(TIM%<timer>, TIM_TRGOSource_Update);
+         /* TIM%<timer> enable counter */
+         TIM_Cmd(TIM%<timer>, ENABLE);       
+         /* 
+          * DAC channels (DAC_OUT1 = PA.4)(DAC_OUT2 = PA.5) configuration 
+          * Once the DAC channel is enabled, the corresponding GPIO pin is automatically 
+          * connected to the DAC converter. 
+          * The GPIO pin is configured in analog mode to avoid parasitic consumption.
+          */
+         GPIO_InitStructure.GPIO_Pin = %<pinstr[0]>;
+         GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+         GPIO_Init(GPIOA, &GPIO_InitStructure);
+         DAC_DeInit(); 
+
+         /* DAC Configuration */
+         DAC_InitStructure.DAC_Trigger = DAC_Trigger_T%<timer>_TRGO;
+         DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_Noise;
+         DAC_InitStructure.DAC_OutputBuffer = %<dacbufferstr>;
+
+         %if (dac1on==1)
+            %assign dacmodule = 1
+            /* DAC channel%<dacmodule> Configuration */
+            DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = %<dac1maskselstr>;
+            DAC_Init(DAC_Channel_%<dacmodule>, &DAC_InitStructure);
+
+            /* Enable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, ENABLE);
+
+            /* Set DAC Channel%<dacmodule> DHR12L register */
+            DAC_SetChannel%<dacmodule>Data(DAC_Align_12b_L, %<dac1seed>);
+         %endif
+
+         %if (dac2on==1)
+            %assign dacmodule = 2
+            /* DAC channel%<dacmodule> Configuration */
+            DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = %<dac2maskselstr>;
+            DAC_Init(DAC_Channel_%<dacmodule>, &DAC_InitStructure);
+
+            /* Enable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, ENABLE);
+
+            /* Set DAC Channel%<dacmodule> DHR12L register */
+            DAC_SetChannel%<dacmodule>Data(DAC_Align_12b_L, %<dac2seed>);
+         %endif
+         }
+
+      /* %<blockid> */
+      void disable_%<blockid>(void){ 
+         %if (dac1on==1)
+            %assign dacmodule = 1
+            /* Disable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, DISABLE);
+         %endif
+
+         %if (dac2on==1)
+            %assign dacmodule = 2
+            /* Disable DAC Channel%<dacmodule> */
+            DAC_Cmd(DAC_Channel_%<dacmodule>, DISABLE);
+         %endif
+      }
+
+      void terminate_%<blockid>(void){ 
+         disable_%<blockid>();
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> */
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+   disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+   %% terminate_%<blockid>();
+%endfunction
+
+
+
+

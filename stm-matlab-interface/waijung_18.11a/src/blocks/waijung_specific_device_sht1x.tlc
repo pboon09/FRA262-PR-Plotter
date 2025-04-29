@@ -1,0 +1,552 @@
+%implements waijung_specific_device_sht1x "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+  %assign targetname = CAST("String",SFcnParamSettings.targetname)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + targetname + blockid
+
+  %assign freq = optionstring[0]
+  %assign sda_port = optionstring[1]
+  %assign sda_pin = optionstring[2]
+  %assign scl_port = optionstring[3]
+  %assign scl_pin  = optionstring[4]
+  %assign port_a_used = optionstring[5]
+  %assign port_b_used = optionstring[6]
+  %assign port_c_used = optionstring[7]
+  %assign port_d_used = optionstring[8]
+  %assign port_e_used = optionstring[9]
+  %assign port_f_used = optionstring[10]
+  %assign port_g_used = optionstring[11]
+  %assign port_h_used = optionstring[12]
+  %assign port_i_used = optionstring[13]
+
+  %assign block = block + freq + sda_port + sda_pin + scl_port + scl_pin +\
+                  port_a_used + port_b_used + port_c_used + port_d_used + \
+                  port_e_used + port_f_used + port_g_used + port_h_used + \
+                  port_i_used
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %switch targetname
+     %case "stm32f4"
+       %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+         %assign :: __STM32F4XX_GPIO__ = 1
+         %openfile tmpBuf
+           #include "stm32f4xx_gpio.h"
+         %closefile tmpBuf
+         %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+         %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+         %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+       %endif
+       %break
+
+     %case "stm32f0"
+       %if (EXISTS(::__STM32F0XX_GPIO__) == 0)
+         %assign :: __STM32F0XX_GPIO__ = 1
+         %openfile tmpBuf
+           #include "stm32f0xx_gpio.h"
+         %closefile tmpBuf
+         %assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+         %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+         %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+       %endif
+       %break
+   %endswitch
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: SHT1x
+    * ########################################################################
+    */
+   typedef enum
+   {
+     SHT1x_IDLE = 0,
+     SHT1x_BUSY_TEMP,
+     SHT1x_BUSY_HUMID,
+     SHT1x_DATA_READY,
+     SHT1x_ERROR_NACK,
+     SHT1x_ERROR_CRC
+   } SHT1x_ERR_CODE;
+   
+   typedef struct {
+   %if targetname == "nrf5"
+     uint32_t sda_pin;
+     uint32_t scl_pin;
+   %else
+     GPIO_TypeDef *sda_port;
+     GPIO_TypeDef *scl_port;
+     uint16_t sda_pin;
+     uint16_t scl_pin;     
+   %endif
+   } SHT1x_PORT_PIN;
+
+   SHT1x_ERR_CODE SHT1x_Sensor_Read(uint8_t trig, uint32_t *op_state, SYS_TIMER_STRUCT* timer, SHT1x_PORT_PIN *port_pin, \
+      uint16_t clk_high, uint16_t clk_low, float *h, float *t);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * Name: SHT1x
+    * ########################################################################
+    */
+   %if targetname == "nrf5"
+     #define SHT1x_Sensor_SetCLK_HIGH()  {nrf_gpio_pin_write(port_pin->scl_pin, 1);}
+     #define SHT1x_Sensor_SetCLK_LOW()   {nrf_gpio_pin_write(port_pin->scl_pin, 0);}
+
+     #define SHT1x_Sensor_SetDATA_HIGH() {nrf_gpio_pin_write(port_pin->sda_pin, 1);}
+     #define SHT1x_Sensor_SetDATA_LOW()  {nrf_gpio_pin_write(port_pin->sda_pin, 0);}
+
+     #define SHT1x_Sensor_GetDATA_Pin()  (nrf_gpio_pin_read(port_pin->sda_pin))
+     #define SHT1x_Sensor_Delay_US(a)    {nrf_delay_us (a);}
+   %else 
+     #define SHT1x_Sensor_SetCLK_HIGH()  {GPIO_WriteBit(port_pin->scl_port,port_pin->scl_pin, Bit_SET);}
+     #define SHT1x_Sensor_SetCLK_LOW()   {GPIO_WriteBit(port_pin->scl_port,port_pin->scl_pin, Bit_RESET);}
+
+     #define SHT1x_Sensor_SetDATA_HIGH() {GPIO_WriteBit(port_pin->sda_port,port_pin->sda_pin, Bit_SET);}
+     #define SHT1x_Sensor_SetDATA_LOW()  {GPIO_WriteBit(port_pin->sda_port,port_pin->sda_pin, Bit_RESET);}
+
+     #define SHT1x_Sensor_GetDATA_Pin()  (GPIO_ReadInputDataBit(port_pin->sda_port,port_pin->sda_pin))
+     #define SHT1x_Sensor_Delay_US(a)    {SysTimer_delay_us (a);}
+   %endif
+
+   uint8_t SHT1x_Sensor_START (uint8_t command, SHT1x_PORT_PIN *port_pin, uint16_t clk_high, uint16_t clk_low)
+   {
+       uint16_t clk_cnt, bit_cnt;
+       uint8_t ret = 0;
+
+         // Idle
+         SHT1x_Sensor_SetCLK_LOW ();
+         SHT1x_Sensor_SetDATA_HIGH ();
+         SHT1x_Sensor_Delay_US (clk_low);
+
+         // Reset
+         clk_cnt = 0;
+         for (clk_cnt=0; clk_cnt<9; clk_cnt++) {
+           SHT1x_Sensor_SetCLK_HIGH();
+           SHT1x_Sensor_Delay_US (clk_high);
+           SHT1x_Sensor_SetCLK_LOW ();
+           SHT1x_Sensor_Delay_US (clk_low);
+         }
+
+         // Start
+         SHT1x_Sensor_SetCLK_HIGH();
+         SHT1x_Sensor_Delay_US (clk_high);
+         SHT1x_Sensor_SetDATA_LOW();
+         SHT1x_Sensor_Delay_US (clk_high);
+         SHT1x_Sensor_SetCLK_LOW ();
+         SHT1x_Sensor_Delay_US (clk_low);
+         SHT1x_Sensor_SetCLK_HIGH ();
+         SHT1x_Sensor_Delay_US (clk_high);
+         SHT1x_Sensor_SetDATA_HIGH ();
+         SHT1x_Sensor_Delay_US (clk_high);
+         SHT1x_Sensor_SetCLK_LOW ();
+         SHT1x_Sensor_Delay_US (clk_low);
+         SHT1x_Sensor_SetDATA_LOW ();
+         SHT1x_Sensor_Delay_US (clk_low);
+         SHT1x_Sensor_Delay_US (clk_low);
+
+         /* Command: Convert temperature: 0000 0011 (0x03)*/
+         /* Command: Convert temperature: 0000 0101 (0x05)*/
+         bit_cnt = 8;
+         while (bit_cnt > 0) {
+           bit_cnt --;
+           if ((command & (1<<bit_cnt)) > 0) {
+             SHT1x_Sensor_SetDATA_HIGH ();
+           }
+           else {
+             SHT1x_Sensor_SetDATA_LOW ();
+           }
+           SHT1x_Sensor_Delay_US (clk_low);
+           SHT1x_Sensor_SetCLK_HIGH ();
+           SHT1x_Sensor_Delay_US (clk_high);
+           SHT1x_Sensor_SetCLK_LOW ();
+         }
+
+         /* ACK ? */
+         SHT1x_Sensor_SetDATA_HIGH ();
+         SHT1x_Sensor_Delay_US (clk_low);
+         SHT1x_Sensor_SetCLK_HIGH ();
+         SHT1x_Sensor_Delay_US (clk_high);
+         if (SHT1x_Sensor_GetDATA_Pin() == 0) {
+           // ACK
+           ret = 1; // Success
+         }
+         else {
+           ret = 0; //NACK
+         }
+         SHT1x_Sensor_SetCLK_LOW ();
+
+       return ret;  
+   }
+
+   uint8_t SHT1x_Sensor_READ (uint8_t ack, SHT1x_PORT_PIN *port_pin, uint16_t clk_high, uint16_t clk_low)
+   {
+     uint16_t bit_cnt;
+     uint8_t reading;
+
+     SHT1x_Sensor_Delay_US (clk_low);
+
+     reading = 0;
+     for (bit_cnt=0; bit_cnt<8; bit_cnt++) {
+       SHT1x_Sensor_SetCLK_LOW ();   
+       SHT1x_Sensor_Delay_US (clk_low);
+       SHT1x_Sensor_SetCLK_HIGH ();
+       SHT1x_Sensor_Delay_US (clk_high);       
+       if (SHT1x_Sensor_GetDATA_Pin() != 0) {
+         reading |= (0x80>>bit_cnt);
+       }
+     }
+
+     SHT1x_Sensor_SetCLK_LOW ();    
+     SHT1x_Sensor_Delay_US (clk_low);
+     if (ack) {
+       SHT1x_Sensor_SetDATA_LOW ();
+     }
+     else {
+       SHT1x_Sensor_SetDATA_HIGH ();
+     }
+     SHT1x_Sensor_Delay_US (clk_low);
+
+     // Reading value
+     return reading;
+   }
+
+   SHT1x_ERR_CODE SHT1x_Sensor_Read(uint8_t trig, uint32_t *op_state, SYS_TIMER_STRUCT* timer, SHT1x_PORT_PIN *port_pin, \
+      uint16_t clk_high, uint16_t clk_low, float *h, float *t)
+   {
+     uint32_t state;
+     SHT1x_ERR_CODE err_code = SHT1x_IDLE; // Initial for the default error code
+     volatile uint8_t d1;
+     volatile uint8_t d2;
+     volatile uint8_t d3;
+     uint32_t sot;
+
+     state = *op_state;
+     switch (state) {
+       // --- IDLE ---
+       case 0:
+         // Waiting for trigger
+         if (trig){
+           state ++;
+         }
+         else {
+           break;
+         }
+
+       // --- BUSY_TEMP ---
+       case 1: // Busy, sending RESET+START+COMMAND[T]
+         err_code = SHT1x_BUSY_TEMP;
+         if (SHT1x_Sensor_START (0x03, port_pin, clk_high, clk_low)) {
+           state++; // ACK
+           SysTimer_Start(timer, 400); // > 320ms for waiting 14bit conversion
+         }
+         else {
+           state = 6; //NAK
+         }
+         break;
+
+       // --- WAIT FOR TEMP CONVERSION ---
+       case 2: 
+         err_code = SHT1x_BUSY_TEMP;
+         if (SysTimer_IsTimeout(timer)) {
+           d1 = SHT1x_Sensor_READ (1, port_pin, clk_high, clk_low);
+           d2 = SHT1x_Sensor_READ (1, port_pin, clk_high, clk_low);
+           d3 = SHT1x_Sensor_READ (0, port_pin, clk_high, clk_low);
+
+           // Convert the reading value
+           // T = (-39.6) + 0.01*SOT;  @VDD=3V, SOT 14bit
+           sot = (uint32_t)d1 << 8;
+           sot |= (uint32_t)d2;
+           sot &= 0x3FFF; // 14bit
+           *t = (float)(-39.6) + (float)0.01*(float)sot;
+           state++;
+         }
+         break;
+
+       // --- BUSY_HUMID ---
+       case 3: // Busy, sending RESET+START+COMMAND[RH]
+         err_code = SHT1x_BUSY_HUMID;
+         if (SHT1x_Sensor_START (0x05, port_pin, clk_high, clk_low)) {
+           state++; // ACK
+           SysTimer_Start(timer, 200); // > 80ms for waiting 12bit conversion
+         }
+         else {
+           state = 6; //NAK
+         }
+         break;
+
+       // --- WAIT FOR HUMID CONVERSION ---
+       case 4:
+         err_code = SHT1x_BUSY_HUMID;
+         if (SysTimer_IsTimeout(timer)) {
+           d1 = SHT1x_Sensor_READ (1, port_pin, clk_high, clk_low);
+           d2 = SHT1x_Sensor_READ (1, port_pin, clk_high, clk_low);
+           d3 = SHT1x_Sensor_READ (0, port_pin, clk_high, clk_low);
+
+           // Convert the reading value
+           // H = (-2.0468) + 0.0367*SOT + (-1.5955E-6)*SOT ^2;  @ SOT 12bit
+           sot = (uint32_t)d1 << 8;
+           sot |= (uint32_t)d2;
+           sot &= 0x0FFF; // 12bit
+           *h = (float)(-2.0468) + (float)0.0367 *(float)sot + (float)(-1.5955E-6)*(sot^2);
+           state++;
+         }         
+         break;
+
+       // --- SUCCESS ---
+       case 5:
+         err_code = SHT1x_DATA_READY;
+         state = 0;
+         break;
+
+       // --- ERROR_NACK ---
+       case 6:
+         err_code = SHT1x_ERROR_NACK;
+         state = 0;
+         break;
+
+       // --- ERROR_CRC ---
+       case 7:
+         err_code = SHT1x_ERROR_CRC;
+         state = 0;
+         break;
+      
+       default:
+         state = 0;
+         break;
+     }
+
+     // Update operation state
+     *op_state = state;
+
+     // Return for the error code
+     return err_code;
+   }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+void enable_%<blockid>(void);
+void %<blockid>_read (uint8_t trig, uint8_t *sta, float *h, float *t);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+SHT1x_PORT_PIN %<blockid>_port_pin = {
+   %if targetname == "nrf5"
+     /* sda_pin */
+     %<sda_pin>,
+     /* scl_pin */
+     %<scl_pin>
+   %else
+     /* sda_port */
+     GPIO%<sda_port>,
+     /* scl_port */
+     GPIO%<scl_port>,
+     /* sda_pin */
+     GPIO_Pin_%<sda_pin>,
+     /* scl_pin */
+     GPIO_Pin_%<scl_pin>
+   %endif
+};
+
+static float %<blockid>_TEMP_Value = 0;
+static float %<blockid>_HUMID_Value = 0;
+
+uint32_t %<blockid>_read_state = 0;
+SYS_TIMER_STRUCT %<blockid>_read_timer = {0,0};
+void %<blockid>_read (uint8_t trig, uint8_t *sta, float *h, float *t)
+{
+  %assign clk_high_us = 50
+  %assign clk_low_us = 50
+  %if freq == "100"
+    %assign clk_high_us = 5
+    %assign clk_low_us = 5
+  %endif
+  %if freq == "50"
+    %assign clk_high_us = 10
+    %assign clk_low_us = 10
+  %endif
+  %if freq == "25"
+    %assign clk_high_us = 20
+    %assign clk_low_us = 20
+  %endif
+  /* Read from SHT1x sensor */
+  *sta = (uint8_t) SHT1x_Sensor_Read(trig, &%<blockid>_read_state, &%<blockid>_read_timer, &%<blockid>_port_pin, %<clk_high_us>, %<clk_low_us>, &%<blockid>_HUMID_Value, &%<blockid>_TEMP_Value);
+  *h = %<blockid>_HUMID_Value;
+  *t = %<blockid>_TEMP_Value;
+}
+
+void enable_%<blockid>(void){
+  %if targetname == "nrf5"
+  // SDA/SCL Pin configuration
+  NRF_GPIO->PIN_CNF[%<blockid>_port_pin.sda_pin] = \
+    (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+    | (GPIO_PIN_CNF_DRIVE_H0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+  NRF_GPIO->PIN_CNF[%<blockid>_port_pin.scl_pin] = \
+    (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+    | (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos)
+    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+  nrf_gpio_pin_set(%<blockid>_port_pin.sda_pin);
+  nrf_gpio_pin_clear(%<blockid>_port_pin.scl_pin);
+  %else
+    %% =======================================================
+    GPIO_InitTypeDef GPIO_InitStructure;    
+
+    /* Clock configuration */
+    %% --- Port A ---
+    %if port_a_used == "1"   
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+      %endif      
+    %endif
+
+    %% --- Port B ---
+    %if port_b_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+      %endif
+    %endif
+    %% --- Port C ---
+    %if port_c_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+      %endif
+    %endif
+    %% --- Port D ---
+    %if port_d_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+      %endif
+    %endif
+    %% --- Port E ---
+    %if port_e_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOE, ENABLE);
+      %endif
+    %endif
+    %% --- Port F ---
+    %if port_f_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+      %else
+      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOF, ENABLE);
+      %endif
+    %endif
+    %% --- Port G ---
+    %if port_g_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+      %endif
+    %endif
+    %% --- Port H ---
+    %if port_h_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH, ENABLE);
+      %endif
+    %endif
+    %% --- Port I ---
+    %if port_i_used == "1"
+      %if targetname == "stm32f4"
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOI, ENABLE);
+      %endif
+    %endif
+
+    /* GPIO Init */    
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    %if targetname == "stm32f4"
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    %else
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    %endif
+
+    /* SDA */
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStructure.GPIO_Pin = %<blockid>_port_pin.sda_pin;
+    GPIO_Init(%<blockid>_port_pin.sda_port, &GPIO_InitStructure);
+    /* SCL */
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Pin = %<blockid>_port_pin.scl_pin;
+    GPIO_Init(%<blockid>_port_pin.scl_port, &GPIO_InitStructure);
+
+    /* Port state */
+    GPIO_SetBits(%<blockid>_port_pin.sda_port, %<blockid>_port_pin.sda_pin);
+    GPIO_ResetBits(%<blockid>_port_pin.scl_port, %<blockid>_port_pin.scl_pin);
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+%assign sta = LibBlockOutputSignalAddr(0, "", "", 0)
+%assign h = LibBlockOutputSignalAddr(1, "", "", 0)
+%assign t = LibBlockOutputSignalAddr(2, "", "", 0)
+%assign trig = LibBlockInputSignal(0, "", "", 0)
+%<blockid>_read ((uint8_T)(%<trig> != 0),%<sta>, %<h>, %<t>);
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

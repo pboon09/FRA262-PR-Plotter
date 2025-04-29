@@ -1,0 +1,212 @@
+%implements nrf5_flash "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %%
+  %assign baseaddress = optionstring[0]
+  %assign pagesize = optionstring[1]
+  %assign block = block + baseaddress + pagesize
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * FLASH Operation
+    * ########################################################################
+    */
+   # define FLASH_PAGE_SIZE 1024UL
+
+   uint32_t waijung_nrf5_flash_page_erase(uint32_t page_address);
+   uint32_t waijung_nrf5_flash_write_buffer(uint32_t address, uint32_t *data, uint32_t count);
+   uint32_t waijung_nrf5_flash_write_word(uint32_t address, uint32_t data);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * FLASH Operation
+    * ########################################################################
+    */
+uint32_t waijung_nrf5_flash_page_erase(uint32_t page_address)
+{
+	 uint32_t page_index;
+	 uint32_t errcode;
+	 uint32_t timeout_counter;
+	 uint32_t retry_count;
+
+	 retry_count = 0;
+
+		 ___retry_entry:
+	 waijung_nrf5_clearsoc_evt();
+	 timeout_counter = 0;
+	 page_index = (uint32_t)page_address/ FLASH_PAGE_SIZE;
+	 do {
+		 errcode = sd_flash_page_erase(page_index);
+	 } while (errcode == NRF_ERROR_BUSY);	
+
+	 while ((waijung_nrf5_getsoc_evt() != NRF_EVT_FLASH_OPERATION_SUCCESS)
+		 && (waijung_nrf5_getsoc_evt() != NRF_EVT_FLASH_OPERATION_ERROR)
+		 && (timeout_counter++ < 1000))
+		 {
+				 nrf_delay_us(10);
+		 }
+
+	  if (waijung_nrf5_getsoc_evt() == NRF_EVT_FLASH_OPERATION_SUCCESS){
+			nrf_delay_us(10);
+			return NRF_SUCCESS;
+	  }
+
+		if (++retry_count <= 4) {
+			 goto ___retry_entry;
+		}
+
+	 return errcode;
+}
+
+uint32_t waijung_nrf5_flash_write_buffer(uint32_t address, uint32_t *data,
+  uint32_t count)
+{
+	 uint32_t retry_count;
+	 uint32_t errcode;
+	 uint32_t timeout_counter;
+
+	 retry_count = 0;
+
+	 ___retry_entry:
+	 waijung_nrf5_clearsoc_evt();
+	 timeout_counter = 0;
+
+	do {
+		 errcode = sd_flash_write((uint32_t *)address, (uint32_t *)data, count);
+	 } while (errcode == NRF_ERROR_BUSY);
+	 while ((waijung_nrf5_getsoc_evt() != NRF_EVT_FLASH_OPERATION_SUCCESS)
+		 && (waijung_nrf5_getsoc_evt() != NRF_EVT_FLASH_OPERATION_ERROR)
+		 && (timeout_counter ++ < 10000))
+		 {
+				 nrf_delay_us(10);
+		 }
+
+	 if (waijung_nrf5_getsoc_evt() == NRF_EVT_FLASH_OPERATION_SUCCESS)
+		 return NRF_SUCCESS;
+
+		 if (++retry_count <= 4) {
+				 goto ___retry_entry;
+		 }
+
+	 return errcode;
+}
+
+uint32_t waijung_nrf5_flash_write_word(uint32_t address, uint32_t data)
+{
+  uint32_t errcode;
+  errcode = waijung_nrf5_flash_write_buffer(address, &data, 1);
+  return errcode;
+}
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+#define %<blockid>_BASE_ADDRESS 0x%<baseaddress>
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+void enable_%<blockid>(void){
+  %if (conf == "Write") || (conf == "Erase")
+
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+  %% Erase
+  %if conf == "Erase"
+    %if LibBlockNumOutputPorts(block) > 0
+    %<LibBlockOutputSignal(0, "", "", 0)> = \
+    %endif
+    waijung_nrf5_flash_page_erase((uint32_t)%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS);
+  %endif
+
+  %% Write
+  %if conf == "Write"
+    %if LibBlockNumOutputPorts(block) > 0
+    %<LibBlockOutputSignal(0, "", "", 0)> = (%<LibBlockOutputSignalDataTypeName(0,tRealPart)>) \
+    %endif
+    %assign count = LibBlockInputSignalWidth(1)
+    %if count == 1
+    waijung_nrf5_flash_write_word (%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS, (uint32_t)%<LibBlockInputSignal(1, "", "", 0)>);      
+    %else
+    waijung_nrf5_flash_write_buffer(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS, (uint32_t *)%<LibBlockInputSignalAddr(1, "", "", 0)>, %<count>);      
+    %endif
+  %endif
+
+  %% Read
+  %if conf == "Read"
+    %assign count = LibBlockOutputSignalWidth(0)
+    %%%<LibBlockOutputSignal(0, "", "", 0)> = *((%<LibBlockOutputSignalDataTypeName(0,tRealPart)> *)(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS));
+    memcpy(%<LibBlockOutputSignalAddr(0, "", "", 0)>, ((%<LibBlockOutputSignalDataTypeName(0,tRealPart)> *)(%<LibBlockInputSignal(0, "", "", 0)> + %<blockid>_BASE_ADDRESS)), %<count>*sizeof(%<LibBlockOutputSignalDataTypeName(0,tRealPart)>));
+  %endif
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

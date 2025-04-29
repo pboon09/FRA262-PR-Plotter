@@ -1,0 +1,369 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>STM32F4 Target &gt; Block References &gt; On-chip Peripherals &gt; SPI &gt; SPI Master Setup</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="SPI">
+   <meta name="description" content="SPI Master Setup">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "stm32f4_spimaster_setup.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">SPI Master Setup</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?stm32f4_spimaster_setup.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="stm32f4_target_block_ref.htm">STM32F4 Target</a> &gt; <a href="blockset_references.htm">Block References</a> &gt; <a href="on-chip_peripherals.htm">On-chip Peripherals</a> &gt; <a href="spi.htm">SPI</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">SPI Master Setup</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="spi.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="spi.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="stm32f4_spimaster_readwrite.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="spi_master_setup_block.png" width="950" height="150" alt="spi_master_setup_block" style="width:950px;height:150px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="spi_master_setup_mask.png" width="950" height="871" alt="spi_master_setup_mask" style="width:950px;height:871px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>SPI Module</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>1 | 2 | 3</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specify using SPI module for setup/ configuration.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Direction</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Full-Duplex | Half-Duplex_Tx | Half-Duplex_Rx</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p><span style="font-weight: bold;">Full-Duplex:</span> use this mode when need to send and receive data at same clock.</p>
+<p><span style="font-weight: bold;">Half-Duplex_Tx:</span> this mode is to transmit data to slave only. Pin MISO (Rx) can be free for other function.</p>
+<p><span style="font-weight: bold;">Half-Duplex_Rx:</span> this mode is to receive data from slave only. Pin MOSIO (Tx) can be free for other function.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Data format</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>8bit/FirstBit_MSB | 8bit/FirstBit_LSB | 16bit/FirstBit_MSB |</p>
+<p>16bit/FirstBit_LSB</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Specify data format. Must be match to the slave device specification.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Baud rate prescaler</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>2 | 4 | 8 | 16 | 32 | 64 | 128 | 256</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>This configuration related to SPI clock speed.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Baud rate (Hz)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Select SPI clock speed)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>This clock speed depending on SPI module.</p>
+<p>For example:</p>
+<p>SPI1: clock source is PCLK2, 84MHz (max). For prescaler 2, 4, ..., 256</p>
+<p>SPI clock speed can be: 42MHz, &nbsp;21MHz, 10.5MHz, 5.25MHz, 2.625MHz, 1.3125MHz, 0.65625MHz and 0.328125MHz &nbsp;respectively.</p>
+<p>SPI2 and SPI3: clock source is 42MHz (max). SPI clock can be: 21MHz, 10.5MHz, ... respectively.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Clock polarity (CPOL)/ Clock phase (CPHA)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>CPOL_Low/ CPHA_1Edge | CPOL_Low/ CPHA_2Edge |</p>
+<p>CPOL_High/ CPHA_1Edge | CPOL_High/ CPHA_2Edge</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Clock polarity and clock phase configuration, must be matched to SPI slave/device.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Slave/chip select mode</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Software | Hardware | Custom</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select NSS control signal is by hardware or software (manual).</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Soft slave/chip select port</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>A | B | C | D | E | F | G | H | I</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select port for software NSS, this configuration available when NSS mode is Software.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Soft slave/chip select pin</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select pin for software NSS, this configuration available when NSS mode is Software.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>Slave/chip select pin</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Depending on MCU package pin)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select pin for NSS for using NSS hardware mode.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>SCLK pin</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Depending on MCU package pin)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select pin for SCLK.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>MISO pin</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Depending on MCU package pin)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select pin for MISO.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; padding:0px;"><p>MOSI pin</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>(Depending on MCU package pin)</p>
+</td>
+<td style="vertical-align:top; padding:0px;"><p>Select pin for MOSI.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Clock polarity and clock phase configuration</span></h2>
+<p>This clock configuration to capture a valid data, must be follow to slave device specification.</p>
+<h4 class="p_Heading4"><span class="f_Heading4">1. Clock polarity Low, Clock phase 1st edge (CPOL_Low/CPHA_1Edge)</span></h4>
+<p>This configuration for data bit captured at first edge of Clock. First edge of clock is rising.</p>
+<p><span style="font-weight: bold;">CPOL=0 and CPHA=0</span></p>
+<p>&nbsp;</p>
+<p><img src="spi_cpol0_cpha_1.png" width="950" height="210" alt="spi_cpol0_cpha_1" style="width:950px;height:210px;border:none" /></p>
+<h4 class="p_Heading4"><span class="f_Heading4">2. Clock polarity Low, Clock phase 2nd edge (CPOL_Low/CPHA_2Edge)</span></h4>
+<p>This configuration for data bit captured at second edge of Clock. Second edge of clock is falling.</p>
+<p><span style="font-weight: bold;">CPOL=0 and CPHA=1</span></p>
+<p><img src="spi_cpol0_cpha_2.png" width="950" height="210" alt="spi_cpol0_cpha_2" style="width:950px;height:210px;border:none" /></p>
+<h4 class="p_Heading4"><span class="f_Heading4">3. Clock polarity High, Clock phase 1st edge (CPOL_High/CPHA_1Edge)</span></h4>
+<p>This configuration for data bit captured at first edge of Clock. First edge of clock is falling.</p>
+<p><span style="font-weight: bold;">CPOL=1 and CPHA=0</span></p>
+<p><img src="spi_cpol1_cpha_1.png" width="950" height="210" alt="spi_cpol1_cpha_1" style="width:950px;height:210px;border:none" /></p>
+<h4 class="p_Heading4"><span class="f_Heading4">4. Clock polarity High, Clock phase 2nd edge (CPOL_High/CPHA_2Edge)</span></h4>
+<p>This configuration for data bit captured at second edge of Clock. second edge of clock is rising.</p>
+<p><span style="font-weight: bold;">CPOL=1 and CPHA=0</span></p>
+<h3 class="p_Heading3"><img src="spi_cpol1_cpha_2.png" width="950" height="210" alt="spi_cpol1_cpha_2" style="width:950px;height:210px;border:none" /></h3>
+<h2 class="p_Heading2"><span class="f_Heading2">SPI pin name and function</span></h2>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table style="border:none; border-spacing:0px;">
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:149px; padding:0px;"><p><span style="font-weight: bold;">Pin name</span></p>
+</td>
+<td style="vertical-align:top; width:202px; padding:0px;"><p><span style="font-weight: bold;">Alternative naming</span></p>
+</td>
+<td style="vertical-align:top; width:967px; padding:0px;"><p><span style="font-weight: bold;">Function</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:149px; padding:0px;"><p><span style="font-weight: bold;">SCLK</span></p>
+</td>
+<td style="vertical-align:top; width:202px; padding:0px;"><p>SCK, CLK, CK</p>
+</td>
+<td style="vertical-align:top; width:967px; padding:0px;"><p>Serial clock output, from master to slave.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:149px; padding:0px;"><p><span style="font-weight: bold;">MOSI</span></p>
+</td>
+<td style="vertical-align:top; width:202px; padding:0px;"><p>MDO, SDO, DO</p>
+</td>
+<td style="vertical-align:top; width:967px; padding:0px;"><p>Serial data output, from master to slave.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:149px; padding:0px;"><p><span style="font-weight: bold;">MISO</span></p>
+</td>
+<td style="vertical-align:top; width:202px; padding:0px;"><p>MDI, SDI, DI</p>
+</td>
+<td style="vertical-align:top; width:967px; padding:0px;"><p>Serial data input, from slave to master.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:149px; padding:0px;"><p><span style="font-weight: bold;">NSS</span></p>
+</td>
+<td style="vertical-align:top; width:202px; padding:0px;"><p>CS, nCS</p>
+</td>
+<td style="vertical-align:top; width:967px; padding:0px;"><p>Slave select or chip select pin.</p>
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Demos</span></h2>
+<p><a href="sensor_lis302dl.htm" class="topiclink">Sensor LIS302DL</a></p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

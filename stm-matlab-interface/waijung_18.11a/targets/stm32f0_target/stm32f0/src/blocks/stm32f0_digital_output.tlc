@@ -1,0 +1,162 @@
+%implements stm32f0_digital_output "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign use_bitband = CAST("Number",SFcnParamSettings.use_bitband)
+%assign port = CAST("String",SFcnParamSettings.port)
+%assign speed = CAST("String",SFcnParamSettings.speed)
+%assign porttype = CAST("String",SFcnParamSettings.porttype)
+%assign porttypestr = CAST("String",SFcnParamSettings.porttypestr)
+%assign use_pin0 = CAST("Number",SFcnParamSettings.use_pin0)
+%assign use_pin1 = CAST("Number",SFcnParamSettings.use_pin1)
+%assign use_pin2 = CAST("Number",SFcnParamSettings.use_pin2)
+%assign use_pin3 = CAST("Number",SFcnParamSettings.use_pin3)
+%assign use_pin4 = CAST("Number",SFcnParamSettings.use_pin4)
+%assign use_pin5 = CAST("Number",SFcnParamSettings.use_pin5)
+%assign use_pin6 = CAST("Number",SFcnParamSettings.use_pin6)
+%assign use_pin7 = CAST("Number",SFcnParamSettings.use_pin7)
+%assign use_pin8 = CAST("Number",SFcnParamSettings.use_pin8)
+%assign use_pin9 = CAST("Number",SFcnParamSettings.use_pin9)
+%assign use_pin10 = CAST("Number",SFcnParamSettings.use_pin10)
+%assign use_pin11 = CAST("Number",SFcnParamSettings.use_pin11)
+%assign use_pin12 = CAST("Number",SFcnParamSettings.use_pin12)
+%assign use_pin13 = CAST("Number",SFcnParamSettings.use_pin13)
+%assign use_pin14 = CAST("Number",SFcnParamSettings.use_pin14)
+%assign use_pin15 = CAST("Number",SFcnParamSettings.use_pin15)
+%assign pinstr = CAST("String",SFcnParamSettings.pinstr)
+%assign usedpinarray = SFcnParamSettings.usedpinarray
+%assign bitbandingstr = CAST("String",SFcnParamSettings.bitbandingstr)
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign block = block + port + speed + porttype + porttypestr + use_pin0 + use_bitband + \
+      use_pin1 + use_pin2 + use_pin3 + use_pin4 + use_pin5 + use_pin6 + \
+      use_pin7 + use_pin8 + use_pin9 + use_pin10 + use_pin11 + use_pin12 + \
+      use_pin13 + use_pin14 + use_pin15 + pinstr + usedpinarray + bitbandingstr + \
+      sampletime + sampletimestr + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%if (EXISTS(::__STM32F0XX_GPIO_H__) == 0)
+%assign :: __STM32F0XX_GPIO_H__ = 1
+%openfile tmpBuf
+#include "stm32f0xx_gpio.h"
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "stm32f0xx_conf")
+%<LibAddSourceFileCustomSection(file,"Declarations","cIndludes")>
+%<LibSetSourceFileCustomSection(file,"cIndludes",tmpBuf)>
+%endif
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+%<bitbandingstr>
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+%<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+uint16_t %<blockid>_portVal;
+void enable_%<blockid>(void){
+GPIO_InitTypeDef GPIO_InitStructure;
+RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIO%<port>, ENABLE);
+
+/* Configure P%<port> in output %<porttype> mode for %<blockid> Block*/
+GPIO_InitStructure.GPIO_Pin = %<pinstr>;
+GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+GPIO_InitStructure.GPIO_OType = GPIO_OType_%<porttypestr>;
+GPIO_InitStructure.GPIO_Speed = GPIO_Speed_%<speed>MHz;
+GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+GPIO_Init(GPIO%<port>, &GPIO_InitStructure);
+}
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* %<blockid> */
+%if use_bitband == 0
+  #define %<blockid>_MASK (\
+  %assign pincnt = 0
+  %assign nbrpin = 16
+  %foreach idx = nbrpin
+    %if (%<usedpinarray[idx]> == 1)    
+      %if pincnt == 0
+        GPIO_Pin_%<idx>\
+      %else
+        | GPIO_Pin_%<idx>\
+      %endif
+      %assign pincnt = pincnt + 1
+    %endif
+  %endforeach
+  ) /* Bit mask for using pins */
+  extern uint16_t %<blockid>_portVal;
+%endif
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+/* %<blockid>: '%<block.Name>' */
+{
+  %assign pincnt = 0
+  %assign nbrpin = 16
+  %assign portIdx = 0
+  uint16_t bits_set = 0, bits_reset = 0;
+  %foreach idx = nbrpin
+    %if (%<usedpinarray[idx]> == 1)
+      %assign u = LibBlockInputSignal(portIdx, "", "", 0)
+      /* P%<port>%<idx> */
+      if (%<u> != 0) bits_set |= GPIO_Pin_%<idx>;
+        else bits_reset |= GPIO_Pin_%<idx>;
+      %assign portIdx = portIdx + 1
+    %endif
+  %endforeach
+  /* Bits set */
+  if (bits_set)
+    GPIO_SetBits(GPIO%<port>, bits_set);
+  /* Bits reset */
+  if (bits_reset)
+    GPIO_ResetBits(GPIO%<port>, bits_reset);
+}
+
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+/* disable_%<blockid>(); */
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+/* terminate_%<blockid>(); */
+%endfunction
+

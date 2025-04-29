@@ -1,0 +1,502 @@
+%implements waijung_onewirebus "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %%assign blockid = CAST("String",SFcnParamSettings.blockid)
+  %assign blockid = block.Identifier
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign module = CAST("String",optionstring[0])
+  %assign speed  = CAST("String",optionstring[1])
+  %assign tslot  = CAST("String",optionstring[2])
+  %assign trec  = CAST("String",optionstring[3])
+  %assign tlow1  = CAST("String",optionstring[4])
+  %assign tsample = CAST("String",optionstring[5])
+  %assign trstl = CAST("String",optionstring[6])
+  %assign trsth = CAST("String",optionstring[7])
+  %assign port = CAST("String",optionstring[8])
+  %assign pin = CAST("String",optionstring[9])
+  %assign targetname = CAST("String",optionstring[10])
+
+  %assign block = block + module + speed + tslot + trec + tlow1 + tsample \
+                + trstl + trsth + port + pin + targetname
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+  %if targetname != "nrf5"
+   %if (EXISTS(::__STM32F4XX_GPIO__) == 0)
+      %assign :: __STM32F4XX_GPIO__ = 1
+      %openfile tmpBuf
+         #include "stm32f4xx_gpio.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "stm32f4xx_conf")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+  %endif
+   %openfile tmpBuf
+   /* ########################################################################
+    * One Wire bus
+    * ########################################################################
+    */
+   typedef struct {
+     uint16_t T_Slot;
+     uint16_t T_Rec;
+     uint16_t T_Low1;
+     uint16_t T_Sample;
+     uint16_t T_RstL;
+     uint16_t T_RstH;
+   } ONEWIRE_TIMING_STRUCT;
+   %if targetname != "nrf5"
+     uint8_t OneWire_Reset(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, const ONEWIRE_TIMING_STRUCT *timing);
+     uint8_t OneWire_WriteBytes(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, const uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing);
+     uint8_t OneWire_ReadBytes(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing);
+   %else
+     uint8_t OneWire_Reset(uint32_t GPIO_Pin, const ONEWIRE_TIMING_STRUCT *timing);
+     uint8_t OneWire_WriteBytes(uint32_t GPIO_Pin, const uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing);
+     uint8_t OneWire_ReadBytes(uint32_t GPIO_Pin, uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing);
+   %endif
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+   /* ########################################################################
+    * One Wire bus
+    * ########################################################################
+    */
+   %if targetname == "nrf5"
+     uint8_t OneWire_Reset(uint32_t GPIO_Pin, const ONEWIRE_TIMING_STRUCT *timing)
+     {
+     volatile uint32_t t_delay_counter;
+     int ack;
+
+     /* Wait if Bus start from LOW */
+     if (nrf_gpio_pin_read(GPIO_Pin) == 0) {
+       nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+       SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+     }
+     if (nrf_gpio_pin_read(GPIO_Pin) == 0) {/* Bus held low */
+       return 0xFF;
+     }
+
+     /* Set Bus to LOW */
+     nrf_gpio_pin_write(GPIO_Pin, 0);
+     SysTimer_delay_us(timing->T_RstL); /* Wait for LOW time */
+
+     /* Get Device ACK */
+     nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+     t_delay_counter = timing->T_RstH;
+     while((t_delay_counter > 0) && (nrf_gpio_pin_read(GPIO_Pin) == 0))/* Wait Bus HIGH */
+     {
+       SysTimer_delay_us(1); t_delay_counter--;
+     } 
+
+     if (t_delay_counter > 0) {       
+       while((t_delay_counter > 0) && (nrf_gpio_pin_read(GPIO_Pin) != 0)) /* Wait Ack from Device */
+       {
+         SysTimer_delay_us(1); t_delay_counter--;
+       }
+       ack = (nrf_gpio_pin_read(GPIO_Pin) == 0);
+     }
+     else { ack = 0; }
+     if (t_delay_counter > 0)
+       SysTimer_delay_us (t_delay_counter);
+
+     /* Return  */
+     if (ack != 0) return 0;
+     else return 0xFF;
+     }
+
+     uint8_t OneWire_WriteBytes(uint32_t GPIO_Pin, const uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing)
+     {
+     uint8_t sta;
+     int i, j;
+     uint8_t value;
+     volatile uint32_t t_delay_counter;
+     sta = 0;
+     for (i=0; i< count; i++) {
+       value = data[i];
+       for (j=0; j<8; j++) {
+         /* Recovery time */
+         nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+         if (nrf_gpio_pin_read(GPIO_Pin) == 0) /* Bus held low */
+           sta = 0xFF;
+
+         /* Begin Time slot */
+         t_delay_counter = timing->T_Slot;
+
+         /* Data bit */
+         if((value >> j) & 1) {
+           nrf_gpio_pin_write(GPIO_Pin, 0); /* Set Bus LOW */
+           SysTimer_delay_us(timing->T_Low1); /* Wait for Low time */
+           if (t_delay_counter > timing->T_Low1)
+             t_delay_counter -= timing->T_Low1;
+           else
+             t_delay_counter = 0;
+           nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+         }
+         else { nrf_gpio_pin_write(GPIO_Pin, 0); /* Set Bus LOW */ }
+       
+         /* Wait for time slot */
+         if (t_delay_counter > 0)
+           SysTimer_delay_us (t_delay_counter);
+       }
+     }
+
+     /* Return */
+     return sta;
+     }
+
+     uint8_t OneWire_ReadBytes(uint32_t GPIO_Pin, uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing)
+     {
+     uint8_t sta;
+     int i, j;
+     uint8_t value;
+     volatile uint32_t t_delay_counter;
+
+     sta = 0;
+     for (i=0; i<count; i++) {
+
+       value = 0;
+       for(j=0; j<8; j++) {
+         /* Recovery time */
+         nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+         if (nrf_gpio_pin_read(GPIO_Pin) == 0) /* Bus held low */
+           sta = 0xFF;
+
+         /* Begin Time slot, Time sample */
+         t_delay_counter = timing->T_Slot;
+
+         /* Sample */
+         nrf_gpio_pin_write(GPIO_Pin, 0); /* Set Bus LOW */
+         SysTimer_delay_us(timing->T_Low1); /* Wait for Low time */
+         if (t_delay_counter > timing->T_Low1)
+           t_delay_counter -= timing->T_Low1;
+         else
+           t_delay_counter = 0;
+         nrf_gpio_pin_write(GPIO_Pin, 1); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Sample); /* Wait for sample time */
+         if (nrf_gpio_pin_read(GPIO_Pin) != 0)
+           value |= (uint8_t)(1<<j);
+     
+         /* Wait for End time slot */
+         if (t_delay_counter > 0)
+           SysTimer_delay_us(t_delay_counter);
+       }
+       /* Return byte */
+       data[i] = value;
+     }
+     /* Return */
+     return sta;
+     }
+   %else
+   uint8_t OneWire_Reset(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, const ONEWIRE_TIMING_STRUCT *timing)
+   {
+     int ack;
+
+     SYS_TIMER_uS_STRUCT timer;
+     /* Wait if Bus start from LOW */
+     if (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET) {
+       GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+       SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+     }
+     if (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET) /* Bus held low */
+       return 0xFF;
+
+     /* Set Bus to LOW */
+     GPIO_ResetBits(GPIOx, GPIO_Pin);
+     SysTimer_delay_us(timing->T_RstL); /* Wait for LOW time */
+
+     /* Get Device ACK */
+     __disable_irq();
+     GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+     SysTimer_uS_Start(&timer, timing->T_RstH);
+     while(!SysTimer_uS_IsTimeout(&timer) && (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET)); /* Wait Bus HIGH */
+     if(!SysTimer_uS_IsTimeout(&timer)) {       
+       while(!SysTimer_uS_IsTimeout(&timer) && (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) != (uint32_t)Bit_RESET)); /* Wait Ack from Device */
+       ack = (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET);
+     }
+     else { ack = 0; }
+     __enable_irq();
+     while(!SysTimer_uS_IsTimeout(&timer)); /* Make sure timer is timeout */
+
+     /* Return  */
+     if (ack != 0) return 0;
+     else return 0xFF;
+   }
+
+   uint8_t OneWire_WriteBytes(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, const uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing)
+   {
+     uint8_t sta;
+     int i, j;
+     uint8_t value;
+     SYS_TIMER_uS_STRUCT timer;
+
+     sta = 0;
+     for (i=0; i< count; i++) {
+       value = data[i];
+       for (j=0; j<8; j++) {
+         /* Recovery time */
+         GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+         if (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET) /* Bus held low */
+           sta = 0xFF;
+
+         /* Begin Time slot */
+         SysTimer_uS_Start(&timer, timing->T_Slot);
+
+         /* Data bit */
+         if((value >> j) & 1) {
+           __disable_irq();
+           GPIO_ResetBits(GPIOx, GPIO_Pin); /* Set Bus LOW */
+           SysTimer_delay_us(timing->T_Low1); /* Wait for Low time */
+           GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+           __enable_irq();
+         }
+         else { GPIO_ResetBits(GPIOx, GPIO_Pin); /* Set Bus LOW */ }
+       
+         /* Wait for time slot */
+         while(!SysTimer_uS_IsTimeout(&timer));
+       }
+     }
+
+     /* Return */
+     return sta;
+   }
+
+   uint8_t OneWire_ReadBytes(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint8_t *data, uint16_t count, const ONEWIRE_TIMING_STRUCT *timing)
+   {
+     uint8_t sta;
+     int i, j;
+     uint8_t value;
+     SYS_TIMER_uS_STRUCT timer;
+
+     sta = 0;
+     for (i=0; i<count; i++) {
+       value = 0;
+       for(j=0; j<8; j++) {
+         /* Recovery time */
+         GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Rec); /* Wait for Recovery time */
+         if (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) == (uint32_t)Bit_RESET) /* Bus held low */
+           sta = 0xFF;
+
+         /* Begin Time slot, Time sample */
+         SysTimer_uS_Start(&timer, timing->T_Slot);
+
+         /* Sample */
+         __disable_irq();
+         GPIO_ResetBits(GPIOx, GPIO_Pin); /* Set Bus LOW */
+         SysTimer_delay_us(timing->T_Low1); /* Wait for Low time */
+         GPIO_SetBits(GPIOx, GPIO_Pin); /* Set Bus HIGH */
+         SysTimer_delay_us(timing->T_Sample); /* Wait for sample time */
+         if (GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) != (uint32_t)Bit_RESET)
+           value |= (uint8_t)(1<<j);
+         __enable_irq();
+     
+         /* Wait for End time slot */
+         while (!SysTimer_uS_IsTimeout(&timer));
+       }
+       /* Return byte */
+       data[i] = value;
+     }
+
+     /* Return */
+     return sta;
+   }
+   %endif
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+
+%if conf == "Setup"
+  uint8_t OneWire%<module>_Reset(void);
+  uint8_t OneWire%<module>_Write(const uint8_t *data, uint16_t count);
+  uint8_t OneWire%<module>_Read(uint16_t count, uint8_t *data);
+%else
+  %if LibBlockNumInputPorts(block) > 1
+    extern uint8_t %<blockid>_wr_buffer[];
+  %endif
+  %if LibBlockNumOutputPorts(block) > 1
+    extern uint8_t %<blockid>_rd_buffer[];
+  %endif
+%endif
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid> 
+ * ########################################################################
+*/
+  %if LibBlockNumInputPorts(block) > 1
+    uint8_t %<blockid>_wr_buffer[%<LibBlockNumInputPorts(block)>];
+  %endif
+  %if LibBlockNumOutputPorts(block) > 1
+    uint8_t %<blockid>_rd_buffer[%<LibBlockNumOutputPorts(block)>];
+  %endif
+
+%if conf == "Setup"
+  const ONEWIRE_TIMING_STRUCT OneWrite%<module>_Timing = {
+    %<tslot>, /* Time slot */
+    %<trec>, /* Time recovery */
+    %<tlow1>, /* Time Low for write data 1 and for read */
+    %<tsample>, /* Time sample for read */
+    %<trstl>, /* Time reset Low */
+    %<trsth> /* Time reset High */
+  };
+
+  uint8_t OneWire%<module>_Reset(void)
+  {
+    uint8_t sta;
+    %if targetname == "nrf5"
+    sta = OneWire_Reset(%<pin>, &OneWrite%<module>_Timing);
+    %else
+    sta = OneWire_Reset(GPIO%<port>, GPIO_Pin_%<pin>, &OneWrite%<module>_Timing);
+    %endif
+    return sta;
+  }
+
+  uint8_t OneWire%<module>_Write(const uint8_t *data, uint16_t count)
+  {
+    uint8_t sta;
+    /* Write bytes from one-wire bus */
+    %if targetname == "nrf5"
+    sta = OneWire_WriteBytes(%<pin>, data, count, &OneWrite%<module>_Timing);
+    %else
+    sta = OneWire_WriteBytes(GPIO%<port>, GPIO_Pin_%<pin>, data, count, &OneWrite%<module>_Timing);
+    %endif
+    return sta;
+  }
+
+  uint8_t OneWire%<module>_Read(uint16_t count, uint8_t *data)
+  {
+    uint8_t sta;
+    /* Read bytes from one-wire bus */
+    %if targetname == "nrf5"
+    sta = OneWire_ReadBytes(%<pin>, data, count, &OneWrite%<module>_Timing);
+    %else
+    sta = OneWire_ReadBytes(GPIO%<port>, GPIO_Pin_%<pin>, data, count, &OneWrite%<module>_Timing);
+    %endif
+    return sta;
+  }
+%endif
+
+void enable_%<blockid>(void){
+  %if conf == "Setup"
+    %if targetname == "nrf5"
+      NRF_GPIO->PIN_CNF[%<pin>] = (GPIO_PIN_CNF_SENSE_Disabled <<
+        GPIO_PIN_CNF_SENSE_Pos)
+        | (GPIO_PIN_CNF_DRIVE_H0D1 << GPIO_PIN_CNF_DRIVE_Pos)
+        | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+        | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+        | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+
+    %else
+      GPIO_InitTypeDef GPIO_InitStructure;
+      RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIO%<port>, ENABLE);
+
+      /* Configure P%<port>%<pin> */
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_%<pin>;
+      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+      GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+      GPIO_Init(GPIO%<port>, &GPIO_InitStructure);
+    %endif
+  %endif
+}
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if conf != "Setup"
+    /* %<blockid>: '%<block.Name>' */
+    {
+      uint8_t status = 0;
+%%      %if LibBlockNumInputPorts(block) > 1
+%%        uint8_t wr_buffer[%<LibBlockNumInputPorts(block)>];
+%%      %endif
+%%      %if LibBlockNumOutputPorts(block) > 1
+%%        uint8_t rd_buffer[%<LibBlockNumOutputPorts(block)>];
+%%      %endif
+      /* Reset bus */
+      if(%<LibBlockInputSignal(0, "", "", 0)> != 0)
+        status = OneWire%<module>_Reset();
+      %if LibBlockNumInputPorts(block) > 1
+        /* Write */
+        if(status == 0) {
+          %foreach idx=LibBlockNumInputPorts(block)
+            %if idx > 0
+              %<blockid>_wr_buffer[%<idx-1>] = %<LibBlockInputSignal(idx, "", "", 0)>; /* Wr%<idx-1> */
+            %endif
+          %endforeach
+          status = OneWire%<module>_Write(%<blockid>_wr_buffer, %<LibBlockNumInputPorts(block)-1>);
+        }
+      %endif
+      %if LibBlockNumOutputPorts(block) > 1
+        /* Read */
+        if(status == 0)
+          status = OneWire%<module>_Read(%<LibBlockNumOutputPorts(block)-1>, %<blockid>_rd_buffer);
+        if (status == 0) {
+          %foreach idx=LibBlockNumOutputPorts(block)
+            %if idx > 0
+              %<LibBlockOutputSignal(idx, "", "", 0)> = %<blockid>_rd_buffer[%<idx-1>]; /* Rd%<idx-1> */
+            %endif
+         %endforeach          
+        }
+      %endif
+      /* Status */
+      %<LibBlockOutputSignal(0, "", "", 0)> = status;
+    }
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

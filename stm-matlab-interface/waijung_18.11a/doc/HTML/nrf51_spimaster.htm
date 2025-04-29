@@ -1,0 +1,297 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>nRF5 Target &gt; Block References &gt; On-chip Peripherals &gt; SPI &gt; SPI Master</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="SPI Master">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "nrf51_spimaster.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">SPI Master</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?nrf51_spimaster.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="nrf51_target.htm">nRF5 Target</a> &gt; <a href="nrf51_block_references.htm">Block References</a> &gt; <a href="nrf51_on-chip_peripherals.htm">On-chip Peripherals</a> &gt; <a href="spi3.htm">SPI</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">SPI Master</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="spi3.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="spi3.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="nrf51_spi_sdcard_setup.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">User Interface</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">How this block appears in a Simulink model?</span></h3>
+<p><img src="nrf51_spimaster_block.png" width="950" height="146" alt="nrf51_spimaster_block" style="width:950px;height:146px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">What can be configured?</span></h3>
+<p><img src="nrf51_spimaster_mask.png" width="950" height="694" alt="nrf51_spimaster_mask" style="width:950px;height:694px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 19px 0px 5px 0px;"><table style="border:solid 2px #000000; border-spacing:0px; border-collapse:collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<th style="vertical-align:top; width:281px; background-color:#c0c0c0; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Configuration item</span></p>
+</th>
+<th style="vertical-align:top; width:365px; background-color:#c0c0c0; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Selectable option/ Value</span></p>
+</th>
+<th style="vertical-align:top; width:599px; background-color:#c0c0c0; padding:0px; border:solid 1px #000000;"><p><span style="font-weight: bold;">Description</span></p>
+</th>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>SPI Module </p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>0 | 1</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Direction</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Full-Duplex | Half-Duplex_Tx | Half-Duplex_Rx</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><p>Full-Duplex: MISO, MOSI and clk available for communication.</p>
+<p>Half-Duplex_Tx: MOSI and clk available for communication.</p>
+<p>Half-Duplex_Rx: MISO and clk available for communication.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; height:29px; padding:0px; border:solid 1px #000000;"><p>Data format</p>
+</td>
+<td style="vertical-align:top; width:365px; height:29px; padding:0px; border:solid 1px #000000;"><p>FirstBit_MSB | FirstBit_LSB</p>
+</td>
+<td style="vertical-align:top; width:599px; height:29px; padding:0px; border:solid 1px #000000;"><p>FirstBit_MSB: the first bit of receiving byte is MSB.</p>
+<p>FirstBit_LSB: the first bit of receiving byte is LSB.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Clock frequency</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>125kHz | 250kHz | 500kHz | 1MHz | 2MHz |4MHz</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><p>SPI clock frequency selection.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Clock polarity (CPOL)/ Clock phase (CPHA):</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>CPOL_Low/ CPHA_Leading | CPOL_Low/ CPHA_Trailing |</p>
+<p>CPOL_High/ CPHA_Leading | CPOL_High/ CPHA_Trailing</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><p>CPOL_Low/ CPHA_Leading: clock polarity LOW and capture on leading (1st) edge.</p>
+<p>CPOL_Low/ CPHA_Trailing: clock polarity LOW and capture on trailing (2nd) edge.</p>
+<p>CPOL_High/ CPHA_Leading: clock polarity HIGH and capture on leading (1st) edge.</p>
+<p>CPOL_High/ CPHA_Trailing: clock polarity HIGH and capture on trailing (2nd) edge.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Slave/chip select (nSS, nCS) pin</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Select GPIO pin for CSS or &quot;None&quot; if this SPI pin did not controlled by this block.</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>SCLK pin:</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Select GPIO for SPI clock.</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>MISO pin:</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Select GPIO pin for MISO.</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>MOSI pin:</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Select GPIO pin for MOSI.</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Slave/chip select (nSS, nCS) delay time (uS)</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Optional, in the case that need some delay to &nbsp;after CSS pin activate. The delay value is in seconds..</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><p>Delay time in uS, between the falling edge of CSS and the first byte of data in a transaction.</p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Data frame delay time (uS)</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>Optional, in the case that need more delay time beterrn bytes.</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td style="vertical-align:top; width:281px; padding:0px; border:solid 1px #000000;"><p>Sample timer (sec)</p>
+</td>
+<td style="vertical-align:top; width:365px; padding:0px; border:solid 1px #000000;"><p>(Specify block sample time)</p>
+</td>
+<td style="vertical-align:top; width:599px; padding:0px; border:solid 1px #000000;"><br />
+</td>
+</tr>
+</table>
+</div>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo</span></h2>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

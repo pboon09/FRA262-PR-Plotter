@@ -1,0 +1,177 @@
+%implements waijung_vdata_array "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = block.Identifier %%CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of optionstring: %<SIZE(optionstring)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %if conf == "Setup"
+    %assign specificaddress = optionstring[0]
+    %assign memaddress      = optionstring[1]
+    %assign arrayname       = optionstring[2]
+    %assign arraytype       = optionstring[3]
+    %assign arraysize       = optionstring[4]
+    %assign varname         = optionstring[5]
+    %assign arraytype_str   = optionstring[6]
+    %assign block = block + specificaddress + memaddress + arrayname \
+                  + arraytype + arraysize + varname + arraytype_str
+  %endif
+  
+  %if (conf == "Read") || (conf == "Write")
+    %assign arrayname     = optionstring[0]
+    %assign arraytype     = optionstring[1]
+    %assign arraysize     = optionstring[2]
+    %assign varname       = optionstring[3]
+    %assign arraytype_str = optionstring[4]
+    %assign datatype      = optionstring[5]
+    %assign datatype_str  = optionstring[6]
+    %assign datacount     = optionstring[7]
+    %assign block = block + arrayname + arraytype + arraysize + varname \
+                  + arraytype_str + datatype + datatype_str + datacount
+  %endif
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STRING_LIB_H__) == 0)
+      %assign :: __STRING_LIB_H__ = 1
+      %openfile tmpBuf
+         #include <string.h>
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+  %if conf == "Setup"
+    #define %<varname>_SIZE %<arraysize>
+    #define %<varname>_BYTES_COUNT (sizeof(%<arraytype_str>)*%<varname>_SIZE)
+    %if specificaddress == "on"
+      extern %<arraytype_str> *%<varname>;
+    %else
+      extern %<arraytype_str> %<varname>[];
+    %endif
+  %endif
+void enable_%<blockid>(void);
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%if conf == "Setup"
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid> 
+   * ########################################################################
+   */
+  /* %<arrayname> */
+  %if specificaddress == "on"
+    %<arraytype_str> *%<varname> = (%<arraytype_str> *)%<memaddress>;
+  %else
+    %<arraytype_str> %<varname>[%<varname>_SIZE];
+  %endif
+%endif
+
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>  
+  %if conf =="Read"
+    /* %<blockid>: '%<block.Name>' */
+    %assign offset = LibBlockInputSignal(0, "", "", 0)
+    %assign dtname = LibBlockOutputSignalDataTypeName(0,"")
+    %assign yAddr = LibBlockOutputSignalAddr(0, "", "", 0)
+    %assign yWidth = LibBlockOutputSignalWidth(0)
+    %if LibBlockNumInputPorts(block) > 1
+     %assign size = LibBlockInputSignal(1, "", "", 0)
+      {
+        int32_t count = %<yWidth>;
+        if (count > %<size>)
+          count = %<size>;
+        if((sizeof(%<dtname>) * count + %<offset>) <= %<varname>_BYTES_COUNT) {
+          memcpy(%<yAddr>, (%<dtname> *)((uint32_t)&%<varname>[0] + %<offset>), (sizeof(%<dtname>) * count));
+        }
+      }
+    %else
+      if((sizeof(%<dtname>) * %<yWidth> + %<offset>) <= %<varname>_BYTES_COUNT) {    
+      memcpy(%<yAddr>, (%<dtname> *)((uint32_t)&%<varname>[0] + %<offset>), (sizeof(%<dtname>) * %<yWidth>));
+      }
+    %endif
+  %endif
+
+  %if conf =="Write"
+    /* %<blockid>: '%<block.Name>' */
+    %assign offset = LibBlockInputSignal(0, "", "", 0)
+    %assign dtname = LibBlockInputSignalDataTypeName(1,"")
+    %assign uAddr = LibBlockInputSignalAddr(1, "", "", 0)
+    %assign uWidth = LibBlockInputSignalWidth(1)
+    %if LibBlockNumInputPorts(block) > 2
+      %assign size = LibBlockInputSignal(2, "", "", 0)
+      {
+        int32_t count = %<uWidth>;      
+        if (count > %<size>)
+          count = %<size>;
+        if((sizeof(%<dtname>) * count + %<offset>) <= %<varname>_BYTES_COUNT) {
+          memcpy((%<arraytype_str> *)((uint32_t)&%<varname>[0] + %<offset>), %<uAddr>, (sizeof(%<dtname>) * count));
+        }
+      }
+    %else
+      if((sizeof(%<dtname>) * %<uWidth> + %<offset>) <= %<varname>_BYTES_COUNT) {
+        memcpy((%<arraytype_str> *)((uint32_t)&%<varname>[0] + %<offset>), %<uAddr>, (sizeof(%<dtname>) * %<uWidth>));
+      }
+    %endif
+  %endif
+%endfunction
+
+%function Start(block, system) Output
+%%/* %<blockid>: '%<block.Name>' */
+%endfunction %% Start
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
+

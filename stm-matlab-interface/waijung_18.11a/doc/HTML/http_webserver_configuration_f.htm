@@ -1,0 +1,222 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+   <title>Tips &amp; Tricks &gt; Boards &gt; Waijung Webserver Configuration for NUCLEAO-F429ZI</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta name="description" content="Waijung Webserver Configuration for NUCLEAO-F429ZI">
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <link type="text/css" href="default.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+
+<script type="text/javascript">   
+// Toggle Toggler 
+
+var toggleCount=false;
+var switchState;
+
+function toggleToggles() {
+
+    if (!toggleCount) {
+     toggleCount = true;
+     HMToggleExpandAll(true);
+     switchState = true;
+     }
+   
+     else if (switchState) {
+        HMToggleExpandAll(false);
+        switchState = false;
+        }
+        
+     else  {
+        HMToggleExpandAll(true);
+        switchState = true;
+        } 
+    }
+</script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style type="text/css" media="screen"> 
+html, body { margin:0; 
+   padding:0; 
+   overflow: hidden; 
+   background: #FFFFFF; 
+  }
+ 
+div#printheader { 
+   display: none;
+   padding-bottom: 10px;
+   }
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   #callout-table, #overview-table {display:block; position:relative; top:0; left:0;}
+   #callout-icon {display:block; position:absolute; top:-11px; left:-11px;}
+   #callout-icon-flag {display:block; position:absolute; top:-11px; left:-8px;}
+   #callout-table a {text-decoration: none; color: blue;}
+   #callout-table a:visited {text-decoration: none; color: blue;}
+   #overview-table a {text-decoration: none; color: black;}
+   #overview-table a:visited {text-decoration: none; color: black;}
+   #callout-table a:hover, #overview-table a:hover {text-decoration: underline;}
+   p.help-url { margin: 20px 0 5px 0; text-align: center; font-size: 80%; text-decoration: none }
+   .sync-toc { color: #ffffff; font-size: 8pt; font-weight: bold; display: none; }
+   .sync-toc a { color: #ffffff; text-decoration: none; font-weight: bold;}
+   .sync-toc a:visited { color: #ffffff; }
+   .sync-toc a:hover { text-decoration: underline; }
+   </style>
+<!--[if lt IE 7]>
+<style type="text/css">
+  #idcontent {padding: 0px;} 
+  #innerdiv {padding: 10px 5px 5px 10px ;} 
+</style> 
+<![endif]-->
+<noscript>
+<style type="text/css">
+html, body { overflow: auto; }
+</style> 
+</noscript>
+<style type="text/css" media="print">
+span.f_Heading1 { color: black; }
+#idheader, #printheader img { display:none; }
+#printheader { display: block; margin-top: 20px; }
+#idcontent { margin-top: 10px; }
+</style>   
+   <script type="text/javascript" src="jquery.js"></script>
+   <script type="text/javascript" src="helpman_settings.js"></script>
+   <script type="text/javascript" src="helpman_topicinit.js"></script>
+
+   <script type="text/javascript">
+     HMSyncTOC("index.htm", "http_webserver_configuration_f.htm");
+   </script>
+   <script type="text/javascript" src="highlight.js"></script>
+   <script type="text/javascript">
+     $(document).ready(function(){highlight();});
+   </script>
+</head>
+<body>
+<!--ZOOMSTOP-->
+
+
+<div id="printheader"><h1 class="p_Heading1"><span class="f_Heading1">Waijung Webserver Configuration for NUCLEAO-F429ZI</span></h1>
+</div> 
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="sync-toc">&lt;&lt; <a rel="nofollow" href="index.htm?http_webserver_configuration_f.htm" target="_top">Click to Display Table of Contents</a> &gt;&gt;</p>
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="waijung_related_topics.htm">Tips &amp; Tricks</a> &gt; <a href="boards.htm">Boards</a>&nbsp;&gt;</p>
+   <h1 class="p_Heading1"><span class="f_Heading1">Waijung Webserver Configuration for NUCLEAO-F429ZI</span></h1>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    
+     <a href="http_method_post_and_get_for_i.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="boards.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><img src="btn_next_d.gif" border="0">
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<h2 class="p_Heading2"><span class="f_Heading2">Overview</span></h2>
+<p>Waijung Web server blocks designed and test with <a href="https://www.aimagin.com/amg-lab-kit-f4-beginner.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">aMG Lab Kits Boards</a>, however the blocks allow Manual configuration to support other development board which using STM32F4 and MII or RMII interface for ETH PHY Chip. This topic demonstrate how to manual configuration with <a href="http://www.st.com/en/evaluation-tools/nucleo-f429zi.html" target="_blank" onclick="return HMTrackTopiclink(this);" class="weblink">NUCLEO-F429ZI</a> board.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Hardware Setup required for demonstration</span></h2>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_hardware_setup.png" width="950" height="523" alt="webserver_manual_configure_hardware_setup" style="width:950px;height:523px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">1. SD Card expansion</span></h3>
+<p>SD memory card required for storing Web page files and picture.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">SDMMC Pin out , CN8 of NUCLEO-F429ZI board (from the Schematic diagram of User Manuals). </td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_sdcard_cn8.png" width="950" height="385" alt="webserver_manual_configure_sdcard_cn8" style="width:950px;height:385px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none">SDMMC Pin out, Expansion module</td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_sdcard_expansion.png" width="950" height="232" alt="webserver_manual_configure_sdcard_expansion" style="width:950px;height:232px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. LDR Sensor</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_hardware_ldr.png" width="950" height="320" alt="webserver_manual_configure_hardware_ldr" style="width:950px;height:320px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Waijung Blocks Setup</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">1. Target Setup block</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_targetsetup.png" width="950" height="752" alt="webserver_manual_configure_block_targetsetup" style="width:950px;height:752px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">2. Web server blocks</span></h3>
+<p>Waijung Web server is a set of following blocks, below manual configuration for NUCLEO-F429ZI board:</p>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_waijung_webserver.png" width="950" height="269" alt="webserver_manual_configure_block_waijung_webserver" style="width:950px;height:269px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="waijung_ethernet_inf.htm" class="topiclink">Ethernet Link Setup</a></td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_ethernetlink_setup.png" width="950" height="595" alt="webserver_manual_configure_block_ethernetlink_setup" style="width:950px;height:595px;border:none" /></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="waijung_ethernet_app.htm" class="topiclink">Ethernet Application Setup</a></td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_ethernetapp_setup.png" width="950" height="431" alt="webserver_manual_configure_block_ethernetapp_setup" style="width:950px;height:431px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">&nbsp;</p>
+<p><span style="width:48px">&nbsp;</span>Make sure IP address did not conflict with other device in the network.</p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 5px 0px 5px 0px;"><table border="0" cellpadding="0" cellspacing="0" style="border:none;border-spacing:0px;padding:0px;line-height: normal;"><tr valign="baseline" style="vertical-align:baseline"><td style="border:none;width:13px"><span style="font-size:11pt; font-family: 'Arial Unicode MS','Lucida Sans Unicode','Arial';color:#000000;">&#8226;</span></td><td style="border:none"><a href="http_server_setup.htm" class="topiclink">Http Server Setup</a></td></tr></table></div><p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_block_httpserver_setup.png" width="950" height="503" alt="webserver_manual_configure_block_httpserver_setup" style="width:950px;height:503px;border:none" /></p>
+<h2 class="p_Heading2"><span class="f_Heading2">Demo model file</span></h2>
+<p>The demo file for NUCLEO-F429ZI board located in directory &quot;targets\stm32f4_target\stm32f4\demo\boards\nucleo_f429zi&quot;.</p>
+<p>Model file: webserver_start_firstpage_demo.mdl</p>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_demo.png" width="950" height="508" alt="webserver_manual_configure_model_demo" style="width:950px;height:508px;border:none" /></p>
+<h3 class="p_Heading3"><span class="f_Heading3">ADC Demo</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_adc_demo.png" width="950" height="233" alt="webserver_manual_configure_model_adc_demo" style="width:950px;height:233px;border:none" /></p>
+<p><span style="width:48px">&nbsp;</span>ADC Demo sub-system read Analog value from AN9 (PB1). Convert the reading value to voltage then store into variable &quot;adc1&quot;, which enable the Web CGI varget/varset integration.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">LED Demo</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_led_demo.png" width="950" height="388" alt="webserver_manual_configure_model_led_demo" style="width:950px;height:388px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">Variable led1, led2 and led3 can be set/or clear via web command (Web CGI varget/varset integration).</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Build and Run the Demo model file</span></h2>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_buildandrun.png" width="950" height="428" alt="webserver_manual_configure_model_buildandrun" style="width:950px;height:428px;border:none" /></p>
+<p>All green, indicate success. Note for application which implement boot loader, please disable Full Chip Erase.</p>
+<h2 class="p_Heading2"><span class="f_Heading2">Testing</span></h2>
+<h3 class="p_Heading3"><span class="f_Heading3">Run first page</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_test_firstpage.png" width="950" height="523" alt="webserver_manual_configure_model_test_firstpage" style="width:950px;height:523px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">The first page above can be override by a custom index.html which uploaded to store in SD card via &quot;Upload file&quot; menu.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">List the available Variables for Web-CGI interface</span></h3>
+<p style="margin: 5px 0px 5px 24px;"><span style="font-style: italic; font-weight: bold;">http://192.168.1.42/varget.cgi?action=getlist</span></p>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_test_variable_list.png" width="950" height="523" alt="webserver_manual_configure_model_test_variable_list" style="width:950px;height:523px;border:none" /></p>
+<p style="margin: 5px 0px 5px 24px;">Picture above, the response showing 4 variables available (one line for a variable information). Variable information is Name, Data type and Access type.</p>
+<p style="margin: 5px 0px 5px 24px;">For more information, see <a href="remote_variable_interface.htm" class="topiclink">Remote variable interface</a>.</p>
+<h3 class="p_Heading3"><span class="f_Heading3">Display ADC value on the web-page</span></h3>
+<p>Upload adc.html to the running Webserver board. The uploaded file will be stored in SD card memory.</p>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_test_display_adc.png" width="950" height="881" alt="webserver_manual_configure_model_test_display_adc" style="width:950px;height:881px;border:none" /></p>
+<p>Run adc.html, ADC Reading value will be periodic reload or Click button to force reload.</p>
+<p style="margin: 5px 0px 5px 24px;"><img src="webserver_manual_configure_model_test_display_adc_value.png" width="950" height="523" alt="webserver_manual_configure_model_test_display_adc_value" style="width:950px;height:523px;border:none" /></p>
+<p>&nbsp;</p>
+
+<!--ZOOMSTOP-->
+</div></div>
+<script type="text/javascript">
+
+var lastSlashPos = document.URL.lastIndexOf("/") > document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") : document.URL.lastIndexOf("\\");
+if( document.URL.substring(lastSlashPos + 1, lastSlashPos + 4).toLowerCase() != "~hh" )
+{
+ if (document.all) setTimeout(function() {nsrInit();},20); 
+    else nsrInit();
+ } 
+
+if ((!parent.hmNavigationFrame) && (parent.location) && (parent.location.href)) { $('.sync-toc').show();$('p.crumbs').hide();}
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+

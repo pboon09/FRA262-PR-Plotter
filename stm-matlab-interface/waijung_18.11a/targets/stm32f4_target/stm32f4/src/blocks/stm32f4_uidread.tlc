@@ -1,0 +1,88 @@
+%implements stm32f4_uidread "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+%assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+%assign sampletimestr = CAST("Number",SFcnParamSettings.sampletimestr)
+%assign blockid = CAST("String",SFcnParamSettings.blockid)
+%assign block = block + sampletime + sampletimestr + blockid
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+
+   %openfile tmpBuf
+      /* Unique ID Based Address */
+      #define UID32BaseAddress_%<blockid> 0x1FFF7A10
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDefines")>
+   %<LibSetSourceFileCustomSection(file,"cDefines",tmpBuf)>
+
+   %openfile tmpBuf
+      /* Unique ID data */
+      extern uint32_t UID32_%<blockid>[3]; 
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+   %<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+   %openfile tmpBuf
+      /* Eanble Unique ID Read */
+      void enable_%<blockid>(void);
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+      /* Unique ID data */
+      uint32_t UID32_%<blockid>[3];
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cDeclarations")>
+   %<LibSetSourceFileCustomSection(file,"cDeclarations",tmpBuf)>
+
+   %openfile tmpBuf
+      /* Eanble Unique ID Read */
+      void enable_%<blockid>(void){
+         UID32_%<blockid>[0] = * (volatile uint32_t*) UID32BaseAddress_%<blockid>;
+         UID32_%<blockid>[1] = * (volatile uint32_t*) (UID32BaseAddress_%<blockid> + 4);
+         UID32_%<blockid>[2] = * (volatile uint32_t*) (UID32BaseAddress_%<blockid> + 8);
+      }
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function Outputs(block, system) Output
+   %<addParametersToBlock(block)>
+   /* %<Type> Block: %<Name> (%<ParamSettings.FunctionName>) */
+
+   %assign y0 = LibBlockOutputSignal(0, "", "", 0)
+   %assign y1 = LibBlockOutputSignal(0, "", "", 1)
+   %assign y2 = LibBlockOutputSignal(0, "", "", 2)
+   %<y0> = UID32_%<blockid>[0];
+   %<y1> = UID32_%<blockid>[1];
+   %<y2> = UID32_%<blockid>[2];
+%endfunction
+
+%function Enable(block, system) Output
+   %<addParametersToBlock(block)>
+   enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+   %<addParametersToBlock(block)>
+%endfunction
+
+%function Terminate(block, system) Output
+   %<addParametersToBlock(block)>
+%endfunction
+

@@ -1,0 +1,174 @@
+%implements stm32f4_boot "C"
+%selectfile NULL_FILE
+
+%function addParametersToBlock(block) void
+  %assign conf = CAST("String",SFcnParamSettings.conf)
+  %assign sampletime = CAST("Number",SFcnParamSettings.sampletime)
+  %assign blockid = CAST("String",SFcnParamSettings.blockid)
+
+  %% Size of confstr: %<SIZE(confstr)[1]>
+  %assign block = block + conf + sampletime + blockid
+
+  %assign sector_addr = confstr[0]
+  %assign block = block + sector_addr
+%endfunction
+
+%function BlockTypeSetup(block, system) void
+%<addParametersToBlock(block)>
+   %if (EXISTS(::__STM32F4XX_BOOT_ISR__) == 0)
+      %assign :: __STM32F4XX_BOOT_ISR__ = 1
+      %openfile tmpBuf
+         #include "waijung_hwdrvlib.h"
+         #include "%<LibGetMdlPubHdrBaseName()>.h"
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_boot")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cIncludes")>
+      %<LibSetSourceFileCustomSection(file,"cIncludes",tmpBuf)>
+   %endif
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+   %openfile tmpBuf
+
+   %closefile tmpBuf
+   %assign file = LibCreateSourceFile("Source", "Custom", "waijung_hwdrvlib")
+   %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+   %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%endfunction
+
+%function BlockInstanceSetup(block, system) void
+%<addParametersToBlock(block)>
+%if conf == "Boot"
+%addtorecord block AsyncCallerGenCode TLC_TRUE
+%endif
+
+%openfile tmpBuf
+/* ########################################################################
+ * Name: %<Name>
+ * Id: %<blockid>
+ * ########################################################################
+*/
+  %if conf == "Goto"
+    #define %<block.Identifier>_SECTOR_ADDRESS 0x%<sector_addr>UL
+    typedef  void (*pFunction_%<block.Identifier>)(void);
+    extern pFunction_%<block.Identifier> %<block.Identifier>_Jump_To_Application;
+    extern uint32_t %<block.Identifier>_JumpAddress;
+  %endif
+  %if conf == "Boot"
+    #define SYSTEM_BOOTLOADER_ENABLE 1
+    #define SYSTEM_BOOTLOADER() {system_boot_loader();}
+    void system_boot_loader(void);
+  %endif
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Header", "Custom", "waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+
+%openfile tmpBuf
+%if conf == "Goto"
+  /* ########################################################################
+   * Name: %<Name>
+   * Id: %<blockid> 
+   * ########################################################################
+   */
+  pFunction_%<block.Identifier> %<block.Identifier>_Jump_To_Application;
+  uint32_t %<block.Identifier>_JumpAddress;
+  %endif
+  %%void enable_%<blockid>(void){
+  %%
+  %%}
+  %%
+%closefile tmpBuf
+%assign file = LibCreateSourceFile("Source", "Custom","waijung_hwdrvlib")
+%<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+%<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+%endfunction
+
+%function Outputs(block, system) Output
+%<addParametersToBlock(block)>
+  %if conf == "Goto"
+    /* %<blockid>: '%<block.Name>' */
+    if (((*(__IO uint32_t*)%<block.Identifier>_SECTOR_ADDRESS) & 0x2FFE0000 ) == 0x20000000) {
+      /* Jump to another sector application */
+      %<block.Identifier>_JumpAddress = *(__IO uint32_t*) (%<block.Identifier>_SECTOR_ADDRESS + 4);
+      %<block.Identifier>_Jump_To_Application = (pFunction_%<block.Identifier>) %<block.Identifier>_JumpAddress;
+      /* Re-Initialize Stack Pointer */
+      __set_MSP(*(__IO uint32_t*) %<block.Identifier>_SECTOR_ADDRESS);
+      %<block.Identifier>_Jump_To_Application();
+    }
+  %endif
+
+  %if conf == "Boot"
+    %if LibBlockOutputSignalConnected(0)
+      %% Get the downstream block
+      %assign callIdx = 0  %% Only allowed to connect one function call subsystem
+      %assign ssBlock = LibGetFcnCallBlock(block,callIdx)
+  
+      %if !block.GenCodeForTopAsyncSS     
+        %%Don't generate code for downstream f-c subsystem
+        %%if GenCodeForTopAsyncSS is not set yet.
+        %return
+      %endif
+
+      %% Call the downstream function call subsystem
+      %openfile tmpBuf
+        %<LibBlockExecuteFcnCall(block, callIdx)>\
+      %closefile tmpBuf   
+
+      %% Always create the ISR function
+      %openfile funcbuf
+        /* ########################################################################
+         * Block Name: %<block.Name>
+         * Block ID: %<blockid>
+         * ########################################################################
+         */
+        void system_boot_loader(void) {
+        %if WHITE_SPACE(tmpBuf)
+          /* Nothing to do for system: %<ssBlock.Name> */
+        %else
+          /* Call the system: %<ssBlock.Name> */
+          %<tmpBuf>
+        %endif
+        }
+      %closefile funcbuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_boot")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+      %<LibSetSourceFileCustomSection(file,"cFunctions",funcbuf)>    
+    %else
+      %openfile tmpBuf
+        /* ########################################################################
+         * Block Name: %<block.Name>
+         * Block ID: %<blockid>
+         * ########################################################################
+         */
+        void system_boot_loader(void) {
+          /* Ouput ISR block is not connected */
+        }
+      %closefile tmpBuf
+      %assign file = LibCreateSourceFile("Source", "Custom", LibGetMdlSrcBaseName() + "_boot")
+      %<LibAddSourceFileCustomSection(file,"Declarations","cFunctions")>
+      %<LibSetSourceFileCustomSection(file,"cFunctions",tmpBuf)>
+    %endif  
+  %endif
+%endfunction
+
+%function Enable(block, system) Output
+%<addParametersToBlock(block)>
+%%enable_%<blockid>();
+%endfunction
+
+%function Disable(block, system) Output
+%<addParametersToBlock(block)>
+%%disable_%<blockid>();
+%endfunction
+
+%function Terminate(block, system) Output
+%<addParametersToBlock(block)>
+%%/* terminate_%<blockid>(); */
+%endfunction
