@@ -76,9 +76,7 @@ float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
 float revolute_current = 0.0f;
 
-int b1, b2, b3, b4, prox, emer, photo_pris, photo_revo, up_lim, low_lim;
-float joy_x, joy_y;
-
+int b1, b2, b3, b4, prox, emer, up_photo, low_photo, up_lim, low_lim;
 void plotter_begin() {
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -187,8 +185,8 @@ void update_sensors() {
 	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
 
 	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
-	photo_pris = HAL_GPIO_ReadPin(PHOTO_PRIS_GPIO_Port, PHOTO_PRIS_Pin);
-	photo_revo = HAL_GPIO_ReadPin(PHOTO_REVO_GPIO_Port, PHOTO_REVO_Pin);
+	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
 	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
 	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
@@ -197,8 +195,7 @@ void update_sensors() {
 //    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }
 
-void test_sensors_motor_servo(float duty_pris, float duty_revo,
-		float duty_servo) {
+void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo) {
 	update_sensors();
 
 	QEI_get_diff_count(&revolute_encoder);
@@ -210,22 +207,6 @@ void test_sensors_motor_servo(float duty_pris, float duty_revo,
 	MDXX_set_range(&prismatic_motor, 2000, duty_pris);
 	MDXX_set_range(&revolute_motor, 2000, duty_revo);
 	PWM_write_duty(&servo, 50, duty_servo);
-
-	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
-	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
-	b3 = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
-	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
-
-	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
-	photo_pris = HAL_GPIO_ReadPin(PHOTO_PRIS_GPIO_Port, PHOTO_PRIS_Pin);
-	photo_revo = HAL_GPIO_ReadPin(PHOTO_REVO_GPIO_Port, PHOTO_REVO_Pin);
-	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
-
-	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
-
-	joy_x = joystick_x;
-	joy_y = joystick_y;
 }
 
 void pen_up() {
@@ -234,8 +215,4 @@ void pen_up() {
 
 void pen_down() {
 	PWM_write_duty(&servo, 50, 12);
-}
-
-void KalmanTuning(){
-
 }

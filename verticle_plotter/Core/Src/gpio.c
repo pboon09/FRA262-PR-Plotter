@@ -69,9 +69,9 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : UPPER_LIM_Pin LOWER_LIM_Pin PHOTO_REVO_Pin EMER_Pin
+  /*Configure GPIO pins : UPPER_LIM_Pin LOWER_LIM_Pin UPPER_PHOTO_Pin EMER_Pin
                            PROX_Pin SAVE_Pin */
-  GPIO_InitStruct.Pin = UPPER_LIM_Pin|LOWER_LIM_Pin|PHOTO_REVO_Pin|EMER_Pin
+  GPIO_InitStruct.Pin = UPPER_LIM_Pin|LOWER_LIM_Pin|UPPER_PHOTO_Pin|EMER_Pin
                           |PROX_Pin|SAVE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -84,11 +84,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PHOTO_PRIS_Pin */
-  GPIO_InitStruct.Pin = PHOTO_PRIS_Pin;
+  /*Configure GPIO pin : LOWER_PHOTO_Pin */
+  GPIO_InitStruct.Pin = LOWER_PHOTO_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PHOTO_PRIS_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(LOWER_PHOTO_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : START_Pin DELETE_Pin RESET_SYS_Pin */
   GPIO_InitStruct.Pin = START_Pin|DELETE_Pin|RESET_SYS_Pin;
