@@ -74,7 +74,7 @@ void Error_Handler(void);
 #define UPPER_LIM_GPIO_Port GPIOB
 #define LOWER_LIM_Pin GPIO_PIN_2
 #define LOWER_LIM_GPIO_Port GPIOB
-#define PHOTO_REVO_Pin GPIO_PIN_10
+#define PHOTO_REVO_Pin GPIO_PIN_12
 #define PHOTO_REVO_GPIO_Port GPIOB
 #define PHOTO_PRIS_Pin GPIO_PIN_8
 #define PHOTO_PRIS_GPIO_Port GPIOA
