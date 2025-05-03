@@ -7,6 +7,9 @@
 
 #include <plotter_config.h>
 
+RobotState current_state = IDLE;
+RobotState previous_state = IDLE;
+
 MDXX prismatic_motor;
 MDXX revolute_motor;
 

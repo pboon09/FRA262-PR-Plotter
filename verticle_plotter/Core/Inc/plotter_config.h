@@ -26,6 +26,85 @@
 #include "ModBusRTU.h"
 #include "DC_MOTOR.h"
 
+typedef enum {
+	IDLE,
+	JOG_MODE,
+	RETURN_TO_HOME,
+	EMERGENCY_TRIGGED
+} RobotState;
+
+typedef enum {
+	NO_POINT_SET,
+	POINT_1_SET,
+	POINT_2_SET,
+	POINT_3_SET,
+	POINT_4_SET,
+	POINT_5_SET,
+	POINT_6_SET,
+	POINT_7_SET,
+	POINT_8_SET,
+	POINT_9_SET,
+	POINT_10_SET,
+	IDLE
+}SetPointState;
+
+typedef enum {
+	GO_TO_POINT,
+	DOWN,
+	UP,
+	COMPLETE,
+	IDLE
+}MovingThroghPointState;
+
+typedef enum {
+	WRITING,
+	COMPLETE,
+	IDLE
+}WriteLetterState;
+
+typedef enum {
+	A1B1_MODE,
+	A2B2_MODE,
+	EMERGENCY_MODE,
+	A1B1_SETPOINT,
+	A1B1_MOVING,
+	A1B1_IDEL,
+	A2B2_WRITING,
+	A2B2_GOTO_HOME,
+	A2B2_IDEL
+} JoyStickState;
+
+typedef enum {
+	AT_HOME_POSITION,
+	GOING_HOME,
+	AT_TOP_END_POSITION,
+	GOING_TOP_END,
+	AT_BOTTOM_END_POSITION,
+	GOING_BOTTOM_END,
+	GO_UP,
+	GO_DOWN,
+	TARGET_REACH
+} PrismaticPosition;
+
+typedef enum {
+	AT_HOME_POSITION,
+	GOING_HOME,
+	GO_CLOCKWISE,
+	GO_COUNTER_CLOCKWISE,
+	TARGET_REACH
+} RevolutePosition;
+
+typedef enum {
+	IDLE,
+	DOWN,
+	UP,
+} ServoState;
+
+typedef enum {
+	PUSHED,
+	DEFAULT
+} EmergencyState;
+
 /*-------Configure Signal Generator Start------*/
 extern SignalGenerator sine_sg_PWM;
 extern SignalGenerator square_sg_PWM;
@@ -213,8 +292,11 @@ extern float joy_x, joy_y;
 /*----- Test Sensor and Motor End -----*/
 
 void plotter_begin();
+void plotter_reset();
+
 void update_sensors();
-void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
+void test_sensors_motor_servo(float duty_pris, float duty_revo,
+		float duty_servo);
 void pen_up();
 void pen_down();
 

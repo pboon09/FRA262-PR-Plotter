@@ -28,6 +28,7 @@
 /* USER CODE BEGIN Includes */
 #include "plotter_config.h"
 #include "Trapezoidal.h"
+#include "serial_frame.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -300,150 +301,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			registerFrame[R_Theta_Status].U16 = 0;
 
 		}
-
-//		if (trajectoryActive && !prisEva.isFinised) {
-//			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
-//					ZGX45RGG_400RPM_Constant.qd_max,
-//					ZGX45RGG_400RPM_Constant.qd_max * 3.0);
-//
-//			current_position = prisEva.setposition;
-//			current_velocity = prisEva.setvelocity;
-//
-//			setpoint_pos = current_position;
-//			setpoint_vel = current_velocity;
-//			QEI_get_diff_count(&prismatic_encoder);
-//			QEI_compute_data(&prismatic_encoder);
-//
-//			lp_filt = FIR_process(&LP_prismatic_velocity,
-//					prismatic_encoder.radps);
-//
-//			cmd_vx = PID_CONTROLLER_Compute(&prismatic_position_pid,
-//					setpoint_pos - prismatic_encoder.rads);
-//			cmd_ux = PWM_Satuation(
-//					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
-//							cmd_vx + setpoint_vel - lp_filt), 65535, -65535);
-//		} else {
-//			trajectoryActive = false;
-//			cmd_ux = 0;
-//		}
-//
-//		MDXX_set_range(&prismatic_motor, 2000, cmd_ux);
-
-//		if (trajectoryActive && !prisEva.isFinised) {
-//			Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p,
-//					ZGX45RGG_150RPM_Constant.qd_max,
-//					ZGX45RGG_150RPM_Constant.qd_max * 3.0);
-//
-//			current_position = prisEva.setposition;
-//			current_velocity = prisEva.setvelocity;
-//
-//			setpoint_pos = current_position;
-//			setpoint_vel = current_velocity;
-//
-//			QEI_get_diff_count(&revolute_encoder);
-//			QEI_compute_data(&revolute_encoder);
-//
-//			lp_filt = FIR_process(&LP_revolute_velocity,
-//					revolute_encoder.radps);
-//
-//			cmd_vx = PID_CONTROLLER_Compute(&revolute_position_pid,
-//					setpoint_pos - revolute_encoder.rads);
-//			cmd_ux = PWM_Satuation(
-//					PID_CONTROLLER_Compute(&revolute_velocity_pid,
-//							cmd_vx + setpoint_vel - lp_filt), 65535, -65535);
-//		} else {
-//			trajectoryActive = false;
-//			cmd_ux = 0;
-//		}
-//
-//		MDXX_set_range(&revolute_motor, 2000, cmd_ux);
 	}
 }
-
-//if (trajectoryActive && !prisEva.isFinised) {
-//	// Evaluate trajectory
-//	Trapezoidal_Evaluated(&prisGen, &prisEva, initial_p, target_p, vmax, amax);
-//
-//	// Update variables for CubeMonitor
-//	current_position = prisEva.setposition;
-//	current_velocity = prisEva.setvelocity;
-//	current_acceleration = prisEva.setacceleration;
-//
-//} else {
-//	current_duty = 0.0f;
-//	trajectoryActive = false;
-//}
-//
-//if (b4) {
-//	// No longer system reset - now it's a move to target 4
-//	if (!trajectoryActive) {
-//		// Initialize evaluator
-//		prisEva.t = 0.0f;
-//		prisEva.isFinised = false;
-//
-//		// Set initial position to current position
-//		initial_p = current_position;
-//
-//		// Set target to position 4
-//		target_p = TARGET_POS_4;
-//
-//		// Generate trapezoidal trajectory
-//		Trapezoidal_Generator(&prisGen, initial_p, target_p, vmax,
-//				amax);
-//		trajectoryActive = true;
-//	}
-//} else if (b3) {
-//	if (!trajectoryActive) {
-//		// Initialize evaluator
-//		prisEva.t = 0.0f;
-//		prisEva.isFinised = false;
-//
-//		// Set initial position to current position
-//		initial_p = current_position;
-//
-//		// Set target to position 3
-//		target_p = TARGET_POS_3;
-//
-//		// Generate trapezoidal trajectory
-//		Trapezoidal_Generator(&prisGen, initial_p, target_p, vmax,
-//				amax);
-//		trajectoryActive = true;
-//	}
-//} else if (b2) {
-//	if (!trajectoryActive) {
-//		// Initialize evaluator
-//		prisEva.t = 0.0f;
-//		prisEva.isFinised = false;
-//
-//		// Set initial position to current position
-//		initial_p = current_position;
-//
-//		// Set target to position 2
-//		target_p = TARGET_POS_2;
-//
-//		// Generate trapezoidal trajectory
-//		Trapezoidal_Generator(&prisGen, initial_p, target_p, vmax,
-//				amax);
-//		trajectoryActive = true;
-//	}
-//} else if (b1) {
-//	if (!trajectoryActive) {
-//		// Initialize evaluator
-//		prisEva.t = 0.0f;
-//		prisEva.isFinised = false;
-//
-//		// Set initial position to current position
-//		initial_p = current_position;
-//
-//		// Set target to position 1
-//		target_p = TARGET_POS_1;
-//
-//		// Generate trapezoidal trajectory
-//		Trapezoidal_Generator(&prisGen, initial_p, target_p, vmax,
-//				amax);
-//		trajectoryActive = true;
-//	}
-//}
 /* USER CODE END 4 */
 
 /**
