@@ -27,11 +27,12 @@
 #include "DC_MOTOR.h"
 
 typedef enum {
-	IDLE,
-	JOG_MODE,
-	MOVING,
-	RETURN_TO_HOME,
-	EMERGENCY_TRIGGED
+	RS_IDLE,
+	RS_JOG_MODE,
+	RS_POINT_MODE,
+	RS_MOVING,
+	RS_RETURN_TO_HOME,
+	RS_EMERGENCY_TRIGGED
 } RobotState;
 
 typedef enum {
@@ -46,21 +47,21 @@ typedef enum {
 	POINT_8_SET,
 	POINT_9_SET,
 	POINT_10_SET,
-	IDLE
+	POINT_IDLE
 }SetPointState;
 
 typedef enum {
-	GO_TO_POINT,
-	DOWN,
-	UP,
-	COMPLETE,
-	IDLE
+	MOVING_GO_TO_POINT,
+	MOVING_DOWN,
+	MOVING_UP,
+	MOVING_COMPLETE,
+	MOVING_IDLE
 }MovingThroghPointState;
 
 typedef enum {
-	WRITING,
-	COMPLETE,
-	IDLE
+	WRITE_WRITING,
+	WRITE_COMPLETE,
+	WRITE_IDLE
 }WriteLetterState;
 
 typedef enum {
@@ -69,36 +70,37 @@ typedef enum {
 	EMERGENCY_MODE,
 	A1B1_SETPOINT,
 	A1B1_MOVING,
-	A1B1_IDEL,
 	A2B2_WRITING,
 	A2B2_GOTO_HOME,
-	A2B2_IDEL
+	JOY_IDLE
 } JoyStickState;
 
 typedef enum {
-	AT_HOME_POSITION,
-	GOING_HOME,
-	AT_TOP_END_POSITION,
-	GOING_TOP_END,
-	AT_BOTTOM_END_POSITION,
-	GOING_BOTTOM_END,
-	GO_UP,
-	GO_DOWN,
-	TARGET_REACH
+	PP_AT_HOME_POSITION,
+	PP_GOING_HOME,
+	PP_AT_TOP_END_POSITION,
+	PP_GOING_TOP_END,
+	PP_AT_BOTTOM_END_POSITION,
+	PP_GOING_BOTTOM_END,
+	PP_GO_UP,
+	PP_GO_DOWN,
+	PP_TARGET_REACH,
+	PP_UNKNOW
 } PrismaticPosition;
 
 typedef enum {
-	AT_HOME_POSITION,
-	GOING_HOME,
-	GO_CLOCKWISE,
-	GO_COUNTER_CLOCKWISE,
-	TARGET_REACH
+	RP_AT_HOME_POSITION,
+	RP_GOING_HOME,
+	RP_GO_CLOCKWISE,
+	RP_GO_COUNTER_CLOCKWISE,
+	RP_TARGET_REACH,
+	RP_UNKNOWN
 } RevolutePosition;
 
 typedef enum {
-	IDLE,
-	DOWN,
-	UP,
+	PEN_IDLE,
+	PEN_DOWN,
+	PEN_UP,
 } ServoState;
 
 typedef enum {
@@ -178,8 +180,9 @@ extern QEI revolute_encoder;
 #define ENC_TIM2 &htim3
 #define ENC_PPR 8192.0
 #define ENC_FREQ 1000
-#define MOTOR_RATIO1 1.0f
-#define MOTOR_RATIO2 1.0f
+#define MOTOR1_RATIO 1.0f
+#define MOTOR2_RATIO 1.0f
+#define MOTOR2_PULLEY_DIAMETER 0.0f //mm
 /*-----Configure Encoder End-----*/
 
 /*-------Configure Controller Start------*/
@@ -273,31 +276,52 @@ extern u16u8_t registerFrame[200];
 #define Theta_Axis_Actual_Speed 0x14 //Write
 #define R_Axis_Acceleration 0x15 //Write
 #define Theta_Axis_Acceleration 0x16 //Write
-#define Target_Pos_1 0x20 // Read
-#define Target_Pos_2 0x21 // Read
-#define Target_Pos_3 0x22 // Read
-#define Target_Pos_4 0x23 // Read
-#define Target_Pos_5 0x24 // Read
-#define Target_Pos_6 0x25 // Read
-#define Target_Pos_7 0x26 // Read
-#define Target_Pos_8 0x27 // Read
-#define Target_Pos_9 0x28 // Read
-#define Target_Pos_10 0x29 // Read
+#define Target_PosR_1 0x20 // Read
+#define Target_PosT_1 0x21 // Read
+#define Target_PosR_2 0x22 // Read
+#define Target_PosT_2 0x23 // Read
+#define Target_PosR_3 0x24 // Read
+#define Target_PosT_3 0x25 // Read
+#define Target_PosR_4 0x26 // Read
+#define Target_PosT_4 0x27 // Read
+#define Target_PosR_5 0x28 // Read
+#define Target_PosT_5 0x29 // Read
+#define Target_PosR_6 0x30 // Read
+#define Target_PosT_6 0x31 // Read
+#define Target_PosR_7 0x32 // Read
+#define Target_PosT_7 0x33 // Read
+#define Target_PosR_8 0x34 // Read
+#define Target_PosT_8 0x35 // Read
+#define Target_PosR_9 0x36 // Read
+#define Target_PosT_9 0x37 // Read
+#define Target_PosR_10 0x38 // Read
+#define Target_PosT_10 0x39 // Read
+
 #define Goal_R 0x30 // Read
 #define Goal_Theta 0x21 // Read
 /*----- Config ModBus End -----*/
 
 /*----- Sensor State Variable Start -----*/
 extern int b1, b2, b3, b4, prox, emer, up_photo, low_photo, up_lim, low_lim;
+
+extern RobotState rs_current_state;
+extern RobotState rs_previous_state;
+extern SetPointState setpoint_state;
+extern MovingThroghPointState moving_state;
+extern WriteLetterState writing_state;
+extern JoyStickState joy_state;
+extern PrismaticPosition prismatic_state;
+extern RevolutePosition revolute_state;
+extern ServoState servo_state;
+extern EmergencyState emer_state;
 /*----- Sensor State Variable End -----*/
 
 void plotter_begin();
 void plotter_reset();
+void plotter_update_sensors();
+void plotter_pen_up();
+void plotter_pen_down();
 
-void update_sensors();
-void test_sensors_motor_servo(float duty_pris, float duty_revo,
-		float duty_servo);
-void pen_up();
-void pen_down();
+void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
 
 #endif /* INC_PLOTTER_CONFIG_H_ */

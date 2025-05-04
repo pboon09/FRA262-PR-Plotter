@@ -25,7 +25,7 @@ Motor_Constant_Structure ZGX45RGG_150RPM_Constant = {
     .B = 0.065057814635037,
     .V_max = 12.0,
     .U_max = 65535.0,
-    .qd_max = 15.707963249999999, // rad/s
+    .qd_max = 15.707963249999999, 			// rad/s
 	.qdd_max =  15.707963249999999 * 0.4
 };
 
@@ -38,16 +38,15 @@ Motor_Constant_Structure ZGX45RGG_400RPM_Constant = {
     .B = 0.017519651130878,
     .V_max = 12.0,
     .U_max = 65535.0,
-    .qd_max = 41.887902, // rad/s
-	.qdd_max =  41.887902 * 0.5
+    .qd_max = 41.887902 					// rad/s
 };
 
 Environment Disturbance_Constant = {
-    .g = 9.81,               // m/s²
-    .plotter_mass = 500e-3,  // kg
-    .slide_rail_mass = 1893.96e-3, // kg
-    .c = 64.83e-3,           // m
-    .prismatic_pulley = 1.5915e-2 // m
+    .g = 9.81,               			// m/s²
+    .plotter_mass = 500e-3,  			// kg
+    .slide_rail_mass = 1893.96e-3, 		// kg
+    .c = 64.83e-3,           			// m
+    .prismatic_pulley_radius = 1.5915e-2 		// m
 };
 
 void REVOLUTE_MOTOR_FFD_Init(DC_MOTOR_FFeedward *motor, Motor_Constant_Structure *_Mx){
@@ -100,7 +99,7 @@ float PRISMATIC_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float qd, 
     float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * cos(q);
     float centrifugal_force = motor->En->plotter_mass * qd * qd * s;
 
-    float transfer_function = (motor->Mx->R * motor->En->prismatic_pulley) / motor->Mx->Kt;
+    float transfer_function = (motor->Mx->R * motor->En->prismatic_pulley_radius) / motor->Mx->Kt;
 
     float v = (gravity_compensate_plotter + centrifugal_force) * transfer_function;
 

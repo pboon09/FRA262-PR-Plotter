@@ -19,6 +19,8 @@ typedef struct {
     double U_max;       // Maximum control signal
     double qd_max;      // Maximum angular velocity (rad/s)
     double qdd_max;
+    double sd_max;
+    double sdd_max;
 } Motor_Constant_Structure;
 
 typedef struct {
@@ -26,7 +28,7 @@ typedef struct {
     double plotter_mass;		// Mass of plotter (kg)
     double slide_rail_mass;		// Mass of slide rail (kg)
     double c;					// Length from Pivot point to Center of slide_rail_mass (m)
-    double prismatic_pulley;	// Prismatic Pulley Size (m)
+    double prismatic_pulley_radius;	// Prismatic Pulley Radius Size (m)
 } Environment;
 
 typedef struct {

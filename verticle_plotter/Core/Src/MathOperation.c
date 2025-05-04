@@ -29,3 +29,7 @@ float mapf(float input, float min_input, float max_input, float min_output,
 
 	return output;
 }
+
+float saturation(float input, float upper_limit, float lower_limit) {
+    return fmin(upper_limit, fmax(input, lower_limit));
+}

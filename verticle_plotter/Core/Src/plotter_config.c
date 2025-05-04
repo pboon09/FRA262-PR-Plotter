@@ -7,8 +7,16 @@
 
 #include <plotter_config.h>
 
-RobotState current_state = IDLE;
-RobotState previous_state = IDLE;
+RobotState rs_current_state = RS_IDLE;
+RobotState rs_previous_state = RS_IDLE;
+SetPointState setpoint_state = POINT_IDLE;
+MovingThroghPointState moving_state = MOVING_IDLE;
+WriteLetterState writing_state = WRITE_IDLE;
+JoyStickState joy_state = JOY_IDLE;
+PrismaticPosition prismatic_state = PP_UNKNOW;
+RevolutePosition revolute_state = RP_UNKNOWN;
+ServoState servo_state = PEN_IDLE;
+EmergencyState emer_state = DEFAULT;
 
 MDXX prismatic_motor;
 MDXX revolute_motor;
@@ -88,11 +96,13 @@ void plotter_begin() {
 	SQUARE_MIN_SETPOINT, SQUARE_MAX_SETPOINT);
 
 	SIGNAL_init(&sine_sg_cascade, SIGNAL_SINE);
-	SIGNAL_config_sine(&sine_sg_cascade, SINE_AMPLITUDE_CASCADE, SINE_FREQUENCY, SINE_PHASE,
+	SIGNAL_config_sine(&sine_sg_cascade, SINE_AMPLITUDE_CASCADE, SINE_FREQUENCY,
+	SINE_PHASE,
 	SINE_OFFSET, SINE_MIN_SETPOINT_CASCADE, SINE_MAX_SETPOINT_CASCADE);
 
 	SIGNAL_init(&square_sg_cascade, SIGNAL_SQUARE);
-	SIGNAL_config_square(&square_sg_cascade, SQUARE_AMPLITUDE_CASCADE, SQUARE_FREQUENCY,
+	SIGNAL_config_square(&square_sg_cascade, SQUARE_AMPLITUDE_CASCADE,
+	SQUARE_FREQUENCY,
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 	SQUARE_MIN_SETPOINT_CASCADE, SQUARE_MAX_SETPOINT_CASCADE);
 
@@ -120,8 +130,13 @@ void plotter_begin() {
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 			-ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qd_max);
 
-	QEI_init(&prismatic_encoder, ENC_TIM1, ENC_PPR, ENC_FREQ, MOTOR_RATIO1);
-	QEI_init(&revolute_encoder, ENC_TIM2, ENC_PPR, ENC_FREQ, MOTOR_RATIO2);
+	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max * Disturbance_Constant.prismatic_pulley_radius;
+	ZGX45RGG_400RPM_Constant.sdd_max =ZGX45RGG_400RPM_Constant.sd_max * 0.5;
+
+	QEI_init(&prismatic_encoder, ENC_TIM1, ENC_PPR, ENC_FREQ, MOTOR1_RATIO,
+	Disturbance_Constant.prismatic_pulley_radius * 2.0);
+	QEI_init(&revolute_encoder, ENC_TIM2, ENC_PPR, ENC_FREQ, MOTOR2_RATIO,
+	MOTOR2_PULLEY_DIAMETER);
 
 	MDXX_GPIO_init(&prismatic_motor, MOTOR1_TIM, MOTOR1_TIM_CH, MOTOR1_GPIOx,
 	MOTOR1_GPIO_Pin);
@@ -132,7 +147,7 @@ void plotter_begin() {
 
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
-	pen_up();
+	plotter_pen_up();
 
 	PID_CONTROLLER_Init(&prismatic_position_pid, 500, 5, 70,
 			ZGX45RGG_400RPM_Constant.qd_max);
@@ -175,7 +190,12 @@ void plotter_begin() {
 	HAL_TIM_Base_Start_IT(CONTROL_TIM);
 }
 
-void update_sensors() {
+void plotter_reset() {
+	QEI_reset(&prismatic_encoder);
+	QEI_reset(&revolute_encoder);
+}
+
+void plotter_update_sensors() {
 	joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
 	joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
 
@@ -190,12 +210,40 @@ void update_sensors() {
 	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
 	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
-	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+//	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+
+	if (up_lim) {
+		servo_state = PEN_UP;
+	} else if (low_lim) {
+		servo_state = PEN_DOWN;
+	} else {
+		servo_state = PEN_IDLE;
+	}
+
+	if (up_photo) {
+		prismatic_state = PP_AT_TOP_END_POSITION;
+	} else if (low_photo) {
+		prismatic_state = PP_AT_BOTTOM_END_POSITION;
+	}
+
+	if (prox) {
+		revolute_state = RP_AT_HOME_POSITION;
+	}
+
 //    prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
 //    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }
 
-void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo) {
+void plotter_pen_up() {
+	PWM_write_duty(&servo, 50, 7);
+}
+
+void plotter_pen_down() {
+	PWM_write_duty(&servo, 50, 12);
+}
+
+void test_sensors_motor_servo(float duty_pris, float duty_revo,
+		float duty_servo) {
 	update_sensors();
 
 	QEI_get_diff_count(&revolute_encoder);
@@ -207,12 +255,4 @@ void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo
 	MDXX_set_range(&prismatic_motor, 2000, duty_pris);
 	MDXX_set_range(&revolute_motor, 2000, duty_revo);
 	PWM_write_duty(&servo, 50, duty_servo);
-}
-
-void pen_up() {
-	PWM_write_duty(&servo, 50, 7);
-}
-
-void pen_down() {
-	PWM_write_duty(&servo, 50, 12);
 }
