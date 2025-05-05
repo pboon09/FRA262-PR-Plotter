@@ -7,8 +7,8 @@
 
 #include <plotter_config.h>
 
-RobotState rs_current_state = RS_IDLE;
-RobotState rs_previous_state = RS_IDLE;
+RobotState rs_current_state = RS_RETURN_TO_HOME;
+RobotState rs_previous_state = RS_RETURN_TO_HOME;
 SetPointState setpoint_state = POINT_IDLE;
 MovingThroghPointState moving_state = MOVING_IDLE;
 WriteLetterState writing_state = WRITE_IDLE;
@@ -194,9 +194,6 @@ void plotter_begin() {
 void plotter_reset() {
 	QEI_reset(&prismatic_encoder);
 	QEI_reset(&revolute_encoder);
-
-	// Return to idle state
-	rs_current_state = RS_IDLE;
 }
 
 void plotter_update_sensors() {

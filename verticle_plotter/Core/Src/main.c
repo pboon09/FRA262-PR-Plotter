@@ -70,6 +70,8 @@ float rev_pos_error, rev_vel_error, rev_kal_filt, rev_vin;
 float rev_cmd_ux, rev_cmd_vx;
 
 uint8_t total_setpoints, move_index;
+
+float pris_pos[2], rev_pos[2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -198,6 +200,8 @@ void SystemClock_Config(void) {
 
 /* USER CODE BEGIN 4 */
 void plotter_move() {
+	pris_pos[0] = prismatic_encoder.mm;
+
 	pris_pos_error = prismatic_pos - prismatic_encoder.mm;
 
 	pris_cmd_vx = saturation(
@@ -212,7 +216,16 @@ void plotter_move() {
 
 	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 
+	if(pris_pos[0] - pris_pos[1] > 0){
+		prismatic_state = PP_GO_UP;
+	}
+	else {
+		prismatic_state = PP_GO_DOWN;
+	}
+
 	/////////////////////////////////////////////////////
+
+	rev_pos[0] = revolute_encoder.rads;
 
 	rev_pos_error = revolute_pos - revolute_encoder.rads;
 
@@ -227,6 +240,16 @@ void plotter_move() {
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
 	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
+
+	if(rev_pos[0] - rev_pos[1] > 0){
+		revolute_state = RP_GO_CLOCKWISE;
+	}
+	else {
+		prismatic_state = RP_GO_COUNTER_CLOCKWISE;
+	}
+
+	pris_pos[1] = pris_pos[0];
+	rev_pos[1] = rev_pos[0];
 }
 
 void plotter_handle_state_transition() {
@@ -594,8 +617,16 @@ void plotter_process_return_to_home() {
 	// Both axes homed
 	else {
 		plotter_reset();
+
+		pris_pos[0] = 0.0;
+		pris_pos[1] = 0.0;
+
+		rev_pos[0] = 0.0;
+		rev_pos[1] = 0.0;
+
 		if (joy_state == A2B2_GOTO_HOME) {
 			joy_state = A2B2_MODE;
+			rs_current_state = RS_JOG_MODE;
 		} else {
 			rs_current_state = RS_IDLE;
 		}
