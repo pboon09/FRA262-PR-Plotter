@@ -78,6 +78,7 @@ float pris_pos[2], rev_pos[2];
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void plotter_move();
+void plotter_joymove();
 void plotter_handle_state_transition();
 void plotter_process_jog_mode();
 void plotter_process_writing_state();
@@ -216,10 +217,9 @@ void plotter_move() {
 
 	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 
-	if(pris_pos[0] - pris_pos[1] > 0){
+	if (pris_pos[0] - pris_pos[1] > 0) {
 		prismatic_state = PP_GO_UP;
-	}
-	else {
+	} else {
 		prismatic_state = PP_GO_DOWN;
 	}
 
@@ -241,17 +241,47 @@ void plotter_move() {
 
 	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
 
-	if(rev_pos[0] - rev_pos[1] > 0){
+	if (rev_pos[0] - rev_pos[1] > 0) {
 		revolute_state = RP_GO_CLOCKWISE;
-	}
-	else {
-		prismatic_state = RP_GO_COUNTER_CLOCKWISE;
+	} else {
+		revolute_state = RP_GO_COUNTER_CLOCKWISE;
 	}
 
 	pris_pos[1] = pris_pos[0];
 	rev_pos[1] = rev_pos[0];
 }
+void plotter_joymove() {
+	// Use joystick for positioning
+	float pris_joy;
+	float rev_joy;
 
+	if (joystick_y > 0.7) {
+		pris_joy = (joystick_y - 0.7) * 25000.0f;
+		prismatic_state = PP_GO_UP;
+	} else if (joystick_y < 0.7) {
+		pris_joy = (joystick_y + 0.7) * 25000.0f;
+		prismatic_state = PP_GO_DOWN;
+	} else {
+		pris_joy = 0.0;
+		prismatic_state = PP_UNKNOWN;
+	}
+
+	if (joystick_x > 0.7) {
+		rev_joy = (joystick_x - 0.7) * 25000.0f;
+		revolute_state = RP_GO_CLOCKWISE;
+	} else if (joystick_x < 0.7) {
+		rev_joy = (joystick_x + 0.7) * 25000.0f;
+		revolute_state = RP_GO_COUNTER_CLOCKWISE;
+	} else {
+		rev_joy = 0.0;
+		revolute_state = RP_UNKNOWN;
+
+	}
+
+	// Apply motor commands for joystick control
+	MDXX_set_range(&prismatic_motor, 2000, pris_joy);
+	MDXX_set_range(&revolute_motor, 2000, rev_joy);
+}
 void plotter_handle_state_transition() {
 
 	// Only process base system commands if not in emergency mode
@@ -436,13 +466,7 @@ void plotter_process_jog_mode() {
 		break;
 
 	case A1B1_SETPOINT:
-		// Use joystick for positioning
-		float pris_joy = joystick_y * 3500.0f;  // Scale to motor range
-		float rev_joy = joystick_x * 3500.0f;
-
-		// Apply motor commands for joystick control
-		MDXX_set_range(&prismatic_motor, 2000, pris_joy);
-		MDXX_set_range(&revolute_motor, 2000, rev_joy);
+		plotter_joymove();
 
 		// When b1 is pressed, save the current position
 		if (b1) {
@@ -688,6 +712,7 @@ void plotter_update_trajectories() {
 		// Check if trajectory is complete
 		if (prisEva.isFinised) {
 			pristrajectoryActive = false;
+			prismatic_state = PP_TARGET_REACH;
 		}
 	}
 
@@ -705,6 +730,7 @@ void plotter_update_trajectories() {
 		// Check if trajectory is complete
 		if (revEva.isFinised) {
 			revtrajectoryActive = false;
+			revolute_state = RP_TARGET_REACH;
 		}
 	}
 
