@@ -38,7 +38,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define PRISMATIC_MAX_POS 300.0f  // mm
+#define PRISMATIC_MIN_POS 0.0f
+#define REVOLUTE_MAX_POS (2*PI)   // 1 revolution
+#define REVOLUTE_MIN_POS 0.0f
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -77,6 +80,9 @@ float pris_pos[2], rev_pos[2];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+bool check_prismatic_limit();
+bool check_revolute_limit();
+
 void plotter_move();
 void plotter_joymove();
 void plotter_handle_state_transition();
@@ -200,6 +206,17 @@ void SystemClock_Config(void) {
 }
 
 /* USER CODE BEGIN 4 */
+bool check_prismatic_limit() {
+	return prismatic_encoder.mm >= PRISMATIC_MAX_POS
+			|| prismatic_encoder.mm <= PRISMATIC_MIN_POS || up_photo
+			|| low_photo;
+}
+
+bool check_revolute_limit() {
+	return revolute_encoder.rads >= REVOLUTE_MAX_POS
+			|| revolute_encoder.rads <= REVOLUTE_MIN_POS;
+}
+
 void plotter_move() {
 	pris_pos[0] = prismatic_encoder.mm;
 
@@ -215,6 +232,12 @@ void plotter_move() {
 			PID_CONTROLLER_Compute(&prismatic_velocity_pid, pris_vel_error),
 			ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
 
+	if (check_prismatic_limit()) {
+		MDXX_set_range(&prismatic_motor, 2000, 0);
+		pristrajectoryActive = false;
+		return;
+	}
+
 	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 
 	if (pris_pos[0] - pris_pos[1] > 0) {
@@ -223,7 +246,7 @@ void plotter_move() {
 		prismatic_state = PP_GO_DOWN;
 	}
 
-	/////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 
 	rev_pos[0] = revolute_encoder.rads;
 
@@ -239,6 +262,12 @@ void plotter_move() {
 			PID_CONTROLLER_Compute(&revolute_velocity_pid, rev_vel_error),
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
+	if (check_revolute_limit()) {
+		MDXX_set_range(&revolute_motor, 2000, 0);
+		revtrajectoryActive = false;
+		return;
+	}
+
 	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
 
 	if (rev_pos[0] - rev_pos[1] > 0) {
@@ -250,39 +279,49 @@ void plotter_move() {
 	pris_pos[1] = pris_pos[0];
 	rev_pos[1] = rev_pos[0];
 }
+
 void plotter_joymove() {
-	// Use joystick for positioning
-	float pris_joy;
-	float rev_joy;
+	static float32_t pris_joy, rev_joy;
 
-	if (joystick_y > 0.7) {
-		pris_joy = (joystick_y - 0.7) * 25000.0f;
-		prismatic_state = PP_GO_UP;
-	} else if (joystick_y < 0.7) {
-		pris_joy = (joystick_y + 0.7) * 25000.0f;
-		prismatic_state = PP_GO_DOWN;
+// Prismatic limits check
+	if (check_prismatic_limit()) {
+		pris_joy = 0.0f;
 	} else {
-		pris_joy = 0.0;
-		prismatic_state = PP_UNKNOWN;
+		if (joystick_y > 0.7) {
+			pris_joy = (joystick_y - 0.7) * 25000.0f;
+			prismatic_state = PP_GO_UP;
+		} else if (joystick_y < -0.7) {
+			pris_joy = (joystick_y + 0.7) * 25000.0f;
+			prismatic_state = PP_GO_DOWN;
+		} else {
+			pris_joy = 0.0;
+			prismatic_state = PP_UNKNOWN;
+		}
 	}
 
-	if (joystick_x > 0.7) {
-		rev_joy = (joystick_x - 0.7) * 25000.0f;
-		revolute_state = RP_GO_CLOCKWISE;
-	} else if (joystick_x < 0.7) {
-		rev_joy = (joystick_x + 0.7) * 25000.0f;
-		revolute_state = RP_GO_COUNTER_CLOCKWISE;
+// Revolute limits check
+	if (check_revolute_limit()) {
+		rev_joy = 0.0f;
 	} else {
-		rev_joy = 0.0;
-		revolute_state = RP_UNKNOWN;
-
+		if (joystick_x > 0.7) {
+			rev_joy = (joystick_x - 0.7) * 25000.0f;
+			revolute_state = RP_GO_COUNTER_CLOCKWISE;
+		} else if (joystick_x < -0.7) {
+			rev_joy = (joystick_x + 0.7) * 25000.0f;
+			revolute_state = RP_GO_CLOCKWISE;
+		} else {
+			rev_joy = 0.0;
+			revolute_state = RP_UNKNOWN;
+		}
 	}
 
-	// Apply motor commands for joystick control
 	MDXX_set_range(&prismatic_motor, 2000, pris_joy);
 	MDXX_set_range(&revolute_motor, 2000, rev_joy);
 }
+
 void plotter_handle_state_transition() {
+	// Save previous state
+	rs_previous_state = rs_current_state;
 
 	// Only process base system commands if not in emergency mode
 	if (rs_current_state != RS_EMERGENCY_TRIGGED) {
@@ -365,16 +404,14 @@ void plotter_handle_state_transition() {
 			break;
 
 		case RS_POINT_MODE:
-			// Initialize point setting mode
-			setpoint_state = POINT_IDLE;
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+			MDXX_set_range(&revolute_motor, 2000, 0);
 			break;
 
 		default:
 			break;
 		}
 	}
-	// Save previous state
-	rs_previous_state = rs_current_state;
 }
 
 void plotter_process_jog_mode() {
@@ -553,9 +590,9 @@ void plotter_process_jog_mode() {
 }
 
 void plotter_process_writing_state() {
-	// Do nothing in writing state
+// Do nothing in writing state
 
-	// Reset motors to ensure safety
+// Reset motors to ensure safety
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
@@ -565,7 +602,7 @@ void plotter_process_writing_state() {
 
 void plotter_process_moving_mode(float32_t target_p_pris,
 		float32_t target_p_rev) {
-	// Process moving through points using MovingThroghPointState
+// Process moving through points using MovingThroghPointState
 	switch (moving_state) {
 	case MOVING_GO_TO_POINT:
 		plotter_process_trajectory_control(target_p_pris, target_p_rev);
@@ -606,13 +643,13 @@ void plotter_process_moving_mode(float32_t target_p_pris,
 }
 
 void plotter_process_return_to_home() {
-	// First ensure pen is up
+// First ensure pen is up
 	if (servo_state != PEN_UP) {
 		plotter_pen_up();
 		return;
 	}
 
-	// Home revolute axis first
+// Home revolute axis first
 	if (revolute_state != RP_AT_HOME_POSITION) {
 		revolute_state = RP_GOING_HOME;
 
@@ -625,7 +662,7 @@ void plotter_process_return_to_home() {
 			MDXX_set_range(&revolute_motor, 2000, 0);
 		}
 	}
-	// Then home prismatic axis if revolute is done
+// Then home prismatic axis if revolute is done
 	else if (prismatic_state != PP_AT_TOP_END_POSITION) {
 		prismatic_state = PP_GOING_TOP_END;
 
@@ -638,7 +675,7 @@ void plotter_process_return_to_home() {
 			MDXX_set_range(&prismatic_motor, 2000, 0);
 		}
 	}
-	// Both axes homed
+// Both axes homed
 	else {
 		plotter_reset();
 
@@ -658,11 +695,11 @@ void plotter_process_return_to_home() {
 }
 
 void plotter_process_emergency() {
-	// Emergency stop - immediately cut power to motors
+// Emergency stop - immediately cut power to motors
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
-	// Exit emergency mode only if button pressed and emergency switch released
+// Exit emergency mode only if button pressed and emergency switch released
 	if (joy_state == EMERGENCY_MODE && b1 && !emer) {
 		rs_current_state = RS_RETURN_TO_HOME;
 		emer_state = DEFAULT;
@@ -670,35 +707,43 @@ void plotter_process_emergency() {
 }
 
 void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt) {
-	// Setup target points
+	if (pris_tgt > PRISMATIC_MAX_POS || pris_tgt < PRISMATIC_MIN_POS) {
+		return;
+	}
+
+	if (rev_tgt > REVOLUTE_MAX_POS || rev_tgt < REVOLUTE_MIN_POS) {
+		return;
+	}
+
+// Setup target points
 	pris_target_p = pris_tgt;
 	rev_target_p = rev_tgt;
 
-	// Set initial positions from current encoder readings
+// Set initial positions from current encoder readings
 	pris_initial_p = prismatic_encoder.mm;
 	rev_initial_p = revolute_encoder.rads;
 
-	// Reset trajectory timers
+// Reset trajectory timers
 	prisEva.t = 0.0f;
 	prisEva.isFinised = false;
 	revEva.t = 0.0f;
 	revEva.isFinised = false;
 
-	// Generate prismatic trajectory
+// Generate prismatic trajectory
 	Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
 			ZGX45RGG_400RPM_Constant.sd_max, ZGX45RGG_400RPM_Constant.sdd_max);
 
-	// Generate revolute trajectory
+// Generate revolute trajectory
 	Trapezoidal_Generator(&revGen, rev_initial_p, rev_target_p,
 			ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qdd_max);
 
-	// Activate trajectories
+// Activate trajectories
 	pristrajectoryActive = true;
 	revtrajectoryActive = true;
 }
 
 void plotter_update_trajectories() {
-	// Evaluate prismatic trajectory
+// Evaluate prismatic trajectory
 	if (pristrajectoryActive) {
 		Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
 				ZGX45RGG_400RPM_Constant.sd_max,
@@ -716,7 +761,7 @@ void plotter_update_trajectories() {
 		}
 	}
 
-	// Evaluate revolute trajectory
+// Evaluate revolute trajectory
 	if (revtrajectoryActive) {
 		Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
 				ZGX45RGG_150RPM_Constant.qd_max,
@@ -734,7 +779,7 @@ void plotter_update_trajectories() {
 		}
 	}
 
-	// If trajectories are active, apply motion control
+// If trajectories are active, apply motion control
 	if (pristrajectoryActive || revtrajectoryActive) {
 		plotter_move();
 	}
@@ -882,21 +927,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 		plotter_handle_state_transition();
 
+		if (check_prismatic_limit() || check_revolute_limit()) {
+			pristrajectoryActive = false;
+			revtrajectoryActive = false;
+			rs_current_state = RS_EMERGENCY_TRIGGED;
+		}
+
 		switch (rs_current_state) {
 		case RS_JOG_MODE:
 			plotter_process_jog_mode();
 			break;
 
 		case RS_POINT_MODE:
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+			MDXX_set_range(&revolute_motor, 2000, 0);
 			break;
 
 		case RS_MOVING:
 			static bool point_initialized = false;
 			if (!point_initialized) {
-				pris_target_p = (float) registerFrame[Goal_R].U16;
-				rev_target_p = (float) registerFrame[Goal_Theta].U16;
-				plotter_process_trajectory_control(pris_target_p, rev_target_p);
-
+				plotter_process_moving_mode(pris_target_p, rev_target_p);
 				point_initialized = true;
 			}
 
