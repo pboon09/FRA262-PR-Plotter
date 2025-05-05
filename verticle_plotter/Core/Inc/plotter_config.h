@@ -85,7 +85,7 @@ typedef enum {
 	PP_GO_UP,
 	PP_GO_DOWN,
 	PP_TARGET_REACH,
-	PP_UNKNOW
+	PP_UNKNOWN
 } PrismaticPosition;
 
 typedef enum {

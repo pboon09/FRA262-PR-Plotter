@@ -68,6 +68,8 @@ float32_t rev_target_p = 0.0f;
 float32_t revolute_pos, revolute_vel, revolute_accel;
 float rev_pos_error, rev_vel_error, rev_kal_filt, rev_vin;
 float rev_cmd_ux, rev_cmd_vx;
+
+uint8_t total_setpoints, move_index;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,10 +79,11 @@ void plotter_move();
 void plotter_handle_state_transition();
 void plotter_process_jog_mode();
 void plotter_process_writing_state();
-void plotter_process_moving_mode();
+void plotter_process_moving_mode(float32_t target_p_pris, float32_t target_p_rev);
 void plotter_process_return_to_home();
 void plotter_process_emergency();
-void plotter_process_trajectory_control();
+void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt);
+void plotter_update_trajectories();
 
 uint16_t getPointRegisterR(uint8_t point_index);
 uint16_t getPointRegisterT(uint8_t point_index);
@@ -321,217 +324,180 @@ void plotter_handle_state_transition() {
 }
 
 void plotter_process_jog_mode() {
-    // Handle state transitions for A1B1_MODE
-    if (joy_state == A1B1_MODE) {
-        if (b1) {
-            joy_state = A1B1_SETPOINT;
-        } else if (b2) {
-            joy_state = A1B1_MOVING;
-        } else if (b4) {
-            joy_state = A2B2_MODE;
-        }
-    }
-    // Back to A1B1_MODE
-    else if ((joy_state == A1B1_SETPOINT && b2)
-            || (joy_state == A1B1_MOVING && b1)) {
-        joy_state = A1B1_MODE;
-        // If moving, stop Trajectory
-        if (joy_state == A1B1_MOVING) {
-            pristrajectoryActive = false;
-            revtrajectoryActive = false;
-        }
-    }
+	// Handle state transitions for A1B1_MODE
+	if (joy_state == A1B1_MODE) {
+		if (b1) {
+			joy_state = A1B1_SETPOINT;
+		} else if (b2) {
+			joy_state = A1B1_MOVING;
+			moving_state = MOVING_GO_TO_POINT;
+			if (total_setpoints > 0) {
+				joy_state = A1B1_MOVING;
+				moving_state = MOVING_GO_TO_POINT;
+				move_index = 0;            // start at first point
+			}
 
-    // A2B2_MODE
-    if (joy_state == A2B2_MODE) {
-        if (b1) {
-            joy_state = A2B2_WRITING;
-            writing_state = WRITE_IDLE;
-        } else if (b2) {
-            joy_state = A2B2_GOTO_HOME;
-        } else if (b4) {
-            joy_state = A1B1_MODE;
-        }
-    }
-    // Handle transitions back to A2B2_MODE
-    else if ((joy_state == A2B2_WRITING && b2)
-            || (joy_state == A2B2_GOTO_HOME && b1)) {
-        joy_state = A2B2_MODE;
-    }
+		} else if (b4) {
+			joy_state = A2B2_MODE;
+		}
+	}
+	// Handle transitions back to A1B1_MODE
+	else if ((joy_state == A1B1_SETPOINT && b2)
+			|| (joy_state == A1B1_MOVING && b1)) {
+		joy_state = A1B1_MODE;
+	}
 
-    // Execute state-specific actions
-    switch (joy_state) {
-    case A1B1_MOVING: {
-        static uint8_t moving_point = 0;
-        static bool moving_to_next = false;
-        static bool first_entry = true;
+	// Handle state transitions for A2B2_MODE
+	if (joy_state == A2B2_MODE) {
+		if (b1) {
+			joy_state = A2B2_WRITING;
+			writing_state = WRITE_IDLE;
+		} else if (b2) {
+			joy_state = A2B2_GOTO_HOME;
+		} else if (b4) {
+			joy_state = A1B1_MODE;
+		}
+	}
+	// Handle transitions back to A2B2_MODE
+	else if ((joy_state == A2B2_WRITING && b2)
+			|| (joy_state == A2B2_GOTO_HOME && b1)) {
+		joy_state = A2B2_MODE;
+	}
 
-        // If newly entered this state
-        if (first_entry) {
-            moving_point = 0;
-            moving_to_next = true;
-            first_entry = false;
-        }
+	// Execute state-specific actions
+	switch (joy_state) {
+	case A1B1_MOVING:
+		static uint8_t current_point = 0;
 
-        // Initialize or update trajectory for next point
-        if (moving_to_next) {
-            // Check if we have any points to move to
-            if (getNumberOfSetPoints() == 0) {
-                // No points set, return to menu
-                joy_state = A1B1_MODE;
-                first_entry = true;
-                return;
-            }
+		// Initialize target for first point if needed
+		if (current_point == 0) {
+			// Get register for first point
+			uint16_t r_reg = getPointRegisterR(current_point);
+			uint16_t t_reg = getPointRegisterT(current_point);
 
-            // Get register addresses for the current point
-            uint16_t r_reg = getPointRegisterR(moving_point);
-            uint16_t t_reg = getPointRegisterT(moving_point);
+			// Set targets
+			pris_target_p = registerFrame[r_reg].U16;
+			rev_target_p = registerFrame[t_reg].U16;
 
-            // Reset evaluation timers
-            prisEva.t = 0.0f;
-            prisEva.isFinised = false;
-            revEva.t = 0.0f;
-            revEva.isFinised = false;
+			// Send to trajectory control
+			plotter_process_moving_mode(pris_target_p, rev_target_p);
+		}
 
-            // Set initial positions and targets
-            pris_initial_p = prismatic_encoder.mm;
-            rev_initial_p = revolute_encoder.rads;
-            pris_target_p = registerFrame[r_reg].U16;
-            rev_target_p = registerFrame[t_reg].U16;
+		// Check if point reached (trajectories complete)
+		if (!pristrajectoryActive && !revtrajectoryActive) {
+			// Move to next point
+			current_point++;
 
-            // Activate trajectories
-            pristrajectoryActive = true;
-            revtrajectoryActive = true;
+			// Check if all points traversed
+			if (current_point >= getNumberOfSetPoints()) {
+				current_point = 0; // Reset for next time
+			} else {
+				moving_state = MOVING_GO_TO_POINT;
+				// Set target for next point
+				uint16_t r_reg = getPointRegisterR(current_point);
+				uint16_t t_reg = getPointRegisterT(current_point);
 
-            moving_to_next = false;
-        }
+				// Set targets
+				pris_target_p = registerFrame[r_reg].U16;
+				rev_target_p = registerFrame[t_reg].U16;
 
-        // Check if reached current target point (both trajectories complete)
-        if (!pristrajectoryActive && !revtrajectoryActive) {
-            // Move to next point
-            moving_point++;
+				// Send to trajectory control
+				plotter_process_moving_mode(pris_target_p, rev_target_p);
+			}
+		}
+		break;
 
-            // Check if we've completed all points
-            if (moving_point >= getNumberOfSetPoints()) {
-                // Reset and return to menu
-                joy_state = A1B1_MODE;
-                first_entry = true;
-            } else {
-                // Prepare to move to next point
-                moving_to_next = true;
-            }
-        } else {
-            // Update trajectories and apply control
-            plotter_process_trajectory_control();
-        }
+	case A1B1_SETPOINT:
+		// Use joystick for positioning
+		float pris_joy = joystick_y * 3500.0f;  // Scale to motor range
+		float rev_joy = joystick_x * 3500.0f;
 
-        // Handle manual exit
-        if (b1) {
-            pristrajectoryActive = false;
-            revtrajectoryActive = false;
-            joy_state = A1B1_MODE;
-            first_entry = true;
-        }
-    } break;
+		// Apply motor commands for joystick control
+		MDXX_set_range(&prismatic_motor, 2000, pris_joy);
+		MDXX_set_range(&revolute_motor, 2000, rev_joy);
 
-    case A1B1_SETPOINT: {
-        // Use joystick for positioning
-        float pris_joy = joystick_y * 3500.0f;  // Scale to motor range
-        float rev_joy = joystick_x * 3500.0f;
+		// When b1 is pressed, save the current position
+		if (b1) {
+			// Determine which point to set based on current state
+			uint16_t r_reg = 0, t_reg = 0;
+			uint8_t point_index = 0;
 
-        // Apply motor commands for joystick control
-        MDXX_set_range(&prismatic_motor, 2000, pris_joy);
-        MDXX_set_range(&revolute_motor, 2000, rev_joy);
+			// Convert enum to numerical index
+			if (setpoint_state == NO_POINT_SET || setpoint_state == POINT_IDLE)
+				point_index = 0;
+			else if (setpoint_state == POINT_10_SET) {
+				// All points are set, return to A1B1_MODE
+				joy_state = A1B1_MODE;
+				return;
+			} else
+				point_index = (uint8_t) setpoint_state;
 
-        // When b1 is pressed, save the current position
-        if (b1) {
-            // Determine which point to set based on current state
-            uint16_t r_reg = 0, t_reg = 0;
-            uint8_t point_index = 0;
+			// Map index to register addresses (using helper function)
+			r_reg = getPointRegisterR(point_index);
+			t_reg = getPointRegisterT(point_index);
 
-            // Convert enum to numerical index
-            if (setpoint_state == NO_POINT_SET || setpoint_state == POINT_IDLE)
-                point_index = 0;
-            else if (setpoint_state == POINT_10_SET)
-                point_index = 9;  // Max index
-            else
-                point_index = (uint8_t) setpoint_state;
+			// Update setpoint state to next value
+			switch (setpoint_state) {
+			case NO_POINT_SET:
+			case POINT_IDLE:
+				setpoint_state = POINT_1_SET;
+				break;
+			case POINT_1_SET:
+				setpoint_state = POINT_2_SET;
+				break;
+			case POINT_2_SET:
+				setpoint_state = POINT_3_SET;
+				break;
+			case POINT_3_SET:
+				setpoint_state = POINT_4_SET;
+				break;
+			case POINT_4_SET:
+				setpoint_state = POINT_5_SET;
+				break;
+			case POINT_5_SET:
+				setpoint_state = POINT_6_SET;
+				break;
+			case POINT_6_SET:
+				setpoint_state = POINT_7_SET;
+				break;
+			case POINT_7_SET:
+				setpoint_state = POINT_8_SET;
+				break;
+			case POINT_8_SET:
+				setpoint_state = POINT_9_SET;
+				break;
+			case POINT_9_SET:
+				setpoint_state = POINT_10_SET;
+				break;
+			case POINT_10_SET:
+				// Return to menu if all points set
+				joy_state = A1B1_MODE;
+				break;
+			}
 
-            // Map index to register addresses
-            switch (point_index) {
-            case 0:
-                r_reg = Target_PosR_1;
-                t_reg = Target_PosT_1;
-                setpoint_state = POINT_1_SET;
-                break;
-            case 1:
-                r_reg = Target_PosR_2;
-                t_reg = Target_PosT_2;
-                setpoint_state = POINT_2_SET;
-                break;
-            case 2:
-                r_reg = Target_PosR_3;
-                t_reg = Target_PosT_3;
-                setpoint_state = POINT_3_SET;
-                break;
-            case 3:
-                r_reg = Target_PosR_4;
-                t_reg = Target_PosT_4;
-                setpoint_state = POINT_4_SET;
-                break;
-            case 4:
-                r_reg = Target_PosR_5;
-                t_reg = Target_PosT_5;
-                setpoint_state = POINT_5_SET;
-                break;
-            case 5:
-                r_reg = Target_PosR_6;
-                t_reg = Target_PosT_6;
-                setpoint_state = POINT_6_SET;
-                break;
-            case 6:
-                r_reg = Target_PosR_7;
-                t_reg = Target_PosT_7;
-                setpoint_state = POINT_7_SET;
-                break;
-            case 7:
-                r_reg = Target_PosR_8;
-                t_reg = Target_PosT_8;
-                setpoint_state = POINT_8_SET;
-                break;
-            case 8:
-                r_reg = Target_PosR_9;
-                t_reg = Target_PosT_9;
-                setpoint_state = POINT_9_SET;
-                break;
-            case 9:
-                r_reg = Target_PosR_10;
-                t_reg = Target_PosT_10;
-                setpoint_state = POINT_10_SET;
-                break;
-            }
+			// Save current position to the registers
+			registerFrame[r_reg].U16 = (uint16_t) prismatic_encoder.mm;
+			registerFrame[t_reg].U16 = (uint16_t) revolute_encoder.rads;
 
-            // Save current position to the registers
-            registerFrame[r_reg].U16 = (uint16_t) prismatic_encoder.mm;
-            registerFrame[t_reg].U16 = (uint16_t) revolute_encoder.rads;
-        }
-    } break;
+			total_setpoints = point_index + 1;
+		}
+		break;
 
-    case A2B2_GOTO_HOME:
-        // Transition to home state
-        rs_current_state = RS_RETURN_TO_HOME;
-        break;
+	case A2B2_GOTO_HOME:
+		// Transition to home state
+		rs_current_state = RS_RETURN_TO_HOME;
+		break;
 
-    case A2B2_WRITING:
-        plotter_process_writing_state();
-        break;
+	case A2B2_WRITING:
+		plotter_process_writing_state();
+		break;
 
-    default:
-        // Stop motors in other states
-        MDXX_set_range(&prismatic_motor, 2000, 0);
-        MDXX_set_range(&revolute_motor, 2000, 0);
-        break;
-    }
+	default:
+		// Stop motors in other states
+		MDXX_set_range(&prismatic_motor, 2000, 0);
+		MDXX_set_range(&revolute_motor, 2000, 0);
+		break;
+	}
 }
 
 void plotter_process_writing_state() {
@@ -540,37 +506,17 @@ void plotter_process_writing_state() {
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
-	// Just set writing state to complete if it's in WRITE_IDLE
-	if (writing_state == WRITE_IDLE) {
-		writing_state = WRITE_COMPLETE;
-	}
+	writing_state = WRITE_IDLE;
 }
 
-void plotter_process_moving_mode() {
-	// Implement moving mode state machine based on MovingThroghPointState
+void plotter_process_moving_mode(float32_t target_p_pris, float32_t target_p_rev) {
+	// Process moving through points using MovingThroghPointState
 	switch (moving_state) {
 	case MOVING_GO_TO_POINT:
-		// Initialize trajectory if not active
-		if (!pristrajectoryActive && !revtrajectoryActive) {
-			pris_initial_p = prismatic_encoder.mm;
-			rev_initial_p = revolute_encoder.rads;
-			pris_target_p = registerFrame[Goal_R].U16;
-			rev_target_p = registerFrame[Goal_Theta].U16;
-			pristrajectoryActive = true;
-			revtrajectoryActive = true;
-		}
+		plotter_process_trajectory_control(target_p_pris, target_p_rev);
 
-		// Check if target reached
-		float pos_threshold = 0.5f;
-		if (fabs(pris_pos_error) < pos_threshold
-				&& fabs(rev_pos_error) < pos_threshold) {
+		if (!pristrajectoryActive && !revtrajectoryActive) {
 			moving_state = MOVING_DOWN;
-			// Stop trajectories temporarily
-			pristrajectoryActive = false;
-			revtrajectoryActive = false;
-		} else {
-			// Update trajectories and apply control
-			plotter_process_trajectory_control();
 		}
 		break;
 
@@ -593,12 +539,7 @@ void plotter_process_moving_mode() {
 		break;
 
 	case MOVING_COMPLETE:
-		// Motion complete, return to idle
-		rs_current_state = RS_IDLE;
 		moving_state = MOVING_IDLE;
-
-		// Notify base system
-		registerFrame[R_Theta_Status].U16 = 0;
 		break;
 
 	case MOVING_IDLE:
@@ -670,66 +611,73 @@ void plotter_process_emergency() {
 	}
 }
 
-void plotter_process_trajectory_control() {
-    // Reset evaluation time if trajectories just became active
-    static bool was_active_prev = false;
+void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt) {
+	// Setup target points
+	pris_target_p = pris_tgt;
+	rev_target_p = rev_tgt;
 
-    if ((pristrajectoryActive || revtrajectoryActive) && !was_active_prev) {
-        // Reset trajectory evaluation timers
-        prisEva.t = 0.0f;
-        prisEva.isFinised = false;
-        revEva.t = 0.0f;
-        revEva.isFinised = false;
-    }
-    was_active_prev = (pristrajectoryActive || revtrajectoryActive);
+	// Set initial positions from current encoder readings
+	pris_initial_p = prismatic_encoder.mm;
+	rev_initial_p = revolute_encoder.rads;
 
-    // Update trajectories
-    if (pristrajectoryActive) {
-        // Generate trajectory parameters
-        Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
-                ZGX45RGG_400RPM_Constant.sd_max,
-                ZGX45RGG_400RPM_Constant.sdd_max);
+	// Reset trajectory timers
+	prisEva.t = 0.0f;
+	prisEva.isFinised = false;
+	revEva.t = 0.0f;
+	revEva.isFinised = false;
 
-        // Evaluate trajectory for current position/velocity/acceleration
-        Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
-                ZGX45RGG_400RPM_Constant.sd_max,
-                ZGX45RGG_400RPM_Constant.sdd_max);
+	// Generate prismatic trajectory
+	Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
+			ZGX45RGG_400RPM_Constant.sd_max, ZGX45RGG_400RPM_Constant.sdd_max);
 
-        // Check if trajectory is complete
-        if (prisEva.isFinised) {
-            pristrajectoryActive = false;
-        }
+	// Generate revolute trajectory
+	Trapezoidal_Generator(&revGen, rev_initial_p, rev_target_p,
+			ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qdd_max);
 
-        // Update reference signals
-        prismatic_pos = prisEva.setposition;
-        prismatic_vel = prisEva.setvelocity;
-        prismatic_accel = prisEva.setacceleration;
-    }
+	// Activate trajectories
+	pristrajectoryActive = true;
+	revtrajectoryActive = true;
+}
 
-    if (revtrajectoryActive) {
-        // Generate trajectory parameters
-        Trapezoidal_Generator(&revGen, rev_initial_p, rev_target_p,
-                ZGX45RGG_150RPM_Constant.qd_max,
-                ZGX45RGG_150RPM_Constant.qdd_max);
+void plotter_update_trajectories() {
+	// Evaluate prismatic trajectory
+	if (pristrajectoryActive) {
+		Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
+				ZGX45RGG_400RPM_Constant.sd_max,
+				ZGX45RGG_400RPM_Constant.sdd_max);
 
-        // Evaluate trajectory for current position/velocity/acceleration
-        Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
-                ZGX45RGG_150RPM_Constant.qd_max,
-                ZGX45RGG_150RPM_Constant.qdd_max);
+		// Update reference signals
+		prismatic_pos = prisEva.setposition;
+		prismatic_vel = prisEva.setvelocity;
+		prismatic_accel = prisEva.setacceleration;
 
-        // Check if trajectory is complete
-        if (revEva.isFinised) {
-            revtrajectoryActive = false;
-        }
+		// Check if trajectory is complete
+		if (prisEva.isFinised) {
+			pristrajectoryActive = false;
+		}
+	}
 
-        // Update reference signals
-        revolute_pos = revEva.setposition;
-        revolute_vel = revEva.setvelocity;
-        revolute_accel = revEva.setacceleration;
-    }
+	// Evaluate revolute trajectory
+	if (revtrajectoryActive) {
+		Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
+				ZGX45RGG_150RPM_Constant.qd_max,
+				ZGX45RGG_150RPM_Constant.qdd_max);
 
-    // Move using trajectory data
-    plotter_move();
+		// Update reference signals
+		revolute_pos = revEva.setposition;
+		revolute_vel = revEva.setvelocity;
+		revolute_accel = revEva.setacceleration;
+
+		// Check if trajectory is complete
+		if (revEva.isFinised) {
+			revtrajectoryActive = false;
+		}
+	}
+
+	// If trajectories are active, apply motion control
+	if (pristrajectoryActive || revtrajectoryActive) {
+		plotter_move();
+	}
 }
 
 uint16_t getPointRegisterR(uint8_t point_index) {
@@ -868,16 +816,31 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			registerFrame[LimitSwitch_Status].U16 = 2;
 		}
 
+		if (pristrajectoryActive || revtrajectoryActive) {
+			plotter_update_trajectories();
+		}
+
+		plotter_handle_state_transition();
+
 		switch (rs_current_state) {
 		case RS_JOG_MODE:
 			plotter_process_jog_mode();
 			break;
 
 		case RS_POINT_MODE:
-			break;
+			static bool point_initialized = false;
+		    if (!point_initialized) {
+		      pris_target_p = registerFrame[Goal_R].U16;
+		      rev_target_p  = registerFrame[Goal_Theta].U16;
+		      plotter_process_trajectory_control(pris_target_p, rev_target_p);
 
-		case RS_MOVING:
-			plotter_process_moving_mode();
+		      point_initialized = true;
+		    }
+
+		    if (!pristrajectoryActive && !revtrajectoryActive) {
+		      point_initialized = false;
+		      rs_current_state  = RS_IDLE;
+		    }
 			break;
 
 		case RS_RETURN_TO_HOME:
