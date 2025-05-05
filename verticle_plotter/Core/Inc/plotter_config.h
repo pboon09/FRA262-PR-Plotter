@@ -270,6 +270,7 @@ extern u16u8_t registerFrame[200];
 #define LimitSwitch_Status 0x03 // Read
 #define Servo_UP 0x04 //Write
 #define Servo_Down 0x05 //Write
+
 #define R_Theta_Status 0x10 // Read
 #define R_Axis_Actual_Position 0x11 //Write
 #define Theta_Axis_Actual_Position 0x12 //Write
@@ -277,6 +278,7 @@ extern u16u8_t registerFrame[200];
 #define Theta_Axis_Actual_Speed 0x14 //Write
 #define R_Axis_Acceleration 0x15 //Write
 #define Theta_Axis_Acceleration 0x16 //Write
+
 #define Target_PosR_1 0x20 // Read
 #define Target_PosT_1 0x21 // Read
 #define Target_PosR_2 0x22 // Read
@@ -298,8 +300,8 @@ extern u16u8_t registerFrame[200];
 #define Target_PosR_10 0x38 // Read
 #define Target_PosT_10 0x39 // Read
 
-#define Goal_R 0x30 // Read
-#define Goal_Theta 0x21 // Read
+#define Goal_R 0x40 // Read
+#define Goal_Theta 0x41 // Read
 /*----- Config ModBus End -----*/
 
 /*----- Sensor State Variable Start -----*/

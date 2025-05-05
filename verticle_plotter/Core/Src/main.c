@@ -415,6 +415,12 @@ void plotter_handle_state_transition() {
 }
 
 void plotter_process_jog_mode() {
+	// block any joystick actions while in emergency
+	if (rs_current_state == RS_EMERGENCY_TRIGGED
+			|| joy_state == EMERGENCY_MODE) {
+		return;
+	}
+
 	// Handle state transitions for A1B1_MODE
 	if (joy_state == A1B1_MODE) {
 		if (b1) {
