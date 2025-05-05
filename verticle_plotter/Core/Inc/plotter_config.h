@@ -35,6 +35,7 @@ typedef enum {
 	RS_EMERGENCY_TRIGGED
 } RobotState;
 
+
 typedef enum {
 	NO_POINT_SET,
 	POINT_1_SET,

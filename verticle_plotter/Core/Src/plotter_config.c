@@ -130,11 +130,12 @@ void plotter_begin() {
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
 			-ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qd_max);
 
-	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max * Disturbance_Constant.prismatic_pulley_radius;
-	ZGX45RGG_400RPM_Constant.sdd_max =ZGX45RGG_400RPM_Constant.sd_max * 0.5;
+	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max
+			* Disturbance_Constant.prismatic_pulley_radius;
+	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 0.5;
 
 	QEI_init(&prismatic_encoder, ENC_TIM1, ENC_PPR, ENC_FREQ, MOTOR1_RATIO,
-	Disturbance_Constant.prismatic_pulley_radius * 2.0);
+			Disturbance_Constant.prismatic_pulley_radius * 2.0);
 	QEI_init(&revolute_encoder, ENC_TIM2, ENC_PPR, ENC_FREQ, MOTOR2_RATIO,
 	MOTOR2_PULLEY_DIAMETER);
 
@@ -193,6 +194,9 @@ void plotter_begin() {
 void plotter_reset() {
 	QEI_reset(&prismatic_encoder);
 	QEI_reset(&revolute_encoder);
+
+	// Return to idle state
+	rs_current_state = RS_IDLE;
 }
 
 void plotter_update_sensors() {
