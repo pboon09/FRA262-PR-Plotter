@@ -80,6 +80,7 @@ float pris_pos[2], rev_pos[2];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt)
 bool check_prismatic_limit();
 bool check_revolute_limit();
 
@@ -207,14 +208,41 @@ void SystemClock_Config(void) {
 
 /* USER CODE BEGIN 4 */
 bool check_prismatic_limit() {
-	return prismatic_encoder.mm >= PRISMATIC_MAX_POS
-			|| prismatic_encoder.mm <= PRISMATIC_MIN_POS || up_photo
-			|| low_photo;
+    // If this is a valid operation that's supposed to reach the limit,
+    // then don't report it as a limit violation
+    if (prismatic_state == PP_GOING_TOP_END ||
+        prismatic_state == PP_AT_TOP_END_POSITION ||
+        prismatic_state == PP_AT_BOTTOM_END_POSITION) {
+        return false;
+    }
+
+    // Otherwise, if either condition indicates we're at a limit, report it
+    return (prismatic_encoder.mm >= PRISMATIC_MAX_POS || up_photo ||
+            prismatic_encoder.mm <= PRISMATIC_MIN_POS || low_photo);
 }
 
 bool check_revolute_limit() {
-	return revolute_encoder.rads >= REVOLUTE_MAX_POS
-			|| revolute_encoder.rads <= REVOLUTE_MIN_POS;
+    // For homing operations, don't count limits as violations
+    if (revolute_state == RP_GOING_HOME) {
+        return false;
+    }
+
+    // For normal operation, check limits
+    return (revolute_encoder.rads >= REVOLUTE_MAX_POS ||
+            revolute_encoder.rads <= REVOLUTE_MIN_POS);
+}
+
+bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt) {
+    // Check if targets are within physical limits
+    if (pris_tgt > PRISMATIC_MAX_POS || pris_tgt < PRISMATIC_MIN_POS) {
+        return false;
+    }
+
+    if (rev_tgt > REVOLUTE_MAX_POS || rev_tgt < REVOLUTE_MIN_POS) {
+        return false;
+    }
+
+    return true;
 }
 
 void plotter_move() {
@@ -320,10 +348,10 @@ void plotter_joymove() {
 }
 
 void plotter_handle_state_transition() {
-	// Save previous state
+// Save previous state
 	rs_previous_state = rs_current_state;
 
-	// Only process base system commands if not in emergency mode
+// Only process base system commands if not in emergency mode
 	if (rs_current_state != RS_EMERGENCY_TRIGGED) {
 		// Process base system commands
 		if (registerFrame[BaseSystem_Status].U16 == 1) {
@@ -345,7 +373,7 @@ void plotter_handle_state_transition() {
 		}
 	}
 
-	// Handle state entry/exit actions if state has changed
+// Handle state entry/exit actions if state has changed
 	if (rs_previous_state != rs_current_state) {
 		// Exit actions for previous state
 		switch (rs_previous_state) {
@@ -417,13 +445,13 @@ void plotter_handle_state_transition() {
 }
 
 void plotter_process_jog_mode() {
-	// block any joystick actions while in emergency
+// block any joystick actions while in emergency
 	if (rs_current_state == RS_EMERGENCY_TRIGGED
 			|| joy_state == EMERGENCY_MODE) {
 		return;
 	}
 
-	// Handle state transitions for A1B1_MODE
+// Handle state transitions for A1B1_MODE
 	if (joy_state == A1B1_MODE) {
 		if (b1) {
 			joy_state = A1B1_SETPOINT;
@@ -440,13 +468,13 @@ void plotter_process_jog_mode() {
 			joy_state = A2B2_MODE;
 		}
 	}
-	// Handle transitions back to A1B1_MODE
+// Handle transitions back to A1B1_MODE
 	else if ((joy_state == A1B1_SETPOINT && b2)
 			|| (joy_state == A1B1_MOVING && b1)) {
 		joy_state = A1B1_MODE;
 	}
 
-	// Handle state transitions for A2B2_MODE
+// Handle state transitions for A2B2_MODE
 	if (joy_state == A2B2_MODE) {
 		if (b1) {
 			joy_state = A2B2_WRITING;
@@ -457,13 +485,13 @@ void plotter_process_jog_mode() {
 			joy_state = A1B1_MODE;
 		}
 	}
-	// Handle transitions back to A2B2_MODE
+// Handle transitions back to A2B2_MODE
 	else if ((joy_state == A2B2_WRITING && b2)
 			|| (joy_state == A2B2_GOTO_HOME && b1)) {
 		joy_state = A2B2_MODE;
 	}
 
-	// Execute state-specific actions
+// Execute state-specific actions
 	switch (joy_state) {
 	case A1B1_MOVING:
 		if (total_setpoints == 0) {
@@ -693,6 +721,12 @@ void plotter_process_return_to_home() {
 		rev_pos[0] = 0.0;
 		rev_pos[1] = 0.0;
 
+		pristrajectoryActive = false;
+		revtrajectoryActive = false;
+
+		pris_target_p = 0.0f;
+		rev_target_p = 0.0f;
+
 		if (joy_state == A2B2_GOTO_HOME) {
 			joy_state = A2B2_MODE;
 			rs_current_state = RS_JOG_MODE;
@@ -715,13 +749,12 @@ void plotter_process_emergency() {
 }
 
 void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt) {
-	if (pris_tgt > PRISMATIC_MAX_POS || pris_tgt < PRISMATIC_MIN_POS) {
-		return;
-	}
-
-	if (rev_tgt > REVOLUTE_MAX_POS || rev_tgt < REVOLUTE_MIN_POS) {
-		return;
-	}
+    if (!is_valid_target(pris_tgt, rev_tgt)) {
+        // If target is invalid, don't start trajectory
+        pristrajectoryActive = false;
+        revtrajectoryActive = false;
+        return;
+    }
 
 // Setup target points
 	pris_target_p = pris_tgt;

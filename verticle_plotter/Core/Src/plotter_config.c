@@ -211,7 +211,7 @@ void plotter_update_sensors() {
 	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
 	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
-//	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 
 	if (up_lim) {
 		servo_state = PEN_UP;
