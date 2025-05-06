@@ -80,7 +80,7 @@ float pris_pos[2], rev_pos[2];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt)
+bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt);
 bool check_prismatic_limit();
 bool check_revolute_limit();
 
@@ -208,41 +208,41 @@ void SystemClock_Config(void) {
 
 /* USER CODE BEGIN 4 */
 bool check_prismatic_limit() {
-    // If this is a valid operation that's supposed to reach the limit,
-    // then don't report it as a limit violation
-    if (prismatic_state == PP_GOING_TOP_END ||
-        prismatic_state == PP_AT_TOP_END_POSITION ||
-        prismatic_state == PP_AT_BOTTOM_END_POSITION) {
-        return false;
-    }
+	// If this is a valid operation that's supposed to reach the limit,
+	// then don't report it as a limit violation
+	if (prismatic_state == PP_GOING_TOP_END
+			|| prismatic_state == PP_AT_TOP_END_POSITION
+			|| prismatic_state == PP_AT_BOTTOM_END_POSITION) {
+		return false;
+	}
 
-    // Otherwise, if either condition indicates we're at a limit, report it
-    return (prismatic_encoder.mm >= PRISMATIC_MAX_POS || up_photo ||
-            prismatic_encoder.mm <= PRISMATIC_MIN_POS || low_photo);
+	// Otherwise, if either condition indicates we're at a limit, report it
+	return (prismatic_encoder.mm >= PRISMATIC_MAX_POS || up_photo
+			|| prismatic_encoder.mm <= PRISMATIC_MIN_POS || low_photo);
 }
 
 bool check_revolute_limit() {
-    // For homing operations, don't count limits as violations
-    if (revolute_state == RP_GOING_HOME) {
-        return false;
-    }
+	// For homing operations, don't count limits as violations
+	if (revolute_state == RP_GOING_HOME) {
+		return false;
+	}
 
-    // For normal operation, check limits
-    return (revolute_encoder.rads >= REVOLUTE_MAX_POS ||
-            revolute_encoder.rads <= REVOLUTE_MIN_POS);
+	// For normal operation, check limits
+	return (revolute_encoder.rads >= REVOLUTE_MAX_POS
+			|| revolute_encoder.rads <= REVOLUTE_MIN_POS);
 }
 
 bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt) {
-    // Check if targets are within physical limits
-    if (pris_tgt > PRISMATIC_MAX_POS || pris_tgt < PRISMATIC_MIN_POS) {
-        return false;
-    }
+	// Check if targets are within physical limits
+	if (pris_tgt > PRISMATIC_MAX_POS || pris_tgt < PRISMATIC_MIN_POS) {
+		return false;
+	}
 
-    if (rev_tgt > REVOLUTE_MAX_POS || rev_tgt < REVOLUTE_MIN_POS) {
-        return false;
-    }
+	if (rev_tgt > REVOLUTE_MAX_POS || rev_tgt < REVOLUTE_MIN_POS) {
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 void plotter_move() {
@@ -749,12 +749,12 @@ void plotter_process_emergency() {
 }
 
 void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt) {
-    if (!is_valid_target(pris_tgt, rev_tgt)) {
-        // If target is invalid, don't start trajectory
-        pristrajectoryActive = false;
-        revtrajectoryActive = false;
-        return;
-    }
+	if (!is_valid_target(pris_tgt, rev_tgt)) {
+		// If target is invalid, don't start trajectory
+		pristrajectoryActive = false;
+		revtrajectoryActive = false;
+		return;
+	}
 
 // Setup target points
 	pris_target_p = pris_tgt;
@@ -924,110 +924,114 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim == &htim2) {
-		Modbus_Protocal_Worker();
 
-		QEI_get_diff_count(&prismatic_encoder);
-		QEI_compute_data(&prismatic_encoder);
-
-		pris_vin = pris_cmd_ux * ZGX45RGG_400RPM_Constant.V_max
-				/ ZGX45RGG_400RPM_Constant.U_max;
-
-		pris_kal_filt = SteadyStateKalmanFilter(&prismatic_kalman, pris_vin,
-				prismatic_encoder.rads)
-				* Disturbance_Constant.prismatic_pulley_radius;
-
-		QEI_get_diff_count(&revolute_encoder);
-		QEI_compute_data(&revolute_encoder);
-
-		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
-				/ ZGX45RGG_150RPM_Constant.U_max;
-
-		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
-				revolute_encoder.rads);
-
-		// Heartbeat and pen commands
-		registerFrame[Heartbeat_Protocol].U16 = 22881;
-
-		if (registerFrame[Servo_UP].U16 == 1) {
-			plotter_pen_up();
-		} else if (registerFrame[Servo_Down].U16 == 1) {
-			plotter_pen_down();
-		}
-
-		// Update limit switch status
-		if (servo_state == PEN_UP) {
-			registerFrame[LimitSwitch_Status].U16 = 1;
-		} else if (servo_state == PEN_DOWN) {
-			registerFrame[LimitSwitch_Status].U16 = 2;
-		}
-
-		if (pristrajectoryActive || revtrajectoryActive) {
-			plotter_update_trajectories();
-		}
-
-		plotter_handle_state_transition();
-
-		if (check_prismatic_limit() || check_revolute_limit()) {
-			pristrajectoryActive = false;
-			revtrajectoryActive = false;
-			rs_current_state = RS_EMERGENCY_TRIGGED;
-		}
-
-		switch (rs_current_state) {
-		case RS_JOG_MODE:
-			plotter_process_jog_mode();
-			break;
-
-		case RS_POINT_MODE:
-			MDXX_set_range(&prismatic_motor, 2000, 0);
-			MDXX_set_range(&revolute_motor, 2000, 0);
-			break;
-
-		case RS_MOVING:
-			static bool point_initialized = false;
-			if (!point_initialized) {
-				plotter_process_moving_mode(pris_target_p, rev_target_p);
-				point_initialized = true;
-			}
-
-			if (!pristrajectoryActive && !revtrajectoryActive) {
-				point_initialized = false;
-				rs_current_state = RS_IDLE;
-			}
-			break;
-
-		case RS_RETURN_TO_HOME:
-			plotter_process_return_to_home();
-			break;
-
-		case RS_EMERGENCY_TRIGGED:
-			plotter_process_emergency();
-			break;
-
-		case RS_IDLE:
-		default:
-			MDXX_set_range(&prismatic_motor, 2000, 0);
-			MDXX_set_range(&revolute_motor, 2000, 0);
-			break;
-		}
-
-		registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0;
-		registerFrame[Theta_Axis_Actual_Position].U16 = revolute_encoder.rads
-				* 10.0;
-		registerFrame[R_Axis_Actual_Speed].U16 = pris_kal_filt * 10.0;
-		registerFrame[Theta_Axis_Actual_Speed].U16 = rev_kal_filt * 10.0;
-		registerFrame[R_Axis_Acceleration].U16 = prismatic_encoder.mmpss * 10.0;
-		registerFrame[Theta_Axis_Acceleration].U16 = revolute_encoder.radpss
-				* 10.0;
-
-		if (rs_current_state == RS_IDLE) {
-			// If move is done, reset status registers
-			registerFrame[BaseSystem_Status].U16 = 0;
-			registerFrame[R_Theta_Status].U16 = 0;
-		}
-	}
 }
+
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+//	if (htim == &htim2) {
+//		Modbus_Protocal_Worker();
+//
+//		QEI_get_diff_count(&prismatic_encoder);
+//		QEI_compute_data(&prismatic_encoder);
+//
+//		pris_vin = pris_cmd_ux * ZGX45RGG_400RPM_Constant.V_max
+//				/ ZGX45RGG_400RPM_Constant.U_max;
+//
+//		pris_kal_filt = SteadyStateKalmanFilter(&prismatic_kalman, pris_vin,
+//				prismatic_encoder.rads)
+//				* Disturbance_Constant.prismatic_pulley_radius;
+//
+//		QEI_get_diff_count(&revolute_encoder);
+//		QEI_compute_data(&revolute_encoder);
+//
+//		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
+//				/ ZGX45RGG_150RPM_Constant.U_max;
+//
+//		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
+//				revolute_encoder.rads);
+//
+//		// Heartbeat and pen commands
+//		registerFrame[Heartbeat_Protocol].U16 = 22881;
+//
+//		if (registerFrame[Servo_UP].U16 == 1) {
+//			plotter_pen_up();
+//		} else if (registerFrame[Servo_Down].U16 == 1) {
+//			plotter_pen_down();
+//		}
+//
+//		// Update limit switch status
+//		if (servo_state == PEN_UP) {
+//			registerFrame[LimitSwitch_Status].U16 = 1;
+//		} else if (servo_state == PEN_DOWN) {
+//			registerFrame[LimitSwitch_Status].U16 = 2;
+//		}
+//
+//		if (pristrajectoryActive || revtrajectoryActive) {
+//			plotter_update_trajectories();
+//		}
+//
+//		plotter_handle_state_transition();
+//
+//		if (check_prismatic_limit() || check_revolute_limit()) {
+//			pristrajectoryActive = false;
+//			revtrajectoryActive = false;
+//			rs_current_state = RS_EMERGENCY_TRIGGED;
+//		}
+//
+//		switch (rs_current_state) {
+//		case RS_JOG_MODE:
+//			plotter_process_jog_mode();
+//			break;
+//
+//		case RS_POINT_MODE:
+//			MDXX_set_range(&prismatic_motor, 2000, 0);
+//			MDXX_set_range(&revolute_motor, 2000, 0);
+//			break;
+//
+//		case RS_MOVING:
+//			static bool point_initialized = false;
+//			if (!point_initialized) {
+//				plotter_process_moving_mode(pris_target_p, rev_target_p);
+//				point_initialized = true;
+//			}
+//
+//			if (!pristrajectoryActive && !revtrajectoryActive) {
+//				point_initialized = false;
+//				rs_current_state = RS_IDLE;
+//			}
+//			break;
+//
+//		case RS_RETURN_TO_HOME:
+//			plotter_process_return_to_home();
+//			break;
+//
+//		case RS_EMERGENCY_TRIGGED:
+//			plotter_process_emergency();
+//			break;
+//
+//		case RS_IDLE:
+//		default:
+//			MDXX_set_range(&prismatic_motor, 2000, 0);
+//			MDXX_set_range(&revolute_motor, 2000, 0);
+//			break;
+//		}
+//
+//		registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0;
+//		registerFrame[Theta_Axis_Actual_Position].U16 = revolute_encoder.rads
+//				* 10.0;
+//		registerFrame[R_Axis_Actual_Speed].U16 = pris_kal_filt * 10.0;
+//		registerFrame[Theta_Axis_Actual_Speed].U16 = rev_kal_filt * 10.0;
+//		registerFrame[R_Axis_Acceleration].U16 = prismatic_encoder.mmpss * 10.0;
+//		registerFrame[Theta_Axis_Acceleration].U16 = revolute_encoder.radpss
+//				* 10.0;
+//
+//		if (rs_current_state == RS_IDLE) {
+//			// If move is done, reset status registers
+//			registerFrame[BaseSystem_Status].U16 = 0;
+//			registerFrame[R_Theta_Status].U16 = 0;
+//		}
+//	}
+//}
 /* USER CODE END 4 */
 
 /**
