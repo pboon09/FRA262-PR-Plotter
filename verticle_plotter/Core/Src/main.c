@@ -352,6 +352,7 @@ void plotter_handle_state_transition() {
 		case RS_JOG_MODE:
 			// Clean up any joystick control resources
 			joy_state = JOY_IDLE;
+			HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, 0);
 			MDXX_set_range(&prismatic_motor, 2000, 0);
 			MDXX_set_range(&revolute_motor, 2000, 0);
 			break;
@@ -376,6 +377,7 @@ void plotter_handle_state_transition() {
 		case RS_JOG_MODE:
 			// Initialize joystick control
 			joy_state = A1B1_MODE;
+			HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, 1);
 			break;
 
 		case RS_MOVING:
