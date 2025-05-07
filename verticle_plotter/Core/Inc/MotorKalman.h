@@ -42,12 +42,8 @@ typedef struct {
     // ARM CMSIS DSP matrix instances
     arm_matrix_instance_f32 X_matrix;
     arm_matrix_instance_f32 P_matrix;
-    arm_matrix_instance_f32 A_matrix;
     arm_matrix_instance_f32 A_d_matrix;
-    arm_matrix_instance_f32 B_matrix;
     arm_matrix_instance_f32 B_d_matrix;
-    arm_matrix_instance_f32 C_matrix;
-    arm_matrix_instance_f32 Q_matrix;
     arm_matrix_instance_f32 Q_d_matrix;
     arm_matrix_instance_f32 R_matrix;
     arm_matrix_instance_f32 K_matrix;

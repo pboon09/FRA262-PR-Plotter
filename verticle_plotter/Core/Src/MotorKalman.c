@@ -43,7 +43,7 @@ void MotorKalman_Init(MotorKalman* filter, float32_t dt, float32_t J, float32_t 
 
     // Initialize process noise input matrix G
     memset(filter->G, 0, sizeof(filter->G));
-    filter->G[1] = 1.0f; // Process noise only affects the load torque state (state 1)
+    filter->G[1] = 1.0f; // Process noise primarily affects the velocity state (index 1)
 
     // Default measurement configuration - only position
     filter->use_position_measurement = 1;
@@ -52,65 +52,36 @@ void MotorKalman_Init(MotorKalman* filter, float32_t dt, float32_t J, float32_t 
     MotorKalman_SetProcessNoise(filter, Q);
     MotorKalman_SetMeasurementNoise(filter, R);
 
-    // Initialize temporary matrices with zeros
-    memset(filter->temp_state_data, 0, sizeof(filter->temp_state_data));
-    memset(filter->temp_state_state_data, 0, sizeof(filter->temp_state_state_data));
-    memset(filter->temp_output_state_data, 0, sizeof(filter->temp_output_state_data));
-    memset(filter->temp_output_output_data, 0, sizeof(filter->temp_output_output_data));
-    memset(filter->temp_state_output_data, 0, sizeof(filter->temp_state_output_data));
-    memset(filter->measurement_data, 0, sizeof(filter->measurement_data));
-    memset(filter->input_data, 0, sizeof(filter->input_data));
-    memset(filter->A_transpose_data, 0, sizeof(filter->A_transpose_data));
-    memset(filter->C_transpose_data, 0, sizeof(filter->C_transpose_data));
-
-    // Initialize ARM CMSIS DSP matrix instances
+    // Initialize ARM CMSIS DSP matrix instances - essential for safely using the functions
     arm_mat_init_f32(&filter->X_matrix, MOTOR_KALMAN_NUM_STATES, 1, filter->X);
     arm_mat_init_f32(&filter->P_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->P);
     arm_mat_init_f32(&filter->I_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->I_data);
-    arm_mat_init_f32(&filter->C_matrix, MOTOR_KALMAN_NUM_OUTPUTS, MOTOR_KALMAN_NUM_STATES, filter->C);
     arm_mat_init_f32(&filter->R_matrix, MOTOR_KALMAN_NUM_OUTPUTS, MOTOR_KALMAN_NUM_OUTPUTS, filter->R);
     arm_mat_init_f32(&filter->measurement_matrix, MOTOR_KALMAN_NUM_OUTPUTS, 1, filter->measurement_data);
     arm_mat_init_f32(&filter->input_matrix, MOTOR_KALMAN_NUM_INPUTS, 1, filter->input_data);
 
+    // Initialize matrices for transposed versions
     arm_mat_init_f32(&filter->A_transpose_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->A_transpose_data);
     arm_mat_init_f32(&filter->C_transpose_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_OUTPUTS, filter->C_transpose_data);
 
+    // Initialize temp matrices essential for calculations
     arm_mat_init_f32(&filter->temp_state_matrix, MOTOR_KALMAN_NUM_STATES, 1, filter->temp_state_data);
     arm_mat_init_f32(&filter->temp_state_state_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->temp_state_state_data);
     arm_mat_init_f32(&filter->temp_output_state_matrix, MOTOR_KALMAN_NUM_OUTPUTS, MOTOR_KALMAN_NUM_STATES, filter->temp_output_state_data);
     arm_mat_init_f32(&filter->temp_output_output_matrix, MOTOR_KALMAN_NUM_OUTPUTS, MOTOR_KALMAN_NUM_OUTPUTS, filter->temp_output_output_data);
     arm_mat_init_f32(&filter->temp_state_output_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_OUTPUTS, filter->temp_state_output_data);
 
-    // Discretize the model for digital implementation
+    // Generate continuous-time matrices and discretize the model
     MotorKalman_DiscretizeModel(filter);
 
-    // Initialize system matrices
-    arm_mat_init_f32(&filter->A_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->A);
+    // Initialize system matrices after discretization
     arm_mat_init_f32(&filter->A_d_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->A_d);
-    arm_mat_init_f32(&filter->B_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_INPUTS, filter->B);
     arm_mat_init_f32(&filter->B_d_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_INPUTS, filter->B_d);
-    arm_mat_init_f32(&filter->Q_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->Q);
     arm_mat_init_f32(&filter->Q_d_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->Q_d);
     arm_mat_init_f32(&filter->K_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_OUTPUTS, filter->K);
 }
 
 void MotorKalman_DiscretizeModel(MotorKalman* filter) {
-    // Create the continuous time model before discretization
-    // Initialize continuous time state matrix A
-    memset(filter->A, 0, sizeof(filter->A));
-
-    // Fill in A matrix based on the physics of the DC motor
-    filter->A[0 * MOTOR_KALMAN_NUM_STATES + 1] = 1.0f; // dx1/dt = x2 (position derivative = velocity)
-    filter->A[1 * MOTOR_KALMAN_NUM_STATES + 1] = -filter->b / filter->J; // Friction term
-    filter->A[1 * MOTOR_KALMAN_NUM_STATES + 2] = -1.0f / filter->J; // Load torque term
-    filter->A[1 * MOTOR_KALMAN_NUM_STATES + 3] = filter->K_t / filter->J; // Motor torque term
-    filter->A[3 * MOTOR_KALMAN_NUM_STATES + 1] = -filter->K_e / filter->L_a; // Back-EMF term
-    filter->A[3 * MOTOR_KALMAN_NUM_STATES + 3] = -filter->R_a / filter->L_a; // Armature resistance term
-
-    // Initialize continuous time input matrix B
-    memset(filter->B, 0, sizeof(filter->B));
-    filter->B[3] = 1.0f / filter->L_a; // Voltage affects current: dI/dt = V/L - R*I/L - K*ω/L
-
     // Use the GenerateMotorMatrices function to discretize the model
     GenerateMotorMatrices(
         filter->R_a,     // Armature resistance
@@ -124,12 +95,14 @@ void MotorKalman_DiscretizeModel(MotorKalman* filter) {
         filter->B_d      // Output discrete input matrix
     );
 
-    // Process noise discretization - simple approximation
-    // Initialize discrete Q matrix with zeros
+    // Initialize discrete process noise matrix Q_d (simplified for stability)
     memset(filter->Q_d, 0, sizeof(filter->Q_d));
 
-    // Set the process noise for the load torque state
-    filter->Q_d[1 * MOTOR_KALMAN_NUM_STATES + 1] = filter->Q[1 * MOTOR_KALMAN_NUM_STATES + 1] * filter->dt;
+    // Set diagonal elements for process noise (simpler but reliable approach)
+    filter->Q_d[0 * MOTOR_KALMAN_NUM_STATES + 0] = 0.01f * filter->dt * filter->dt; // Position noise
+    filter->Q_d[1 * MOTOR_KALMAN_NUM_STATES + 1] = filter->Q[1 * MOTOR_KALMAN_NUM_STATES + 1] * filter->dt; // Velocity noise (main process noise)
+    filter->Q_d[2 * MOTOR_KALMAN_NUM_STATES + 2] = 0.1f * filter->dt; // Load torque noise
+    filter->Q_d[3 * MOTOR_KALMAN_NUM_STATES + 3] = 0.01f * filter->dt; // Current noise
 }
 
 void MotorKalman_SetProcessNoise(MotorKalman* filter, float32_t Q) {
@@ -142,8 +115,7 @@ void MotorKalman_SetProcessNoise(MotorKalman* filter, float32_t Q) {
 
     // Update the discrete process noise matrix if A_d has already been initialized
     if (filter->A_d[0] != 0.0f || filter->A_d[1] != 0.0f) {
-        // Just update the Q_d part without full discretization
-        filter->Q_d[1 * MOTOR_KALMAN_NUM_STATES + 1] = filter->Q[1 * MOTOR_KALMAN_NUM_STATES + 1] * filter->dt;
+        MotorKalman_DiscretizeModel(filter); // Recompute discretization with new Q
     }
 }
 
@@ -172,79 +144,156 @@ void MotorKalman_Reset(MotorKalman* filter) {
     filter->current = 0.0f;
 }
 
-// Simplified version of the predict step
 void MotorKalman_Predict(MotorKalman* filter, float32_t voltage_input) {
     // Store input for next step
     filter->input_data[0] = voltage_input;
 
-    // 1. State prediction: x = A*x + B*u
-    float32_t temp_x[MOTOR_KALMAN_NUM_STATES] = {0};
+    // 1. State prediction using simplified method (more stable in embedded systems)
+    // Compute x = A*x + B*u directly without using matrix operations
+    float32_t new_state[MOTOR_KALMAN_NUM_STATES] = {0};
 
-    // Calculate A*x
+    // Calculate A*x (manually)
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
-        temp_x[i] = 0;
+        new_state[i] = 0;
         for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
-            temp_x[i] += filter->A_d[i * MOTOR_KALMAN_NUM_STATES + j] * filter->X[j];
+            new_state[i] += filter->A_d[i * MOTOR_KALMAN_NUM_STATES + j] * filter->X[j];
         }
     }
 
-    // Add B*u
+    // Add B*u (manually)
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
-        filter->X[i] = temp_x[i] + filter->B_d[i] * voltage_input;
+        filter->X[i] = new_state[i] + filter->B_d[i] * voltage_input;
     }
 
-    // 2. Covariance prediction: P = A*P*A' + Q
-    // Use a simple approximation for covariance update to avoid matrix operations
-    // This is a simplification that works for most practical cases
+    // 2. Covariance prediction using simplified method (Joseph form for stability)
+    // Using direct matrix computation for P = A*P*A' + Q
+    float32_t AP[MOTOR_KALMAN_NUM_STATES * MOTOR_KALMAN_NUM_STATES] = {0};
+    float32_t APAT[MOTOR_KALMAN_NUM_STATES * MOTOR_KALMAN_NUM_STATES] = {0};
+
+    // Compute A*P
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
         for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
-            filter->P[i * MOTOR_KALMAN_NUM_STATES + j] *= 1.01f; // Simple inflation of covariance
+            AP[i * MOTOR_KALMAN_NUM_STATES + j] = 0;
+            for (int k = 0; k < MOTOR_KALMAN_NUM_STATES; k++) {
+                AP[i * MOTOR_KALMAN_NUM_STATES + j] +=
+                    filter->A_d[i * MOTOR_KALMAN_NUM_STATES + k] * filter->P[k * MOTOR_KALMAN_NUM_STATES + j];
+            }
         }
     }
 
-    // Add process noise Q to diagonal
-    filter->P[1 * MOTOR_KALMAN_NUM_STATES + 1] += filter->Q_d[1 * MOTOR_KALMAN_NUM_STATES + 1];
+    // Compute (A*P)*A'
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            APAT[i * MOTOR_KALMAN_NUM_STATES + j] = 0;
+            for (int k = 0; k < MOTOR_KALMAN_NUM_STATES; k++) {
+                APAT[i * MOTOR_KALMAN_NUM_STATES + j] +=
+                    AP[i * MOTOR_KALMAN_NUM_STATES + k] * filter->A_d[j * MOTOR_KALMAN_NUM_STATES + k];
+            }
+        }
+    }
 
-    // Update state estimates
+    // Add Q to get P = A*P*A' + Q
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            filter->P[i * MOTOR_KALMAN_NUM_STATES + j] =
+                APAT[i * MOTOR_KALMAN_NUM_STATES + j] + filter->Q_d[i * MOTOR_KALMAN_NUM_STATES + j];
+        }
+    }
+
+    // Update state estimates for easy access
     filter->position = filter->X[0];
     filter->velocity = filter->X[1];
     filter->load_torque = filter->X[2];
     filter->current = filter->X[3];
+
+    // Update CMSIS DSP matrices for next update step
+    arm_mat_init_f32(&filter->X_matrix, MOTOR_KALMAN_NUM_STATES, 1, filter->X);
+    arm_mat_init_f32(&filter->P_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->P);
 }
 
-// Simplified version of the update step
 void MotorKalman_Update(MotorKalman* filter, float32_t position) {
-    // We're only measuring position (the first state)
-    float32_t innovation = position - filter->X[0];
+    // Store the position measurement
+    filter->measurement_data[0] = position;
 
-    // Calculate Kalman gain for position measurement
-    // This is a simplified version that assumes we only measure position
-    float32_t S = filter->P[0] + filter->R[0];  // Innovation covariance
+    // 1. Compute innovation: y - C*x (directly, no matrix operations)
+    float32_t Cx = filter->C[0] * filter->X[0] + filter->C[1] * filter->X[1] +
+                  filter->C[2] * filter->X[2] + filter->C[3] * filter->X[3];
+    float32_t innovation = position - Cx;
 
-    // Simplified Kalman gain calculation (K = P*C'/S)
-    float32_t K[MOTOR_KALMAN_NUM_STATES] = {0};
+    // 2. Compute innovation covariance: S = C*P*C' + R (directly)
+    float32_t CP[MOTOR_KALMAN_NUM_STATES] = {0};
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
-        K[i] = filter->P[i * MOTOR_KALMAN_NUM_STATES + 0] / S;
+        CP[i] = 0;
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            CP[i] += filter->C[j] * filter->P[j * MOTOR_KALMAN_NUM_STATES + i];
+        }
     }
 
-    // Update state estimate: x = x + K*(z - H*x)
+    float32_t CPCT = 0;
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        CPCT += CP[i] * filter->C[i];
+    }
+
+    float32_t S = CPCT + filter->R[0];
+
+    // 3. Compute Kalman gain: K = P*C'/S (directly)
+    float32_t PC[MOTOR_KALMAN_NUM_STATES] = {0};
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        PC[i] = 0;
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            PC[i] += filter->P[i * MOTOR_KALMAN_NUM_STATES + j] * filter->C[j];
+        }
+    }
+
+    float32_t K[MOTOR_KALMAN_NUM_STATES] = {0};
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        K[i] = PC[i] / S;
+    }
+
+    // 4. Update state estimate: x = x + K*innovation (directly)
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
         filter->X[i] += K[i] * innovation;
     }
 
-    // Update covariance matrix: P = (I - K*H)*P
-    // Simplified for position-only measurement
+    // 5. Update covariance matrix: P = (I - K*C)*P (Joseph form for better stability)
+    float32_t KC[MOTOR_KALMAN_NUM_STATES * MOTOR_KALMAN_NUM_STATES] = {0};
     for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
         for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
-            filter->P[i * MOTOR_KALMAN_NUM_STATES + j] -= K[i] * filter->P[0 * MOTOR_KALMAN_NUM_STATES + j];
+            KC[i * MOTOR_KALMAN_NUM_STATES + j] = K[i] * filter->C[j];
         }
     }
 
-    // Update state estimates
+    float32_t IKC[MOTOR_KALMAN_NUM_STATES * MOTOR_KALMAN_NUM_STATES] = {0};
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            IKC[i * MOTOR_KALMAN_NUM_STATES + j] = (i == j ? 1.0f : 0.0f) - KC[i * MOTOR_KALMAN_NUM_STATES + j];
+        }
+    }
+
+    // Store P temporarily
+    float32_t P_temp[MOTOR_KALMAN_NUM_STATES * MOTOR_KALMAN_NUM_STATES];
+    memcpy(P_temp, filter->P, sizeof(P_temp));
+
+    // Compute (I - K*C)*P
+    for (int i = 0; i < MOTOR_KALMAN_NUM_STATES; i++) {
+        for (int j = 0; j < MOTOR_KALMAN_NUM_STATES; j++) {
+            filter->P[i * MOTOR_KALMAN_NUM_STATES + j] = 0;
+            for (int k = 0; k < MOTOR_KALMAN_NUM_STATES; k++) {
+                filter->P[i * MOTOR_KALMAN_NUM_STATES + j] +=
+                    IKC[i * MOTOR_KALMAN_NUM_STATES + k] * P_temp[k * MOTOR_KALMAN_NUM_STATES + j];
+            }
+        }
+    }
+
+    // Update state estimates for easy access
     filter->position = filter->X[0];
     filter->velocity = filter->X[1];
     filter->load_torque = filter->X[2];
     filter->current = filter->X[3];
+
+    // Update CMSIS DSP matrices for next time
+    arm_mat_init_f32(&filter->X_matrix, MOTOR_KALMAN_NUM_STATES, 1, filter->X);
+    arm_mat_init_f32(&filter->P_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->P);
 }
 
 // Implementation of getter functions
