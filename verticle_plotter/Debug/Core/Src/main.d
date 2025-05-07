@@ -34,9 +34,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/dma.h \
  ../Core/Inc/usart.h ../Core/Inc/tim.h ../Core/Inc/gpio.h \
  ../Core/Inc/plotter_config.h ../Core/Inc/tim.h ../Core/Inc/gpio.h \
- ../Core/Inc/QEI.h ../Core/Inc/PWM.h ../Core/Inc/Cytron_MDXX.h \
- ../Core/Inc/Controller.h ../Core/Inc/ADC_DMA.h \
- ../Core/Inc/MathOperation.h ../Core/Inc/signal_generator.h \
+ ../Core/Inc/signal_generator.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \
@@ -69,9 +67,12 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/support_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/quaternion_math_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/window_functions.h \
- ../Core/Inc/FIR.h ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h \
- ../Core/Inc/DC_MOTOR.h ../Core/Inc/Trapezoidal.h \
- ../Core/Inc/serial_frame.h
+ ../Core/Inc/PWM.h ../Core/Inc/Cytron_MDXX.h ../Core/Inc/QEI.h \
+ ../Core/Inc/Controller.h ../Core/Inc/ADC_DMA.h \
+ ../Core/Inc/MathOperation.h ../Core/Inc/DC_MOTOR.h ../Core/Inc/FIR.h \
+ ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h ../Core/Inc/Trapezoidal.h \
+ ../Core/Inc/serial_frame.h ../Core/Inc/MotorMatrixGenerator.h \
+ ../Core/Inc/MotorKalman.h
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
 ../Core/Inc/stm32g4xx_hal_conf.h:
@@ -114,12 +115,6 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/plotter_config.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/gpio.h:
-../Core/Inc/QEI.h:
-../Core/Inc/PWM.h:
-../Core/Inc/Cytron_MDXX.h:
-../Core/Inc/Controller.h:
-../Core/Inc/ADC_DMA.h:
-../Core/Inc/MathOperation.h:
 ../Core/Inc/signal_generator.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h:
@@ -153,9 +148,17 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/support_functions.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/quaternion_math_functions.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/window_functions.h:
+../Core/Inc/PWM.h:
+../Core/Inc/Cytron_MDXX.h:
+../Core/Inc/QEI.h:
+../Core/Inc/Controller.h:
+../Core/Inc/ADC_DMA.h:
+../Core/Inc/MathOperation.h:
+../Core/Inc/DC_MOTOR.h:
 ../Core/Inc/FIR.h:
 ../Core/Inc/kalman.h:
 ../Core/Inc/ModBusRTU.h:
-../Core/Inc/DC_MOTOR.h:
 ../Core/Inc/Trapezoidal.h:
 ../Core/Inc/serial_frame.h:
+../Core/Inc/MotorMatrixGenerator.h:
+../Core/Inc/MotorKalman.h:

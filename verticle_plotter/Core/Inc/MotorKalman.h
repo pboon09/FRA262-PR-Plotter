@@ -105,19 +105,16 @@ typedef struct {
 
 // Function prototypes
 void MotorKalman_Init(MotorKalman* filter, float32_t dt, float32_t J, float32_t b,
-                      float32_t K_t, float32_t K_e, float32_t R_a, float32_t L_a);
+                      float32_t K_t, float32_t K_e, float32_t R_a, float32_t L_a,
+                      float32_t Q, float32_t R);
 
-void MotorKalman_SetupContinuousModel(MotorKalman* filter);
+void MotorKalman_SetProcessNoise(MotorKalman* filter, float32_t Q);
 
-void MotorKalman_DiscretizeModel(MotorKalman* filter);
-
-void MotorKalman_SetProcessNoise(MotorKalman* filter, float32_t load_torque_noise);
-
-void MotorKalman_SetMeasurementNoise(MotorKalman* filter, float32_t position_noise);
+void MotorKalman_SetMeasurementNoise(MotorKalman* filter, float32_t R);
 
 void MotorKalman_Reset(MotorKalman* filter);
 
-void MotorKalman_CheckObservability(MotorKalman* filter);
+void MotorKalman_DiscretizeModel(MotorKalman* filter);
 
 void MotorKalman_Predict(MotorKalman* filter, float32_t voltage_input);
 

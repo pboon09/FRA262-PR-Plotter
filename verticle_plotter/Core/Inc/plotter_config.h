@@ -15,16 +15,16 @@
 #include "stdio.h"
 #include "string.h"
 
-#include "QEI.h"
+#include "signal_generator.h"
 #include "PWM.h"
 #include "Cytron_MDXX.h"
+#include "QEI.h"
 #include "Controller.h"
 #include "ADC_DMA.h"
-#include "signal_generator.h"
+#include "DC_MOTOR.h"
 #include "FIR.h"
 #include "kalman.h"
 #include "ModBusRTU.h"
-#include "DC_MOTOR.h"
 
 typedef enum {
 	RS_IDLE,
@@ -252,7 +252,7 @@ extern float32_t revolute_B[4];
 #define REVOLUTE_R 0.05f
 /*-------Configure Kalman Stop------*/
 
-/*----- Config ModBus Start -----*/
+/*----- Configure ModBus Start -----*/
 extern ModbusHandleTypedef ModBus; // ModBus OOP
 extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim16;
@@ -299,7 +299,7 @@ extern u16u8_t registerFrame[200];
 
 #define Goal_R 0x40 // Read
 #define Goal_Theta 0x41 // Read
-/*----- Config ModBus End -----*/
+/*----- Configure ModBus End -----*/
 
 /*----- Sensor State Variable Start -----*/
 extern int b1, b2, b3, b4, prox, emer, up_photo, low_photo, up_lim, low_lim;

@@ -29,6 +29,9 @@
 #include "plotter_config.h"
 #include "Trapezoidal.h"
 #include "serial_frame.h"
+#include "MotorMatrixGenerator.h"
+
+#include "MotorKalman.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +55,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+MotorKalman motor_filter;
+float q, r;
+
 SerialFrame serial_frame;
 
 Trapezoidal_GenStruct prisGen;
@@ -147,7 +153,10 @@ int main(void) {
 	MX_LPUART1_UART_Init();
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
-
+	MotorKalman_Init(&motor_filter, 1e-3, ZGX45RGG_150RPM_Constant.J,
+			ZGX45RGG_150RPM_Constant.B * 0.735, ZGX45RGG_150RPM_Constant.Kt,
+			ZGX45RGG_150RPM_Constant.Ke, ZGX45RGG_150RPM_Constant.R,
+			ZGX45RGG_150RPM_Constant.L, 1.0, 0.05);
 //	SerialFrame_Init(&serial_frame, &hlpuart1, 37, 'N');
 //	SerialFrame_StartReceive(&serial_frame);
 	/* USER CODE END 2 */
@@ -158,7 +167,7 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		plotter_update_sensors();
+//		plotter_update_sensors();
 	}
 	/* USER CODE END 3 */
 }
@@ -924,7 +933,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim == &htim2) {
+//		rev_cmd_ux = SIGNAL_generate(&sine_sg_PWM, 0.001f);
+		QEI_get_diff_count(&revolute_encoder);
+		QEI_compute_data(&revolute_encoder);
+//
+		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max / ZGX45RGG_150RPM_Constant.U_max;
+//
+		MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
+		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin, revolute_encoder.rads);
 
+		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
+	}
 }
 
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
