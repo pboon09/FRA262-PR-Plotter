@@ -84,7 +84,11 @@ float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
 float revolute_current = 0.0f;
 
-int b1, b2, b3, b4, prox, emer, up_photo, low_photo, up_lim, low_lim;
+int prox, emer, up_photo, low_photo, up_lim, low_lim;
+int b1[2];
+int b2[2];
+int b3[2];
+int b4[2];
 void plotter_begin() {
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -197,18 +201,18 @@ void plotter_update_sensors() {
 	joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
 	joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
 
-	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
-	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
-	b3 = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
-	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
+	b1[0] = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
+	b2[0] = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
+	b3[0] = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
+	b4[0] = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
 
-	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
-	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
-	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+//	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+//	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+//	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
+//	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+//	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
-	emer = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+	emer = !HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 
 	if (up_lim) {
 		servo_state = PEN_UP;

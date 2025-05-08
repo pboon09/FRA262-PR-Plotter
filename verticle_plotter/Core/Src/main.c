@@ -177,7 +177,7 @@ int main(void) {
 
 		static uint8_t button_pressed_previous = 0;
 
-		if (b1 && !button_pressed_previous && !revtrajectoryActive) {
+		if (b1[0] == 0 && b1[1] == 1  && !revtrajectoryActive) {
 			revEva.t = 0.0f;
 			revEva.isFinised = false;
 
@@ -193,11 +193,12 @@ int main(void) {
 
 			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
 		}
-		button_pressed_previous = b1;
+		b1[0] =  b1[1];
 
-		if(b2){
+		if (b2[0] == 0 && b2[1] == 1) {
 			NVIC_SystemReset();
 		}
+		b2[0] =  b2[1];
 	}
 	/* USER CODE END 3 */
 }
@@ -388,7 +389,6 @@ void plotter_joymove() {
 
 void plotter_handle_state_transition() {
 // Save previous state
-	rs_previous_state = rs_current_state;
 
 // Only process base system commands if not in emergency mode
 	if (rs_current_state != RS_EMERGENCY_TRIGGED) {
@@ -461,7 +461,7 @@ void plotter_handle_state_transition() {
 		case RS_EMERGENCY_TRIGGED:
 			// Enter emergency state
 			joy_state = EMERGENCY_MODE;
-			registerFrame[R_Theta_Status].U16 = 16;
+//			registerFrame[R_Theta_Status].U16 = 16;
 			// Immediately stop all motors
 			MDXX_set_range(&prismatic_motor, 2000, 0);
 			MDXX_set_range(&revolute_motor, 2000, 0);
@@ -481,6 +481,7 @@ void plotter_handle_state_transition() {
 			break;
 		}
 	}
+	rs_previous_state = rs_current_state;
 }
 
 void plotter_process_jog_mode() {
@@ -492,9 +493,9 @@ void plotter_process_jog_mode() {
 
 // Handle state transitions for A1B1_MODE
 	if (joy_state == A1B1_MODE) {
-		if (b1) {
+		if (b1[0] == 0 && b1[1] == 1) {
 			joy_state = A1B1_SETPOINT;
-		} else if (b2) {
+		} else if (b2[0] == 0 && b2[1] == 1) {
 			joy_state = A1B1_MOVING;
 			moving_state = MOVING_GO_TO_POINT;
 			if (total_setpoints > 0) {
@@ -503,31 +504,34 @@ void plotter_process_jog_mode() {
 				move_index = 0;            // start at first point
 			}
 
-		} else if (b4) {
-			joy_state = A2B2_MODE;
 		}
 	}
 // Handle transitions back to A1B1_MODE
-	else if ((joy_state == A1B1_SETPOINT && b2)
-			|| (joy_state == A1B1_MOVING && b1)) {
+	else if ((joy_state == A1B1_SETPOINT && b2[0] == 0 && b2[1] == 1)
+			|| (joy_state == A1B1_MOVING && b1[0] == 0 && b1[1] == 1)) {
 		joy_state = A1B1_MODE;
 	}
 
 // Handle state transitions for A2B2_MODE
 	if (joy_state == A2B2_MODE) {
-		if (b1) {
+		if (b1[0] == 0 && b1[1] == 1) {
 			joy_state = A2B2_WRITING;
 			writing_state = WRITE_IDLE;
-		} else if (b2) {
+		} else if (b2[0] == 0 && b2[1] == 1) {
 			joy_state = A2B2_GOTO_HOME;
-		} else if (b4) {
-			joy_state = A1B1_MODE;
 		}
 	}
 // Handle transitions back to A2B2_MODE
-	else if ((joy_state == A2B2_WRITING && b2)
-			|| (joy_state == A2B2_GOTO_HOME && b1)) {
+	else if ((joy_state == A2B2_WRITING && b2[0] == 0 && b2[1] == 1)
+			|| (joy_state == A2B2_GOTO_HOME && b1[0] == 0 && b1[1] == 1)) {
 		joy_state = A2B2_MODE;
+	}
+	if (b4[0] == 0 && b4[1] == 1) {
+		if (joy_state == A1B1_MODE) {
+			joy_state = A2B2_MODE;
+		} else if (joy_state == A2B2_MODE) {
+			joy_state = A1B1_MODE;
+		}
 	}
 
 // Execute state-specific actions
@@ -581,7 +585,7 @@ void plotter_process_jog_mode() {
 		plotter_joymove();
 
 		// When b1 is pressed, save the current position
-		if (b1) {
+		if (b1[0] == 0 && b1[1] == 1) {
 			// Determine which point to set based on current state
 			uint16_t r_reg = 0, t_reg = 0;
 			uint8_t point_index = 0;
@@ -649,7 +653,7 @@ void plotter_process_jog_mode() {
 
 	case A2B2_GOTO_HOME:
 		// Transition to home state
-		rs_current_state = RS_RETURN_TO_HOME; //////////////////////////////////
+		plotter_process_return_to_home();
 		break;
 
 	case A2B2_WRITING:
@@ -721,7 +725,7 @@ void plotter_process_return_to_home() {
 // First ensure pen is up
 	if (servo_state != PEN_UP) {
 		plotter_pen_up();
-		return;
+//		return;
 	}
 
 // Home revolute axis first
@@ -751,7 +755,7 @@ void plotter_process_return_to_home() {
 		}
 	}
 // Both axes homed
-	else {
+	if (prismatic_state == PP_AT_TOP_END_POSITION&&revolute_state == RP_AT_HOME_POSITION) {
 		plotter_reset();
 
 		pris_pos[0] = 0.0;
@@ -781,10 +785,10 @@ void plotter_process_emergency() {
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
 // Exit emergency mode only if button pressed and emergency switch released
-	if (joy_state == EMERGENCY_MODE && b1 && !emer) {
-		rs_current_state = RS_RETURN_TO_HOME;
-		emer_state = DEFAULT;
-	}
+//	if (joy_state == EMERGENCY_MODE && b1 && !emer) {
+//		rs_current_state = RS_RETURN_TO_HOME;
+//		emer_state = DEFAULT;
+//	}
 }
 
 void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt) {
@@ -962,166 +966,170 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim == &htim2) {
-////		rev_cmd_ux = SIGNAL_generate(&sine_sg_PWM, 0.001f);
-//		QEI_get_diff_count(&revolute_encoder);
-//		QEI_compute_data(&revolute_encoder);
-//
-//		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
-//				/ ZGX45RGG_150RPM_Constant.U_max;
-//
-//		MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
-////		MotorKalman_Predict(&motor_filter, rev_vin);
-////		MotorKalman_Update(&motor_filter, revolute_encoder.rads);
-//		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
-//				revolute_encoder.rads);
-//
-//		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
-
-		if (revtrajectoryActive && !revEva.isFinised) {
-			Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
-					ZGX45RGG_150RPM_Constant.qd_max,
-					ZGX45RGG_150RPM_Constant.qdd_max);
-
-			revolute_pos = revEva.setposition;
-			revolute_vel = revEva.setvelocity;
-
-			QEI_get_diff_count(&revolute_encoder);
-			QEI_compute_data(&revolute_encoder);
-
-			rev_vin = mapf(rev_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
-
-			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
-
-			rev_pos_error = revolute_pos - revolute_encoder.rads;
-
-			rev_cmd_vx = PWM_Satuation(
-					PID_CONTROLLER_Compute(&revolute_position_pid,
-							rev_pos_error), ZGX45RGG_150RPM_Constant.qd_max,
-					-ZGX45RGG_150RPM_Constant.qd_max);
-
-			rev_vel_error = rev_cmd_vx + revolute_vel - motor_filter.velocity;
-
-			rev_cmd_ux = PWM_Satuation(
-					PID_CONTROLLER_Compute(&revolute_velocity_pid,
-							rev_vel_error), 65535, -65535);
-		} else {
-			revtrajectoryActive = false;
-			rev_cmd_ux = 0;
-			rev_vin = 0;
-			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
-		}
-
-		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
-	}
-}
-
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	if (htim == &htim2) {
-//		Modbus_Protocal_Worker();
+//////		rev_cmd_ux = SIGNAL_generate(&sine_sg_PWM, 0.001f);
+////		QEI_get_diff_count(&revolute_encoder);
+////		QEI_compute_data(&revolute_encoder);
+////
+////		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
+////				/ ZGX45RGG_150RPM_Constant.U_max;
+////
+////		MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
+//////		MotorKalman_Predict(&motor_filter, rev_vin);
+//////		MotorKalman_Update(&motor_filter, revolute_encoder.rads);
+////		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
+////				revolute_encoder.rads);
+////
+////		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
 //
-//		QEI_get_diff_count(&prismatic_encoder);
-//		QEI_compute_data(&prismatic_encoder);
+//		if (revtrajectoryActive && !revEva.isFinised) {
+//			Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
+//					ZGX45RGG_150RPM_Constant.qd_max,
+//					ZGX45RGG_150RPM_Constant.qdd_max);
 //
-//		pris_vin = pris_cmd_ux * ZGX45RGG_400RPM_Constant.V_max
-//				/ ZGX45RGG_400RPM_Constant.U_max;
+//			revolute_pos = revEva.setposition;
+//			revolute_vel = revEva.setvelocity;
 //
-//		pris_kal_filt = SteadyStateKalmanFilter(&prismatic_kalman, pris_vin,
-//				prismatic_encoder.rads)
-//				* Disturbance_Constant.prismatic_pulley_radius;
+//			QEI_get_diff_count(&revolute_encoder);
+//			QEI_compute_data(&revolute_encoder);
 //
-//		QEI_get_diff_count(&revolute_encoder);
-//		QEI_compute_data(&revolute_encoder);
+//			rev_vin = mapf(rev_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
 //
-//		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
-//				/ ZGX45RGG_150RPM_Constant.U_max;
+//			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
 //
-//		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
-//				revolute_encoder.rads);
+//			rev_pos_error = revolute_pos - revolute_encoder.rads;
 //
-//		// Heartbeat and pen commands
-//		registerFrame[Heartbeat_Protocol].U16 = 22881;
+//			rev_cmd_vx = PWM_Satuation(
+//					PID_CONTROLLER_Compute(&revolute_position_pid,
+//							rev_pos_error), ZGX45RGG_150RPM_Constant.qd_max,
+//					-ZGX45RGG_150RPM_Constant.qd_max);
 //
-//		if (registerFrame[Servo_UP].U16 == 1) {
-//			plotter_pen_up();
-//		} else if (registerFrame[Servo_Down].U16 == 1) {
-//			plotter_pen_down();
+//			rev_vel_error = rev_cmd_vx + revolute_vel - motor_filter.velocity;
+//
+//			rev_cmd_ux = PWM_Satuation(
+//					PID_CONTROLLER_Compute(&revolute_velocity_pid,
+//							rev_vel_error), 65535, -65535);
+//		} else {
+//			revtrajectoryActive = false;
+//			rev_cmd_ux = 0;
+//			rev_vin = 0;
+//			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
 //		}
 //
-//		// Update limit switch status
-//		if (servo_state == PEN_UP) {
-//			registerFrame[LimitSwitch_Status].U16 = 1;
-//		} else if (servo_state == PEN_DOWN) {
-//			registerFrame[LimitSwitch_Status].U16 = 2;
-//		}
-//
-//		if (pristrajectoryActive || revtrajectoryActive) {
-//			plotter_update_trajectories();
-//		}
-//
-//		plotter_handle_state_transition();
-//
+//		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
+//	}
+//}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	if (htim == &htim2) {
+		Modbus_Protocal_Worker();
+
+		QEI_get_diff_count(&prismatic_encoder);
+		QEI_compute_data(&prismatic_encoder);
+
+		pris_vin = pris_cmd_ux * ZGX45RGG_400RPM_Constant.V_max
+				/ ZGX45RGG_400RPM_Constant.U_max;
+
+		pris_kal_filt = SteadyStateKalmanFilter(&prismatic_kalman, pris_vin,
+				prismatic_encoder.rads)
+				* Disturbance_Constant.prismatic_pulley_radius;
+
+		QEI_get_diff_count(&revolute_encoder);
+		QEI_compute_data(&revolute_encoder);
+
+		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
+				/ ZGX45RGG_150RPM_Constant.U_max;
+
+		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
+				revolute_encoder.rads);
+
+		// Heartbeat and pen commands
+		registerFrame[Heartbeat_Protocol].U16 = 22881;
+
+		if (registerFrame[Servo_UP].U16 == 1) {
+			plotter_pen_up();
+		} else if (registerFrame[Servo_Down].U16 == 1) {
+			plotter_pen_down();
+		}
+
+		// Update limit switch status
+		if (servo_state == PEN_UP) {
+			registerFrame[LimitSwitch_Status].U16 = 1;
+		} else if (servo_state == PEN_DOWN) {
+			registerFrame[LimitSwitch_Status].U16 = 2;
+		}
+
+		if (pristrajectoryActive || revtrajectoryActive) {
+			plotter_update_trajectories();
+		}
+
+		plotter_handle_state_transition();
+
 //		if (check_prismatic_limit() || check_revolute_limit()) {
 //			pristrajectoryActive = false;
 //			revtrajectoryActive = false;
 //			rs_current_state = RS_EMERGENCY_TRIGGED;
 //		}
-//
-//		switch (rs_current_state) {
-//		case RS_JOG_MODE:
-//			plotter_process_jog_mode();
-//			break;
-//
-//		case RS_POINT_MODE:
-//			MDXX_set_range(&prismatic_motor, 2000, 0);
-//			MDXX_set_range(&revolute_motor, 2000, 0);
-//			break;
-//
-//		case RS_MOVING:
-//			static bool point_initialized = false;
-//			if (!point_initialized) {
-//				plotter_process_moving_mode(pris_target_p, rev_target_p);
-//				point_initialized = true;
-//			}
-//
-//			if (!pristrajectoryActive && !revtrajectoryActive) {
-//				point_initialized = false;
-//				rs_current_state = RS_IDLE;
-//			}
-//			break;
-//
-//		case RS_RETURN_TO_HOME:
-//			plotter_process_return_to_home();
-//			break;
-//
-//		case RS_EMERGENCY_TRIGGED:
-//			plotter_process_emergency();
-//			break;
-//
-//		case RS_IDLE:
-//		default:
-//			MDXX_set_range(&prismatic_motor, 2000, 0);
-//			MDXX_set_range(&revolute_motor, 2000, 0);
-//			break;
-//		}
-//
-//		registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0;
-//		registerFrame[Theta_Axis_Actual_Position].U16 = revolute_encoder.rads
-//				* 10.0;
-//		registerFrame[R_Axis_Actual_Speed].U16 = pris_kal_filt * 10.0;
-//		registerFrame[Theta_Axis_Actual_Speed].U16 = rev_kal_filt * 10.0;
-//		registerFrame[R_Axis_Acceleration].U16 = prismatic_encoder.mmpss * 10.0;
-//		registerFrame[Theta_Axis_Acceleration].U16 = revolute_encoder.radpss
-//				* 10.0;
-//
-//		if (rs_current_state == RS_IDLE) {
-//			// If move is done, reset status registers
-//			registerFrame[BaseSystem_Status].U16 = 0;
-//			registerFrame[R_Theta_Status].U16 = 0;
-//		}
-//	}
-//}
+
+		switch (rs_current_state) {
+		case RS_JOG_MODE:
+			plotter_process_jog_mode();
+			b1[1]==b1[0];
+			b2[1]==b2[0];
+			b3[1]==b3[0];
+			b4[1]==b4[0];
+			break;
+
+		case RS_POINT_MODE:
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+			MDXX_set_range(&revolute_motor, 2000, 0);
+			break;
+
+		case RS_MOVING:
+			static bool point_initialized = false;
+			if (!point_initialized) {
+				plotter_process_moving_mode(pris_target_p, rev_target_p);
+				point_initialized = true;
+			}
+
+			if (!pristrajectoryActive && !revtrajectoryActive) {
+				point_initialized = false;
+				rs_current_state = RS_IDLE;
+			}
+			break;
+
+		case RS_RETURN_TO_HOME:
+			plotter_process_return_to_home();
+			break;
+
+		case RS_EMERGENCY_TRIGGED:
+			plotter_process_emergency();
+			break;
+
+		case RS_IDLE:
+		default:
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+			MDXX_set_range(&revolute_motor, 2000, 0);
+			break;
+		}
+
+		registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0;
+		registerFrame[Theta_Axis_Actual_Position].U16 = revolute_encoder.rads
+				* 10.0;
+		registerFrame[R_Axis_Actual_Speed].U16 = pris_kal_filt * 10.0;
+		registerFrame[Theta_Axis_Actual_Speed].U16 = rev_kal_filt * 10.0;
+		registerFrame[R_Axis_Acceleration].U16 = prismatic_encoder.mmpss * 10.0;
+		registerFrame[Theta_Axis_Acceleration].U16 = revolute_encoder.radpss
+				* 10.0;
+
+		if (rs_current_state == RS_IDLE) {
+			// If move is done, reset status registers
+			registerFrame[BaseSystem_Status].U16 = 0;
+			registerFrame[R_Theta_Status].U16 = 0;
+		}
+	}
+}
 /* USER CODE END 4 */
 
 /**
