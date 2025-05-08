@@ -81,6 +81,12 @@ float rev_cmd_ux, rev_cmd_vx;
 uint8_t total_setpoints, move_index;
 
 float pris_pos[2], rev_pos[2];
+
+uint8_t trajectory_sequence_index = 0;
+bool sequence_active = false;
+const float32_t trajectory_sequence[4] = { 100.0f, 200.0f, 0.0f, 300.0f }; // Sequence of setpoints
+
+float kpv, kiv, kdv, kpp, kip, kdp;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,6 +131,7 @@ int main(void) {
 	/* MCU Configuration--------------------------------------------------------*/
 
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+
 	HAL_Init();
 
 	/* USER CODE BEGIN Init */
@@ -154,10 +161,9 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
 	MotorKalman_Init(&motor_filter, 1e-3, ZGX45RGG_150RPM_Constant.J,
-			ZGX45RGG_150RPM_Constant.B * 0.735, ZGX45RGG_150RPM_Constant.Kt,
+			ZGX45RGG_150RPM_Constant.B, ZGX45RGG_150RPM_Constant.Kt,
 			ZGX45RGG_150RPM_Constant.Ke, ZGX45RGG_150RPM_Constant.R,
 			ZGX45RGG_150RPM_Constant.L, 1.0, 0.05);
-//	SerialFrame_Init(&serial_frame, &hlpuart1, 37, 'N');
 //	SerialFrame_StartReceive(&serial_frame);
 	/* USER CODE END 2 */
 
@@ -167,7 +173,31 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-//		plotter_update_sensors();
+		plotter_update_sensors();
+
+		static uint8_t button_pressed_previous = 0;
+
+		if (b1 && !button_pressed_previous && !revtrajectoryActive) {
+			revEva.t = 0.0f;
+			revEva.isFinised = false;
+
+			rev_initial_p = revolute_encoder.rads;
+
+			rev_target_p = trajectory_sequence[trajectory_sequence_index];
+
+			Trapezoidal_Generator(&revGen, rev_initial_p, rev_target_p,
+					ZGX45RGG_150RPM_Constant.qd_max,
+					ZGX45RGG_150RPM_Constant.qdd_max);
+
+			revtrajectoryActive = true;
+
+			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
+		}
+		button_pressed_previous = b1;
+
+		if(b2){
+			NVIC_SystemReset();
+		}
 	}
 	/* USER CODE END 3 */
 }
@@ -934,14 +964,54 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
-//		rev_cmd_ux = SIGNAL_generate(&sine_sg_PWM, 0.001f);
-		QEI_get_diff_count(&revolute_encoder);
-		QEI_compute_data(&revolute_encoder);
+////		rev_cmd_ux = SIGNAL_generate(&sine_sg_PWM, 0.001f);
+//		QEI_get_diff_count(&revolute_encoder);
+//		QEI_compute_data(&revolute_encoder);
 //
-		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max / ZGX45RGG_150RPM_Constant.U_max;
+//		rev_vin = rev_cmd_ux * ZGX45RGG_150RPM_Constant.V_max
+//				/ ZGX45RGG_150RPM_Constant.U_max;
 //
-		MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
-		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin, revolute_encoder.rads);
+//		MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
+////		MotorKalman_Predict(&motor_filter, rev_vin);
+////		MotorKalman_Update(&motor_filter, revolute_encoder.rads);
+//		rev_kal_filt = SteadyStateKalmanFilter(&revolute_kalman, rev_vin,
+//				revolute_encoder.rads);
+//
+//		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
+
+		if (revtrajectoryActive && !revEva.isFinised) {
+			Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
+					ZGX45RGG_150RPM_Constant.qd_max,
+					ZGX45RGG_150RPM_Constant.qdd_max);
+
+			revolute_pos = revEva.setposition;
+			revolute_vel = revEva.setvelocity;
+
+			QEI_get_diff_count(&revolute_encoder);
+			QEI_compute_data(&revolute_encoder);
+
+			rev_vin = mapf(rev_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
+
+			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
+
+			rev_pos_error = revolute_pos - revolute_encoder.rads;
+
+			rev_cmd_vx = PWM_Satuation(
+					PID_CONTROLLER_Compute(&revolute_position_pid,
+							rev_pos_error), ZGX45RGG_150RPM_Constant.qd_max,
+					-ZGX45RGG_150RPM_Constant.qd_max);
+
+			rev_vel_error = rev_cmd_vx + revolute_vel - motor_filter.velocity;
+
+			rev_cmd_ux = PWM_Satuation(
+					PID_CONTROLLER_Compute(&revolute_velocity_pid,
+							rev_vel_error), 65535, -65535);
+		} else {
+			revtrajectoryActive = false;
+			rev_cmd_ux = 0;
+			rev_vin = 0;
+			MotorKalman_Estimate(&motor_filter, rev_vin, revolute_encoder.rads);
+		}
 
 		MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
 	}

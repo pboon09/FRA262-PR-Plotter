@@ -6,6 +6,17 @@
  */
 
 #include "MotorKalman.h"
+#include "arm_math.h"
+#include <string.h>
+
+/*
+ * MotorKalman.c
+ *
+ *  Created on: May 6, 2025
+ *      Author: pboon
+ */
+
+#include "MotorKalman.h"
 #include <math.h>
 #include <string.h>
 #include "MotorMatrixGenerator.h"
@@ -45,8 +56,6 @@ void MotorKalman_Init(MotorKalman* filter, float32_t dt, float32_t J, float32_t 
     memset(filter->G, 0, sizeof(filter->G));
     filter->G[1] = 1.0f; // Process noise primarily affects the velocity state (index 1)
 
-    // Default measurement configuration - only position
-    filter->use_position_measurement = 1;
 
     // Set process and measurement noise values
     MotorKalman_SetProcessNoise(filter, Q);
@@ -294,23 +303,6 @@ void MotorKalman_Update(MotorKalman* filter, float32_t position) {
     // Update CMSIS DSP matrices for next time
     arm_mat_init_f32(&filter->X_matrix, MOTOR_KALMAN_NUM_STATES, 1, filter->X);
     arm_mat_init_f32(&filter->P_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->P);
-}
-
-// Implementation of getter functions
-float32_t MotorKalman_GetPosition(MotorKalman* filter) {
-    return filter->X[0];
-}
-
-float32_t MotorKalman_GetVelocity(MotorKalman* filter) {
-    return filter->X[1];
-}
-
-float32_t MotorKalman_GetLoadTorque(MotorKalman* filter) {
-    return filter->X[2];
-}
-
-float32_t MotorKalman_GetCurrent(MotorKalman* filter) {
-    return filter->X[3];
 }
 
 void MotorKalman_Estimate(MotorKalman* filter, float32_t voltage_input, float32_t position) {
