@@ -84,11 +84,8 @@ float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
 float revolute_current = 0.0f;
 
-int prox, emer, up_photo, low_photo, up_lim, low_lim;
-int b1[2];
-int b2[2];
-int b3[2];
-int b4[2];
+int prox, emer, up_photo, low_photo, up_lim, low_lim, b1, b2, b3, b4;
+
 void plotter_begin() {
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -135,11 +132,11 @@ void plotter_begin() {
 			-ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qd_max);
 
 	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max
-			* Disturbance_Constant.prismatic_pulley_radius;
+			* Disturbance_Constant.prismatic_pulley_radius * 1000;
 	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 0.5;
 
 	QEI_init(&prismatic_encoder, ENC_TIM1, ENC_PPR, ENC_FREQ, MOTOR1_RATIO,
-			Disturbance_Constant.prismatic_pulley_radius * 2.0);
+			Disturbance_Constant.prismatic_pulley_radius * 2.0 * 1000.0);
 	QEI_init(&revolute_encoder, ENC_TIM2, ENC_PPR, ENC_FREQ, MOTOR2_RATIO,
 	MOTOR2_PULLEY_DIAMETER);
 
@@ -154,9 +151,9 @@ void plotter_begin() {
 	MDXX_set_range(&revolute_motor, 2000, 0);
 	plotter_pen_up();
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 25, 1e-9, 0,
-			ZGX45RGG_400RPM_Constant.qd_max);
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 2000, 80, 0,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 200, 1e-10, 100,
+			ZGX45RGG_400RPM_Constant.sd_max);
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 120, 1, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&revolute_position_pid, 25, 1e-9, 0,
@@ -201,10 +198,10 @@ void plotter_update_sensors() {
 	joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
 	joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
 
-	b1[0] = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
-	b2[0] = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
-	b3[0] = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
-	b4[0] = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
+	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
+	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
+	b3 = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
+	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
 
 //	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
 //	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);

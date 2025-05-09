@@ -24,11 +24,11 @@ typedef struct {
 } Motor_Constant_Structure;
 
 typedef struct {
-    double g;           		// Gravitational acceleration (m/s²)
-    double plotter_mass;		// Mass of plotter (kg)
-    double slide_rail_mass;		// Mass of slide rail (kg)
-    double c;					// Length from Pivot point to Center of slide_rail_mass (m)
-    double prismatic_pulley_radius;	// Prismatic Pulley Radius Size (m)
+	float  g;           		// Gravitational acceleration (m/s²)
+	float  plotter_mass;		// Mass of plotter (kg)
+    float  slide_rail_mass;		// Mass of slide rail (kg)
+    float  c;					// Length from Pivot point to Center of slide_rail_mass (m)
+    float prismatic_pulley_radius;	// Prismatic Pulley Radius Size (m)
 } Environment;
 
 typedef struct {

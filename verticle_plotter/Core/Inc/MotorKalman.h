@@ -89,10 +89,10 @@ typedef struct {
     float32_t sigma_pos;       // Standard deviation for position measurement noise
 
     // Estimated states - accessible as output
-    float32_t position;
-    float32_t velocity;
-    float32_t load_torque;
-    float32_t current;
+    float position;
+    float velocity;
+    float load_torque;
+    float current;
 } MotorKalman;
 
 // Function prototypes
@@ -113,6 +113,6 @@ void MotorKalman_Predict(MotorKalman* filter, float32_t voltage_input);
 void MotorKalman_Update(MotorKalman* filter, float32_t position);
 
 // Simplified function to run both predict and update steps
-void MotorKalman_Estimate(MotorKalman* filter, float32_t voltage_input, float32_t position);
+float MotorKalman_Estimate(MotorKalman* filter, float32_t voltage_input, float32_t position);
 
 #endif /* INC_MOTORKALMAN_H_ */

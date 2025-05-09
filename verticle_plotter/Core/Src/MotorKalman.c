@@ -305,8 +305,10 @@ void MotorKalman_Update(MotorKalman* filter, float32_t position) {
     arm_mat_init_f32(&filter->P_matrix, MOTOR_KALMAN_NUM_STATES, MOTOR_KALMAN_NUM_STATES, filter->P);
 }
 
-void MotorKalman_Estimate(MotorKalman* filter, float32_t voltage_input, float32_t position) {
+float MotorKalman_Estimate(MotorKalman* filter, float32_t voltage_input, float32_t position) {
     // Execute the predict and update steps
     MotorKalman_Predict(filter, voltage_input);
     MotorKalman_Update(filter, position);
+
+    return filter->velocity;
 }
