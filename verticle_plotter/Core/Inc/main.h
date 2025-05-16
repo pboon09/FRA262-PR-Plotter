@@ -84,20 +84,20 @@ void Error_Handler(void);
 #define T_SWDIO_GPIO_Port GPIOA
 #define T_SWCLK_Pin GPIO_PIN_14
 #define T_SWCLK_GPIO_Port GPIOA
-#define START_Pin GPIO_PIN_10
-#define START_GPIO_Port GPIOC
-#define DELETE_Pin GPIO_PIN_11
-#define DELETE_GPIO_Port GPIOC
-#define RESET_SYS_Pin GPIO_PIN_12
-#define RESET_SYS_GPIO_Port GPIOC
+#define J2_Pin GPIO_PIN_10
+#define J2_GPIO_Port GPIOC
+#define J1_Pin GPIO_PIN_11
+#define J1_GPIO_Port GPIOC
+#define J4_Pin GPIO_PIN_12
+#define J4_GPIO_Port GPIOC
 #define T_SWO_Pin GPIO_PIN_3
 #define T_SWO_GPIO_Port GPIOB
 #define EMER_Pin GPIO_PIN_4
 #define EMER_GPIO_Port GPIOB
 #define PROX_Pin GPIO_PIN_5
 #define PROX_GPIO_Port GPIOB
-#define SAVE_Pin GPIO_PIN_7
-#define SAVE_GPIO_Port GPIOB
+#define J3_Pin GPIO_PIN_7
+#define J3_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

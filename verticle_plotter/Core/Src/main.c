@@ -81,7 +81,7 @@ float pris_pos[2] = {0.0f}, rev_pos[2]  = {0.0f};
 
 
 
-
+int pd, rd, sd;
 
 MotorKalman motor_filter;
 float q, r;
@@ -123,46 +123,46 @@ uint8_t getNumberOfSetPoints();
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
-int main(void) {
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
 
-	/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-	/* USER CODE END 1 */
+  /* USER CODE END 1 */
 
-	/* MCU Configuration--------------------------------------------------------*/
+  /* MCU Configuration--------------------------------------------------------*/
 
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-	HAL_Init();
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE BEGIN Init */
+  /* USER CODE END Init */
 
-	/* USER CODE END Init */
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* USER CODE BEGIN SysInit */
 
-	/* USER CODE BEGIN SysInit */
+  /* USER CODE END SysInit */
 
-	/* USER CODE END SysInit */
-
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_DMA_Init();
-	MX_ADC1_Init();
-	MX_TIM2_Init();
-	MX_TIM3_Init();
-	MX_TIM4_Init();
-	MX_TIM5_Init();
-	MX_TIM8_Init();
-	MX_USART2_UART_Init();
-	MX_TIM16_Init();
-	MX_TIM1_Init();
-	MX_LPUART1_UART_Init();
-	/* USER CODE BEGIN 2 */
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_ADC1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
+  MX_TIM8_Init();
+  MX_USART2_UART_Init();
+  MX_TIM16_Init();
+  MX_TIM1_Init();
+  MX_LPUART1_UART_Init();
+  /* USER CODE BEGIN 2 */
 	plotter_begin();
 	MotorKalman_Init(&motor_filter, 1e-3, ZGX45RGG_400RPM_Constant.J,
 			ZGX45RGG_400RPM_Constant.B, ZGX45RGG_400RPM_Constant.Kt,
@@ -174,78 +174,82 @@ int main(void) {
 //			ZGX45RGG_400RPM_Constant.Ke, ZGX45RGG_400RPM_Constant.R,
 //			ZGX45RGG_400RPM_Constant.L, 1.0, 0.05);
 //	SerialFrame_StartReceive(&serial_frame);
-	/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
 	while (1) {
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 		plotter_update_sensors();
+//		test_sensors_motor_servo(pd, rd, sd);
 
-		if (b1 && !button_pressed_previous && !pristrajectoryActive) {
-			prisEva.t = 0.0f;
-			prisEva.isFinised = false;
-
-			pris_initial_p = prismatic_encoder.mm;
-
-			pris_target_p = trajectory_sequence[trajectory_sequence_index];
-
-			Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
-					ZGX45RGG_400RPM_Constant.sd_max,
-					ZGX45RGG_400RPM_Constant.sdd_max);
-
-			pristrajectoryActive = true;
-
-			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
-		}
-		button_pressed_previous = b1;
+//		if (b1 && !button_pressed_previous && !pristrajectoryActive) {
+//			prisEva.t = 0.0f;
+//			prisEva.isFinised = false;
+//
+//			pris_initial_p = prismatic_encoder.mm;
+//
+//			pris_target_p = trajectory_sequence[trajectory_sequence_index];
+//
+//			Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
+//					ZGX45RGG_400RPM_Constant.sd_max,
+//					ZGX45RGG_400RPM_Constant.sdd_max);
+//
+//			pristrajectoryActive = true;
+//
+//			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
+//		}
+//		button_pressed_previous = b1;
 	}
-	/* USER CODE END 3 */
+  /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
-void SystemClock_Config(void) {
-	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
-	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-	/** Configure the main internal regulator output voltage
-	 */
-	HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+  /** Configure the main internal regulator output voltage
+  */
+  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
-	/** Initializes the RCC Oscillators according to the specified parameters
-	 * in the RCC_OscInitTypeDef structure.
-	 */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-	RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-	RCC_OscInitStruct.PLL.PLLN = 85;
-	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-	RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-	RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		Error_Handler();
-	}
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
-	/** Initializes the CPU, AHB and APB buses clocks
-	 */
-	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
-			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
-		Error_Handler();
-	}
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
 
 /* USER CODE BEGIN 4 */
@@ -998,49 +1002,49 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //				ZGX45RGG_400RPM_Constant.U_max,
 //				-ZGX45RGG_400RPM_Constant.U_max);
 
-		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
-
-		if (pristrajectoryActive && !prisEva.isFinised) {
-			Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
-					ZGX45RGG_400RPM_Constant.sd_max,
-					ZGX45RGG_400RPM_Constant.sdd_max);
-
-			prismatic_pos = prisEva.setposition;
-			prismatic_vel = prisEva.setvelocity;
-
-			QEI_get_diff_count(&prismatic_encoder);
-			QEI_compute_data(&prismatic_encoder);
-
-			pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
-
-			pris_kal_filt = MotorKalman_Estimate(&motor_filter, pris_vin,
-							prismatic_encoder.rads)
-							* Disturbance_Constant.prismatic_pulley_radius * 1000;
-
-			if (isnan(pris_kal_filt)) {
-						pris_kal_filt = 0.0f;
-					}
-
-			pris_pos_error = prismatic_pos - prismatic_encoder.mm;
-
-			pris_cmd_vx = PWM_Satuation(
-					PID_CONTROLLER_Compute(&prismatic_position_pid,
-							pris_pos_error), ZGX45RGG_400RPM_Constant.sd_max,
-					-ZGX45RGG_400RPM_Constant.sd_max);
-
-			pris_vel_error = pris_cmd_vx + prismatic_vel - pris_kal_filt;
-
-			pris_cmd_ux = PWM_Satuation(
-					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
-							pris_vel_error), ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
-		} else {
-			pristrajectoryActive = false;
-			pris_cmd_ux = 0;
-			pris_vin = 0;
-			MotorKalman_Estimate(&motor_filter, pris_vin, prismatic_encoder.rads);
-		}
-
-		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
+//		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
+//
+//		if (pristrajectoryActive && !prisEva.isFinised) {
+//			Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
+//					ZGX45RGG_400RPM_Constant.sd_max,
+//					ZGX45RGG_400RPM_Constant.sdd_max);
+//
+//			prismatic_pos = prisEva.setposition;
+//			prismatic_vel = prisEva.setvelocity;
+//
+//			QEI_get_diff_count(&prismatic_encoder);
+//			QEI_compute_data(&prismatic_encoder);
+//
+//			pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
+//
+//			pris_kal_filt = MotorKalman_Estimate(&motor_filter, pris_vin,
+//							prismatic_encoder.rads)
+//							* Disturbance_Constant.prismatic_pulley_radius * 1000;
+//
+//			if (isnan(pris_kal_filt)) {
+//						pris_kal_filt = 0.0f;
+//					}
+//
+//			pris_pos_error = prismatic_pos - prismatic_encoder.mm;
+//
+//			pris_cmd_vx = PWM_Satuation(
+//					PID_CONTROLLER_Compute(&prismatic_position_pid,
+//							pris_pos_error), ZGX45RGG_400RPM_Constant.sd_max,
+//					-ZGX45RGG_400RPM_Constant.sd_max);
+//
+//			pris_vel_error = pris_cmd_vx + prismatic_vel - pris_kal_filt;
+//
+//			pris_cmd_ux = PWM_Satuation(
+//					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+//							pris_vel_error), ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+//		} else {
+//			pristrajectoryActive = false;
+//			pris_cmd_ux = 0;
+//			pris_vin = 0;
+//			MotorKalman_Estimate(&motor_filter, pris_vin, prismatic_encoder.rads);
+//		}
+//
+//		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 	}
 }
 
@@ -1156,16 +1160,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
-void Error_Handler(void) {
-	/* USER CODE BEGIN Error_Handler_Debug */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
 	while (1) {
 	}
-	/* USER CODE END Error_Handler_Debug */
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT

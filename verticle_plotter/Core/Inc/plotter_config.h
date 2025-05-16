@@ -202,19 +202,22 @@ extern DC_MOTOR_DFeedward revolute_motor_dfd;
 
 /*-------Configure ADC DMA Start------*/
 extern ADC_HandleTypeDef hadc1;  // Your ADC handle
-extern ADC_DMA adc_dma;
+extern ADC_DMA joystick;
 
 // Define channel indices for ADC
 #define JOYSTICK_X_CHANNEL 6      // ADC Channel 6
 #define JOYSTICK_Y_CHANNEL 7      // ADC Channel 7
-#define PRISMATIC_CURRENT_CHANNEL 8    // ADC Channel 8
-#define REVOLUTE_CURRENT_CHANNEL 15    // ADC Channel 15
 
 // Number of ADC channels and samples
-#define ADC_CHANNELS 4
-#define SAMPLES_PER_CHANNEL 10
+#define ADC_CHANNELS 2
+#define SAMPLES_PER_CHANNEL 50
 #define ADC_BUFFER_SIZE (ADC_CHANNELS * SAMPLES_PER_CHANNEL)
-extern uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
+extern uint16_t joystick_buffer[ADC_BUFFER_SIZE];
+
+#define ADC_VREF 3.3f
+#define ADC_RESOLUTION 4095.0f
+#define ADC_CENTERPOINT 2048.0f
+#define ADC_ERROR 5
 
 // Current sensor offsets
 #define PRISMATIC_CURRENT_OFFSET 1.65f

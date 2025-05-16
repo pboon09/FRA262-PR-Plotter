@@ -38,7 +38,7 @@ DC_MOTOR_DFeedward revolute_motor_dfd;
 
 PWM servo;
 
-ADC_DMA adc_dma;
+ADC_DMA joystick;
 
 SignalGenerator sine_sg_PWM;
 SignalGenerator square_sg_PWM;
@@ -74,7 +74,7 @@ float32_t revolute_A[16] = { 1.0f, 0.000982843274975228f,
 float32_t revolute_B[4] = { 1.68207942599771e-07f, 0.000502863247943066f, 0.0f,
 		0.00631143131595644f };
 
-uint16_t adc_dma_buffer[ADC_BUFFER_SIZE];
+uint16_t joystick_buffer[ADC_BUFFER_SIZE];
 
 ModbusHandleTypedef ModBus;
 u16u8_t registerFrame[200];
@@ -169,9 +169,10 @@ void plotter_begin() {
 	PRISMATIC_MOTOR_DFD_Init(&prismatic_motor_dfd, &ZGX45RGG_400RPM_Constant,
 			&Disturbance_Constant);
 
-	ADC_DMA_Init(&adc_dma, &hadc1, adc_dma_buffer, ADC_BUFFER_SIZE,
-	ADC_CHANNELS, 3.3f, 4095.0f);
-	ADC_DMA_Start(&adc_dma);
+	ADC_DMA_Init(&joystick, &hadc1, joystick_buffer, ADC_BUFFER_SIZE,
+	ADC_CHANNELS, ADC_VREF, ADC_RESOLUTION);
+	ADC_DMA_SetCenterPoint(&joystick, ADC_CENTERPOINT, ADC_ERROR);
+	ADC_DMA_Start(&joystick);
 
 	FIR_init(&prismatic_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 	FIR_init(&prismatic_lp_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
@@ -195,19 +196,19 @@ void plotter_reset() {
 }
 
 void plotter_update_sensors() {
-	joystick_x = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_X_CHANNEL, 1.0);
-	joystick_y = ADC_DMA_GetJoystick(&adc_dma, JOYSTICK_Y_CHANNEL, 1.0);
+	joystick_x = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_X_CHANNEL, -50, 50);
+	joystick_y = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_Y_CHANNEL, -50, 50);
 
-	b1 = !HAL_GPIO_ReadPin(START_GPIO_Port, START_Pin);
-	b2 = !HAL_GPIO_ReadPin(SAVE_GPIO_Port, SAVE_Pin);
-	b3 = !HAL_GPIO_ReadPin(DELETE_GPIO_Port, DELETE_Pin);
-	b4 = !HAL_GPIO_ReadPin(RESET_SYS_GPIO_Port, RESET_SYS_Pin);
+	b1 = !HAL_GPIO_ReadPin(J1_GPIO_Port, J1_Pin);
+	b2 = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
+	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
+	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-//	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
-//	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-//	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
-//	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-//	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
+	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
 	emer = !HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 
@@ -243,7 +244,7 @@ void plotter_pen_down() {
 
 void test_sensors_motor_servo(float duty_pris, float duty_revo,
 		float duty_servo) {
-	update_sensors();
+	plotter_update_sensors();
 
 	QEI_get_diff_count(&revolute_encoder);
 	QEI_compute_data(&revolute_encoder);
