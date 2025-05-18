@@ -18,6 +18,7 @@ C_SRCS += \
 ../Core/Src/QEI.c \
 ../Core/Src/Scurve.c \
 ../Core/Src/Trapezoidal.c \
+../Core/Src/UnitConverter.c \
 ../Core/Src/adc.c \
 ../Core/Src/dma.c \
 ../Core/Src/gpio.c \
@@ -48,6 +49,7 @@ OBJS += \
 ./Core/Src/QEI.o \
 ./Core/Src/Scurve.o \
 ./Core/Src/Trapezoidal.o \
+./Core/Src/UnitConverter.o \
 ./Core/Src/adc.o \
 ./Core/Src/dma.o \
 ./Core/Src/gpio.o \
@@ -78,6 +80,7 @@ C_DEPS += \
 ./Core/Src/QEI.d \
 ./Core/Src/Scurve.d \
 ./Core/Src/Trapezoidal.d \
+./Core/Src/UnitConverter.d \
 ./Core/Src/adc.d \
 ./Core/Src/dma.d \
 ./Core/Src/gpio.d \
@@ -102,7 +105,7 @@ Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/ADC_DMA.cyclo ./Core/Src/ADC_DMA.d ./Core/Src/ADC_DMA.o ./Core/Src/ADC_DMA.su ./Core/Src/Controller.cyclo ./Core/Src/Controller.d ./Core/Src/Controller.o ./Core/Src/Controller.su ./Core/Src/Cytron_MDXX.cyclo ./Core/Src/Cytron_MDXX.d ./Core/Src/Cytron_MDXX.o ./Core/Src/Cytron_MDXX.su ./Core/Src/DC_MOTOR.cyclo ./Core/Src/DC_MOTOR.d ./Core/Src/DC_MOTOR.o ./Core/Src/DC_MOTOR.su ./Core/Src/FIR.cyclo ./Core/Src/FIR.d ./Core/Src/FIR.o ./Core/Src/FIR.su ./Core/Src/MathOperation.cyclo ./Core/Src/MathOperation.d ./Core/Src/MathOperation.o ./Core/Src/MathOperation.su ./Core/Src/ModBusRTU.cyclo ./Core/Src/ModBusRTU.d ./Core/Src/ModBusRTU.o ./Core/Src/ModBusRTU.su ./Core/Src/MotorKalman.cyclo ./Core/Src/MotorKalman.d ./Core/Src/MotorKalman.o ./Core/Src/MotorKalman.su ./Core/Src/MotorMatrixGenerator.cyclo ./Core/Src/MotorMatrixGenerator.d ./Core/Src/MotorMatrixGenerator.o ./Core/Src/MotorMatrixGenerator.su ./Core/Src/PWM.cyclo ./Core/Src/PWM.d ./Core/Src/PWM.o ./Core/Src/PWM.su ./Core/Src/QEI.cyclo ./Core/Src/QEI.d ./Core/Src/QEI.o ./Core/Src/QEI.su ./Core/Src/Scurve.cyclo ./Core/Src/Scurve.d ./Core/Src/Scurve.o ./Core/Src/Scurve.su ./Core/Src/Trapezoidal.cyclo ./Core/Src/Trapezoidal.d ./Core/Src/Trapezoidal.o ./Core/Src/Trapezoidal.su ./Core/Src/adc.cyclo ./Core/Src/adc.d ./Core/Src/adc.o ./Core/Src/adc.su ./Core/Src/dma.cyclo ./Core/Src/dma.d ./Core/Src/dma.o ./Core/Src/dma.su ./Core/Src/gpio.cyclo ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/kalman.cyclo ./Core/Src/kalman.d ./Core/Src/kalman.o ./Core/Src/kalman.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/plotter_config.cyclo ./Core/Src/plotter_config.d ./Core/Src/plotter_config.o ./Core/Src/plotter_config.su ./Core/Src/serial_frame.cyclo ./Core/Src/serial_frame.d ./Core/Src/serial_frame.o ./Core/Src/serial_frame.su ./Core/Src/signal_generator.cyclo ./Core/Src/signal_generator.d ./Core/Src/signal_generator.o ./Core/Src/signal_generator.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su ./Core/Src/tim.cyclo ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su ./Core/Src/usart.cyclo ./Core/Src/usart.d ./Core/Src/usart.o ./Core/Src/usart.su
+	-$(RM) ./Core/Src/ADC_DMA.cyclo ./Core/Src/ADC_DMA.d ./Core/Src/ADC_DMA.o ./Core/Src/ADC_DMA.su ./Core/Src/Controller.cyclo ./Core/Src/Controller.d ./Core/Src/Controller.o ./Core/Src/Controller.su ./Core/Src/Cytron_MDXX.cyclo ./Core/Src/Cytron_MDXX.d ./Core/Src/Cytron_MDXX.o ./Core/Src/Cytron_MDXX.su ./Core/Src/DC_MOTOR.cyclo ./Core/Src/DC_MOTOR.d ./Core/Src/DC_MOTOR.o ./Core/Src/DC_MOTOR.su ./Core/Src/FIR.cyclo ./Core/Src/FIR.d ./Core/Src/FIR.o ./Core/Src/FIR.su ./Core/Src/MathOperation.cyclo ./Core/Src/MathOperation.d ./Core/Src/MathOperation.o ./Core/Src/MathOperation.su ./Core/Src/ModBusRTU.cyclo ./Core/Src/ModBusRTU.d ./Core/Src/ModBusRTU.o ./Core/Src/ModBusRTU.su ./Core/Src/MotorKalman.cyclo ./Core/Src/MotorKalman.d ./Core/Src/MotorKalman.o ./Core/Src/MotorKalman.su ./Core/Src/MotorMatrixGenerator.cyclo ./Core/Src/MotorMatrixGenerator.d ./Core/Src/MotorMatrixGenerator.o ./Core/Src/MotorMatrixGenerator.su ./Core/Src/PWM.cyclo ./Core/Src/PWM.d ./Core/Src/PWM.o ./Core/Src/PWM.su ./Core/Src/QEI.cyclo ./Core/Src/QEI.d ./Core/Src/QEI.o ./Core/Src/QEI.su ./Core/Src/Scurve.cyclo ./Core/Src/Scurve.d ./Core/Src/Scurve.o ./Core/Src/Scurve.su ./Core/Src/Trapezoidal.cyclo ./Core/Src/Trapezoidal.d ./Core/Src/Trapezoidal.o ./Core/Src/Trapezoidal.su ./Core/Src/UnitConverter.cyclo ./Core/Src/UnitConverter.d ./Core/Src/UnitConverter.o ./Core/Src/UnitConverter.su ./Core/Src/adc.cyclo ./Core/Src/adc.d ./Core/Src/adc.o ./Core/Src/adc.su ./Core/Src/dma.cyclo ./Core/Src/dma.d ./Core/Src/dma.o ./Core/Src/dma.su ./Core/Src/gpio.cyclo ./Core/Src/gpio.d ./Core/Src/gpio.o ./Core/Src/gpio.su ./Core/Src/kalman.cyclo ./Core/Src/kalman.d ./Core/Src/kalman.o ./Core/Src/kalman.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/plotter_config.cyclo ./Core/Src/plotter_config.d ./Core/Src/plotter_config.o ./Core/Src/plotter_config.su ./Core/Src/serial_frame.cyclo ./Core/Src/serial_frame.d ./Core/Src/serial_frame.o ./Core/Src/serial_frame.su ./Core/Src/signal_generator.cyclo ./Core/Src/signal_generator.d ./Core/Src/signal_generator.o ./Core/Src/signal_generator.su ./Core/Src/stm32g4xx_hal_msp.cyclo ./Core/Src/stm32g4xx_hal_msp.d ./Core/Src/stm32g4xx_hal_msp.o ./Core/Src/stm32g4xx_hal_msp.su ./Core/Src/stm32g4xx_it.cyclo ./Core/Src/stm32g4xx_it.d ./Core/Src/stm32g4xx_it.o ./Core/Src/stm32g4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32g4xx.cyclo ./Core/Src/system_stm32g4xx.d ./Core/Src/system_stm32g4xx.o ./Core/Src/system_stm32g4xx.su ./Core/Src/tim.cyclo ./Core/Src/tim.d ./Core/Src/tim.o ./Core/Src/tim.su ./Core/Src/usart.cyclo ./Core/Src/usart.d ./Core/Src/usart.o ./Core/Src/usart.su
 
 .PHONY: clean-Core-2f-Src
 

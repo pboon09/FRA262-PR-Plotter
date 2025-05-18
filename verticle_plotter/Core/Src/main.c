@@ -185,23 +185,27 @@ int main(void)
 		plotter_update_sensors();
 //		test_sensors_motor_servo(pd, rd, sd);
 
-//		if (b1 && !button_pressed_previous && !pristrajectoryActive) {
-//			prisEva.t = 0.0f;
-//			prisEva.isFinised = false;
-//
-//			pris_initial_p = prismatic_encoder.mm;
-//
-//			pris_target_p = trajectory_sequence[trajectory_sequence_index];
-//
-//			Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
-//					ZGX45RGG_400RPM_Constant.sd_max,
-//					ZGX45RGG_400RPM_Constant.sdd_max);
-//
-//			pristrajectoryActive = true;
-//
-//			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
-//		}
-//		button_pressed_previous = b1;
+		if (b1 && !button_pressed_previous && !pristrajectoryActive) {
+			prisEva.t = 0.0f;
+			prisEva.isFinised = false;
+
+			pris_initial_p = prismatic_encoder.mm;
+
+			pris_target_p = trajectory_sequence[trajectory_sequence_index];
+
+			Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
+					ZGX45RGG_400RPM_Constant.sd_max,
+					ZGX45RGG_400RPM_Constant.sdd_max);
+
+			pristrajectoryActive = true;
+
+			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
+		}
+		button_pressed_previous = b1;
+
+		if(b2){
+
+		}
 	}
   /* USER CODE END 3 */
 }
@@ -1004,47 +1008,47 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 //		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 //
-//		if (pristrajectoryActive && !prisEva.isFinised) {
-//			Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
-//					ZGX45RGG_400RPM_Constant.sd_max,
-//					ZGX45RGG_400RPM_Constant.sdd_max);
-//
-//			prismatic_pos = prisEva.setposition;
-//			prismatic_vel = prisEva.setvelocity;
-//
-//			QEI_get_diff_count(&prismatic_encoder);
-//			QEI_compute_data(&prismatic_encoder);
-//
-//			pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
-//
-//			pris_kal_filt = MotorKalman_Estimate(&motor_filter, pris_vin,
-//							prismatic_encoder.rads)
-//							* Disturbance_Constant.prismatic_pulley_radius * 1000;
-//
-//			if (isnan(pris_kal_filt)) {
-//						pris_kal_filt = 0.0f;
-//					}
-//
-//			pris_pos_error = prismatic_pos - prismatic_encoder.mm;
-//
-//			pris_cmd_vx = PWM_Satuation(
-//					PID_CONTROLLER_Compute(&prismatic_position_pid,
-//							pris_pos_error), ZGX45RGG_400RPM_Constant.sd_max,
-//					-ZGX45RGG_400RPM_Constant.sd_max);
-//
-//			pris_vel_error = pris_cmd_vx + prismatic_vel - pris_kal_filt;
-//
-//			pris_cmd_ux = PWM_Satuation(
-//					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
-//							pris_vel_error), ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
-//		} else {
-//			pristrajectoryActive = false;
-//			pris_cmd_ux = 0;
-//			pris_vin = 0;
-//			MotorKalman_Estimate(&motor_filter, pris_vin, prismatic_encoder.rads);
-//		}
-//
-//		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
+		if (pristrajectoryActive && !prisEva.isFinised) {
+			Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
+					ZGX45RGG_400RPM_Constant.sd_max,
+					ZGX45RGG_400RPM_Constant.sdd_max);
+
+			prismatic_pos = prisEva.setposition;
+			prismatic_vel = prisEva.setvelocity;
+
+			QEI_get_diff_count(&prismatic_encoder);
+			QEI_compute_data(&prismatic_encoder);
+
+			pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
+
+			pris_kal_filt = MotorKalman_Estimate(&motor_filter, pris_vin,
+							prismatic_encoder.rads)
+							* Disturbance_Constant.prismatic_pulley_radius * 1000;
+
+			if (isnan(pris_kal_filt)) {
+						pris_kal_filt = 0.0f;
+					}
+
+			pris_pos_error = prismatic_pos - prismatic_encoder.mm;
+
+			pris_cmd_vx = PWM_Satuation(
+					PID_CONTROLLER_Compute(&prismatic_position_pid,
+							pris_pos_error), ZGX45RGG_400RPM_Constant.sd_max,
+					-ZGX45RGG_400RPM_Constant.sd_max);
+
+			pris_vel_error = pris_cmd_vx + prismatic_vel - pris_kal_filt;
+
+			pris_cmd_ux = PWM_Satuation(
+					PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+							pris_vel_error), ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+		} else {
+			pristrajectoryActive = false;
+			pris_cmd_ux = 0;
+			pris_vin = 0;
+			MotorKalman_Estimate(&motor_filter, pris_vin, prismatic_encoder.rads);
+		}
+
+		MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 	}
 }
 

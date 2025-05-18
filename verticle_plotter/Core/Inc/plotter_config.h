@@ -174,8 +174,8 @@ extern TIM_HandleTypeDef htim3; //For QEI Encoder
 extern TIM_HandleTypeDef htim4; //For QEI Encoder
 extern QEI prismatic_encoder;
 extern QEI revolute_encoder;
-#define ENC_TIM1 &htim4
-#define ENC_TIM2 &htim3
+#define ENC_TIM1 &htim3
+#define ENC_TIM2 &htim4
 #define ENC_PPR 8192.0
 #define ENC_FREQ 1000
 #define MOTOR1_RATIO 1.0f

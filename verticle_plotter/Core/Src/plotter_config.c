@@ -254,5 +254,5 @@ void test_sensors_motor_servo(float duty_pris, float duty_revo,
 
 	MDXX_set_range(&prismatic_motor, 2000, duty_pris);
 	MDXX_set_range(&revolute_motor, 2000, duty_revo);
-	PWM_write_duty(&servo, 50, duty_servo);
+//	PWM_write_duty(&servo, 50, duty_servo);
 }
