@@ -67,16 +67,16 @@ typedef enum {
 	WRITE_IDLE
 }WriteLetterState;
 
-typedef enum {
-	A1B1_MODE,
-	A2B2_MODE,
-	EMERGENCY_MODE,
-	A1B1_SETPOINT,
-	A1B1_MOVING,
-	A2B2_WRITING,
-	A2B2_GOTO_HOME,
-	JOY_IDLE
-} JoyStickState;
+//typedef enum {
+//	A1B1_MODE,
+//	A2B2_MODE,
+//	EMERGENCY_MODE,
+//	A1B1_SETPOINT,
+//	A1B1_MOVING,
+//	A2B2_WRITING,
+//	A2B2_GOTO_HOME,
+//	JOY_IDLE
+//} JoyStickState;
 
 typedef enum {
 	PP_AT_TOP_END_POSITION,
@@ -309,7 +309,7 @@ extern RobotState rs_previous_state;
 extern SetPointState setpoint_state;
 extern MovingThroghPointState moving_state;
 extern WriteLetterState writing_state;
-extern JoyStickState joy_state;
+//extern JoyStickState joy_state;
 extern PrismaticPosition prismatic_state;
 extern RevolutePosition revolute_state;
 extern ServoState servo_state;

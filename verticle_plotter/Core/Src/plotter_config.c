@@ -12,7 +12,7 @@ RobotState rs_previous_state = RS_RETURN_TO_HOME;
 SetPointState setpoint_state = POINT_IDLE;
 MovingThroghPointState moving_state = MOVING_IDLE;
 WriteLetterState writing_state = WRITE_IDLE;
-JoyStickState joy_state = JOY_IDLE;
+//JoyStickState joy_state = JOY_IDLE;
 PrismaticPosition prismatic_state = PP_UNKNOWN;
 RevolutePosition revolute_state = RP_UNKNOWN;
 ServoState servo_state = PEN_IDLE;
@@ -145,7 +145,7 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 25, 1e-2, 25,
+	PID_CONTROLLER_Init(&revolute_position_pid, 50, 1e-2, 150,
 			ZGX45RGG_150RPM_Constant.qd_max);
 	PID_CONTROLLER_Init(&revolute_velocity_pid, 3000, 200, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
