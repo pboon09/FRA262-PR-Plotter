@@ -176,11 +176,11 @@ extern PWM servo;
 /*-------Configure Servo End------*/
 
 /*-----Configure Encoder Start-----*/
-extern TIM_HandleTypeDef htim3; //For QEI Encoder
+extern TIM_HandleTypeDef htim5; //For QEI Encoder
 extern TIM_HandleTypeDef htim4; //For QEI Encoder
 extern QEI prismatic_encoder;
 extern QEI revolute_encoder;
-#define ENC_TIM1 &htim3
+#define ENC_TIM1 &htim5
 #define ENC_TIM2 &htim4
 #define ENC_PPR 8192.0
 #define ENC_FREQ 1000

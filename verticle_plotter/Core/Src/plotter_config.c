@@ -226,9 +226,6 @@ void plotter_update_sensors() {
 	if (prox) {
 		revolute_state = RP_AT_HOME_POSITION;
 	}
-
-//    prismatic_current = ADC_DMA_ComputeCurrent(&adc_dma, PRISMATIC_CURRENT_CHANNEL, PRISMATIC_CURRENT_OFFSET);
-//    revolute_current = ADC_DMA_ComputeCurrent(&adc_dma, REVOLUTE_CURRENT_CHANNEL, REVOLUTE_CURRENT_OFFSET);
 }
 
 void plotter_pen_up() {
