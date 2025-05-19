@@ -89,7 +89,7 @@ uint8_t button_pressed_previous = 0;
 
 float cur_pos;
 
-float dfd;
+float dfd, ffd;
 
 float deg;
 float normalized_current;
@@ -148,10 +148,6 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
 
-//	MotorKalman_Init(&motor_filter, 1e-3, ZGX45RGG_400RPM_Constant.J,
-//			ZGX45RGG_400RPM_Constant.B, ZGX45RGG_400RPM_Constant.Kt,
-//			ZGX45RGG_400RPM_Constant.Ke, ZGX45RGG_400RPM_Constant.R,
-//			ZGX45RGG_400RPM_Constant.L, 1.0, 0.05);
 //	SerialFrame_StartReceive(&serial_frame);
 	/* USER CODE END 2 */
 
@@ -468,6 +464,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				revolute_pos = revEva.setposition;  // Keep the last setpoint
 				revolute_vel = 0.0f;               // Stop velocity command
 				dfd = 0.0f;
+				ffd = 0.0f;
 			}
 		}
 		// Always calculate feedback and control signals, whether trajectory is active or not
@@ -490,6 +487,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 			rev_pos_error += 2 * PI;
 		}
 
+
+
 		rev_cmd_vx = PWM_Satuation(
 				PID_CONTROLLER_Compute(&revolute_position_pid, rev_pos_error),
 				ZGX45RGG_150RPM_Constant.qd_max,
@@ -510,7 +509,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		// Add feed-forward disturbance compensation
 		dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, cur_pos, 0.0,
 				0.3);
-		rev_cmd_ux += dfd;
+
+		ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd, revolute_vel);
+
+		rev_cmd_ux = rev_cmd_ux + dfd + ffd;
 
 		// Final saturation
 		rev_cmd_ux = PWM_Satuation(rev_cmd_ux, ZGX45RGG_150RPM_Constant.U_max,
