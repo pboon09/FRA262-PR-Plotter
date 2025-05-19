@@ -79,7 +79,7 @@ typedef struct {
 #define REVOLUTE_MIN_POS 0.0f
 
 #define BACKLASH_COMPENSATION_GAIN 0.2f
-#define PRISMATIC_BACKLASH_COMPENSATION_GAIN 0.1f
+#define PRISMATIC_BACKLASH_COMPENSATION_GAIN 0.5f
 #define BACKLASH_DECAY_FACTOR 0.01f
 #define SEQUENCE_MAX_POINTS 4
 #define JOYSTICK_THRESHOLD 40
@@ -109,7 +109,7 @@ float revolute_backlash = 0.01f;
 float revolute_last_cmd_direction = 0.0f;
 float revolute_backlash_state = 0.0f;
 
-float prismatic_backlash = 0.03f;  // Backlash in mm
+float prismatic_backlash = 0.50f;  // Backlash in mm
 float prismatic_last_cmd_direction = 0.0f;
 float prismatic_backlash_state = 0.0f;
 
@@ -132,6 +132,9 @@ float rev_velocity_target = 0.0f;
 float normalized_position;
 float movement_deg;
 float angle_deg;
+
+volatile bool prox_rising_edge = false;
+volatile uint32_t prox_count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -902,37 +905,40 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				break;
 
 			case HOMING_REV_RESET: {
-				static int prox_count = 0;
-				static bool prox_previous = false;
-				static bool initialized = false;
+//				static int prox_count = 0;
+//				static bool prox_previous = false;
+//				static bool initialized = false;
+//
+//				// Initialize on first entry
+//				if (!initialized) {
+//					prox_previous = prox;
+//					prox_count = 0;
+//					initialized = true;
+//				}
+//
+//				// Move revolute motor clockwise at constant speed
+//				rev_velocity_target = ZGX45RGG_150RPM_Constant.qd_max / 2;
+//
+//				// Count proximity sensor triggers (rising edge detection)
+//				if (prox && !prox_previous) {
+//					prox_count++;
+//				}
+//				prox_previous = prox;
+//
+//				// After reaching home, stop motor
+//				if (prox_count >= 2) {
+//					rev_velocity_target = 0.0f;
+//					initialized = false;  // Reset for next time
+//					homing_state = HOMING_PRIS_UP;
+//				}
+//
+//		        prismatic_axis.position = prismatic_encoder.mm;
+//		        revolute_axis.position = revolute_encoder.rads;
+//
+//		        velocity_control(0, rev_velocity_target);
 
-				// Initialize on first entry
-				if (!initialized) {
-					prox_previous = prox;
-					prox_count = 0;
-					initialized = true;
-				}
+				homing_state = HOMING_PRIS_UP;
 
-				// Move revolute motor clockwise at constant speed
-				rev_velocity_target = ZGX45RGG_400RPM_Constant.qd_max;
-
-				// Count proximity sensor triggers (rising edge detection)
-				if (prox && !prox_previous) {
-					prox_count++;
-				}
-				prox_previous = prox;
-
-				// After reaching home, stop motor
-				if (prox_count >= 1) {
-					rev_velocity_target = 0.0f;
-					initialized = false;  // Reset for next time
-					homing_state = HOMING_PRIS_UP;
-				}
-
-		        prismatic_axis.position = prismatic_encoder.mm;
-		        revolute_axis.position = revolute_encoder.rads;
-
-		        velocity_control(0, rev_velocity_target);
 				break;
 			}
 
@@ -981,6 +987,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				// Reset trajectories and state
 				prismatic_axis.trajectory_active = false;
 				revolute_axis.trajectory_active = false;
+
+				pris_velocity_target = 0.0f;
+				rev_velocity_target = 0.0f;
+
 				homing_state = HOMING_IDLE;
 				break;
 
