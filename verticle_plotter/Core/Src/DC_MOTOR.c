@@ -73,7 +73,7 @@ float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float qdd, 
 
     float transfer_function = motor->Mx->R / motor->Mx->Kt;
 
-    float v = (gravity_compensate_plotter + gravity_compensate_rail + mass_torque) * transfer_function;
+    float v = (gravity_compensate_plotter + gravity_compensate_rail + 0) * transfer_function;
 
     return mapf(v, -motor->Mx->V_max, motor->Mx->V_max, -motor->Mx->U_max, motor->Mx->U_max);
 }
@@ -97,6 +97,7 @@ void PRISMATIC_MOTOR_DFD_Init(DC_MOTOR_DFeedward *motor, Motor_Constant_Structur
 
 float PRISMATIC_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float qd, float s){
     float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * cos(q);
+
     float centrifugal_force = motor->En->plotter_mass * qd * qd * s;
 
     float transfer_function = (motor->Mx->R * motor->En->prismatic_pulley_radius) / motor->Mx->Kt;

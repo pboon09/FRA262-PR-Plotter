@@ -16,14 +16,16 @@
 #include "string.h"
 
 #include "signal_generator.h"
-#include "PWM.h"
+#include "UnitConverter.h"
 #include "Cytron_MDXX.h"
+#include "PWM.h"
 #include "QEI.h"
 #include "Controller.h"
 #include "ADC_DMA.h"
 #include "DC_MOTOR.h"
+#include "MotorMatrixGenerator.h"
 #include "FIR.h"
-#include "kalman.h"
+#include "MotorKalman.h"
 #include "ModBusRTU.h"
 
 typedef enum {
@@ -134,15 +136,19 @@ extern SignalGenerator square_sg_revolute;
 #define SQUARE_MAX_SETPOINT  65535.0f
 
 // Sine wave configuration
-#define SINE_AMPLITUDE_CASCADE       25.0f
-#define SINE_MIN_SETPOINT_CASCADE   -25.0f
-#define SINE_MAX_SETPOINT_CASCADE    25.0f
+#define SINE_AMPLITUDE_CASCADE       4.12f
+#define SINE_MIN_SETPOINT_CASCADE   -4.12f
+#define SINE_MAX_SETPOINT_CASCADE    4.12f
 
 // Square wave configuration
 #define SQUARE_AMPLITUDE_CASCADE     25.0f
 #define SQUARE_MIN_SETPOINT_CASCADE -25.0f
 #define SQUARE_MAX_SETPOINT_CASCADE  25.0f
 /*-------Configure Signal Generator End------*/
+
+/*-------Configure UnitConverterSystem Start------*/
+extern UnitConverterSystem converter_system;
+/*-------Configure UnitConverterSystem End------*/
 
 /*-------Configure Prismatic Motor Start------*/
 extern TIM_HandleTypeDef htim8;
@@ -242,17 +248,8 @@ extern FIR revolute_lp_velocity;
 /*-------Configure FIR Stop------*/
 
 /*-------Configure Kalman Start------*/
-extern KalmanFilter prismatic_kalman;
-extern float32_t prismatic_A[16];
-extern float32_t prismatic_B[4];
-#define PRISMATIC_Q 1.0f
-#define PRISMATIC_R 0.05f
-
-extern KalmanFilter revolute_kalman;
-extern float32_t revolute_A[16];
-extern float32_t revolute_B[4];
-#define REVOLUTE_Q 1.0f
-#define REVOLUTE_R 0.05f
+extern MotorKalman prismatic_kalman;
+extern MotorKalman revolute_kalman;
 /*-------Configure Kalman Stop------*/
 
 /*----- Configure ModBus Start -----*/
@@ -326,5 +323,24 @@ void plotter_pen_up();
 void plotter_pen_down();
 
 void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
+
+//bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt);
+//bool check_prismatic_limit();
+//bool check_revolute_limit();
+//
+//void plotter_move();
+//void plotter_joymove();
+//void plotter_handle_state_transition();
+//void plotter_process_jog_mode();
+//void plotter_process_writing_state();
+//void plotter_process_moving_mode(float32_t target_p_pris, float32_t target_p_rev);
+//void plotter_process_return_to_home();
+//void plotter_process_emergency();
+//void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt);
+//void plotter_update_trajectories();
+//
+//uint16_t getPointRegisterR(uint8_t point_index);
+//uint16_t getPointRegisterT(uint8_t point_index);
+//uint8_t getNumberOfSetPoints();
 
 #endif /* INC_PLOTTER_CONFIG_H_ */
