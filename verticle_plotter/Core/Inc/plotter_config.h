@@ -136,9 +136,9 @@ extern SignalGenerator square_sg_revolute;
 #define SQUARE_MAX_SETPOINT  65535.0f
 
 // Sine wave configuration
-#define SINE_AMPLITUDE_CASCADE       4.12f
-#define SINE_MIN_SETPOINT_CASCADE   -4.12f
-#define SINE_MAX_SETPOINT_CASCADE    4.12f
+#define SINE_AMPLITUDE_CASCADE       200.0f
+#define SINE_MIN_SETPOINT_CASCADE   -200.0f
+#define SINE_MAX_SETPOINT_CASCADE    200.0f
 
 // Square wave configuration
 #define SQUARE_AMPLITUDE_CASCADE     25.0f

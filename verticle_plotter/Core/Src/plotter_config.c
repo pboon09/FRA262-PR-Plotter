@@ -182,11 +182,24 @@ void plotter_begin() {
 			registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);
 
 	HAL_TIM_Base_Start_IT(CONTROL_TIM);
+
+	plotter_reset();
 }
 
 void plotter_reset() {
-	QEI_reset(&prismatic_encoder);
-	QEI_reset(&revolute_encoder);
+    prismatic_encoder.diff_counts = 0;
+    prismatic_encoder.rpm = 0;
+    prismatic_encoder.pulses = 0;
+    prismatic_encoder.revs = 0;
+    prismatic_encoder.rads = 0;
+    prismatic_encoder.mm = 0;
+
+    revolute_encoder.diff_counts = 0;
+    revolute_encoder.rpm = 0;
+    revolute_encoder.pulses = 0;
+    revolute_encoder.revs = 0;
+    revolute_encoder.rads = 0;
+    revolute_encoder.mm = 0;
 }
 
 void plotter_update_sensors() {

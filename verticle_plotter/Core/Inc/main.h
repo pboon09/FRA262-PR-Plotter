@@ -70,14 +70,14 @@ void Error_Handler(void);
 #define RCC_OSC_OUT_GPIO_Port GPIOF
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
+#define UPPER_PHOTO_Pin GPIO_PIN_0
+#define UPPER_PHOTO_GPIO_Port GPIOB
 #define LOWER_LIM_Pin GPIO_PIN_1
 #define LOWER_LIM_GPIO_Port GPIOB
 #define UPPER_LIM_Pin GPIO_PIN_2
 #define UPPER_LIM_GPIO_Port GPIOB
 #define LOWER_PHOTO_Pin GPIO_PIN_12
 #define LOWER_PHOTO_GPIO_Port GPIOB
-#define UPPER_PHOTO_Pin GPIO_PIN_8
-#define UPPER_PHOTO_GPIO_Port GPIOA
 #define PILOT_Pin GPIO_PIN_10
 #define PILOT_GPIO_Port GPIOA
 #define T_SWDIO_Pin GPIO_PIN_13

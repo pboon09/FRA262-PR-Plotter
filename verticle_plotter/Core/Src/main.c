@@ -29,19 +29,55 @@
 #include "plotter_config.h"
 #include "Trapezoidal.h"
 #include "serial_frame.h"
+#include <stdbool.h>
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef enum {
+	HOMING_IDLE = 0,
+	HOMING_PRIS_DOWN,
+	HOMING_REV_RESET,
+	HOMING_PRIS_UP,
+	HOMING_COMPLETE
+} HomingState_t;
 
+typedef struct {
+	float32_t position;        // Current position setpoint
+	float32_t velocity;        // Current velocity setpoint
+	float32_t acceleration;    // Current acceleration setpoint
+	float32_t initial_pos;     // Start position for trajectory
+	float32_t target_pos;      // Target position for trajectory
+	float32_t pos_error;       // Position error for control
+	float32_t vel_error;       // Velocity error for control
+	float32_t kalman_velocity; // Kalman filtered velocity
+	float32_t input_voltage;   // Motor input voltage
+	float32_t command_pos;     // Position command
+	float32_t command_vel;     // Velocity command
+	float32_t dfd;             // Disturbance feedforward
+	float32_t ffd;             // Velocity feedforward
+	bool trajectory_active;    // Flag for active trajectory
+
+	float32_t target;
+	float32_t mm;
+	float32_t deg;
+} AxisState_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define PRISMATIC_MAX_POS 300.0f  // mm
 #define PRISMATIC_MIN_POS 0.0f
-#define REVOLUTE_MAX_POS (2*PI)   // 1 revolution
+#define REVOLUTE_MAX_POS (2.0f*PI)   // 1 revolution
 #define REVOLUTE_MIN_POS 0.0f
+
+#define BACKLASH_COMPENSATION_GAIN 0.2f
+#define PRISMATIC_BACKLASH_COMPENSATION_GAIN 0.1f
+#define BACKLASH_DECAY_FACTOR 0.01f
+#define SEQUENCE_MAX_POINTS 4
+#define JOYSTICK_THRESHOLD 40
+#define PEN_SETTLE_TIME 500 // Delay before pen down (in timer ticks)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -54,62 +90,37 @@
 /* USER CODE BEGIN PV */
 SerialFrame serial_frame;
 
-Trapezoidal_GenStruct prisGen;
-Trapezoidal_EvaStruct prisEva;
-bool pristrajectoryActive = false;
-float32_t pris_initial_p = 0.0f;
-float32_t pris_target_p = 0.0f;
-float32_t prismatic_pos = 0.0f, prismatic_vel = 0.0f, prismatic_accel = 0.0f;
-float pris_pos_error = 0.0f, pris_vel_error = 0.0f, pris_kal_filt = 0.0f,
-		pris_vin = 0.0f;
-float pris_cmd_ux = 0.0f, pris_cmd_vx = 0.0f;
+// Trajectory generation structures
+Trapezoidal_GenStruct prisGen, revGen;
+Trapezoidal_EvaStruct prisEva, revEva;
 
-Trapezoidal_GenStruct revGen;
-Trapezoidal_EvaStruct revEva;
-bool revtrajectoryActive = false;
-float32_t rev_initial_p = 0.0f;
-float32_t rev_target_p = 0.0f;
-float32_t revolute_pos = 0.0f, revolute_vel = 0.0f, revolute_accel = 0.0f;
-float rev_pos_error = 0.0f, rev_vel_error = 0.0f, rev_kal_filt, rev_vin = 0.0f;
-float rev_cmd_ux = 0.0f, rev_cmd_vx = 0.0f;
+// Axis state structures
+AxisState_t prismatic_axis = { 0 };
+AxisState_t revolute_axis = { 0 };
 
-uint8_t total_setpoints = 0, move_index = 0;
-
-float pris_pos[2] = { 0.0f }, rev_pos[2] = { 0.0f };
-
-float rev_dfd, rev_ffd, pris_dfd, pris_ffd;
-
-bool homing_in_progress = false;
-
-// Existing revolute backlash variables
-#define BACKLASH_COMPENSATION_GAIN 0.2f
+// Backlash compensation
 float revolute_backlash = 0.01f;
 float revolute_last_cmd_direction = 0.0f;
 float revolute_backlash_state = 0.0f;
 
-// New prismatic backlash variables
-#define PRISMATIC_BACKLASH_COMPENSATION_GAIN 0.1f
 float prismatic_backlash = 0.03f;  // Backlash in mm
 float prismatic_last_cmd_direction = 0.0f;
 float prismatic_backlash_state = 0.0f;
 
-int home;
-
-float signal;
-
+// System state variables
+HomingState_t homing_state = HOMING_IDLE;
 uint8_t trajectory_sequence_index = 0;
 bool sequence_active = false;
-const float32_t sequence_pris_points[4] = { 175.0f, 95.0f, 275.0f, 0.0f }; // Sequence of setpoints
-const float32_t sequence_rev_points[4] = { 175.0f, 195.0f, 95.0f, 0.0f }; // Sequence of setpoints
+bool button_pressed_previous = false;
+const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
+		275.0f, 0.0f };
+const float32_t sequence_rev_points[SEQUENCE_MAX_POINTS] = { 175.0f, 195.0f,
+		95.0f, 0.0f };
 
-uint8_t button_pressed_previous = 0;
-
-float cur_pos;
-
-float dfd, ffd;
-
-float deg;
-float normalized_current;
+// Temporary variables used in functions
+float normalized_position;
+float movement_deg;
+float angle_deg;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,11 +128,13 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void start_combined_trajectory(float prismatic_target_mm,
 		float revolute_target_deg);
-void start_homing();
-void update_control_loops();
-void velocity_control(float prismatic_target_mmps, float revolute_target_rads);
+void start_homing(void);
+void update_control_loops(void);
 float revolute_backlash_compensator(float cmd_vel);
 float prismatic_backlash_compensator(float cmd_vel);
+float normalize_angle(float angle_rad);
+float calculate_movement_deg(float current_deg, float target_deg);
+void manual_control_mode(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -171,6 +184,17 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
 
+	// Initialize position setpoints to current position to prevent startup errors
+	prismatic_axis.position = prismatic_encoder.mm;
+	revolute_axis.position = revolute_encoder.rads;
+
+	// Reset all error terms and flags
+	prismatic_axis.pos_error = 0.0f;
+	prismatic_axis.vel_error = 0.0f;
+	revolute_axis.pos_error = 0.0f;
+	revolute_axis.vel_error = 0.0f;
+	prismatic_axis.trajectory_active = false;
+	revolute_axis.trajectory_active = false;
 	//	SerialFrame_StartReceive(&serial_frame);
 	/* USER CODE END 2 */
 
@@ -180,23 +204,27 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		if (b1 && !button_pressed_previous && !revtrajectoryActive
-				&& !pristrajectoryActive) {
+		if (b1 && !button_pressed_previous && !revolute_axis.trajectory_active
+				&& !prismatic_axis.trajectory_active) {
 			start_combined_trajectory(
 					sequence_pris_points[trajectory_sequence_index],
 					sequence_rev_points[trajectory_sequence_index]);
-			trajectory_sequence_index = (trajectory_sequence_index + 1) % 4;
+			trajectory_sequence_index = (trajectory_sequence_index + 1)
+					% SEQUENCE_MAX_POINTS;
 		}
-
 		button_pressed_previous = b1;
-		if (b2) {
+
+		// Process button 2 - start homing procedure
+		if (b2 && homing_state == HOMING_IDLE) {
 			start_homing();
 		}
 
+		// Process button 3 - enter manual control mode
 		if (b3) {
-			home = 99;
+			manual_control_mode();
 		}
 
+		// Process button 4 - system reset
 		if (b4) {
 			NVIC_SystemReset();
 		}
@@ -247,7 +275,70 @@ void SystemClock_Config(void) {
 	}
 }
 
-/* USER CODE BEGIN 4 */
+/* USER CODE BEGIN 4 *//**
+ * @brief Normalizes an angle to the range [0, 2π]
+ * @param angle_rad Angle in radians
+ * @return Normalized angle in radians
+ */
+float normalize_angle(float angle_rad) {
+	float result = fmodf(angle_rad, 2.0f * PI);
+	if (result < 0.0f) {
+		result += 2.0f * PI;
+	}
+	return result;
+}
+
+/**
+ * @brief Calculates shortest angular movement in degrees
+ * @param current_deg Current angle in degrees
+ * @param target_deg Target angle in degrees
+ * @return Movement required in degrees
+ */
+float calculate_movement_deg(float current_deg, float target_deg) {
+	float movement = 0.0f;
+
+	// If both angles are on the same side of 180°
+	if ((current_deg < 180.0f && target_deg < 180.0f)
+			|| (current_deg >= 180.0f && target_deg >= 180.0f)) {
+		// Simple case - take shortest path
+		movement = target_deg - current_deg;
+
+		// Ensure shortest path
+		if (movement > 180.0f)
+			movement -= 360.0f;
+		if (movement < -180.0f)
+			movement += 360.0f;
+	}
+	// If we need to cross the 180° boundary
+	else {
+		// Explicitly determine direction to avoid crossing 180°
+		if (current_deg < 180.0f) {
+			// Current < 180, target > 180
+			// Go counterclockwise through 0°
+			if (current_deg < target_deg - 180.0f) {
+				movement = -(current_deg + (360.0f - target_deg)); // Negative = clockwise
+			} else {
+				movement = -(current_deg - target_deg + 360.0f); // Negative = clockwise
+			}
+		} else {
+			// Current > 180, target < 180
+			// Go clockwise through 0°
+			if (target_deg < current_deg - 180.0f) {
+				movement = 360.0f - current_deg + target_deg; // Positive = counterclockwise
+			} else {
+				movement = target_deg - current_deg + 360.0f; // Positive = counterclockwise
+			}
+		}
+	}
+
+	return movement;
+}
+
+/**
+ * @brief Starts a combined trajectory for both prismatic and revolute axes
+ * @param prismatic_target_mm Target position for prismatic axis in mm
+ * @param revolute_target_deg Target position for revolute axis in degrees
+ */
 void start_combined_trajectory(float prismatic_target_mm,
 		float revolute_target_deg) {
 	// Get current positions
@@ -261,333 +352,302 @@ void start_combined_trajectory(float prismatic_target_mm,
 	revEva.isFinised = false;
 
 	// Save initial positions
-	pris_initial_p = pris_current;
-	rev_initial_p = rev_current;
+	prismatic_axis.initial_pos = pris_current;
+	revolute_axis.initial_pos = rev_current;
 
-	// For prismatic axis - direct target
-	pris_target_p = prismatic_target_mm;
+	// For prismatic axis - direct target with bounds checking
+	prismatic_axis.target_pos = fminf(
+			fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS), PRISMATIC_MAX_POS);
 
 	// For revolute axis - handle path planning
 	// Normalize current position to [0, 2π]
-	float normalized_current = fmodf(rev_current, 2 * PI);
-	if (normalized_current < 0) {
-		normalized_current += 2 * PI;
-	}
+	float normalized_current = normalize_angle(rev_current);
 
 	// Convert target to radians
 	float target_radians = UnitConverter_angle(&converter_system,
 			revolute_target_deg, UNIT_DEGREE, UNIT_RADIAN);
 
 	// Normalize target to [0, 2π]
-	float normalized_target = fmodf(target_radians, 2 * PI);
-	if (normalized_target < 0) {
-		normalized_target += 2 * PI;
-	}
+	float normalized_target = normalize_angle(target_radians);
 
-	// Convert to degrees for easier logic
+	// Convert to degrees for movement calculation
 	float current_deg = normalized_current * 180.0f / PI;
 	float target_deg = revolute_target_deg;
 
-	// Define explicit rules for movements
-	float movement_deg = 0.0f;
-
-	// If both angles are on the same side of 180°
-	if ((current_deg < 180 && target_deg < 180)
-			|| (current_deg >= 180 && target_deg >= 180)) {
-
-		// Simple case - take shortest path
-		movement_deg = target_deg - current_deg;
-
-		// Ensure shortest path
-		if (movement_deg > 180)
-			movement_deg -= 360;
-		if (movement_deg < -180)
-			movement_deg += 360;
-	}
-	// If we need to cross the 180° boundary
-	else {
-		// Explicitly determine direction to avoid crossing 180°
-		if (current_deg < 180) {
-			// Current < 180, target > 180
-			// Go counterclockwise through 0°
-			if (current_deg < target_deg - 180) {
-				movement_deg = -(current_deg + (360 - target_deg)); // Negative = clockwise
-			} else {
-				movement_deg = -(current_deg - target_deg + 360); // Negative = clockwise
-			}
-		} else {
-			// Current > 180, target < 180
-			// Go clockwise through 0°
-			if (target_deg < current_deg - 180) {
-				movement_deg = 360 - current_deg + target_deg; // Positive = counterclockwise
-			} else {
-				movement_deg = target_deg - current_deg + 360; // Positive = counterclockwise
-			}
-		}
-	}
+	// Calculate movement in degrees
+	float movement_deg = calculate_movement_deg(current_deg, target_deg);
 
 	// Convert to radians and apply to absolute position
 	float movement_rad = movement_deg * PI / 180.0f;
-	rev_target_p = rev_initial_p + movement_rad;
+	revolute_axis.target_pos = revolute_axis.initial_pos + movement_rad;
 
 	// Generate trajectories
-	Trapezoidal_Generator(&prisGen, pris_initial_p, pris_target_p,
-			ZGX45RGG_400RPM_Constant.sd_max, ZGX45RGG_400RPM_Constant.sdd_max);
+	Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
+			prismatic_axis.target_pos, ZGX45RGG_400RPM_Constant.sd_max,
+			ZGX45RGG_400RPM_Constant.sdd_max);
 
-	Trapezoidal_Generator(&revGen, rev_initial_p, rev_target_p,
-			ZGX45RGG_150RPM_Constant.qd_max, ZGX45RGG_150RPM_Constant.qdd_max);
+	Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
+			revolute_axis.target_pos, ZGX45RGG_150RPM_Constant.qd_max,
+			ZGX45RGG_150RPM_Constant.qdd_max);
 
+	// Lift pen during movement
 	plotter_pen_up();
 
-	pristrajectoryActive = true;
-	revtrajectoryActive = true;
+	// Set trajectory active flags
+	prismatic_axis.trajectory_active = true;
+	revolute_axis.trajectory_active = true;
 }
 
-void start_homing() {
-	// Initialize homing state
-	homing_in_progress = true;
-
-	// First ensure pen is up
+/**
+ * @brief Starts the homing sequence for both axes
+ */
+void start_homing(void) {
+	// Ensure pen is up for safety
 	plotter_pen_up();
 
-	// Enter homing state
-	home = 1; // This triggers your existing homing sequence in the timer callback
+	// Set initial homing state
+	homing_state = HOMING_PRIS_DOWN;
 }
 
-void update_control_loops() {
+/**
+ * @brief Updates control loops for both axes
+ */
+void update_control_loops(void) {
 	// Normalize revolute position
-	cur_pos = fmodf(revolute_encoder.rads, 2 * PI);
-	if (cur_pos < 0) {
-		cur_pos += 2 * PI;
-	}
+	normalized_position = normalize_angle(revolute_encoder.rads);
 
 	// Calculate angle in degrees for display/debugging
-	deg = UnitConverter_angle(&converter_system, cur_pos, UNIT_RADIAN,
-			UNIT_DEGREE);
+	angle_deg = UnitConverter_angle(&converter_system,
+			normalized_position, UNIT_RADIAN, UNIT_DEGREE);
 
 	// Update prismatic trajectory if active
-	if (pristrajectoryActive && !prisEva.isFinised) {
-		Trapezoidal_Evaluated(&prisGen, &prisEva, pris_initial_p, pris_target_p,
-				ZGX45RGG_400RPM_Constant.sd_max,
+	if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
+		Trapezoidal_Evaluated(&prisGen, &prisEva, prismatic_axis.initial_pos,
+				prismatic_axis.target_pos, ZGX45RGG_400RPM_Constant.sd_max,
 				ZGX45RGG_400RPM_Constant.sdd_max);
 
-		prismatic_pos = prisEva.setposition;
-		prismatic_vel = prisEva.setvelocity;
+		prismatic_axis.position = prisEva.setposition;
+		prismatic_axis.velocity = prisEva.setvelocity;
 
 		if (prisEva.isFinised) {
-			pristrajectoryActive = false;
-			prismatic_pos = prisEva.setposition;
-			prismatic_vel = 0.0f;
-			pris_dfd = 0.0;
-			pris_ffd = 0.0;
+			prismatic_axis.trajectory_active = false;
+			prismatic_axis.position = prisEva.setposition;
+			prismatic_axis.velocity = 0.0f;
+			prismatic_axis.dfd = 0.0f;
+			prismatic_axis.ffd = 0.0f;
 		}
 	}
 
 	// Update revolute trajectory if active
-	if (revtrajectoryActive && !revEva.isFinised) {
-		Trapezoidal_Evaluated(&revGen, &revEva, rev_initial_p, rev_target_p,
-				ZGX45RGG_150RPM_Constant.qd_max,
+	if (revolute_axis.trajectory_active && !revEva.isFinised) {
+		Trapezoidal_Evaluated(&revGen, &revEva, revolute_axis.initial_pos,
+				revolute_axis.target_pos, ZGX45RGG_150RPM_Constant.qd_max,
 				ZGX45RGG_150RPM_Constant.qdd_max);
 
-		revolute_pos = revEva.setposition;
-		revolute_vel = revEva.setvelocity;
+		revolute_axis.position = revEva.setposition;
+		revolute_axis.velocity = revEva.setvelocity;
 
 		if (revEva.isFinised) {
-			revtrajectoryActive = false;
-			revolute_pos = revEva.setposition;
-			revolute_vel = 0.0f;
-			rev_dfd = 0.0;
-			rev_ffd = 0.0;
+			revolute_axis.trajectory_active = false;
+			revolute_axis.position = revEva.setposition;
+			revolute_axis.velocity = 0.0f;
+			revolute_axis.dfd = 0.0f;
+			revolute_axis.ffd = 0.0f;
 		}
 	}
 
 	// Calculate control signals for prismatic axis
-	pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
+	prismatic_axis.input_voltage = mapf(prismatic_axis.command_pos, -65535.0f,
+			65535.0f, -12.0f, 12.0f);
 
-	pris_kal_filt = MotorKalman_Estimate(&prismatic_kalman, pris_vin,
-			prismatic_encoder.rads)
-			* Disturbance_Constant.prismatic_pulley_radius * 1000;
+	prismatic_axis.kalman_velocity = MotorKalman_Estimate(&prismatic_kalman,
+			prismatic_axis.input_voltage, prismatic_encoder.rads)
+			* Disturbance_Constant.prismatic_pulley_radius * 1000.0f;
 
-	if (isnan(pris_kal_filt)) {
-		pris_kal_filt = 0.0f;
+	if (isnan(prismatic_axis.kalman_velocity)) {
+		prismatic_axis.kalman_velocity = 0.0f;
 	}
 
-	pris_pos_error = prismatic_pos - prismatic_encoder.mm;
+	prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
 
-	pris_cmd_vx = PWM_Satuation(
-			PID_CONTROLLER_Compute(&prismatic_position_pid, pris_pos_error),
-			ZGX45RGG_400RPM_Constant.sd_max, -ZGX45RGG_400RPM_Constant.sd_max);
+	prismatic_axis.command_vel = PWM_Satuation(
+			PID_CONTROLLER_Compute(&prismatic_position_pid,
+					prismatic_axis.pos_error), ZGX45RGG_400RPM_Constant.sd_max,
+			-ZGX45RGG_400RPM_Constant.sd_max);
 
 	// Add velocity feedforward for trajectory
-	if (pristrajectoryActive) {
-		pris_vel_error = pris_cmd_vx + prismatic_vel - pris_kal_filt;
+	if (prismatic_axis.trajectory_active) {
+		prismatic_axis.vel_error = prismatic_axis.command_vel
+				+ prismatic_axis.velocity - prismatic_axis.kalman_velocity;
 	} else {
-		pris_vel_error = pris_cmd_vx - pris_kal_filt;
+		prismatic_axis.vel_error = prismatic_axis.command_vel
+				- prismatic_axis.kalman_velocity;
 	}
 
-	pris_cmd_ux = PWM_Satuation(
-			PID_CONTROLLER_Compute(&prismatic_velocity_pid, pris_vel_error),
-			ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+	prismatic_axis.command_pos = PWM_Satuation(
+			PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+					prismatic_axis.vel_error), ZGX45RGG_400RPM_Constant.U_max,
+			-ZGX45RGG_400RPM_Constant.U_max);
 
 	// Calculate control signals for revolute axis
-	rev_vin = mapf(rev_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
+	revolute_axis.input_voltage = mapf(revolute_axis.command_pos, -65535.0f,
+			65535.0f, -12.0f, 12.0f);
 
-	rev_kal_filt = MotorKalman_Estimate(&revolute_kalman, rev_vin,
-			revolute_encoder.rads);
+	revolute_axis.kalman_velocity = MotorKalman_Estimate(&revolute_kalman,
+			revolute_axis.input_voltage, revolute_encoder.rads);
 
-	if (isnan(rev_kal_filt)) {
-		rev_kal_filt = 0.0f;
+	if (isnan(revolute_axis.kalman_velocity)) {
+		revolute_axis.kalman_velocity = 0.0f;
 	}
 
-	rev_pos_error = revolute_pos - cur_pos;
+	revolute_axis.pos_error = revolute_axis.position - normalized_position;
 
 	// Ensure error uses the shortest path for control
-	if (rev_pos_error > PI) {
-		rev_pos_error -= 2 * PI;
+	if (revolute_axis.pos_error > PI) {
+		revolute_axis.pos_error -= 2.0f * PI;
 	}
-	if (rev_pos_error < -PI) {
-		rev_pos_error += 2 * PI;
+	if (revolute_axis.pos_error < -PI) {
+		revolute_axis.pos_error += 2.0f * PI;
 	}
 
-	rev_cmd_vx = PWM_Satuation(
-			PID_CONTROLLER_Compute(&revolute_position_pid, rev_pos_error),
-			ZGX45RGG_150RPM_Constant.qd_max, -ZGX45RGG_150RPM_Constant.qd_max);
+	revolute_axis.command_vel = PWM_Satuation(
+			PID_CONTROLLER_Compute(&revolute_position_pid,
+					revolute_axis.pos_error), ZGX45RGG_150RPM_Constant.qd_max,
+			-ZGX45RGG_150RPM_Constant.qd_max);
 
 	// Add velocity feedforward for trajectory
-	if (revtrajectoryActive) {
-		rev_vel_error = rev_cmd_vx + revolute_vel - rev_kal_filt;
+	if (revolute_axis.trajectory_active) {
+		revolute_axis.vel_error = revolute_axis.command_vel
+				+ revolute_axis.velocity - revolute_axis.kalman_velocity;
 	} else {
-		rev_vel_error = rev_cmd_vx - rev_kal_filt;
+		revolute_axis.vel_error = revolute_axis.command_vel
+				- revolute_axis.kalman_velocity;
 	}
 
-	rev_cmd_ux = PWM_Satuation(
-			PID_CONTROLLER_Compute(&revolute_velocity_pid, rev_vel_error),
-			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
+	revolute_axis.command_pos = PWM_Satuation(
+			PID_CONTROLLER_Compute(&revolute_velocity_pid,
+					revolute_axis.vel_error), ZGX45RGG_150RPM_Constant.U_max,
+			-ZGX45RGG_150RPM_Constant.U_max);
 
 	// Add feed-forward compensation
-	pris_ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
-			prismatic_vel / 1000.0);
+	if (prismatic_axis.trajectory_active) {
+	    // Only compute FFD during active movement
+	    prismatic_axis.ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
+	                                                    prismatic_axis.velocity / 1000.0f);
 
-	pris_dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd, cur_pos,
-			revolute_vel, prismatic_encoder.mm / 1000.0);
+	    // Only compute DFD during active movement
+	    prismatic_axis.dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd,
+	                                                    normalized_position,
+	                                                    revolute_axis.velocity,
+	                                                    prismatic_encoder.mm / 1000.0f);
+	} else {
+	    // Zero when not moving
+	    prismatic_axis.ffd = 0.0f;
+	    prismatic_axis.dfd = 0.0f;
+	}
 
 	float pris_backlash_compensation = prismatic_backlash_compensator(
-			pris_cmd_vx);
+			prismatic_axis.command_vel);
 
-	pris_cmd_ux = pris_cmd_ux + pris_backlash_compensation + pris_dfd
-			+ pris_ffd;
+	prismatic_axis.command_pos = prismatic_axis.command_pos
+			+ pris_backlash_compensation + prismatic_axis.dfd
+			+ prismatic_axis.ffd;
 
-	rev_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, cur_pos, 0.0,
-			prismatic_encoder.mm / 1000.0);
-	rev_ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd, revolute_vel);
+	if (revolute_axis.trajectory_active) {
+	    // Only compute DFD during active movement
+	    revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+	                                                  normalized_position, 0.0f,
+	                                                  prismatic_encoder.mm / 1000.0f);
 
-	float rev_backlash_compensation = revolute_backlash_compensator(rev_cmd_vx);
+	    // Only compute FFD during active movement
+	    revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
+	                                                  revolute_axis.velocity);
+	} else {
+	    // Zero when not moving
+	    revolute_axis.dfd = 0.0f;
+	    revolute_axis.ffd = 0.0f;
+	}
 
-	rev_cmd_ux = rev_cmd_ux + rev_backlash_compensation + rev_dfd + rev_ffd;
+	float rev_backlash_compensation = revolute_backlash_compensator(
+			revolute_axis.command_vel);
+
+	revolute_axis.command_pos = revolute_axis.command_pos
+			+ rev_backlash_compensation + revolute_axis.dfd + revolute_axis.ffd;
 
 	// Final saturation
-	pris_cmd_ux = PWM_Satuation(pris_cmd_ux, ZGX45RGG_400RPM_Constant.U_max,
-			-ZGX45RGG_400RPM_Constant.U_max);
-
-	rev_cmd_ux = PWM_Satuation(rev_cmd_ux, ZGX45RGG_150RPM_Constant.U_max,
-			-ZGX45RGG_150RPM_Constant.U_max);
-
-	// Apply commands to motors
-	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
-	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
-
-	if (revEva.isFinised && prisEva.isFinised) {
-		static uint32_t timer_count = 0;
-		timer_count++;
-
-		if (timer_count > 500) {
-			plotter_pen_down();
-			timer_count = 0;
-		}
-	}
-}
-
-void velocity_control(float prismatic_target_mmps, float revolute_target_rads) {
-	// Get current velocity estimates from Kalman filter
-	pris_vin = mapf(pris_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
-	pris_kal_filt = MotorKalman_Estimate(&prismatic_kalman, pris_vin,
-			prismatic_encoder.rads)
-			* Disturbance_Constant.prismatic_pulley_radius * 1000;
-
-	if (isnan(pris_kal_filt)) {
-		pris_kal_filt = 0.0f;
-	}
-
-	rev_vin = mapf(rev_cmd_ux, -65535.0, 65535.0, -12.0, 12.0);
-	rev_kal_filt = MotorKalman_Estimate(&revolute_kalman, rev_vin,
-			revolute_encoder.rads);
-
-	if (isnan(rev_kal_filt)) {
-		rev_kal_filt = 0.0f;
-	}
-
-	// Calculate velocity errors (bypassing position cascade)
-	pris_vel_error = prismatic_target_mmps - pris_kal_filt;
-	rev_vel_error = revolute_target_rads - rev_kal_filt;
-
-	// Compute control signals using velocity PID only
-	pris_cmd_ux = PWM_Satuation(
-			PID_CONTROLLER_Compute(&prismatic_velocity_pid, pris_vel_error),
+	prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
 			ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
 
-	rev_cmd_ux = PWM_Satuation(
-			PID_CONTROLLER_Compute(&revolute_velocity_pid, rev_vel_error),
+	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
-	// Add feed-forward compensation for prismatic axis
-	pris_ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
-			prismatic_target_mmps / 1000.0); // Convert mm/s to m/s
-
-	// Get current revolute position for feed-forward compensation
-	cur_pos = fmodf(revolute_encoder.rads, 2 * PI);
-	if (cur_pos < 0) {
-		cur_pos += 2 * PI;
-	}
-
-	// Add disturbance feed-forward for prismatic axis
-	pris_dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd, cur_pos,
-			revolute_target_rads, prismatic_encoder.mm / 1000.0);
-
-	// Add backlash compensation for prismatic axis
-	float pris_backlash_compensation = prismatic_backlash_compensator(
-			prismatic_target_mmps);
-
-	// Add feed-forward terms to prismatic control signal
-	pris_cmd_ux = pris_cmd_ux + pris_backlash_compensation + pris_dfd
-			+ pris_ffd;
-
-	// Add feed-forward compensation for revolute axis
-	rev_ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
-			revolute_target_rads);
-
-	// Add disturbance feed-forward for revolute axis
-	rev_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, cur_pos, 0.0,
-			prismatic_encoder.mm / 1000.0);
-
-	// Add backlash compensation for revolute axis
-	float rev_backlash_compensation = revolute_backlash_compensator(
-			revolute_target_rads);
-
-	// Add feed-forward terms to revolute control signal
-	rev_cmd_ux = rev_cmd_ux + rev_backlash_compensation + rev_dfd + rev_ffd;
-
-	// Final saturation
-	pris_cmd_ux = PWM_Satuation(pris_cmd_ux, ZGX45RGG_400RPM_Constant.U_max,
-			-ZGX45RGG_400RPM_Constant.U_max);
-
-	rev_cmd_ux = PWM_Satuation(rev_cmd_ux, ZGX45RGG_150RPM_Constant.U_max,
-			-ZGX45RGG_150RPM_Constant.U_max);
-
 	// Apply commands to motors
-	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
-	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
+	MDXX_set_range(&prismatic_motor, 2000, prismatic_axis.command_pos);
+	MDXX_set_range(&revolute_motor, 2000, revolute_axis.command_pos);
+
+	prismatic_axis.mm = prismatic_encoder.mm;
+	prismatic_axis.target = prismatic_axis.target_pos;
+
+	revolute_axis.deg = UnitConverter_angle(&converter_system, normalized_position, UNIT_RADIAN, UNIT_DEGREE);;
+	revolute_axis.target = 	UnitConverter_angle(&converter_system, revolute_axis.target_pos, UNIT_RADIAN, UNIT_DEGREE);
+
+	// Put pen down when both trajectories are complete
+	static uint32_t pen_down_timer = 0;
+	if (revEva.isFinised && prisEva.isFinised) {
+		pen_down_timer++;
+		if (pen_down_timer > PEN_SETTLE_TIME) {
+			plotter_pen_down();
+			pen_down_timer = 0;
+		}
+	} else {
+		pen_down_timer = 0;
+	}
 }
 
+/**
+ * @brief Compensation for revolute axis backlash
+ * @param cmd_vel Command velocity
+ * @return Compensation value
+ */
+float revolute_backlash_compensator(float cmd_vel) {
+	// Determine current direction
+	float current_direction =
+			(cmd_vel > 0.0f) ? 1.0f : ((cmd_vel < 0.0f) ? -1.0f : 0.0f);
+
+	// If stopped, maintain last direction
+	if (current_direction == 0.0f) {
+		current_direction = revolute_last_cmd_direction;
+	}
+
+	// Detect direction change
+	if (current_direction != revolute_last_cmd_direction
+			&& current_direction != 0.0f) {
+		// If direction changed, update backlash state
+		revolute_backlash_state = current_direction * revolute_backlash;
+		revolute_last_cmd_direction = current_direction;
+	}
+
+	// Apply adaptive compensation based on velocity
+	float compensation = revolute_backlash_state * BACKLASH_COMPENSATION_GAIN;
+
+	// Gradually reduce backlash state as we overcome the backlash
+	float backlash_decay_rate = BACKLASH_DECAY_FACTOR * fabsf(cmd_vel);
+	if (revolute_backlash_state > 0.0f) {
+		revolute_backlash_state = fmaxf(0.0f,
+				revolute_backlash_state - backlash_decay_rate);
+	} else if (revolute_backlash_state < 0.0f) {
+		revolute_backlash_state = fminf(0.0f,
+				revolute_backlash_state + backlash_decay_rate);
+	}
+
+	return compensation;
+}
+
+/**
+ * @brief Compensation for prismatic axis backlash
+ * @param cmd_vel Command velocity
+ * @return Compensation value
+ */
 float prismatic_backlash_compensator(float cmd_vel) {
 	// Determine current direction
 	float current_direction =
@@ -611,8 +671,7 @@ float prismatic_backlash_compensator(float cmd_vel) {
 			* PRISMATIC_BACKLASH_COMPENSATION_GAIN;
 
 	// Gradually reduce backlash state as we overcome the backlash
-	// This simulates the physical process of taking up the slack
-	float backlash_decay_rate = 0.01f * fabsf(cmd_vel); // Proportional to velocity
+	float backlash_decay_rate = BACKLASH_DECAY_FACTOR * fabsf(cmd_vel);
 	if (prismatic_backlash_state > 0.0f) {
 		prismatic_backlash_state = fmaxf(0.0f,
 				prismatic_backlash_state - backlash_decay_rate);
@@ -624,41 +683,64 @@ float prismatic_backlash_compensator(float cmd_vel) {
 	return compensation;
 }
 
-float revolute_backlash_compensator(float cmd_vel) {
-	// Determine current direction
-	float current_direction =
-			(cmd_vel > 0.0f) ? 1.0f : ((cmd_vel < 0.0f) ? -1.0f : 0.0f);
+/**
+ * @brief Manual control mode using joystick
+ */
+void manual_control_mode(void) {
+	// Put pen down for drawing
+	plotter_pen_down();
 
-	// If stopped, maintain last direction
-	if (current_direction == 0.0f) {
-		current_direction = revolute_last_cmd_direction;
+	// Stop any active trajectories
+	prismatic_axis.trajectory_active = false;
+	revolute_axis.trajectory_active = false;
+
+	// Control loop using joystick
+	while (1) {
+		// Update sensors
+		plotter_update_sensors();
+
+		// Process prismatic axis joystick control
+		if (up_photo && joystick_x > JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+		} else if (low_photo && joystick_x < -JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+		} else if (joystick_x > JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&prismatic_motor, 2000, -12000);
+		} else if (joystick_x < -JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&prismatic_motor, 2000, 12000);
+		} else {
+			MDXX_set_range(&prismatic_motor, 2000, 0);
+		}
+
+		// Process revolute axis joystick control
+		float revolute_deg = UnitConverter_angle(&converter_system,
+				revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
+
+		if ((revolute_deg > 175.0f && joystick_y > JOYSTICK_THRESHOLD)
+				|| (revolute_deg < -175.0f && joystick_y < -JOYSTICK_THRESHOLD)) {
+			MDXX_set_range(&revolute_motor, 2000, 0);
+		} else if (joystick_y > JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&revolute_motor, 2000, 25000);
+		} else if (joystick_y < -JOYSTICK_THRESHOLD) {
+			MDXX_set_range(&revolute_motor, 2000, -25000);
+		} else {
+			MDXX_set_range(&revolute_motor, 2000, 0);
+		}
+
+		// Exit condition - check if button is still pressed
+		plotter_update_sensors();
 	}
 
-	// Detect direction change
-	if (current_direction != revolute_last_cmd_direction
-			&& current_direction != 0.0f) {
-		// If direction changed, update backlash state
-		revolute_backlash_state = current_direction * revolute_backlash;
-		revolute_last_cmd_direction = current_direction;
-	}
-
-	// Apply adaptive compensation based on velocity
-	float compensation = revolute_backlash_state * BACKLASH_COMPENSATION_GAIN;
-
-	// Gradually reduce backlash state as we overcome the backlash
-	// This simulates the physical process of taking up the slack
-	float backlash_decay_rate = 0.01f * fabsf(cmd_vel); // Proportional to velocity
-	if (revolute_backlash_state > 0.0f) {
-		revolute_backlash_state = fmaxf(0.0f,
-				revolute_backlash_state - backlash_decay_rate);
-	} else if (revolute_backlash_state < 0.0f) {
-		revolute_backlash_state = fminf(0.0f,
-				revolute_backlash_state + backlash_decay_rate);
-	}
-
-	return compensation;
+	// Reset motors when exiting manual mode
+	MDXX_set_range(&prismatic_motor, 2000, 0);
+	MDXX_set_range(&revolute_motor, 2000, 0);
+	plotter_pen_up();
 }
 
+/**
+ * @brief GPIO external interrupt callback
+ * @param GPIO_Pin Pin that triggered the interrupt
+ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == EMER_Pin) {
 		rs_current_state = RS_EMERGENCY_TRIGGED;
@@ -666,110 +748,113 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 }
 
+/**
+ * @brief UART receive complete callback
+ * @param huart UART handle
+ */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart == &hlpuart1) {
-
-	}
+	// Handle UART reception if needed
 }
 
+/**
+ * @brief Timer period elapsed callback - main control loop
+ * @param htim Timer handle
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
+		// Update sensor readings
 		plotter_update_sensors();
 
+//		 prismatic_axis.position = SIGNAL_generate(&sine_sg_cascade, 1e-3);
+
+		// Update encoder readings
 		QEI_get_diff_count(&prismatic_encoder);
 		QEI_compute_data(&prismatic_encoder);
-
 		QEI_get_diff_count(&revolute_encoder);
-		QEI_compute_data(&revolute_encoder);
+        QEI_compute_data(&revolute_encoder);
 
-		if (home == 99) {
-			plotter_pen_down();
+        // Handle different system states
+        if (homing_state != HOMING_IDLE) {
+            // Homing state machine
+            switch (homing_state) {
+                case HOMING_PRIS_DOWN:
+                    // Move prismatic motor down to lower limit
+                    MDXX_set_range(&prismatic_motor, 2000, 10000);
 
-			pristrajectoryActive = false;
-			revtrajectoryActive = false;
+                    if (low_photo) {
+                        MDXX_set_range(&prismatic_motor, 2000, 0);
+                        homing_state = HOMING_REV_RESET;
+                    }
+                    break;
 
-			if (up_photo && joystick_x > 40) {
-				MDXX_set_range(&prismatic_motor, 2000, 0);
-			} else if (low_photo && joystick_x < -40) {
-				MDXX_set_range(&prismatic_motor, 2000, 0);
-			} else if (joystick_x > 40) {
-				MDXX_set_range(&prismatic_motor, 2000, -12000);
-			} else if (joystick_x < -40) {
-				MDXX_set_range(&prismatic_motor, 2000, 12000);
-			} else {
-				MDXX_set_range(&prismatic_motor, 2000, 0);
-			}
+                case HOMING_REV_RESET: {
+                    static int prox_count = 0;
+                    static bool prox_previous = false;
+                    static bool initialized = false;
 
-			float revolute_deg = UnitConverter_angle(&converter_system,
-					revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
+                    // Initialize on first entry
+                    if (!initialized) {
+                        prox_previous = prox;
+                        prox_count = 0;
+                        initialized = true;
+                    }
 
-			if ((revolute_deg > 175.0f && joystick_y > 40)
-					|| (revolute_deg < -175.0f && joystick_y < -40)) {
-				MDXX_set_range(&revolute_motor, 2000, 0);
-			} else if (joystick_y > 40) {
-				MDXX_set_range(&revolute_motor, 2000, 25000);
-			} else if (joystick_y < -40) {
-				MDXX_set_range(&revolute_motor, 2000, -25000);
-			} else {
-				MDXX_set_range(&revolute_motor, 2000, 0);
-			}
-		}
+                    // Move revolute motor clockwise at constant speed
+                    MDXX_set_range(&revolute_motor, 2000, 12000);
 
-		else if (home > 0) {
-			homing_in_progress = true;
+                    // Count proximity sensor triggers (rising edge detection)
+                    if (prox && !prox_previous) {
+                        prox_count++;
+                    }
+                    prox_previous = prox;
 
-			if (home == 1) {
-				// Move prismatic motor down to lower limit
-				MDXX_set_range(&prismatic_motor, 2000, 10000);
+                    // After reaching home, stop motor
+                    if (prox_count >= 1) {
+                        MDXX_set_range(&revolute_motor, 2000, 0);
+                        initialized = false;  // Reset for next time
+                        homing_state = HOMING_PRIS_UP;
+                    }
+                    break;
+                }
 
-				if (low_photo) {
-					home = 2;
-					MDXX_set_range(&prismatic_motor, 2000, 0);
-				}
-			} else if (home == 2) {
-				static int prox_count = 0;
-				static bool prox_previous = false;
-				static bool initialized = false;
+                case HOMING_PRIS_UP:
+                    // Move prismatic motor up to upper limit
+                    MDXX_set_range(&prismatic_motor, 2000, -10000);
 
-				// Initialize on first entry
-				if (!initialized) {
-					prox_previous = prox;
-					prox_count = 0;
-					initialized = true;
-				}
+                    if (up_photo) {
+                        MDXX_set_range(&prismatic_motor, 2000, 0);
+                        homing_state = HOMING_COMPLETE;
+                    }
+                    break;
 
-				// Move revolute motor clockwise at constant speed
-				MDXX_set_range(&revolute_motor, 2000, 12000);
+                case HOMING_COMPLETE:
+                    plotter_reset();
 
-				// Count proximity sensor triggers (rising edge detection)
-				if (prox && !prox_previous) {
-					prox_count++;
-				}
-				prox_previous = prox;
+                    // Reset ALL control variables
+                    revolute_axis.pos_error = 0.0f;
+                    revolute_axis.vel_error = 0.0f;
+                    prismatic_axis.pos_error = 0.0f;
+                    prismatic_axis.vel_error = 0.0f;
 
-				// After reaching home, stop motor
-				if (prox_count >= 1) {
-					MDXX_set_range(&revolute_motor, 2000, 0);
-					initialized = false;  // Reset for next time
-					home = 3;
-				}
-			} else if (home == 3) {
-				// Move prismatic motor up to upper limit
-				MDXX_set_range(&prismatic_motor, 2000, -10000);
+                    // Reset position setpoints to current position
+                    prismatic_axis.position = prismatic_encoder.mm;
+                    revolute_axis.position = revolute_encoder.rads;
 
-				if (up_photo) {
-					MDXX_set_range(&prismatic_motor, 2000, 0);
-					home = 4;
-				}
-			} else if (home == 4) {
-				plotter_reset();
-				home = 0;
-				homing_in_progress = false;
+                    // Reset trajectories and state
+                    prismatic_axis.trajectory_active = false;
+                    revolute_axis.trajectory_active = false;
+                    homing_state = HOMING_IDLE;
+                    break;
 
-			}
-		} else {
-			update_control_loops();
-		}
+                default:
+                    // Unexpected state - reset to idle
+                    homing_state = HOMING_IDLE;
+                    break;
+            }
+        } else {
+            // Normal operation - update control loops
+            update_control_loops();
+        }
 	}
 }
 

@@ -69,7 +69,7 @@ void REVOLUTE_MOTOR_DFD_Init(DC_MOTOR_DFeedward *motor, Motor_Constant_Structure
 float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float qdd, float s){
     float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * sin(q) * s;
     float gravity_compensate_rail = motor->En->plotter_mass * motor->En->g * sin(q) * motor->En->c;
-    float mass_torque = motor->En->plotter_mass * s*s * qdd;
+//    float mass_torque = motor->En->plotter_mass * s*s * qdd;
 
     float transfer_function = motor->Mx->R / motor->Mx->Kt;
 
