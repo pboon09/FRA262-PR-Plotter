@@ -80,8 +80,21 @@ float pris_pos[2] = { 0.0f }, rev_pos[2] = { 0.0f };
 float rev_dfd, rev_ffd, pris_dfd, pris_ffd;
 
 bool homing_in_progress = false;
-bool prismatic_homed = false;
-bool revolute_homed = false;
+
+
+
+
+// Existing revolute backlash variables
+#define BACKLASH_COMPENSATION_GAIN 0.2f
+float revolute_backlash = 0.01f;
+float revolute_last_cmd_direction = 0.0f;
+float revolute_backlash_state = 0.0f;
+
+// New prismatic backlash variables
+#define PRISMATIC_BACKLASH_COMPENSATION_GAIN 0.1f
+float prismatic_backlash = 0.03f;  // Backlash in mm
+float prismatic_last_cmd_direction = 0.0f;
+float prismatic_backlash_state = 0.0f;
 
 int home;
 
@@ -89,8 +102,11 @@ float signal;
 
 uint8_t trajectory_sequence_index = 0;
 bool sequence_active = false;
-const float32_t sequence_pris_points[4] = { 175.0f, 95.0f, 275.0f, 0.0f }; // Sequence of setpoints
-const float32_t sequence_rev_points[4] = { 175.0f, 275.0f, 95.0f, 0.0f }; // Sequence of setpoints
+//const float32_t sequence_pris_points[4] = { 175.0f, 95.0f, 275.0f, 0.0f }; // Sequence of setpoints
+//const float32_t sequence_rev_points[4] = { 175.0f, 195.0f, 95.0f, 0.0f }; // Sequence of setpoints
+
+const float32_t sequence_pris_points[6] = { 300.0f, 0.0f, 300.0f, 0.0f  ,300.0f, 0.0f}; // Sequence of setpoints
+const float32_t sequence_rev_points[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f  }; // Sequence of setpoints
 
 uint8_t button_pressed_previous = 0;
 
@@ -110,6 +126,8 @@ void start_combined_trajectory(float prismatic_target_mm,
 void start_homing();
 void joy_mode();
 void update_control_loops();
+float revolute_backlash_compensator(float cmd_vel);
+float prismatic_backlash_compensator(float cmd_vel);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -334,8 +352,6 @@ void start_combined_trajectory(float prismatic_target_mm,
 void start_homing() {
 	// Initialize homing state
 	homing_in_progress = true;
-	prismatic_homed = false;
-	revolute_homed = false;
 
 	// First ensure pen is up
 	plotter_pen_up();
@@ -458,13 +474,19 @@ void update_control_loops() {
 	pris_ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
 			prismatic_vel / 1000.0);
 
-	pris_cmd_ux = pris_cmd_ux + pris_ffd;
+	pris_dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd, cur_pos, revolute_vel, prismatic_encoder.mm / 1000.0);
+
+	float pris_backlash_compensation = prismatic_backlash_compensator(pris_cmd_vx);
+
+	pris_cmd_ux = pris_cmd_ux + pris_backlash_compensation + pris_dfd + pris_ffd;
 
 	rev_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, cur_pos, 0.0,
 			prismatic_encoder.mm / 1000.0);
 	rev_ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd, revolute_vel);
 
-	rev_cmd_ux = rev_cmd_ux + rev_dfd + rev_ffd;
+	float rev_backlash_compensation = revolute_backlash_compensator(rev_cmd_vx);
+
+	rev_cmd_ux = rev_cmd_ux + rev_backlash_compensation + rev_dfd + rev_ffd;
 
 	// Final saturation
 	pris_cmd_ux = PWM_Satuation(pris_cmd_ux, ZGX45RGG_400RPM_Constant.U_max,
@@ -477,15 +499,79 @@ void update_control_loops() {
 	MDXX_set_range(&prismatic_motor, 2000, pris_cmd_ux);
 	MDXX_set_range(&revolute_motor, 2000, rev_cmd_ux);
 
-	if (revEva.isFinised && prisEva.isFinised) {
-		static uint32_t timer_count = 0;
-		timer_count++;
+//	if (revEva.isFinised && prisEva.isFinised) {
+//		static uint32_t timer_count = 0;
+//		timer_count++;
+//
+//		if (timer_count > 500) {
+//			plotter_pen_down();
+//			timer_count = 0;
+//		}
+//	}
+}
 
-		if (timer_count > 250) {
-			plotter_pen_down();
-			timer_count = 0;
-		}
-	}
+float prismatic_backlash_compensator(float cmd_vel) {
+    // Determine current direction
+    float current_direction = (cmd_vel > 0.0f) ? 1.0f :
+                             ((cmd_vel < 0.0f) ? -1.0f : 0.0f);
+
+    // If stopped, maintain last direction
+    if (current_direction == 0.0f) {
+        current_direction = prismatic_last_cmd_direction;
+    }
+
+    // Detect direction change
+    if (current_direction != prismatic_last_cmd_direction && current_direction != 0.0f) {
+        // If direction changed, update backlash state
+        prismatic_backlash_state = current_direction * prismatic_backlash;
+        prismatic_last_cmd_direction = current_direction;
+    }
+
+    // Apply adaptive compensation based on velocity
+    float compensation = prismatic_backlash_state * PRISMATIC_BACKLASH_COMPENSATION_GAIN;
+
+    // Gradually reduce backlash state as we overcome the backlash
+    // This simulates the physical process of taking up the slack
+    float backlash_decay_rate = 0.01f * fabsf(cmd_vel); // Proportional to velocity
+    if (prismatic_backlash_state > 0.0f) {
+        prismatic_backlash_state = fmaxf(0.0f, prismatic_backlash_state - backlash_decay_rate);
+    } else if (prismatic_backlash_state < 0.0f) {
+        prismatic_backlash_state = fminf(0.0f, prismatic_backlash_state + backlash_decay_rate);
+    }
+
+    return compensation;
+}
+
+float revolute_backlash_compensator(float cmd_vel) {
+    // Determine current direction
+    float current_direction = (cmd_vel > 0.0f) ? 1.0f :
+                             ((cmd_vel < 0.0f) ? -1.0f : 0.0f);
+
+    // If stopped, maintain last direction
+    if (current_direction == 0.0f) {
+        current_direction = revolute_last_cmd_direction;
+    }
+
+    // Detect direction change
+    if (current_direction != revolute_last_cmd_direction && current_direction != 0.0f) {
+        // If direction changed, update backlash state
+        revolute_backlash_state = current_direction * revolute_backlash;
+        revolute_last_cmd_direction = current_direction;
+    }
+
+    // Apply adaptive compensation based on velocity
+    float compensation = revolute_backlash_state * BACKLASH_COMPENSATION_GAIN;
+
+    // Gradually reduce backlash state as we overcome the backlash
+    // This simulates the physical process of taking up the slack
+    float backlash_decay_rate = 0.01f * fabsf(cmd_vel); // Proportional to velocity
+    if (revolute_backlash_state > 0.0f) {
+        revolute_backlash_state = fmaxf(0.0f, revolute_backlash_state - backlash_decay_rate);
+    } else if (revolute_backlash_state < 0.0f) {
+        revolute_backlash_state = fminf(0.0f, revolute_backlash_state + backlash_decay_rate);
+    }
+
+    return compensation;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
@@ -564,7 +650,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				homing_in_progress = false;
 
 			}
-		} else {
+		}
+		else if(){
+
+		}
+
+		else {
 			update_control_loops();
 		}
 	}
