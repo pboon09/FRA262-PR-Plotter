@@ -96,25 +96,17 @@ void QEI_compute_data(QEI *qei) {
 }
 
 void QEI_reset(QEI *qei) {
-    // Reset hardware counter
-    __HAL_TIM_SET_COUNTER(qei->htimx, 0);
-
     // Reset counter history
     qei->c[NOW] = 0;
     qei->c[PREV] = 0;
 
     // Reset all position and velocity values
     qei->diff_counts = 0;
-    qei->pps = 0;
     qei->rpm = 0;
-    qei->radps = 0;
     qei->pulses = 0;
     qei->revs = 0;
     qei->rads = 0;
     qei->mm = 0;
-    qei->mmps = 0;
-    qei->radpss = 0;
-    qei->mmpss = 0;
 
     // Reset velocity history
     qei->r[NOW] = 0;
