@@ -94,8 +94,10 @@ void Error_Handler(void);
 #define T_SWO_GPIO_Port GPIOB
 #define EMER_Pin GPIO_PIN_4
 #define EMER_GPIO_Port GPIOB
-#define PROX_Pin GPIO_PIN_5
+#define EMER_EXTI_IRQn EXTI4_IRQn
+#define PROX_Pin GPIO_PIN_6
 #define PROX_GPIO_Port GPIOB
+#define PROX_EXTI_IRQn EXTI9_5_IRQn
 #define J1_Pin GPIO_PIN_7
 #define J1_GPIO_Port GPIOB
 

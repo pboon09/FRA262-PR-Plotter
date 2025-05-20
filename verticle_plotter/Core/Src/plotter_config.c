@@ -72,11 +72,10 @@ float revolute_current = 0.0f;
 int prox, emer, up_photo, low_photo, up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
-	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max
-			* Disturbance_Constant.prismatic_pulley_radius * 1000;
-	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 0.5;
+	ZGX45RGG_400RPM_Constant.sd_max = 500;
+	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
 
-	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max * (24.0 /36.0) * 0.3;
+	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max * (24.0 /36.0) * 0.5;
 	ZGX45RGG_150RPM_Constant.qdd_max = ZGX45RGG_150RPM_Constant.qd_max * 0.4;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
@@ -213,13 +212,10 @@ void plotter_update_sensors() {
 	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
 	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-	prox = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
 	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
 	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
 	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
 	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
-
-	emer = !HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 
 	if (up_lim) {
 		servo_state = PEN_UP;
