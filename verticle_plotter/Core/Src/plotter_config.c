@@ -69,14 +69,21 @@ float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
 float revolute_current = 0.0f;
 
-int prox, emer, up_photo, low_photo, up_lim, low_lim, b1, b2, b3, b4;
+int up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
 	ZGX45RGG_400RPM_Constant.sd_max = 500;
-	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
+	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max
+			* 2;
 
-	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max * (24.0 /36.0) * 0.5;
+	ZGX45RGG_400RPM_Constant.traject_sd_max = ZGX45RGG_400RPM_Constant.sd_max;
+	ZGX45RGG_400RPM_Constant.traject_sdd_max = ZGX45RGG_400RPM_Constant.sdd_max;
+
+	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max - 9;
 	ZGX45RGG_150RPM_Constant.qdd_max = ZGX45RGG_150RPM_Constant.qd_max * 0.4;
+
+	ZGX45RGG_150RPM_Constant.traject_qd_max = ZGX45RGG_150RPM_Constant.qd_max;
+	ZGX45RGG_150RPM_Constant.traject_qdd_max = ZGX45RGG_150RPM_Constant.qdd_max;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -146,7 +153,7 @@ void plotter_begin() {
 
 	PID_CONTROLLER_Init(&revolute_position_pid, 100, 5e-2, 250,
 			ZGX45RGG_150RPM_Constant.qd_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 200, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 100, 2000,
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
@@ -186,19 +193,19 @@ void plotter_begin() {
 }
 
 void plotter_reset() {
-    prismatic_encoder.diff_counts = 0;
-    prismatic_encoder.rpm = 0;
-    prismatic_encoder.pulses = 0;
-    prismatic_encoder.revs = 0;
-    prismatic_encoder.rads = 0;
-    prismatic_encoder.mm = 0;
+	prismatic_encoder.diff_counts = 0;
+	prismatic_encoder.rpm = 0;
+	prismatic_encoder.pulses = 0;
+	prismatic_encoder.revs = 0;
+	prismatic_encoder.rads = 0;
+	prismatic_encoder.mm = 0;
 
-    revolute_encoder.diff_counts = 0;
-    revolute_encoder.rpm = 0;
-    revolute_encoder.pulses = 0;
-    revolute_encoder.revs = 0;
-    revolute_encoder.rads = 0;
-    revolute_encoder.mm = 0;
+	revolute_encoder.diff_counts = 0;
+	revolute_encoder.rpm = 0;
+	revolute_encoder.pulses = 0;
+	revolute_encoder.revs = 0;
+	revolute_encoder.rads = 0;
+	revolute_encoder.mm = 0;
 }
 
 void plotter_update_sensors() {
@@ -212,8 +219,6 @@ void plotter_update_sensors() {
 	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
 	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-	up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-	low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
 	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
 	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
@@ -225,15 +230,15 @@ void plotter_update_sensors() {
 		servo_state = PEN_IDLE;
 	}
 
-	if (up_photo) {
-		prismatic_state = PP_AT_TOP_END_POSITION;
-	} else if (low_photo) {
-		prismatic_state = PP_AT_BOTTOM_END_POSITION;
-	}
-
-	if (prox) {
-		revolute_state = RP_AT_HOME_POSITION;
-	}
+//	if (up_photo) {
+//		prismatic_state = PP_AT_TOP_END_POSITION;
+//	} else if (low_photo) {
+//		prismatic_state = PP_AT_BOTTOM_END_POSITION;
+//	}
+//
+//	if (prox) {
+//		revolute_state = RP_AT_HOME_POSITION;
+//	}
 }
 
 void plotter_pen_up() {

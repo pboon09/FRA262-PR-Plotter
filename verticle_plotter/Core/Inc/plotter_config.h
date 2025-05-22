@@ -302,7 +302,7 @@ extern u16u8_t registerFrame[200];
 /*----- Configure ModBus End -----*/
 
 /*----- Sensor State Variable Start -----*/
-extern int prox, emer, up_photo, low_photo, up_lim, low_lim, b1, b2, b3, b4;
+extern int up_lim, low_lim, b1, b2, b3, b4;
 
 extern RobotState rs_current_state;
 extern RobotState rs_previous_state;

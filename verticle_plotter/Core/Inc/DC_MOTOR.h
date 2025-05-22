@@ -21,6 +21,11 @@ typedef struct {
     double qdd_max;
     double sd_max;
     double sdd_max;
+
+    double traject_qd_max;
+    double traject_qdd_max;
+    double traject_sd_max;
+    double traject_sdd_max;
 } Motor_Constant_Structure;
 
 typedef struct {
