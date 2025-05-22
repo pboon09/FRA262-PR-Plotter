@@ -56,13 +56,35 @@ FIR prismatic_lp_current;
 FIR revolute_lp_velocity;
 FIR revolute_lp_current;
 
-MotorKalman prismatic_kalman;
-MotorKalman revolute_kalman;
+//MotorKalman prismatic_kalman;
+//MotorKalman revolute_kalman;
 
 uint16_t joystick_buffer[ADC_BUFFER_SIZE];
 
 ModbusHandleTypedef ModBus;
 u16u8_t registerFrame[200];
+
+KalmanFilter prismatic_kalman;
+//b * 0.6
+float32_t prismatic_A[16] = { 1.0f, 0.000993096502229541f,
+		-0.000651907539312034f, 0.000113087373016393f, 0.0f, 0.986174211076634f,
+		-1.30079678997714f, 0.225398024082257f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-0.00133108479516514f, 0.000874757627317859f, 0.993163564257609f };
+
+float32_t prismatic_B[4] = { 2.53264868595647e-07f, 0.000758492055510868f, 0.0f,
+		0.00668435039056396f };
+
+KalmanFilter revolute_kalman;
+float32_t revolute_A[16];
+float32_t revolute_B[4];
+//b * 0.735
+//float32_t revolute_A[16] = { 1.0f, 0.000982843274975228f,
+//		-0.000357087554676877f, 7.93789751408048e-05f, 0.0f, 0.965802607949948f,
+//		-0.710057452064783f, 0.157648968323378f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+//		-0.00301284940198517f, 0.00109597588320089f, 0.992497629717641f };
+//
+//float32_t revolute_B[4] = { 1.68207942599771e-07f, 0.000502863247943066f, 0.0f,
+//		0.00631143131595644f };
 
 float joystick_x = 0.0f;
 float joystick_y = 0.0f;
@@ -73,13 +95,13 @@ int up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
 	ZGX45RGG_400RPM_Constant.sd_max = 500;
-	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max
-			* 2;
+	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
 
-	ZGX45RGG_400RPM_Constant.traject_sd_max = ZGX45RGG_400RPM_Constant.sd_max;
+	ZGX45RGG_400RPM_Constant.traject_sd_max = 500;
 	ZGX45RGG_400RPM_Constant.traject_sdd_max = ZGX45RGG_400RPM_Constant.sdd_max;
 
-	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max - 9;
+	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max
+			* (24.0 / 36.0) - 2.0;
 	ZGX45RGG_150RPM_Constant.qdd_max = ZGX45RGG_150RPM_Constant.qd_max * 0.4;
 
 	ZGX45RGG_150RPM_Constant.traject_qd_max = ZGX45RGG_150RPM_Constant.qd_max;
@@ -151,9 +173,9 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 100, 5e-2, 250,
+	PID_CONTROLLER_Init(&revolute_position_pid, 1, 1e-10, 2,
 			ZGX45RGG_150RPM_Constant.qd_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 100, 2000,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 500, 0, //8000
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
@@ -174,15 +196,31 @@ void plotter_begin() {
 	FIR_init(&revolute_lp_current, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 	FIR_init(&revolute_lp_velocity, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 
-	MotorKalman_Init(&prismatic_kalman, 1e-3, ZGX45RGG_400RPM_Constant.J,
-			ZGX45RGG_400RPM_Constant.B, ZGX45RGG_400RPM_Constant.Kt,
-			ZGX45RGG_400RPM_Constant.Ke, ZGX45RGG_400RPM_Constant.R,
-			ZGX45RGG_400RPM_Constant.L, 1.0, 1.0);
+//	MotorKalman_Init(&prismatic_kalman, 1e-3, ZGX45RGG_400RPM_Constant.J,
+//			ZGX45RGG_400RPM_Constant.B, ZGX45RGG_400RPM_Constant.Kt,
+//			ZGX45RGG_400RPM_Constant.Ke, ZGX45RGG_400RPM_Constant.R,
+//			ZGX45RGG_400RPM_Constant.L, 1.0, 1.0);
+//
+//	MotorKalman_Init(&revolute_kalman, 1e-3, ZGX45RGG_150RPM_Constant.J,
+//			ZGX45RGG_150RPM_Constant.B, ZGX45RGG_150RPM_Constant.Kt,
+//			ZGX45RGG_150RPM_Constant.Ke, ZGX45RGG_150RPM_Constant.R,
+//			ZGX45RGG_150RPM_Constant.L*10.0, 1.0, 0.05);
 
-	MotorKalman_Init(&revolute_kalman, 1e-3, ZGX45RGG_150RPM_Constant.J,
-			ZGX45RGG_150RPM_Constant.B, ZGX45RGG_150RPM_Constant.Kt,
-			ZGX45RGG_150RPM_Constant.Ke, ZGX45RGG_150RPM_Constant.R,
-			ZGX45RGG_150RPM_Constant.L, 1.0, 1.0);
+	GenerateMotorMatrices(ZGX45RGG_150RPM_Constant.R,     // Armature resistance
+			ZGX45RGG_150RPM_Constant.L,     // Armature inductance
+			ZGX45RGG_150RPM_Constant.J,       // Motor inertia
+			ZGX45RGG_150RPM_Constant.B * 2.2,       // Viscous friction coefficient
+			ZGX45RGG_150RPM_Constant.Ke,     // Back-EMF constant
+			ZGX45RGG_150RPM_Constant.Kt,     // Torque constant
+			0.001,      // Sample time
+			&revolute_A,     // Output discrete state matrix
+			&revolute_B      // Output discrete input matrix
+			);
+
+	Kalman_Start(&revolute_kalman, revolute_A, revolute_B, REVOLUTE_Q,
+	REVOLUTE_R);
+	Kalman_Start(&prismatic_kalman, prismatic_A, prismatic_B, PRISMATIC_Q,
+	PRISMATIC_R);
 
 	Modbus_init(&ModBus, MODBUS_USART, MODBUS_DATA_SENDING_PERIOD_TIM,
 			registerFrame, MODBUS_SLAVE_ADDRESS, MODBUS_REGISTER_FRAME_SIZE);

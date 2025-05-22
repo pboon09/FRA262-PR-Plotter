@@ -25,7 +25,8 @@
 #include "DC_MOTOR.h"
 #include "MotorMatrixGenerator.h"
 #include "FIR.h"
-#include "MotorKalman.h"
+//#include "MotorKalman.h"
+#include "kalman.h"
 #include "ModBusRTU.h"
 
 typedef enum {
@@ -107,6 +108,20 @@ typedef enum {
 	PUSHED,
 	DEFAULT
 } EmergencyState;
+
+/*-------Configure Kalman Start------*/
+extern KalmanFilter prismatic_kalman;
+extern float32_t prismatic_A[16];
+extern float32_t prismatic_B[4];
+#define PRISMATIC_Q 1.0f
+#define PRISMATIC_R 0.05f
+
+extern KalmanFilter revolute_kalman;
+extern float32_t revolute_A[16];
+extern float32_t revolute_B[4];
+#define REVOLUTE_Q 1.0f
+#define REVOLUTE_R 0.05f
+/*-------Configure Kalman Stop------*/
 
 /*-------Configure Signal Generator Start------*/
 extern SignalGenerator sine_sg_PWM;
@@ -247,10 +262,10 @@ extern FIR revolute_lp_velocity;
 #define SAMPLE_RATE 1000.0f  // 1kHz
 /*-------Configure FIR Stop------*/
 
-/*-------Configure Kalman Start------*/
-extern MotorKalman prismatic_kalman;
-extern MotorKalman revolute_kalman;
-/*-------Configure Kalman Stop------*/
+///*-------Configure Kalman Start------*/
+//extern MotorKalman prismatic_kalman;
+//extern MotorKalman revolute_kalman;
+///*-------Configure Kalman Stop------*/
 
 /*----- Configure ModBus Start -----*/
 extern ModbusHandleTypedef ModBus; // ModBus OOP
