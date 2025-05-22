@@ -55,6 +55,13 @@ typedef struct {
 	float32_t mm;
 	float32_t deg;
 } AxisState_t;
+
+typedef enum {
+    MOTION_IDLE = 0,
+    MOTION_PRISMATIC_ACTIVE,
+    MOTION_REVOLUTE_ACTIVE,
+    MOTION_COMPLETE
+} MotionSequenceState_t;
 /* USER CODE END PTD */
 
 /* USER CODE BEGIN PD */
@@ -75,15 +82,17 @@ typedef struct {
 AxisState_t prismatic_axis = { 0 };
 AxisState_t revolute_axis = { 0 };
 
+MotionSequenceState_t motion_sequence_state = MOTION_IDLE;
+
 // Trajectory generation structures
 Trapezoidal_GenStruct prisGen, revGen;
 Trapezoidal_EvaStruct prisEva, revEva;
 
 // System state variables
 uint8_t trajectory_sequence_index = 0;
-const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 0.0 };
-//const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
-//		231.0f, 200.0f, 300.0f, 0.0f };
+//const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 0.0 };
+const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
+		231.0f, 200.0f, 300.0f, 0.0f };
 const float32_t sequence_rev_points[SEQUENCE_MAX_POINTS] = { 175.0f, 195.0f,
 		95.0f, 300.0f, 150.0f, 0.0f };
 
@@ -175,13 +184,11 @@ int main(void) {
 		/* USER CODE BEGIN 3 */
 		static uint8_t button_pressed_previous = 0;
 
-		if (b1 && !button_pressed_previous && !revolute_axis.trajectory_active
-				&& !prismatic_axis.trajectory_active) {
-			start_combined_trajectory(
-					sequence_pris_points[trajectory_sequence_index],
-					sequence_rev_points[trajectory_sequence_index]);
-			trajectory_sequence_index = (trajectory_sequence_index + 1)
-					% SEQUENCE_MAX_POINTS;
+		if (b1 && !button_pressed_previous && motion_sequence_state == MOTION_IDLE) {
+		    start_combined_trajectory(
+		        sequence_pris_points[trajectory_sequence_index],
+		        sequence_rev_points[trajectory_sequence_index]);
+		    trajectory_sequence_index = (trajectory_sequence_index + 1) % SEQUENCE_MAX_POINTS;
 		}
 		button_pressed_previous = b1;
 	}
@@ -280,199 +287,231 @@ float calculate_movement_deg(float current_deg, float target_deg) {
 	return movement;
 }
 
-void start_combined_trajectory(float prismatic_target_mm,
-		float revolute_target_deg) {
-	// Get current positions
-	float pris_current = prismatic_encoder.mm;
-	float rev_current = revolute_encoder.rads;
+void start_combined_trajectory(float prismatic_target_mm, float revolute_target_deg) {
+    // Get current positions
+    float pris_current = prismatic_encoder.mm;
+    float rev_current = revolute_encoder.rads;
 
-	// Reset trajectory evaluation structs
-	prisEva.t = 0.0f;
-	prisEva.isFinised = false;
-	revEva.t = 0.0f;
-	revEva.isFinised = false;
+    // Reset trajectory evaluation structs
+    prisEva.t = 0.0f;
+    prisEva.isFinised = false;
+    revEva.t = 0.0f;
+    revEva.isFinised = false;
 
-	// Save initial positions
-	prismatic_axis.initial_pos = pris_current;
-	revolute_axis.initial_pos = rev_current;
+    // Save initial positions
+    prismatic_axis.initial_pos = pris_current;
+    revolute_axis.initial_pos = rev_current;
 
-	// For prismatic axis - direct target with bounds checking
-	prismatic_axis.target_pos = fminf(
-			fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS), PRISMATIC_MAX_POS);
+    // For prismatic axis - direct target with bounds checking
+    prismatic_axis.target_pos = fminf(fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS), PRISMATIC_MAX_POS);
 
-	// For revolute axis - handle path planning
-	// Normalize current position to [0, 2π]
-	float normalized_current = normalize_angle(rev_current);
+    // For revolute axis - calculate target but don't start yet
+    // Normalize current position to [0, 2π]
+    float normalized_current = normalize_angle(rev_current);
 
-	// Convert to degrees for movement calculation
-	float current_deg = normalized_current * 180.0f / PI;
+    // Convert to degrees for movement calculation
+    float current_deg = normalized_current * 180.0f / PI;
 
-	// Calculate movement in degrees
-	movement_deg = calculate_movement_deg(current_deg, revolute_target_deg);
+    // Calculate movement in degrees
+    movement_deg = calculate_movement_deg(current_deg, revolute_target_deg);
 
-	// Convert to radians and apply to absolute position
-	float movement_rad = movement_deg * PI / 180.0f;
-	revolute_axis.target_pos = revolute_axis.initial_pos + movement_rad;
+    // Convert to radians and apply to absolute position
+    float movement_rad = movement_deg * PI / 180.0f;
+    revolute_axis.target_pos = revolute_axis.initial_pos + movement_rad;
 
-	// Generate trajectories
-	Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
-			prismatic_axis.target_pos, ZGX45RGG_400RPM_Constant.traject_sd_max,
-			ZGX45RGG_400RPM_Constant.traject_sdd_max);
+    // Generate ONLY prismatic trajectory first
+    Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
+                         prismatic_axis.target_pos,
+                         ZGX45RGG_400RPM_Constant.traject_sd_max,
+                         ZGX45RGG_400RPM_Constant.traject_sdd_max);
 
-	Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
-			revolute_axis.target_pos, ZGX45RGG_150RPM_Constant.traject_qd_max,
-			ZGX45RGG_150RPM_Constant.traject_qdd_max);
+    // Start with prismatic motion only
+    prismatic_axis.trajectory_active = true;
+    revolute_axis.trajectory_active = false;  // Don't start revolute yet
 
-	// Set trajectory active flags
-	prismatic_axis.trajectory_active = true;
-	revolute_axis.trajectory_active = true;
+    // Set sequence state
+    motion_sequence_state = MOTION_PRISMATIC_ACTIVE;
 }
 
 void update_control_loops(void) {
-	// Normalize revolute position
-	normalized_position = normalize_angle(revolute_encoder.rads);
-	angle_deg = normalize_angle(revolute_axis.target_pos);
+    // Normalize revolute position
+    normalized_position = normalize_angle(revolute_encoder.rads);
+    angle_deg = normalize_angle(revolute_axis.target_pos);
 
-	// Update prismatic trajectory if active
-	if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
-		Trapezoidal_Evaluated(&prisGen, &prisEva, prismatic_axis.initial_pos,
-				prismatic_axis.target_pos,
-				ZGX45RGG_400RPM_Constant.traject_sd_max,
-				ZGX45RGG_400RPM_Constant.traject_sdd_max);
+    // Handle motion sequence state machine
+    switch (motion_sequence_state) {
+        case MOTION_PRISMATIC_ACTIVE:
+            // Update prismatic trajectory
+            if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
+                Trapezoidal_Evaluated(&prisGen, &prisEva, prismatic_axis.initial_pos,
+                                     prismatic_axis.target_pos,
+                                     ZGX45RGG_400RPM_Constant.traject_sd_max,
+                                     ZGX45RGG_400RPM_Constant.traject_sdd_max);
 
-		prismatic_axis.position = prisEva.setposition;
-		prismatic_axis.velocity = prisEva.setvelocity;
+                prismatic_axis.position = prisEva.setposition;
+                prismatic_axis.velocity = prisEva.setvelocity;
 
-		if (prisEva.isFinised) {
-			prismatic_axis.trajectory_active = false;
-			prismatic_axis.position = prisEva.setposition;
-			prismatic_axis.velocity = 0.0f;
-			prismatic_axis.dfd = 0.0f;
-			prismatic_axis.ffd = 0.0f;
+                if (prisEva.isFinised) {
+                    // Prismatic motion complete - start revolute motion
+                    prismatic_axis.trajectory_active = false;
+                    prismatic_axis.position = prisEva.setposition;
+                    prismatic_axis.velocity = 0.0f;
+                    prismatic_axis.dfd = 0.0f;
+                    prismatic_axis.ffd = 0.0f;
 
-			// Reset prismatic control variables
-			prismatic_axis.pos_error = 0.0f;
-			prismatic_axis.vel_error = 0.0f;
-			prismatic_axis.command_vel = 0.0f;
-			prismatic_axis.command_pos = 0.0f;
-		}
-	}
+                    // Reset prismatic control variables
+                    prismatic_axis.pos_error = 0.0f;
+                    prismatic_axis.vel_error = 0.0f;
+                    prismatic_axis.command_vel = 0.0f;
+                    prismatic_axis.command_pos = 0.0f;
 
-	// Update revolute trajectory if active
-	if (revolute_axis.trajectory_active && !revEva.isFinised) {
-		Trapezoidal_Evaluated(&revGen, &revEva, revolute_axis.initial_pos,
-				revolute_axis.target_pos,
-				ZGX45RGG_150RPM_Constant.traject_qd_max,
-				ZGX45RGG_150RPM_Constant.traject_qdd_max);
+                    // Now start revolute trajectory
+                    Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
+                                         revolute_axis.target_pos,
+                                         ZGX45RGG_150RPM_Constant.traject_qd_max,
+                                         ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
-		revolute_axis.position = revEva.setposition;
-		revolute_axis.velocity = revEva.setvelocity;
+                    revolute_axis.trajectory_active = true;
+                    motion_sequence_state = MOTION_REVOLUTE_ACTIVE;
+                }
+            }
+            break;
 
-		if (revEva.isFinised) {
-			revolute_axis.trajectory_active = false;
-			revolute_axis.position = revEva.setposition;
-			revolute_axis.velocity = 0.0f;
-			revolute_axis.dfd = 0.0f;
-			revolute_axis.ffd = 0.0f;
+        case MOTION_REVOLUTE_ACTIVE:
+            // Update revolute trajectory
+            if (revolute_axis.trajectory_active && !revEva.isFinised) {
+                Trapezoidal_Evaluated(&revGen, &revEva, revolute_axis.initial_pos,
+                                     revolute_axis.target_pos,
+                                     ZGX45RGG_150RPM_Constant.traject_qd_max,
+                                     ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
-			// Reset revolute control variables
-			revolute_axis.pos_error = 0.0f;
-			revolute_axis.vel_error = 0.0f;
-			revolute_axis.command_vel = 0.0f;
-			revolute_axis.command_pos = 0.0f;
-		}
-	}
+                revolute_axis.position = revEva.setposition;
+                revolute_axis.velocity = revEva.setvelocity;
 
-	prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
+                if (revEva.isFinised) {
+                    // Revolute motion complete
+                    revolute_axis.trajectory_active = false;
+                    revolute_axis.position = revEva.setposition;
+                    revolute_axis.velocity = 0.0f;
+                    revolute_axis.dfd = 0.0f;
+                    revolute_axis.ffd = 0.0f;
 
-	prismatic_axis.command_vel = PWM_Satuation(
-			PID_CONTROLLER_Compute(&prismatic_position_pid,
-					prismatic_axis.pos_error), ZGX45RGG_400RPM_Constant.sd_max,
-			-ZGX45RGG_400RPM_Constant.sd_max);
+                    // Reset revolute control variables
+                    revolute_axis.pos_error = 0.0f;
+                    revolute_axis.vel_error = 0.0f;
+                    revolute_axis.command_vel = 0.0f;
+                    revolute_axis.command_pos = 0.0f;
 
-	// Add velocity feedforward for trajectory
-	if (prismatic_axis.trajectory_active) {
-		prismatic_axis.vel_error = prismatic_axis.command_vel
-				+ prismatic_axis.velocity - prismatic_axis.kalman_velocity;
-	} else {
-		prismatic_axis.vel_error = prismatic_axis.command_vel
-				- prismatic_axis.kalman_velocity;
-	}
+                    motion_sequence_state = MOTION_COMPLETE;
+                }
+            }
+            break;
 
-	prismatic_axis.command_pos = PWM_Satuation(
-			PID_CONTROLLER_Compute(&prismatic_velocity_pid,
-					prismatic_axis.vel_error), ZGX45RGG_400RPM_Constant.U_max,
-			-ZGX45RGG_400RPM_Constant.U_max);
+        case MOTION_COMPLETE:
+            // Both motions complete - ready for next command
+            motion_sequence_state = MOTION_IDLE;
+            break;
 
-	revolute_axis.pos_error = revolute_axis.position - normalized_position;
+        case MOTION_IDLE:
+        default:
+            // No active motion
+            break;
+    }
 
-	// Ensure error uses the shortest path for control
-	if (revolute_axis.pos_error > PI) {
-		revolute_axis.pos_error -= 2.0f * PI;
-	}
-	if (revolute_axis.pos_error < -PI) {
-		revolute_axis.pos_error += 2.0f * PI;
-	}
+    // *** PRISMATIC CONTROL ***
+    prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
 
-	revolute_axis.command_vel = PWM_Satuation(
-			PID_CONTROLLER_Compute(&revolute_position_pid,
-					revolute_axis.pos_error), ZGX45RGG_150RPM_Constant.qd_max,
-			-ZGX45RGG_150RPM_Constant.qd_max);
+    prismatic_axis.command_vel = PWM_Satuation(
+        PID_CONTROLLER_Compute(&prismatic_position_pid, prismatic_axis.pos_error),
+        ZGX45RGG_400RPM_Constant.sd_max, -ZGX45RGG_400RPM_Constant.sd_max);
 
-	// Add velocity feedforward for trajectory
-	if (revolute_axis.trajectory_active) {
-		revolute_axis.vel_error = revolute_axis.command_vel
-				+ revolute_axis.velocity - revolute_axis.kalman_velocity;
-	} else {
-		revolute_axis.vel_error = revolute_axis.command_vel
-				- revolute_axis.kalman_velocity;
-	}
+    // Add velocity feedforward for trajectory
+    if (prismatic_axis.trajectory_active) {
+        prismatic_axis.vel_error = prismatic_axis.command_vel
+                                  + prismatic_axis.velocity - prismatic_axis.kalman_velocity;
+    } else {
+        prismatic_axis.vel_error = prismatic_axis.command_vel - prismatic_axis.kalman_velocity;
+    }
 
-	revolute_axis.command_pos = PWM_Satuation(
-			PID_CONTROLLER_Compute(&revolute_velocity_pid,
-					revolute_axis.vel_error), ZGX45RGG_150RPM_Constant.U_max,
-			-ZGX45RGG_150RPM_Constant.U_max);
+    prismatic_axis.command_pos = PWM_Satuation(
+        PID_CONTROLLER_Compute(&prismatic_velocity_pid, prismatic_axis.vel_error),
+        ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
 
-	// Add feed-forward compensation for prismatic axis
-	if (prismatic_axis.trajectory_active) {
-		prismatic_axis.ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
-				prismatic_axis.velocity / 1000.0f);
-		prismatic_axis.dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd,
-				revolute_encoder.rads, revolute_axis.velocity,
-				prismatic_encoder.mm / 1000.0f);
-	} else {
-		prismatic_axis.ffd = 0.0f;
-		prismatic_axis.dfd = 0.0f;
-	}
+    // *** REVOLUTE CONTROL ***
+    revolute_axis.pos_error = revolute_axis.position - normalized_position;
 
-	// Add feed-forward compensation for revolute axis
-	revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
-			revolute_axis.velocity);
-	revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-			revolute_encoder.rads, 0.0f, prismatic_encoder.mm / 1000.0f);
+    // Ensure error uses the shortest path for control
+    if (revolute_axis.pos_error > PI) {
+        revolute_axis.pos_error -= 2.0f * PI;
+    }
+    if (revolute_axis.pos_error < -PI) {
+        revolute_axis.pos_error += 2.0f * PI;
+    }
 
-	// Add feedforward and backlash terms to commands
-	prismatic_axis.command_pos += +prismatic_axis.dfd + prismatic_axis.ffd;
-	revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
+    revolute_axis.command_vel = PWM_Satuation(
+        PID_CONTROLLER_Compute(&revolute_position_pid, revolute_axis.pos_error),
+        ZGX45RGG_150RPM_Constant.qd_max, -ZGX45RGG_150RPM_Constant.qd_max);
 
-	// Final saturation
-	prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
-			ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
-	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
-			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
+    // Add velocity feedforward for trajectory
+    if (revolute_axis.trajectory_active) {
+        revolute_axis.vel_error = revolute_axis.command_vel
+                                 + revolute_axis.velocity - revolute_axis.kalman_velocity;
+    } else {
+        revolute_axis.vel_error = revolute_axis.command_vel - revolute_axis.kalman_velocity;
+    }
 
-	// Apply commands to motors
-	MDXX_set_range(&prismatic_motor, 2000, prismatic_axis.command_pos);
-	MDXX_set_range(&revolute_motor, 2000, revolute_axis.command_pos);
+    revolute_axis.command_pos = PWM_Satuation(
+        PID_CONTROLLER_Compute(&revolute_velocity_pid, revolute_axis.vel_error),
+        ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
-	// Update display values
-	prismatic_axis.mm = prismatic_encoder.mm;
-	prismatic_axis.target = prismatic_axis.target_pos;
+    // *** FEEDFORWARD COMPENSATION ***
+    // Add feed-forward compensation for prismatic axis
+    if (prismatic_axis.trajectory_active) {
+        prismatic_axis.ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
+                                                        prismatic_axis.velocity / 1000.0f);
+        prismatic_axis.dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd,
+                                                        revolute_encoder.rads, revolute_axis.velocity,
+                                                        prismatic_encoder.mm / 1000.0f);
+    } else {
+        prismatic_axis.ffd = 0.0f;
+        prismatic_axis.dfd = 0.0f;
+    }
 
-	revolute_axis.deg = UnitConverter_angle(&converter_system,
-			normalized_position, UNIT_RADIAN, UNIT_DEGREE);
-	revolute_axis.target = UnitConverter_angle(&converter_system, angle_deg,
-			UNIT_RADIAN, UNIT_DEGREE);
+    // Add feed-forward compensation for revolute axis
+    if (revolute_axis.trajectory_active) {
+        revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd, revolute_axis.velocity);
+        revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+                                                      revolute_encoder.rads, 0.0f,
+                                                      prismatic_encoder.mm / 1000.0f);
+    } else {
+        revolute_axis.ffd = 0.0f;
+        revolute_axis.dfd = 0.0f;
+    }
+
+    // Add feedforward terms to commands
+    prismatic_axis.command_pos += prismatic_axis.dfd + prismatic_axis.ffd;
+    revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
+
+    // Final saturation
+    prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
+                                              ZGX45RGG_400RPM_Constant.U_max,
+                                              -ZGX45RGG_400RPM_Constant.U_max);
+    revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
+                                             ZGX45RGG_150RPM_Constant.U_max,
+                                             -ZGX45RGG_150RPM_Constant.U_max);
+
+    // Apply commands to motors
+    MDXX_set_range(&prismatic_motor, 2000, prismatic_axis.command_pos);
+    MDXX_set_range(&revolute_motor, 2000, revolute_axis.command_pos);
+
+    // Update display values
+    prismatic_axis.mm = prismatic_encoder.mm;
+    prismatic_axis.target = prismatic_axis.target_pos;
+
+    revolute_axis.deg = UnitConverter_angle(&converter_system, normalized_position,
+                                          UNIT_RADIAN, UNIT_DEGREE);
+    revolute_axis.target = UnitConverter_angle(&converter_system, angle_deg,
+                                             UNIT_RADIAN, UNIT_DEGREE);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
