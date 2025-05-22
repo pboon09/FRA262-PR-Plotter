@@ -81,8 +81,9 @@ Trapezoidal_EvaStruct prisEva, revEva;
 
 // System state variables
 uint8_t trajectory_sequence_index = 0;
-const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
-		231.0f, 200.0f, 300.0f, 0.0f };
+const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 0.0 };
+//const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
+//		231.0f, 200.0f, 300.0f, 0.0f };
 const float32_t sequence_rev_points[SEQUENCE_MAX_POINTS] = { 175.0f, 195.0f,
 		95.0f, 300.0f, 150.0f, 0.0f };
 
@@ -437,7 +438,7 @@ void update_control_loops(void) {
 		prismatic_axis.ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
 				prismatic_axis.velocity / 1000.0f);
 		prismatic_axis.dfd = PRISMATIC_MOTOR_DFD_Compute(&prismatic_motor_dfd,
-				normalized_position, revolute_axis.velocity,
+				revolute_encoder.rads, revolute_axis.velocity,
 				prismatic_encoder.mm / 1000.0f);
 	} else {
 		prismatic_axis.ffd = 0.0f;
@@ -452,8 +453,7 @@ void update_control_loops(void) {
 
 	// Add feedforward and backlash terms to commands
 	prismatic_axis.command_pos += +prismatic_axis.dfd + prismatic_axis.ffd;
-	revolute_axis.command_pos += revolute_axis.dfd
-			+ revolute_axis.ffd;
+	revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
 
 	// Final saturation
 	prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
@@ -524,9 +524,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		prismatic_axis.input_voltage = mapf(prismatic_axis.command_pos,
 				-65535.0f, 65535.0f, -12.0f, 12.0f);
 
-		prismatic_axis.kalman_velocity = MotorKalman_Estimate(
-				&prismatic_kalman, prismatic_axis.input_voltage,
-				prismatic_encoder.rads)
+		prismatic_axis.kalman_velocity = MotorKalman_Estimate(&prismatic_kalman,
+				prismatic_axis.input_voltage, prismatic_encoder.rads)
 				* Disturbance_Constant.prismatic_pulley_radius * 1000.0f;
 
 		if (isnan(prismatic_axis.kalman_velocity)) {
