@@ -10992,11 +10992,11 @@ void plotter_begin() {
  8006008:	489d      	ldr	r0, [pc, #628]	@ (8006280 <plotter_begin+0x6c8>)
  800600a:	f7fb f8d2 	bl	80011b2 <PID_CONTROLLER_Init>
 
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 5000, 50, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 4500, 50, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
  800600e:	4b9a      	ldr	r3, [pc, #616]	@ (8006278 <plotter_begin+0x6c0>)
  8006010:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 5000, 50, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 4500, 50, 0,
  8006014:	4610      	mov	r0, r2
  8006016:	4619      	mov	r1, r3
  8006018:	f7fa fd9c 	bl	8000b54 <__aeabi_d2f>
@@ -11261,7 +11261,7 @@ void plotter_begin() {
  800627c:	3d4ccccd 	.word	0x3d4ccccd
  8006280:	2000050c 	.word	0x2000050c
  8006284:	42480000 	.word	0x42480000
- 8006288:	459c4000 	.word	0x459c4000
+ 8006288:	458ca000 	.word	0x458ca000
  800628c:	20000534 	.word	0x20000534
  8006290:	20000568 	.word	0x20000568
  8006294:	2000055c 	.word	0x2000055c
