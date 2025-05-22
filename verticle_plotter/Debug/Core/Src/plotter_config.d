@@ -69,7 +69,7 @@ Core/Src/plotter_config.o: ../Core/Src/plotter_config.c \
  ../Core/Inc/QEI.h ../Core/Inc/Controller.h ../Core/Inc/ADC_DMA.h \
  ../Core/Inc/MathOperation.h ../Core/Inc/DC_MOTOR.h \
  ../Core/Inc/MotorMatrixGenerator.h ../Core/Inc/FIR.h \
- ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h
+ ../Core/Inc/MotorKalman.h ../Core/Inc/kalman.h ../Core/Inc/ModBusRTU.h
 ../Core/Inc/plotter_config.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -149,5 +149,6 @@ Core/Src/plotter_config.o: ../Core/Src/plotter_config.c \
 ../Core/Inc/DC_MOTOR.h:
 ../Core/Inc/MotorMatrixGenerator.h:
 ../Core/Inc/FIR.h:
+../Core/Inc/MotorKalman.h:
 ../Core/Inc/kalman.h:
 ../Core/Inc/ModBusRTU.h:
