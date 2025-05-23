@@ -23,9 +23,9 @@ void PID_CONTROLLER_Init(PID_CONTROLLER *controller, float _Kp, float _Ki,
 	controller->prev_Ki = _Ki;
 	controller->prev_Kd = _Kd;
 	controller->u_max = _u_max;
-	controller->ek_1 = 0;
-	controller->ek_2 = 0;
-	controller->u = 0;
+	controller->ek_1 = 0.0;
+	controller->ek_2 = 0.0;
+	controller->u = 0.0;
 }
 
 float PID_CONTROLLER_Compute(PID_CONTROLLER *controller, float ek) {
@@ -42,12 +42,12 @@ float PID_CONTROLLER_Compute(PID_CONTROLLER *controller, float ek) {
 }
 
 void PID_CONTROLLER_Reset(PID_CONTROLLER *controller) {
-	controller->ek_1 = 0;
-	controller->ek_2 = 0;
-	controller->u = 0;
-	controller->prev_Kp = controller->Kp;
-	controller->prev_Ki = controller->Ki;
-	controller->prev_Kd = controller->Kd;
+    controller->ek_1 = 0.0f;
+    controller->ek_2 = 0.0f;
+    controller->u = 0.0f;
+    controller->prev_Kp = controller->Kp;
+    controller->prev_Ki = controller->Ki;
+    controller->prev_Kd = controller->Kd;
 }
 
 void PID_CONTROLLER_SetGains(PID_CONTROLLER *controller, float _Kp, float _Ki,

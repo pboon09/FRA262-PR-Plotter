@@ -14,6 +14,7 @@
 
 #include "stdio.h"
 #include "string.h"
+#include <stdbool.h>
 
 #include "signal_generator.h"
 #include "UnitConverter.h"
@@ -28,86 +29,6 @@
 #include "MotorKalman.h"
 #include "kalman.h"
 #include "ModBusRTU.h"
-
-typedef enum {
-	RS_IDLE,
-	RS_JOG_MODE,
-	RS_POINT_MODE,
-	RS_MOVING,
-	RS_RETURN_TO_HOME,
-	RS_EMERGENCY_TRIGGED
-} RobotState;
-
-
-typedef enum {
-	NO_POINT_SET,
-	POINT_1_SET,
-	POINT_2_SET,
-	POINT_3_SET,
-	POINT_4_SET,
-	POINT_5_SET,
-	POINT_6_SET,
-	POINT_7_SET,
-	POINT_8_SET,
-	POINT_9_SET,
-	POINT_10_SET,
-	POINT_IDLE
-}SetPointState;
-
-typedef enum {
-	MOVING_GO_TO_POINT,
-	MOVING_DOWN,
-	MOVING_UP,
-	MOVING_COMPLETE,
-	MOVING_IDLE
-}MovingThroghPointState;
-
-typedef enum {
-	WRITE_WRITING,
-	WRITE_COMPLETE,
-	WRITE_IDLE
-}WriteLetterState;
-
-//typedef enum {
-//	A1B1_MODE,
-//	A2B2_MODE,
-//	EMERGENCY_MODE,
-//	A1B1_SETPOINT,
-//	A1B1_MOVING,
-//	A2B2_WRITING,
-//	A2B2_GOTO_HOME,
-//	JOY_IDLE
-//} JoyStickState;
-
-typedef enum {
-	PP_AT_TOP_END_POSITION,
-	PP_GOING_TOP_END,
-	PP_AT_BOTTOM_END_POSITION,
-	PP_GO_UP,
-	PP_GO_DOWN,
-	PP_TARGET_REACH,
-	PP_UNKNOWN
-} PrismaticPosition;
-
-typedef enum {
-	RP_AT_HOME_POSITION,
-	RP_GOING_HOME,
-	RP_GO_CLOCKWISE,
-	RP_GO_COUNTER_CLOCKWISE,
-	RP_TARGET_REACH,
-	RP_UNKNOWN
-} RevolutePosition;
-
-typedef enum {
-	PEN_IDLE,
-	PEN_DOWN,
-	PEN_UP,
-} ServoState;
-
-typedef enum {
-	PUSHED,
-	DEFAULT
-} EmergencyState;
 
 /*-------Configure Kalman Start------*/
 //extern KalmanFilter prismatic_kalman;
@@ -321,16 +242,9 @@ extern u16u8_t registerFrame[200];
 /*----- Sensor State Variable Start -----*/
 extern int up_lim, low_lim, b1, b2, b3, b4;
 
-extern RobotState rs_current_state;
-extern RobotState rs_previous_state;
-extern SetPointState setpoint_state;
-extern MovingThroghPointState moving_state;
-extern WriteLetterState writing_state;
-//extern JoyStickState joy_state;
-extern PrismaticPosition prismatic_state;
-extern RevolutePosition revolute_state;
-extern ServoState servo_state;
-extern EmergencyState emer_state;
+extern bool homing_active;
+extern volatile bool up_photo;
+extern volatile bool low_photo;
 /*----- Sensor State Variable End -----*/
 
 void plotter_begin();
@@ -340,24 +254,5 @@ void plotter_pen_up();
 void plotter_pen_down();
 
 void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
-
-//bool is_valid_target(float32_t pris_tgt, float32_t rev_tgt);
-//bool check_prismatic_limit();
-//bool check_revolute_limit();
-//
-//void plotter_move();
-//void plotter_joymove();
-//void plotter_handle_state_transition();
-//void plotter_process_jog_mode();
-//void plotter_process_writing_state();
-//void plotter_process_moving_mode(float32_t target_p_pris, float32_t target_p_rev);
-//void plotter_process_return_to_home();
-//void plotter_process_emergency();
-//void plotter_process_trajectory_control(float32_t pris_tgt, float32_t rev_tgt);
-//void plotter_update_trajectories();
-//
-//uint16_t getPointRegisterR(uint8_t point_index);
-//uint16_t getPointRegisterT(uint8_t point_index);
-//uint8_t getNumberOfSetPoints();
 
 #endif /* INC_PLOTTER_CONFIG_H_ */
