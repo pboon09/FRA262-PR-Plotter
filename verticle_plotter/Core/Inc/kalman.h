@@ -87,6 +87,7 @@ typedef struct KalmanParams{
 	float Kalman_Speed;
 } KalmanFilter;
 
+void Kalman_Reset(KalmanFilter* filter);
 float SteadyStateKalmanFilter(KalmanFilter* filter,float32_t Vin, float32_t Velocity);
 void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix, float32_t Q, float32_t R);
 

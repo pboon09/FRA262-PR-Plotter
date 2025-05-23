@@ -6,17 +6,6 @@
  */
 
 #include "MotorKalman.h"
-#include "arm_math.h"
-#include <string.h>
-
-/*
- * MotorKalman.c
- *
- *  Created on: May 6, 2025
- *      Author: pboon
- */
-
-#include "MotorKalman.h"
 #include <math.h>
 #include <string.h>
 #include "MotorMatrixGenerator.h"

@@ -184,4 +184,24 @@ void Kalman_Start(KalmanFilter* filter, float32_t* A_matrix, float32_t* B_matrix
 	arm_mat_init_f32(&filter->Z_matrix, 1, 1, filter->Z);
 }
 
+void Kalman_Reset(KalmanFilter* filter) {
+    // Reset state vector X_k (it's an array of 4 elements)
+    memset(filter->X_k, 0, sizeof(filter->X_k));
+
+    // Reset covariance matrix P_k to high uncertainty
+    memset(filter->P_k, 0, sizeof(filter->P_k));
+    for(int i = 0; i < 4; i++) {
+        filter->P_k[i * 4 + i] = 100.0f; // High diagonal values = high uncertainty
+    }
+
+    // Reset other important states
+    filter->Kalman_Speed = 0.0f;
+    memset(filter->Es_velocity, 0, sizeof(filter->Es_velocity));
+
+    // You may also want to reset temp calculation arrays
+    memset(filter->Bu_data, 0, sizeof(filter->Bu_data));
+    memset(filter->Ax_data, 0, sizeof(filter->Ax_data));
+    memset(filter->K, 0, sizeof(filter->K));
+}
+
 
