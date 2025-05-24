@@ -64,14 +64,14 @@ float revolute_current = 0.0f;
 int up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
-	ZGX45RGG_400RPM_Constant.sd_max = 500;
+	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max * Disturbance_Constant.prismatic_pulley_radius * 1000;
 	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
 
 	ZGX45RGG_400RPM_Constant.traject_sd_max = 500;
 	ZGX45RGG_400RPM_Constant.traject_sdd_max = ZGX45RGG_400RPM_Constant.sdd_max;
 
 	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max
-			* (24.0 / 36.0) - 2.0;
+			* (24.0 / 36.0);
 	ZGX45RGG_150RPM_Constant.qdd_max = ZGX45RGG_150RPM_Constant.qd_max * 0.4;
 
 	ZGX45RGG_150RPM_Constant.traject_qd_max = ZGX45RGG_150RPM_Constant.qd_max;
@@ -98,22 +98,22 @@ void plotter_begin() {
 	SQUARE_MIN_SETPOINT_CASCADE, SQUARE_MAX_SETPOINT_CASCADE);
 
 	SIGNAL_init(&sine_sg_prismatic, SIGNAL_SINE);
-	SIGNAL_config_sine(&sine_sg_prismatic, ZGX45RGG_400RPM_Constant.qd_max,
+	SIGNAL_config_sine(&sine_sg_prismatic, ZGX45RGG_400RPM_Constant.sd_max,
 	SINE_FREQUENCY, SINE_PHASE,
-	SINE_OFFSET, -ZGX45RGG_400RPM_Constant.qd_max,
-			ZGX45RGG_400RPM_Constant.qd_max);
+	SINE_OFFSET, -ZGX45RGG_400RPM_Constant.sd_max,
+			ZGX45RGG_400RPM_Constant.sd_max);
 
 	SIGNAL_init(&square_sg_prismatic, SIGNAL_SQUARE);
-	SIGNAL_config_square(&square_sg_prismatic, ZGX45RGG_400RPM_Constant.qd_max,
+	SIGNAL_config_square(&square_sg_prismatic, ZGX45RGG_400RPM_Constant.sd_max,
 	SQUARE_FREQUENCY,
 	SQUARE_DUTY_CYCLE, SQUARE_PHASE, SQUARE_OFFSET,
-			-ZGX45RGG_400RPM_Constant.qd_max, ZGX45RGG_400RPM_Constant.qd_max);
+			-ZGX45RGG_400RPM_Constant.sd_max, ZGX45RGG_400RPM_Constant.sd_max);
 
 	SIGNAL_init(&sine_sg_revolute, SIGNAL_SINE);
-	SIGNAL_config_sine(&sine_sg_revolute, ZGX45RGG_150RPM_Constant.qd_max,
+	SIGNAL_config_sine(&sine_sg_revolute, ZGX45RGG_150RPM_Constant.qd_max - 5.0,
 	SINE_FREQUENCY, SINE_PHASE,
-	SINE_OFFSET, -ZGX45RGG_150RPM_Constant.qd_max,
-			ZGX45RGG_150RPM_Constant.qd_max);
+	SINE_OFFSET, -ZGX45RGG_150RPM_Constant.qd_max + 5.0,
+			ZGX45RGG_150RPM_Constant.qd_max - 5.0);
 
 	SIGNAL_init(&square_sg_revolute, SIGNAL_SQUARE);
 	SIGNAL_config_square(&square_sg_revolute, ZGX45RGG_150RPM_Constant.qd_max,
@@ -138,15 +138,15 @@ void plotter_begin() {
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 1e-10, 120,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 1, 0.1, 0,
 			ZGX45RGG_400RPM_Constant.sd_max);
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 3, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 150, 5e-2, 2000,
+	PID_CONTROLLER_Init(&revolute_position_pid, 0.001, 0, 0.001,
 			ZGX45RGG_150RPM_Constant.qd_max);
 
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 4500, 50, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 8000, 150, 80,
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
@@ -221,15 +221,6 @@ void plotter_update_sensors() {
 
     up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
     low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
-
-    // Check current photo sensor states (these will be overridden by EXTI when triggered during homing)
-    // Only update from GPIO when not homing to preserve EXTI-triggered states during homing
-    extern bool homing_active; // Reference to homing_active from main.c
-    if (!homing_active) {
-        extern volatile bool up_photo, low_photo; // Reference to photo flags from main.c
-        up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-        low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
-    }
 }
 
 void plotter_pen_up() {
