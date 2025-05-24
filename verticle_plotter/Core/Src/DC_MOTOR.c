@@ -44,8 +44,8 @@ Motor_Constant_Structure ZGX45RGG_400RPM_Constant = {
 Environment Disturbance_Constant = {
     .g = 9.81,               			// m/s²
     .plotter_mass = 500e-3,  			// kg
-    .slide_rail_mass = 1893.96e-3, 		// kg
-    .c = 64.83e-3,           			// m
+	.slide_rail_mass = 4.24,
+    .c = -24.13e-3,
     .prismatic_pulley_radius = 1.5915e-2 		// m
 };
 
@@ -67,13 +67,13 @@ void REVOLUTE_MOTOR_DFD_Init(DC_MOTOR_DFeedward *motor, Motor_Constant_Structure
 }
 
 float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float s){
-    float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * sin(q) * (s - 0.17);
+    float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * sin(q) * (s - 0.05);
 
-    float gravity_compensate_rail = motor->En->plotter_mass * motor->En->g * sin(q) * motor->En->c;
+    float gravity_compensate_rail = motor->En->slide_rail_mass * motor->En->g * sin(q) * (motor->En->c);
 
     float transfer_function = motor->Mx->R / motor->Mx->Kt;
 
-    float v = (gravity_compensate_plotter + gravity_compensate_rail) * transfer_function;
+    float v = (gravity_compensate_plotter + 0) * transfer_function;
 
     return mapf(v, -motor->Mx->V_max, motor->Mx->V_max, -motor->Mx->U_max, motor->Mx->U_max);
 }

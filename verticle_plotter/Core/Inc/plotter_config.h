@@ -16,34 +16,31 @@
 #include "string.h"
 #include <stdbool.h>
 
+#include "DC_MOTOR.h"
+
 #include "signal_generator.h"
 #include "UnitConverter.h"
+#include "ADC_DMA.h"
+
 #include "Cytron_MDXX.h"
 #include "PWM.h"
 #include "QEI.h"
 #include "Controller.h"
-#include "ADC_DMA.h"
-#include "DC_MOTOR.h"
-#include "MotorMatrixGenerator.h"
+
 #include "FIR.h"
+#include "MotorMatrixGenerator.h"
 #include "MotorKalman.h"
 #include "kalman.h"
+
 #include "ModBusRTU.h"
 
 /*-------Configure Kalman Start------*/
-//extern KalmanFilter prismatic_kalman;
-//extern float32_t prismatic_A[16];
-//extern float32_t prismatic_B[4];
-//#define PRISMATIC_Q 1.0f
-//#define PRISMATIC_R 0.05f
-
+extern MotorKalman prismatic_kalman;
 extern KalmanFilter revolute_kalman;
 extern float32_t revolute_A[16];
 extern float32_t revolute_B[4];
 #define REVOLUTE_Q 1.0f
 #define REVOLUTE_R 0.05f
-
-extern MotorKalman prismatic_kalman;
 /*-------Configure Kalman Stop------*/
 
 /*-------Configure Signal Generator Start------*/
@@ -176,10 +173,8 @@ void update_sensors(void);
 /*-------Configure ADC DMA End------*/
 
 /*-------Configure FIR Start------*/
-extern FIR prismatic_lp_current;
-extern FIR prismatic_lp_velocity;
-extern FIR revolute_lp_current;
-extern FIR revolute_lp_velocity;
+extern FIR prismatic_lp_accel;
+extern FIR acceleration_lp_accel;
 #define NUM_TAPS 31
 #define CUTOFF_FREQ 25.0
 #define SAMPLE_RATE 1000.0f  // 1kHz
@@ -252,7 +247,4 @@ void plotter_reset();
 void plotter_update_sensors();
 void plotter_pen_up();
 void plotter_pen_down();
-
-void test_sensors_motor_servo(float duty_pris, float duty_revo, float duty_servo);
-
 #endif /* INC_PLOTTER_CONFIG_H_ */

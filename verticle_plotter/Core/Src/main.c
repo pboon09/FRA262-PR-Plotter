@@ -90,7 +90,7 @@ typedef enum {
 #define SEQUENCE_MAX_POINTS 6
 
 #define HOMING_PRIS_VELOCITY 250.0f
-#define HOMING_REV_VELOCITY 2.0f
+#define HOMING_REV_VELOCITY 1.0f
 #define HOMING_BACKUP_VELOCITY 50.0f
 
 #define SAFETY_TOGGLE_PERIOD 1000
@@ -225,7 +225,31 @@ int main(void) {
 	position_control_tick = 0;
 
 	if (first_startup) {
-		start_homing_sequence(true);
+		// Check if already at home position
+		bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
+		UPPER_PHOTO_Pin);
+		bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+
+		if (up_photo_detected && prox_detected) {
+			// Already at home position - no need to home
+			first_startup = false;
+			homing_active = false;
+			homing_state = HOMING_IDLE;
+
+			// Clear any sensor flags
+			up_photo = false;
+			low_photo = false;
+			prox_count = 0;
+
+			// Set motion to idle
+			motion_sequence_state = MOTION_IDLE;
+
+			// Optional: Send debug message
+			// printf("System already homed, skipping homing sequence\n");
+		} else {
+			// Not at home position - start homing
+			start_homing_sequence(true);
+		}
 	}
 	/* USER CODE END 2 */
 
@@ -284,36 +308,47 @@ void SystemClock_Config(void) {
 
 /* USER CODE BEGIN 4 */
 void start_homing_sequence(bool is_startup) {
-	if (homing_active)
-		return;
+    if (homing_active)
+        return;
 
-	// Check if already homed (up_photo and prox available)
-	bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
-	UPPER_PHOTO_Pin);
+    // Check if already homed (for non-startup calls too)
+    bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+    bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
 
-	// If system already homed and sensors are available, skip homing
-	if (!is_startup && !first_startup && up_photo_detected && prox_count > 0) {
-		return; // Already homed, no need to home again
-	}
+    if (up_photo_detected && prox_detected) {
+        // Already at home position
+        homing_active = false;
+        homing_state = HOMING_IDLE;
+        first_startup = false;
 
-	homing_active = true;
-	motion_sequence_state = MOTION_IDLE;
-	prox_count = 0;
-	up_photo = false;
-	low_photo = false;
+        // Clear sensor flags
+        up_photo = false;
+        low_photo = false;
+        prox_count = 0;
 
-	if (is_startup || first_startup) {
-		// STARTUP SEQUENCE: Skip HOMING_REV_TO_ZERO_DEG
-		homing_state = HOMING_PEN_UP;
-	} else {
-		// MANUAL HOMING: Include HOMING_REV_TO_ZERO_DEG
-		// Manual homing - check if already at up photo
-		if (up_photo_detected) {
-			homing_state = HOMING_REV_TO_ZERO_DEG; // Go to zero first, then find prox
-		} else {
-			homing_state = HOMING_PEN_UP;
-		}
-	}
+        // Optional: Send debug message
+        // printf("Already at home position, homing not needed\n");
+        return;
+    }
+
+    // Start homing sequence
+    homing_active = true;
+    motion_sequence_state = MOTION_IDLE;
+    prox_count = 0;
+    up_photo = false;
+    low_photo = false;
+
+    if (is_startup || first_startup) {
+        // STARTUP SEQUENCE: Skip HOMING_REV_TO_ZERO_DEG
+        homing_state = HOMING_PEN_UP;
+    } else {
+        // MANUAL HOMING: Include HOMING_REV_TO_ZERO_DEG
+        if (up_photo_detected) {
+            homing_state = HOMING_REV_TO_ZERO_DEG; // Go to zero first, then find prox
+        } else {
+            homing_state = HOMING_PEN_UP;
+        }
+    }
 }
 
 void update_homing_sequence(void) {
@@ -597,40 +632,7 @@ void update_homing_sequence(void) {
 		break;
 
 	case HOMING_COMPLETE:
-		memset(&prismatic_axis, 0, sizeof(AxisState_t));
-		memset(&revolute_axis, 0, sizeof(AxisState_t));
-
-		Kalman_Reset(&revolute_kalman);
-		MotorKalman_Reset(&prismatic_kalman);
-
-		// Prismatic: 0.0mm (up photo position - after backup)
-		prismatic_encoder.mm = 0.0f;
-		prismatic_encoder.pulses = 0;
-		prismatic_encoder.revs = 0.0f;
-		prismatic_encoder.rads = 0.0f;
-
-		// Revolute: -5.18° (prox sensor position)
-		float target_home_deg = -5.18f;
-		float target_home_rad = target_home_deg * PI / 180.0f;
-		revolute_encoder.rads = target_home_rad;
-		revolute_encoder.revs = target_home_rad / (2.0f * PI);
-		revolute_encoder.pulses = (int32_t) (target_home_rad * ENC_PPR
-				* MOTOR2_RATIO / (2.0f * PI));
-		revolute_encoder.mm = 0.0f;
-
-		// Set axis position setpoints to match encoder values
-		prismatic_axis.position = 0.0f;
-		revolute_axis.position = target_home_rad;
-
-		// Complete homing sequence
-		homing_active = false;
-		first_startup = false;
-		homing_state = HOMING_IDLE;
-
-		// Reset all flags and counters
-		up_photo = false;
-		low_photo = false;
-		prox_count = 0;
+		NVIC_SystemReset();
 		break;
 
 	case HOMING_IDLE:
@@ -704,7 +706,8 @@ void start_combined_trajectory(float prismatic_target_mm,
 	prismatic_axis.initial_pos = pris_current;
 	revolute_axis.initial_pos = rev_current;
 	prismatic_axis.target_pos = fminf(
-			fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS), PRISMATIC_MAX_POS);
+			fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS),
+			PRISMATIC_MAX_POS);
 
 	float normalized_current = normalize_angle(rev_current);
 	float current_deg = normalized_current * 180.0f / PI;
@@ -716,7 +719,7 @@ void start_combined_trajectory(float prismatic_target_mm,
 			prismatic_axis.target_pos, ZGX45RGG_400RPM_Constant.traject_sd_max,
 			ZGX45RGG_400RPM_Constant.traject_sdd_max);
 
-	prismatic_axis.trajectory_active = true;
+	prismatic_axis.trajectory_active = false;
 	revolute_axis.trajectory_active = false;
 
 	plotter_pen_up();
@@ -830,6 +833,7 @@ void update_control_loops(void) {
 	switch (motion_sequence_state) {
 	case MOTION_PEN_UP_DELAY:
 		if (++motion_delay_timer >= 1500) {
+			prismatic_axis.trajectory_active = true;
 			motion_sequence_state = MOTION_PRISMATIC_ACTIVE;
 		}
 		break;
@@ -1026,7 +1030,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == J1_Pin) {
 		if (!is_emergency_active() && !homing_active
-				&& motion_sequence_state == MOTION_IDLE) {
+				&& motion_sequence_state == MOTION_IDLE && !first_startup) {
 			start_combined_trajectory(
 					sequence_pris_points[trajectory_sequence_index],
 					sequence_rev_points[trajectory_sequence_index]);
@@ -1037,8 +1041,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 
 	if (GPIO_Pin == J3_Pin) {
-		if (!is_emergency_active() && !homing_active
-				&& motion_sequence_state == MOTION_IDLE) {
+		if (!is_emergency_active() && motion_sequence_state == MOTION_IDLE) {
 			start_homing_sequence(false);
 		}
 		return;
