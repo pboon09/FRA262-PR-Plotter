@@ -113,12 +113,12 @@ Trapezoidal_GenStruct prisGen, revGen;
 Trapezoidal_EvaStruct prisEva, revEva;
 
 uint8_t trajectory_sequence_index = 0;
-//const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
-//		231.0f, 200.0f, 300.0f, 0.0f };
+const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 175.0f, 95.0f,
+		231.0f, 200.0f, 300.0f, 0.0f };
 const float32_t sequence_rev_points[SEQUENCE_MAX_POINTS] = { 175.0f, 195.0f,
 		95.0f, 300.0f, 150.0f, 0.0f };
 
-const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 0.0f };
+//const float32_t sequence_pris_points[SEQUENCE_MAX_POINTS] = { 0.0f };
 
 volatile uint32_t motion_delay_timer = 0;
 volatile uint32_t prox_count = 0;

@@ -53,7 +53,6 @@ KalmanFilter revolute_kalman;
 float32_t revolute_A[16];
 float32_t revolute_B[4];
 
-
 float joystick_x = 0.0f;
 float joystick_y = 0.0f;
 float prismatic_current = 0.0f;
@@ -62,11 +61,12 @@ float revolute_current = 0.0f;
 int up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
-	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max * Disturbance_Constant.prismatic_pulley_radius * 1000;
+	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max
+			* Disturbance_Constant.prismatic_pulley_radius * 1000;
 	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
 
-	ZGX45RGG_400RPM_Constant.traject_sd_max = 500;
-	ZGX45RGG_400RPM_Constant.traject_sdd_max = 1000;
+	ZGX45RGG_400RPM_Constant.traject_sd_max = 500.0;
+	ZGX45RGG_400RPM_Constant.traject_sdd_max = 1000.0;
 
 	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max
 			* (24.0 / 36.0);
@@ -140,10 +140,9 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 1, 1e-10, 1,
+	PID_CONTROLLER_Init(&revolute_position_pid, 25, 0, 72.5,
 			ZGX45RGG_150RPM_Constant.qd_max);
-
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 8000, 150, 80,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 100, 2000,
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
@@ -168,15 +167,9 @@ void plotter_begin() {
 			ZGX45RGG_400RPM_Constant.L, 1.0, 1.0);
 
 	GenerateMotorMatrices(ZGX45RGG_150RPM_Constant.R,
-			ZGX45RGG_150RPM_Constant.L,
-			ZGX45RGG_150RPM_Constant.J,
-			ZGX45RGG_150RPM_Constant.B * 2.2,
-			ZGX45RGG_150RPM_Constant.Ke,
-			ZGX45RGG_150RPM_Constant.Kt,
-			0.001,
-			&revolute_A,
-			&revolute_B
-			);
+			ZGX45RGG_150RPM_Constant.L, ZGX45RGG_150RPM_Constant.J,
+			ZGX45RGG_150RPM_Constant.B * 2.2, ZGX45RGG_150RPM_Constant.Ke,
+			ZGX45RGG_150RPM_Constant.Kt, 0.001, &revolute_A, &revolute_B);
 
 	Kalman_Start(&revolute_kalman, revolute_A, revolute_B, REVOLUTE_Q,
 	REVOLUTE_R);
@@ -209,23 +202,25 @@ void plotter_reset() {
 }
 
 void plotter_update_sensors() {
-    joystick_x = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_X_CHANNEL, -50, 50);
-    joystick_y = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_Y_CHANNEL, -50, 50);
+	joystick_x = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_X_CHANNEL, -50,
+			50);
+	joystick_y = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_Y_CHANNEL, -50,
+			50);
 
-    b1 = !HAL_GPIO_ReadPin(J1_GPIO_Port, J1_Pin);
-    b2 = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
-    b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
-    b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
+	b1 = !HAL_GPIO_ReadPin(J1_GPIO_Port, J1_Pin);
+	b2 = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
+	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
+	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-    up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-    low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
-    extern bool homing_active;
-    if (!homing_active) {
-        extern volatile bool up_photo, low_photo;
-        up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-        low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
-    }
+	extern bool homing_active;
+	if (!homing_active) {
+		extern volatile bool up_photo, low_photo;
+		up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+		low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
+	}
 }
 
 void plotter_pen_up() {
