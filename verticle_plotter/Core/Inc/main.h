@@ -88,8 +88,10 @@ void Error_Handler(void);
 #define T_SWCLK_GPIO_Port GPIOA
 #define J3_Pin GPIO_PIN_10
 #define J3_GPIO_Port GPIOC
+#define J3_EXTI_IRQn EXTI15_10_IRQn
 #define J4_Pin GPIO_PIN_11
 #define J4_GPIO_Port GPIOC
+#define J4_EXTI_IRQn EXTI15_10_IRQn
 #define J2_Pin GPIO_PIN_12
 #define J2_GPIO_Port GPIOC
 #define T_SWO_Pin GPIO_PIN_3
@@ -102,6 +104,7 @@ void Error_Handler(void);
 #define PROX_EXTI_IRQn EXTI9_5_IRQn
 #define J1_Pin GPIO_PIN_7
 #define J1_GPIO_Port GPIOB
+#define J1_EXTI_IRQn EXTI9_5_IRQn
 
 /* USER CODE BEGIN Private defines */
 
