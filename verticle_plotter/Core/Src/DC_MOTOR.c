@@ -45,7 +45,7 @@ Environment Disturbance_Constant = {
     .g = 9.81,               			// m/s²
     .plotter_mass = 500e-3,  			// kg
 	.slide_rail_mass = 4.24,
-	.offset = 30.07e-3,
+	.offset = -30.07e-3,
     .c = -24.13e-3,
     .prismatic_pulley_radius = 1.5915e-2 		// m
 };
@@ -68,13 +68,13 @@ void REVOLUTE_MOTOR_DFD_Init(DC_MOTOR_DFeedward *motor, Motor_Constant_Structure
 }
 
 float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float s){
-    float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * sin(q) * (s - motor->En->c);
+    float gravity_compensate_plotter = motor->En->plotter_mass * motor->En->g * sin(q) * (s + motor->En->c);
 
     float gravity_compensate_rail = motor->En->slide_rail_mass * motor->En->g * sin(q) * (motor->En->c);
 
     float transfer_function = motor->Mx->R / motor->Mx->Kt;
 
-    float v = (gravity_compensate_plotter + 0) * transfer_function;
+    float v = (gravity_compensate_plotter + gravity_compensate_rail) * transfer_function;
 
     return mapf(v, -motor->Mx->V_max, motor->Mx->V_max, -motor->Mx->U_max, motor->Mx->U_max);
 }
