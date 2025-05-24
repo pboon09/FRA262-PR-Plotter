@@ -53,7 +53,7 @@ void REVOLUTE_MOTOR_FFD_Init(DC_MOTOR_FFeedward *motor, Motor_Constant_Structure
 float REVOLUTE_MOTOR_FFD_Compute(DC_MOTOR_FFeedward *motor, float qd);
 
 void REVOLUTE_MOTOR_DFD_Init(DC_MOTOR_DFeedward *motor, Motor_Constant_Structure *_Mx, Environment *_En);
-float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float qdd, float s);
+float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float s);
 
 void PRISMATIC_MOTOR_FFD_Init(DC_MOTOR_FFeedward *motor, Motor_Constant_Structure *_Mx);
 float PRISMATIC_MOTOR_FFD_Compute(DC_MOTOR_FFeedward *motor, float sd);

@@ -64,18 +64,17 @@ float revolute_current = 0.0f;
 int up_lim, low_lim, b1, b2, b3, b4;
 
 void plotter_begin() {
-	ZGX45RGG_400RPM_Constant.sd_max = 500;
+	ZGX45RGG_400RPM_Constant.sd_max = ZGX45RGG_400RPM_Constant.qd_max * Disturbance_Constant.prismatic_pulley_radius * 1000;
 	ZGX45RGG_400RPM_Constant.sdd_max = ZGX45RGG_400RPM_Constant.sd_max * 2;
 
 	ZGX45RGG_400RPM_Constant.traject_sd_max = 500;
 	ZGX45RGG_400RPM_Constant.traject_sdd_max = ZGX45RGG_400RPM_Constant.sdd_max;
 
 	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max
-			* (24.0 / 36.0) - 2.0;
-	ZGX45RGG_150RPM_Constant.qdd_max = ZGX45RGG_150RPM_Constant.qd_max * 0.4;
+			* (24.0 / 36.0);
 
-	ZGX45RGG_150RPM_Constant.traject_qd_max = ZGX45RGG_150RPM_Constant.qd_max;
-	ZGX45RGG_150RPM_Constant.traject_qdd_max = ZGX45RGG_150RPM_Constant.qdd_max;
+	ZGX45RGG_150RPM_Constant.traject_qd_max = 5.0;
+	ZGX45RGG_150RPM_Constant.traject_qdd_max = 2.5;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -143,10 +142,10 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 150, 5e-2, 2000,
+	PID_CONTROLLER_Init(&revolute_position_pid, 2, 0.01, 1,
 			ZGX45RGG_150RPM_Constant.qd_max);
 
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 4500, 50, 0,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 8000, 150, 80,
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
@@ -214,6 +213,7 @@ void plotter_update_sensors() {
     joystick_x = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_X_CHANNEL, -50, 50);
     joystick_y = ADC_DMA_GetJoystickValue(&joystick, JOYSTICK_Y_CHANNEL, -50, 50);
 
+    // READ BUTTON STATES
     b1 = !HAL_GPIO_ReadPin(J1_GPIO_Port, J1_Pin);
     b2 = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
     b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
@@ -222,11 +222,10 @@ void plotter_update_sensors() {
     up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
     low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
-    // Check current photo sensor states (these will be overridden by EXTI when triggered during homing)
-    // Only update from GPIO when not homing to preserve EXTI-triggered states during homing
-    extern bool homing_active; // Reference to homing_active from main.c
+    // Check current photo sensor states
+    extern bool homing_active;
     if (!homing_active) {
-        extern volatile bool up_photo, low_photo; // Reference to photo flags from main.c
+        extern volatile bool up_photo, low_photo;
         up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
         low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
     }
