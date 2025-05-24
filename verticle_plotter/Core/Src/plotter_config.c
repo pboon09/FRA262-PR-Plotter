@@ -71,8 +71,8 @@ void plotter_begin() {
 	ZGX45RGG_150RPM_Constant.qd_max = ZGX45RGG_150RPM_Constant.qd_max
 			* (24.0 / 36.0);
 
-	ZGX45RGG_150RPM_Constant.traject_qd_max = 5.0;
-	ZGX45RGG_150RPM_Constant.traject_qdd_max = 10.0;
+	ZGX45RGG_150RPM_Constant.traject_qd_max = 3.0;
+	ZGX45RGG_150RPM_Constant.traject_qdd_max = 6.0;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
