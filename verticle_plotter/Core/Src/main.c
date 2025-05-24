@@ -159,6 +159,7 @@ void update_control_loops(void);
 float normalize_angle(float angle_rad);
 float calculate_movement_deg(float current_deg, float target_deg);
 
+void check_emergency_button(void);
 void check_safety_conditions(void);
 void trigger_software_emergency(void);
 void trigger_hardware_emergency(void);
@@ -244,10 +245,7 @@ int main(void) {
 			// Set motion to idle
 			motion_sequence_state = MOTION_IDLE;
 
-			// Optional: Send debug message
-			// printf("System already homed, skipping homing sequence\n");
 		} else {
-			// Not at home position - start homing
 			start_homing_sequence(true);
 		}
 	}
@@ -311,41 +309,76 @@ void start_homing_sequence(bool is_startup) {
     if (homing_active)
         return;
 
-    // Check if already homed (for non-startup calls too)
+    // Check current sensor states
     bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
     bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
 
-    if (up_photo_detected && prox_detected) {
-        // Already at home position
-        homing_active = false;
-        homing_state = HOMING_IDLE;
-        first_startup = false;
+    // Different logic for startup vs manual homing
+    if (is_startup || first_startup) {
+        // STARTUP LOGIC: Skip homing if already at home position
+        if (up_photo_detected && prox_detected) {
+            // Already at home position - no need to home
+            homing_active = false;
+            homing_state = HOMING_IDLE;
+            first_startup = false;
 
-        // Clear sensor flags
+            // Clear sensor flags
+            up_photo = false;
+            low_photo = false;
+            prox_count = 0;
+
+            // Set motion to idle
+            motion_sequence_state = MOTION_IDLE;
+            return;
+        }
+
+        // Not at home - start startup homing sequence (skip zero degrees)
+        homing_active = true;
+        motion_sequence_state = MOTION_IDLE;
+        prox_count = 0;
         up_photo = false;
         low_photo = false;
-        prox_count = 0;
-
-        // Optional: Send debug message
-        // printf("Already at home position, homing not needed\n");
-        return;
-    }
-
-    // Start homing sequence
-    homing_active = true;
-    motion_sequence_state = MOTION_IDLE;
-    prox_count = 0;
-    up_photo = false;
-    low_photo = false;
-
-    if (is_startup || first_startup) {
-        // STARTUP SEQUENCE: Skip HOMING_REV_TO_ZERO_DEG
         homing_state = HOMING_PEN_UP;
+
     } else {
-        // MANUAL HOMING: Include HOMING_REV_TO_ZERO_DEG
-        if (up_photo_detected) {
-            homing_state = HOMING_REV_TO_ZERO_DEG; // Go to zero first, then find prox
+        // MANUAL HOMING LOGIC: More sophisticated behavior
+        if (up_photo_detected && prox_detected) {
+            // Already perfectly homed - skip homing completely
+            homing_active = false;
+            homing_state = HOMING_IDLE;
+            first_startup = false;  // ← ADDED THIS LINE
+            up_photo = false;
+            low_photo = false;
+            prox_count = 0;
+            motion_sequence_state = MOTION_IDLE;
+            return;
+
+            // Option B: Still run zero-degree calibration (uncomment below instead)
+            /*
+            homing_active = true;
+            motion_sequence_state = MOTION_IDLE;
+            prox_count = 0;
+            up_photo = false;
+            low_photo = false;
+            homing_state = HOMING_REV_TO_ZERO_DEG;
+            rev_to_zero_trajectory_started = false;
+            */
+        } else if (up_photo_detected && !prox_detected) {
+            // At up photo but not at prox - go to zero degrees first
+            homing_active = true;
+            motion_sequence_state = MOTION_IDLE;
+            prox_count = 0;
+            up_photo = false;
+            low_photo = false;
+            homing_state = HOMING_REV_TO_ZERO_DEG;
+            rev_to_zero_trajectory_started = false;
         } else {
+            // Not at up photo - start full homing sequence
+            homing_active = true;
+            motion_sequence_state = MOTION_IDLE;
+            prox_count = 0;
+            up_photo = false;
+            low_photo = false;
             homing_state = HOMING_PEN_UP;
         }
     }
@@ -462,23 +495,33 @@ void update_homing_sequence(void) {
 		break;
 
 	case HOMING_DELAY_AFTER_UP_PHOTO:
-		// Stop motors and wait before starting backup procedure
-		prismatic_axis.command_pos = 0.0f;
-		revolute_axis.command_pos = 0.0f;
-		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
-			if (first_startup) {
-				// STARTUP: Skip REV_TO_ZERO_DEG, go directly to find prox sensor
-				homing_state = HOMING_REV_CW_TO_PROX1;
-				prox_count = 0; // Reset prox counter
-			} else {
-				// MANUAL HOMING: Go to 0° first (we know where it is from previous homing)
-				homing_state = HOMING_REV_TO_ZERO_DEG;
-				// Initialize trajectory variables for zero degree movement
-				rev_to_zero_trajectory_started = false;
-			}
-		}
-		break;
+	    // Stop motors and wait before starting backup procedure
+	    prismatic_axis.command_pos = 0.0f;
+	    revolute_axis.command_pos = 0.0f;
+	    motion_delay_timer++;
+	    if (motion_delay_timer >= 500) {
+	        if (first_startup) {
+	            // STARTUP: Check if prox is already detected before searching
+	            bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+
+	            if (prox_detected) {
+	                // Already at prox - skip search and go to completion
+	                motion_delay_timer = 0;
+	                homing_state = HOMING_DELAY_AFTER_PROX;
+	                prox_count = 1; // Set count to indicate prox found
+	            } else {
+	                // Not at prox - search for it
+	                homing_state = HOMING_REV_CW_TO_PROX1;
+	                prox_count = 0; // Reset prox counter
+	            }
+	        } else {
+	            // MANUAL HOMING: Go to 0° first (we know where it is from previous homing)
+	            homing_state = HOMING_REV_TO_ZERO_DEG;
+	            // Initialize trajectory variables for zero degree movement
+	            rev_to_zero_trajectory_started = false;
+	        }
+	    }
+	    break;
 
 	case HOMING_REV_TO_ZERO_DEG:
 		if (!rev_to_zero_trajectory_started) {
@@ -582,14 +625,26 @@ void update_homing_sequence(void) {
 		break;
 
 	case HOMING_DELAY_AFTER_ZERO_DEG:
-		// Stop motors and wait
-		prismatic_axis.command_pos = 0.0f;
-		revolute_axis.command_pos = 0.0f;
-		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
-			homing_state = HOMING_REV_CW_TO_PROX1;
-		}
-		break;
+	    // Stop motors and wait
+	    prismatic_axis.command_pos = 0.0f;
+	    revolute_axis.command_pos = 0.0f;
+	    motion_delay_timer++;
+	    if (motion_delay_timer >= 500) {
+	        // CHECK IF PROX IS ALREADY DETECTED BEFORE STARTING SEARCH
+	        bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+
+	        if (prox_detected) {
+	            // Already at proximity sensor - skip search and go directly to completion
+	            motion_delay_timer = 0;
+	            homing_state = HOMING_DELAY_AFTER_PROX;
+	            prox_count = 1; // Set count to indicate prox found
+	        } else {
+	            // Not at prox - need to search for it
+	            homing_state = HOMING_REV_CW_TO_PROX1;
+	            prox_count = 0; // Reset counter for search
+	        }
+	    }
+	    break;
 
 	case HOMING_REV_CW_TO_PROX1:
 		// Move revolute clockwise with velocity control until prox count = 1
@@ -908,6 +963,35 @@ void update_control_loops(void) {
 			normalized_position, UNIT_RADIAN, UNIT_DEGREE);
 }
 
+void check_emergency_button(void) {
+    // Read current state of emergency button
+    bool emer_pressed = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+
+    // If emergency button is pressed (assuming active high)
+    // Adjust the logic based on your hardware:
+    // - If button is active HIGH when pressed: use == GPIO_PIN_SET
+    // - If button is active LOW when pressed: use == GPIO_PIN_RESET
+
+    if (emer_pressed == GPIO_PIN_RESET) {  // Assuming active high
+        // Emergency button is pressed - trigger hardware emergency
+        if (safety_state != SAFETY_HARDWARE_EMERGENCY) {
+            trigger_hardware_emergency();
+        }
+    }
+
+    // Optional: If you want to auto-clear when button is released
+    // (usually not recommended for safety reasons)
+    /*
+    else {
+        // Emergency button is released
+        if (safety_state == SAFETY_HARDWARE_EMERGENCY && hardware_emergency_triggered) {
+            // Auto-clear emergency when button released (NOT RECOMMENDED)
+            // clear_emergency_state();
+        }
+    }
+    */
+}
+
 void check_safety_conditions(void) {
 	if (tuning_mode || safety_state != SAFETY_NORMAL || homing_active)
 		return;
@@ -1050,7 +1134,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == J4_Pin) {
 		if (is_emergency_active()) {
 			clear_emergency_state();
-			first_startup = true;
 			start_homing_sequence(true);
 		}
 		return;
@@ -1060,6 +1143,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		plotter_update_sensors();
+
+		check_emergency_button();
 
 		QEI_get_diff_count(&prismatic_encoder);
 		QEI_compute_data(&prismatic_encoder);

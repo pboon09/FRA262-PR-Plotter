@@ -34,6 +34,7 @@ typedef struct {
     float  slide_rail_mass;		// Mass of slide rail (kg)
     float  c;					// Length from Pivot point to Center of slide_rail_mass (m)
     float prismatic_pulley_radius;	// Prismatic Pulley Radius Size (m)
+    float offset;
 } Environment;
 
 typedef struct {
