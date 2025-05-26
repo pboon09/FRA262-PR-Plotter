@@ -1879,7 +1879,7 @@ void modbus_working(void) {
 	registerFrame[Theta_Axis_Actual_Position].U16 = revolute_axis.deg* 10.0f;
 
 	float rev_theta_vel = UnitConverter_angle(&converter_system,
-            revolute_encoder.kalman_velocity,
+            revolute_axis.kalman_velocity,
             UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Actual_Speed].U16 = rev_theta_vel * 10.0f;
 
