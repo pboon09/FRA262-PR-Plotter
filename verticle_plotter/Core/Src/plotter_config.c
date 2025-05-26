@@ -212,8 +212,9 @@ void plotter_update_sensors() {
 	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
 	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+//	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+//	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+
 
 	extern bool homing_active;
 	if (!homing_active) {
@@ -225,6 +226,7 @@ void plotter_update_sensors() {
 
 void plotter_pen_up() {
 	PWM_write_duty(&servo, 50, 7);
+
 }
 
 void plotter_pen_down() {
