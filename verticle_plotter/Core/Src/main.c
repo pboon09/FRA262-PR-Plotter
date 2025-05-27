@@ -52,6 +52,7 @@ typedef struct {
 	bool trajectory_active;
 	float32_t mm;
 	float32_t deg;
+	float32_t accel_show;
 } AxisState_t;
 
 typedef enum {
@@ -103,8 +104,7 @@ typedef struct {
 #define SEQUENCE_MAX_POINTS 6
 
 #define HOMING_PRIS_VELOCITY 250.0f
-#define HOMING_REV_VELOCITY 1.0f
-#define HOMING_BACKUP_VELOCITY 50.0f
+#define HOMING_REV_VELOCITY 2.0f
 
 #define SAFETY_TOGGLE_PERIOD 250
 #define POSITION_CONTROL_DIVIDER 10
@@ -112,7 +112,7 @@ typedef struct {
 #define JOY_MODE_MAX_POSITIONS 10
 #define JOY_MODE_VELOCITY_THRESHOLD 40.0f
 #define JOY_MODE_CONSTANT_VELOCITY_PRIS 200.0f
-#define JOY_MODE_CONSTANT_VELOCITY_REV 2.0f
+#define JOY_MODE_CONSTANT_VELOCITY_REV 3.5f
 #define JOY_MODE_PILOT_TOGGLE_PERIOD 1000
 #define JOY_MODE_PLAYBACK_DELAY 2000
 #define JOY_MODE_B2_DEBOUNCE_TIME 50
@@ -648,7 +648,14 @@ void update_homing_sequence(void) {
 					revolute_axis.velocity);
 			revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 					revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
-			revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
+
+		    static float ffd_filtered = 0.0f;
+		    static float dfd_filtered = 0.0f;
+
+		    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+		    dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+
+		    revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
 			revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 					ZGX45RGG_150RPM_Constant.U_max,
@@ -705,9 +712,15 @@ void update_homing_sequence(void) {
 		// Add feedforward compensation during homing
 		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
 				-HOMING_REV_VELOCITY);
-		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
-		revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
+		revolute_axis.dfd = 0.0;
+
+	    static float ffd_filtered = 0.0f;
+	    static float dfd_filtered = 0.0f;
+
+	    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+	    dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+
+	    revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
 		revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 				ZGX45RGG_150RPM_Constant.U_max,
@@ -902,7 +915,14 @@ void update_velocity_control(void) {
 				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 	}
 
-	revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
+	static float ffd_filtered = 0.0f;
+	static float dfd_filtered = 0.0f;
+
+	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+	dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+
+	revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
+
 	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
@@ -1111,6 +1131,7 @@ void emergency_stop_all_motors(void) {
 	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
 	PID_CONTROLLER_Reset(&revolute_position_pid);
 	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 }
 
 void update_safety_system(void) {
@@ -1224,6 +1245,7 @@ void exit_joy_mode(void) {
 	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
 	PID_CONTROLLER_Reset(&revolute_position_pid);
 	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 
 	// Reset motion state
 	motion_sequence_state = MOTION_IDLE;
@@ -1293,8 +1315,10 @@ void reset_joy_mode_data(void) {
 
 void update_joy_mode_velocity_control(void) {
 	// Read current photo sensor states directly
-	bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
-	bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
+	bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
+			UPPER_PHOTO_Pin);
+	bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port,
+			LOWER_PHOTO_Pin);
 
 	// Prismatic axis control based on joystick_x
 	float pris_command_vel = 0.0f;
@@ -1339,7 +1363,8 @@ void update_joy_mode_velocity_control(void) {
 
 	// Process revolute axis joystick control with limits
 	if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD)
-			|| (revolute_deg < -175.0f && joystick_y < -JOY_MODE_VELOCITY_THRESHOLD)) {
+			|| (revolute_deg < -175.0f
+					&& joystick_y < -JOY_MODE_VELOCITY_THRESHOLD)) {
 		// At revolute limits - block movement
 		rev_command_vel = 0.0f;
 		rev_moving = false;
@@ -1358,10 +1383,13 @@ void update_joy_mode_velocity_control(void) {
 	/* PRISMATIC AXIS CONTROL */
 	if (pris_moving) {
 		// Moving - use velocity control
-		prismatic_axis.vel_error = pris_command_vel - prismatic_axis.kalman_velocity;
+		prismatic_axis.vel_error = pris_command_vel
+				- prismatic_axis.kalman_velocity;
 		prismatic_axis.command_pos = PWM_Satuation(
-				PID_CONTROLLER_Compute(&prismatic_velocity_pid, prismatic_axis.vel_error),
-				ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+				PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+						prismatic_axis.vel_error),
+				ZGX45RGG_400RPM_Constant.U_max,
+				-ZGX45RGG_400RPM_Constant.U_max);
 
 		// Add feedforward for moving
 		prismatic_axis.ffd = PRISMATIC_MOTOR_FFD_Compute(&prismatic_motor_ffd,
@@ -1373,15 +1401,21 @@ void update_joy_mode_velocity_control(void) {
 		prismatic_axis.position = prismatic_encoder.mm;
 	} else {
 		// Not moving - hold current position with position control
-		prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
+		prismatic_axis.pos_error = prismatic_axis.position
+				- prismatic_encoder.mm;
 		prismatic_axis.command_vel = PWM_Satuation(
-				PID_CONTROLLER_Compute(&prismatic_position_pid, prismatic_axis.pos_error),
-				ZGX45RGG_400RPM_Constant.sd_max, -ZGX45RGG_400RPM_Constant.sd_max);
+				PID_CONTROLLER_Compute(&prismatic_position_pid,
+						prismatic_axis.pos_error),
+				ZGX45RGG_400RPM_Constant.sd_max,
+				-ZGX45RGG_400RPM_Constant.sd_max);
 
-		prismatic_axis.vel_error = prismatic_axis.command_vel - prismatic_axis.kalman_velocity;
+		prismatic_axis.vel_error = prismatic_axis.command_vel
+				- prismatic_axis.kalman_velocity;
 		prismatic_axis.command_pos = PWM_Satuation(
-				PID_CONTROLLER_Compute(&prismatic_velocity_pid, prismatic_axis.vel_error),
-				ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+				PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+						prismatic_axis.vel_error),
+				ZGX45RGG_400RPM_Constant.U_max,
+				-ZGX45RGG_400RPM_Constant.U_max);
 
 		// No feedforward when holding position
 		prismatic_axis.ffd = 0.0f;
@@ -1395,13 +1429,17 @@ void update_joy_mode_velocity_control(void) {
 	/* REVOLUTE AXIS CONTROL */
 	if (rev_moving) {
 		// Moving - use velocity control
-		revolute_axis.vel_error = rev_command_vel - revolute_axis.kalman_velocity;
+		revolute_axis.vel_error = rev_command_vel
+				- revolute_axis.kalman_velocity;
 		revolute_axis.command_pos = PWM_Satuation(
-				PID_CONTROLLER_Compute(&revolute_velocity_pid, revolute_axis.vel_error),
-				ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
+				PID_CONTROLLER_Compute(&revolute_velocity_pid,
+						revolute_axis.vel_error),
+				ZGX45RGG_150RPM_Constant.U_max,
+				-ZGX45RGG_150RPM_Constant.U_max);
 
 		// Add feedforward for moving
-		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd, rev_command_vel);
+		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
+				rev_command_vel);
 		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 
@@ -1409,6 +1447,8 @@ void update_joy_mode_velocity_control(void) {
 		revolute_axis.position = revolute_encoder.rads;
 	} else {
 		// Not moving - hold current position with position control
+		revolute_axis.position = revolute_encoder.rads;
+
 		float normalized_position = normalize_angle(revolute_encoder.rads);
 		revolute_axis.pos_error = revolute_axis.position - normalized_position;
 
@@ -1419,13 +1459,18 @@ void update_joy_mode_velocity_control(void) {
 			revolute_axis.pos_error += 2.0f * PI;
 
 		revolute_axis.command_vel = PWM_Satuation(
-				PID_CONTROLLER_Compute(&revolute_position_pid, revolute_axis.pos_error),
-				ZGX45RGG_150RPM_Constant.qd_max, -ZGX45RGG_150RPM_Constant.qd_max);
+				PID_CONTROLLER_Compute(&revolute_position_pid,
+						revolute_axis.pos_error),
+				ZGX45RGG_150RPM_Constant.qd_max,
+				-ZGX45RGG_150RPM_Constant.qd_max);
 
-		revolute_axis.vel_error = revolute_axis.command_vel - revolute_axis.kalman_velocity;
+		revolute_axis.vel_error = revolute_axis.command_vel
+				- revolute_axis.kalman_velocity;
 		revolute_axis.command_pos = PWM_Satuation(
-				PID_CONTROLLER_Compute(&revolute_velocity_pid, revolute_axis.vel_error),
-				ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
+				PID_CONTROLLER_Compute(&revolute_velocity_pid,
+						revolute_axis.vel_error),
+				ZGX45RGG_150RPM_Constant.U_max,
+				-ZGX45RGG_150RPM_Constant.U_max);
 
 		// Always include DFD for gravity compensation, but no FFD when holding
 		revolute_axis.ffd = 0.0f;
@@ -1433,8 +1478,15 @@ void update_joy_mode_velocity_control(void) {
 				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 	}
 
-	revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
-	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
+//    static float ffd_filtered = 0.0f;
+//    static float dfd_filtered = 0.0f;
+//
+//    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+//    dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+
+//    revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
+    revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
+    revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
 	// Apply motor commands
@@ -1779,6 +1831,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 					normalized_position, UNIT_RADIAN, UNIT_DEGREE);
 		}
 		// Note: joy mode updates its own display values in update_joy_mode()
+
+		prismatic_axis.accel_show = FIR_process(&prismatic_lp_accel, prismatic_encoder.mmpss);
+		revolute_axis.accel_show = FIR_process(&revolute_lp_accel, revolute_encoder.radpss);
 	}
 }
 /* USER CODE END 4 */
