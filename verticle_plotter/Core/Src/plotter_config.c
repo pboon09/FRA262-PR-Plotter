@@ -72,7 +72,7 @@ void plotter_begin() {
 			* (24.0 / 36.0);
 
 	ZGX45RGG_150RPM_Constant.traject_qd_max = 5.0;
-	ZGX45RGG_150RPM_Constant.traject_qdd_max = 10.0;
+	ZGX45RGG_150RPM_Constant.traject_qdd_max = 2.0;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -140,10 +140,10 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 25, 0, 72.5,
+	PID_CONTROLLER_Init(&revolute_position_pid, 100, 5e-2, 400,
 			ZGX45RGG_150RPM_Constant.qd_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 7500, 100, 2000,
-			ZGX45RGG_150RPM_Constant.U_max);
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 2000, 25, 500,
+	        ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);
 	PRISMATIC_MOTOR_FFD_Init(&prismatic_motor_ffd, &ZGX45RGG_400RPM_Constant);
