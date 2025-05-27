@@ -326,7 +326,7 @@ void update_revolute_velocity_control(void) {
 
     revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
-	revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
+//	revolute_axis.command_pos += revolute_axis.ffd + revolute_axis.dfd;
 	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
