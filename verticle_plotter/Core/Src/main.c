@@ -112,7 +112,7 @@ typedef struct {
 #define JOY_MODE_MAX_POSITIONS 10
 #define JOY_MODE_VELOCITY_THRESHOLD 40.0f
 #define JOY_MODE_CONSTANT_VELOCITY_PRIS 200.0f
-#define JOY_MODE_CONSTANT_VELOCITY_REV 3.5f
+#define JOY_MODE_CONSTANT_VELOCITY_REV 5.0f
 #define JOY_MODE_PILOT_TOGGLE_PERIOD 1000
 #define JOY_MODE_PLAYBACK_DELAY 2000
 #define JOY_MODE_B2_DEBOUNCE_TIME 50
@@ -621,13 +621,7 @@ void update_homing_sequence(void) {
 				-HOMING_REV_VELOCITY);
 		revolute_axis.dfd = 0.0;
 
-	    static float ffd_filtered = 0.0f;
-	    static float dfd_filtered = 0.0f;
-
-	    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	    dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
-
-	    revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
+	    revolute_axis.command_pos += revolute_axis.ffd;
 
 		revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 				ZGX45RGG_150RPM_Constant.U_max,
@@ -1413,6 +1407,14 @@ void update_joy_mode_velocity_control(void) {
 		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 
+		static float ffd_filtered = 0.0f;
+		static float dfd_filtered = 0.0f;
+
+		ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+		dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+
+		revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
+
 		// Update target position for when we stop moving
 		revolute_axis.position = revolute_encoder.rads;
 	} else {
@@ -1446,16 +1448,8 @@ void update_joy_mode_velocity_control(void) {
 		revolute_axis.ffd = 0.0f;
 		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+	    revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
 	}
-
-//    static float ffd_filtered = 0.0f;
-//    static float dfd_filtered = 0.0f;
-//
-//    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-//    dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
-
-//    revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
-    revolute_axis.command_pos += revolute_axis.dfd + revolute_axis.ffd;
     revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
