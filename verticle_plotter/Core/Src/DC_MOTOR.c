@@ -74,7 +74,7 @@ float REVOLUTE_MOTOR_DFD_Compute(DC_MOTOR_DFeedward *motor, float q, float s){
 
     float transfer_function = motor->Mx->R / motor->Mx->Kt;
 
-    float v = (gravity_compensate_plotter + gravity_compensate_rail) * transfer_function;
+    float v = (gravity_compensate_plotter - gravity_compensate_rail) * transfer_function;
 
     return mapf(v, -motor->Mx->V_max, motor->Mx->V_max, -motor->Mx->U_max, motor->Mx->U_max);
 }
