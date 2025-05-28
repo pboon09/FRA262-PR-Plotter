@@ -174,7 +174,7 @@ volatile uint32_t joy_mode_playback_timer = 0;
 bool joy_mode_b2_pressed = false;
 bool joy_mode_b2_last_state = false;
 
-int check;
+int check[10];
 uint16_t b2S[2];
 /* USER CODE END PV */
 
@@ -713,6 +713,8 @@ float calculate_movement_deg(float current_deg, float target_deg) {
 
 void start_combined_trajectory(float prismatic_target_mm,
 		float revolute_target_deg) {
+
+	check[0]++;
 	bool allow_during_homing = (homing_active
 			&& homing_state == HOMING_REV_TO_ZERO_DEG);
 
@@ -745,14 +747,15 @@ void start_combined_trajectory(float prismatic_target_mm,
 			&& homing_state == HOMING_REV_TO_ZERO_DEG);
 
 	if (is_homing_zero_deg) {
+
 		// HOMING_REV_TO_ZERO_DEG: Only generate revolute trajectory, skip prismatic
 
 		// Don't generate prismatic trajectory at all
 		prismatic_axis.trajectory_active = false;
 		prismatic_axis.position = pris_current;  // Hold current position
 		prismatic_axis.velocity = 0.0f;
-
 		// Only generate revolute trajectory
+		check[4]++;
 		Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
 				revolute_axis.target_pos,
 				ZGX45RGG_150RPM_Constant.traject_qd_max,
@@ -766,13 +769,14 @@ void start_combined_trajectory(float prismatic_target_mm,
 		motion_sequence_state = MOTION_PEN_UP_DELAY; // Will skip to revolute directly
 
 	} else {
-		// NORMAL TRAJECTORY: Generate both prismatic and revolute trajectories
 
+		// NORMAL TRAJECTORY: Generate both prismatic and revolute trajectories
 		// Generate prismatic trajectory
+		check[5]++;
 		Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
 				prismatic_axis.target_pos,
-				ZGX45RGG_400RPM_Constant.traject_sd_max,
-				ZGX45RGG_400RPM_Constant.traject_sdd_max);
+				ZGX45RGG_400RPM_Constant.traject_sd_max - 1.0f,
+				ZGX45RGG_400RPM_Constant.traject_sdd_max- 4.0f);
 
 		prismatic_axis.trajectory_active = false;
 		revolute_axis.trajectory_active = false;
@@ -1281,12 +1285,11 @@ void save_current_position(void) {
 }
 
 void start_position_playback(void) {
-
+	check[3]++;
 	if (saved_position_count > 0) {
-		joy_mode_state = JOY_MODE_PLAYBACK;
+		check[2]++;
 		playback_position_index = 0;
 		joy_mode_playback_timer = 0;
-
 		// Keep pilot light ON during playback (don't turn it off)
 		HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
 		joy_mode_pilot_state = true;
@@ -1296,7 +1299,9 @@ void start_position_playback(void) {
 		float target_rev_rad = saved_positions[0].revolute_pos;
 		float target_rev_deg = target_rev_rad * 180.0f / PI;
 
+
 		start_combined_trajectory(target_pris, target_rev_deg);
+		joy_mode_state = JOY_MODE_PLAYBACK;
 
 	}
 }
@@ -1524,9 +1529,23 @@ void update_joy_mode(void) {
 	case JOY_MODE_MANUAL_CONTROL:
 		// Manual joystick control with position saving enabled
 		update_joy_mode_velocity_control();
+
 		break;
 
 	case JOY_MODE_POSITION_SAVED:
+		revolute_axis.command_pos = 0.0f;
+		revolute_axis.command_vel = 0.0f;
+		revolute_axis.velocity = 0.0f;
+		revolute_axis.trajectory_active = false;
+
+		prismatic_axis.command_pos = 0.0f;
+		prismatic_axis.command_vel = 0.0f;
+		prismatic_axis.velocity = 0.0f;
+		prismatic_axis.trajectory_active = false;
+
+		MDXX_set_range(&prismatic_motor, 2000, 0.0f);
+		MDXX_set_range(&revolute_motor, 2000, 0.0f);
+
 		// 10 positions saved, pilot light toggling, waiting for B2 to start playback
 		update_joy_mode_pilot_light();
 		break;
@@ -1537,8 +1556,9 @@ void update_joy_mode(void) {
 		switch (motion_sequence_state) {
 		case MOTION_IDLE:
 			// Current trajectory finished, wait before starting next
+
 			joy_mode_playback_timer++;
-			if (joy_mode_playback_timer >= JOY_MODE_PLAYBACK_DELAY) {
+			if (joy_mode_playback_timer <= JOY_MODE_PLAYBACK_DELAY) {
 				playback_position_index++;
 
 				if (playback_position_index < saved_position_count) {
@@ -1548,7 +1568,7 @@ void update_joy_mode(void) {
 					float target_rev_rad =
 							saved_positions[playback_position_index].revolute_pos;
 					float target_rev_deg = target_rev_rad * 180.0f / PI;
-
+					check[1]++;
 					start_combined_trajectory(target_pris, target_rev_deg);
 					joy_mode_playback_timer = 0;
 				} else {
@@ -1687,7 +1707,7 @@ void handle_b2_button_polling(void) {
 						// First B2 press in joy mode - start position saving mode
 						joy_mode_state = JOY_MODE_MANUAL_CONTROL;
 					} else if (joy_mode_state == JOY_MODE_MANUAL_CONTROL) {
-						check++;
+
 						save_current_position();
 
 						// Save current position
