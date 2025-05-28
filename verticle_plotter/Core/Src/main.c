@@ -173,6 +173,9 @@ volatile bool joy_mode_pilot_state = false;
 volatile uint32_t joy_mode_playback_timer = 0;
 bool joy_mode_b2_pressed = false;
 bool joy_mode_b2_last_state = false;
+
+int check;
+uint16_t b2S[2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -217,46 +220,45 @@ void modbus_working(void);
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
+ * @brief  The application entry point.
+ * @retval int
+ */
+int main(void) {
 
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-  MX_TIM2_Init();
-  MX_TIM3_Init();
-  MX_TIM4_Init();
-  MX_TIM5_Init();
-  MX_TIM8_Init();
-  MX_USART2_UART_Init();
-  MX_TIM16_Init();
-  MX_TIM1_Init();
-  MX_LPUART1_UART_Init();
-  /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_ADC1_Init();
+	MX_TIM2_Init();
+	MX_TIM3_Init();
+	MX_TIM4_Init();
+	MX_TIM5_Init();
+	MX_TIM8_Init();
+	MX_USART2_UART_Init();
+	MX_TIM16_Init();
+	MX_TIM1_Init();
+	MX_LPUART1_UART_Init();
+	/* USER CODE BEGIN 2 */
 	plotter_begin();
 
 	prismatic_axis.position = prismatic_encoder.mm;
@@ -292,63 +294,60 @@ int main(void)
 			start_homing_sequence(true);
 		}
 	}
-  /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
 	while (1) {
-    /* USER CODE END WHILE */
+		/* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+		/* USER CODE BEGIN 3 */
 		handle_b2_button_polling();
 	}
-  /* USER CODE END 3 */
+	/* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ * @brief System Clock Configuration
+ * @retval None
+ */
+void SystemClock_Config(void) {
+	RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+	RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
-  /** Configure the main internal regulator output voltage
-  */
-  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+	/** Configure the main internal regulator output voltage
+	 */
+	HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
 
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
-  RCC_OscInitStruct.PLL.PLLN = 85;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the RCC_OscInitTypeDef structure.
+	 */
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+	RCC_OscInitStruct.PLL.PLLN = 85;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+	RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		Error_Handler();
+	}
 
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+	/** Initializes the CPU, AHB and APB buses clocks
+	 */
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+			| RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-  {
-    Error_Handler();
-  }
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+		Error_Handler();
+	}
 }
 
 /* USER CODE BEGIN 4 */
@@ -1239,25 +1238,42 @@ void exit_joy_mode(void) {
 
 void save_current_position(void) {
 	if (saved_position_count < JOY_MODE_MAX_POSITIONS) {
-		saved_positions[saved_position_count].prismatic_pos =
-				prismatic_encoder.mm;
-		saved_positions[saved_position_count].revolute_pos =
-				revolute_encoder.rads;
-		saved_position_count++;
+		float current_pris = prismatic_encoder.mm;
+		float current_rev = revolute_encoder.rads;
 
-		int16_t r_mm_fixed = (int16_t) (prismatic_encoder.mm * 10.0); // mm → mm*10
-		int16_t t_deg_fixed = (int16_t) (revolute_axis.deg * 10.0); //  deg → deg*10
+		bool too_similar = false;
+		if (saved_position_count > 0) {
+			float last_pris =
+					saved_positions[saved_position_count - 1].prismatic_pos;
+			float last_rev =
+					saved_positions[saved_position_count - 1].revolute_pos;
 
-		uint8_t r_addr = 0x20 + (saved_position_count - 1) * 2;
+			if (fabsf(current_pris - last_pris) < 5.0f
+					&& fabsf(current_rev - last_rev) < 0.1f) {
+				too_similar = true;
+				// DEBUG: Position too similar, not saving
+				return;// Exit early if too similar
+			}
+		}
+
+		// Only reach here if position should be saved
+		saved_positions[saved_position_count].prismatic_pos = current_pris;
+		saved_positions[saved_position_count].revolute_pos = current_rev;
+
+		uint8_t r_addr = 0x20 + saved_position_count * 2;
 		uint8_t t_addr = r_addr + 1;
 
 		if (r_addr <= 0x38 && t_addr <= 0x39) {
+			int16_t r_mm_fixed = (int16_t) (current_pris * 10.0);
+			int16_t t_deg_fixed = (int16_t) (revolute_axis.deg * 10.0);
+
 			registerFrame[r_addr].U16 = r_mm_fixed;
 			registerFrame[t_addr].U16 = t_deg_fixed;
 		}
 
+		saved_position_count++;
+
 		if (saved_position_count >= JOY_MODE_MAX_POSITIONS) {
-			// All 10 positions saved, start pilot toggling
 			joy_mode_state = JOY_MODE_POSITION_SAVED;
 			joy_mode_pilot_timer = 0;
 		}
@@ -1265,6 +1281,7 @@ void save_current_position(void) {
 }
 
 void start_position_playback(void) {
+
 	if (saved_position_count > 0) {
 		joy_mode_state = JOY_MODE_PLAYBACK;
 		playback_position_index = 0;
@@ -1535,11 +1552,11 @@ void update_joy_mode(void) {
 					start_combined_trajectory(target_pris, target_rev_deg);
 					joy_mode_playback_timer = 0;
 				} else {
-					// All positions played back - EXIT JOY MODE AND START HOMING
+					// All positions played back - JUST EXIT JOY MODE (NO HOMING)
 					exit_joy_mode();
 
-					// Start homing sequence after a short delay
-					start_homing_sequence(false); // false = manual homing (not startup)
+					// Optional: Add some indication that playback is complete
+					// You could flash the pilot light or set a status flag here
 				}
 			}
 			break;
@@ -1642,39 +1659,56 @@ void handle_b2_button_polling(void) {
 	// Read current B2 button state (assuming active low like other buttons)
 	bool b2_current_state = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
 
-	// Simple edge detection without debounce timer here
-	if (b2_current_state && !joy_mode_b2_last_state) {
-		// Button just pressed - trigger action immediately
-		joy_mode_b2_pressed = true;
+//	b2S[0] = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
+	static uint32_t last_press_time = 0;
+	static uint32_t press_counter = 0;
+	const uint32_t DEBOUNCE_TIME = 200; // 200ms debounce time
 
-		// Handle B2 button press logic
-		if (!is_emergency_active() && !homing_active
-				&& motion_sequence_state == MOTION_IDLE) {
-			if (!joy_mode_active) {
-				// Enter joy mode (starts in JOY_MODE_INITIAL_CONTROL)
-				enter_joy_mode();
-			} else {
-				// Joy mode is active, handle button press based on current state
-				if (joy_mode_state == JOY_MODE_INITIAL_CONTROL) {
-					// First B2 press in joy mode - start position saving mode
-					joy_mode_state = JOY_MODE_MANUAL_CONTROL;
-				} else if (joy_mode_state == JOY_MODE_MANUAL_CONTROL) {
-					// Save current position
-					save_current_position();
-				} else if (joy_mode_state == JOY_MODE_POSITION_SAVED) {
-					// Start playback of saved positions
-					start_position_playback();
+	press_counter++; // Increment every timer tick (assuming 1ms timer)
+
+//	 Edge detection with debouncing
+	if (b2_current_state && !joy_mode_b2_last_state) {
+//	 Button just pressed - check if enough time has passed since last press
+		if ((press_counter - last_press_time) >= DEBOUNCE_TIME) {
+			// Button press is valid - trigger action
+			joy_mode_b2_pressed = true;
+			last_press_time = press_counter;
+
+//	if (b2S[0] != b2S[1] && b2S[0] == 1) {
+			// Handle B2 button press logic
+			if (!is_emergency_active() && !homing_active
+					&& motion_sequence_state == MOTION_IDLE) {
+				if (!joy_mode_active) {
+					// Enter joy mode (starts in JOY_MODE_INITIAL_CONTROL)
+					enter_joy_mode();
+				} else {
+					// Joy mode is active, handle button press based on current state
+					if (joy_mode_state == JOY_MODE_INITIAL_CONTROL) {
+						// First B2 press in joy mode - start position saving mode
+						joy_mode_state = JOY_MODE_MANUAL_CONTROL;
+					} else if (joy_mode_state == JOY_MODE_MANUAL_CONTROL) {
+						check++;
+						save_current_position();
+
+						// Save current position
+					} else if (joy_mode_state == JOY_MODE_POSITION_SAVED) {
+						start_position_playback();
+						// Start playback of saved positions
+					}
+
+					// Note: During JOY_MODE_PLAYBACK, B2 does nothing (ignore button press)
+					// This prevents accidental interruption of playback
 				}
-				// Note: During JOY_MODE_PLAYBACK, B2 does nothing (ignore button press)
-				// This prevents accidental interruption of playback
 			}
 		}
+//	b2S[1] = b2S[0];
+		// If not enough time has passed, ignore this button press
 	}
 
-	// Update last state
+// Update last state
 	joy_mode_b2_last_state = b2_current_state;
-
-	// Reset pressed flag when button is released
+//
+//// Reset pressed flag when button is released
 	if (!b2_current_state) {
 		joy_mode_b2_pressed = false;
 	}
@@ -1713,7 +1747,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		return;
 	}
 
-	// J2 is NOT handled here anymore - it's polled in the main loop
+// J2 is NOT handled here anymore - it's polled in the main loop
 
 	if (GPIO_Pin == J3_Pin) {
 		if (!is_emergency_active() && !joy_mode_active
@@ -1723,7 +1757,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		return;
 	}
 
-	// Modified J4 button handler for joy mode exit
+// Modified J4 button handler for joy mode exit
 	if (GPIO_Pin == J4_Pin) {
 		if (joy_mode_active) {
 			// Exit joy mode and hold current position (don't move)
@@ -1826,16 +1860,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 void modbus_working(void) {
 
 	uint16_t limit_switch_status = 0;
-	//heartbeat
+//heartbeat
 	registerFrame[Heartbeat_Protocol].U16 = 22881;
-	//servo write
+//servo write
 	if (registerFrame[Servo_UP].U16 == 1) {
 		plotter_pen_up();
 	} else if (registerFrame[Servo_Down].U16 == 1) {
 		plotter_pen_down();
 	}
 
-	//limitSW
+//limitSW
 	if (up_lim == 1) {
 		limit_switch_status |= 0x02;  // Bit 1 = Limit UP
 	}
@@ -1855,8 +1889,9 @@ void modbus_working(void) {
 	} else if (registerFrame[BaseSystem_Status].U16 == 8) {
 		registerFrame[R_Theta_Status].U16 = 8;
 		exit_joy_mode();
-		float goal_r_mm = (float) (int16_t) registerFrame[Goal_R].U16;
-		float goal_theta_deg = (float) (int16_t) registerFrame[Goal_Theta].U16;
+		float goal_r_mm = (float) (int16_t) registerFrame[Goal_R].U16 / 10.0;
+		float goal_theta_deg = (float) (int16_t) registerFrame[Goal_Theta].U16
+				/ 10.0;
 
 		start_combined_trajectory(goal_r_mm, goal_theta_deg);
 	}
@@ -1879,23 +1914,21 @@ void modbus_working(void) {
 			revolute_encoder.radpss, UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = rev_theta_accel * 10.0f;
 
-
 }
 
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
+void Error_Handler(void) {
+	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 	__disable_irq();
 	while (1) {
 	}
-  /* USER CODE END Error_Handler_Debug */
+	/* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT

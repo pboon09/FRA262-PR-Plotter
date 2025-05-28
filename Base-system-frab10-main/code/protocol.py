@@ -211,7 +211,7 @@ class Protocol_RT(Binary):
                 self.routine_normal = False
                 return
             
-            print(f"Successfully read {len(self.register)} registers")
+            # print(f"Successfully read {len(self.register)} registers")
             
             # อ่านข้อมูลต่างๆ
             try:
@@ -323,7 +323,7 @@ class Protocol_RT(Binary):
                 return "Error"
                 
             heartbeat_value = response.registers[0]
-            print(f"Heartbeat response: {heartbeat_value}")
+            # print(f"Heartbeat response: {heartbeat_value}")
             return heartbeat_value
             
         except Exception as e:
@@ -346,7 +346,7 @@ class Protocol_RT(Binary):
                 self.usb_connect = False
             else:
                 self.usb_connect = True
-                print("Heartbeat sent successfully")
+                # print("Heartbeat sent successfully")
                     
         except Exception as e:
             print(f"Write heartbeat exception: {e}")
