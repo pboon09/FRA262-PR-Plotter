@@ -111,8 +111,8 @@ typedef struct {
 
 #define JOY_MODE_MAX_POSITIONS 10
 #define JOY_MODE_VELOCITY_THRESHOLD 40.0f
-#define JOY_MODE_CONSTANT_VELOCITY_PRIS 200.0f
-#define JOY_MODE_CONSTANT_VELOCITY_REV 5.0f
+#define JOY_MODE_CONSTANT_VELOCITY_PRIS 150.0f
+#define JOY_MODE_CONSTANT_VELOCITY_REV 3.0f
 #define JOY_MODE_PILOT_TOGGLE_PERIOD 1000
 #define JOY_MODE_PLAYBACK_DELAY 2000
 #define JOY_MODE_B2_DEBOUNCE_TIME 50
@@ -773,10 +773,16 @@ void start_combined_trajectory(float prismatic_target_mm,
 		// NORMAL TRAJECTORY: Generate both prismatic and revolute trajectories
 		// Generate prismatic trajectory
 		check[5]++;
+
 		Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
 				prismatic_axis.target_pos,
-				ZGX45RGG_400RPM_Constant.traject_sd_max - 1.0f,
-				ZGX45RGG_400RPM_Constant.traject_sdd_max- 4.0f);
+				ZGX45RGG_400RPM_Constant.traject_sd_max,
+				ZGX45RGG_400RPM_Constant.traject_sdd_max);
+
+//		Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
+//		            revolute_axis.target_pos,
+//		            ZGX45RGG_150RPM_Constant.traject_qd_max,
+//		            ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
 		prismatic_axis.trajectory_active = false;
 		revolute_axis.trajectory_active = false;
@@ -813,6 +819,7 @@ void update_position_control(void) {
 }
 
 void update_velocity_control(void) {
+
 	if (prismatic_axis.trajectory_active) {
 		prismatic_axis.vel_error = prismatic_axis.command_vel
 				+ prismatic_axis.velocity - prismatic_axis.kalman_velocity;
@@ -944,6 +951,7 @@ void update_control_loops(void) {
 
 	case MOTION_PRISMATIC_ACTIVE:
 		if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
+
 			Trapezoidal_Evaluated(&prisGen, &prisEva,
 					prismatic_axis.initial_pos, prismatic_axis.target_pos,
 					ZGX45RGG_400RPM_Constant.traject_sd_max,
@@ -1290,6 +1298,7 @@ void start_position_playback(void) {
 		check[2]++;
 		playback_position_index = 0;
 		joy_mode_playback_timer = 0;
+		joy_mode_state = JOY_MODE_PLAYBACK;
 		// Keep pilot light ON during playback (don't turn it off)
 		HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
 		joy_mode_pilot_state = true;
@@ -1299,9 +1308,7 @@ void start_position_playback(void) {
 		float target_rev_rad = saved_positions[0].revolute_pos;
 		float target_rev_deg = target_rev_rad * 180.0f / PI;
 
-
 		start_combined_trajectory(target_pris, target_rev_deg);
-		joy_mode_state = JOY_MODE_PLAYBACK;
 
 	}
 }
@@ -1529,28 +1536,16 @@ void update_joy_mode(void) {
 	case JOY_MODE_MANUAL_CONTROL:
 		// Manual joystick control with position saving enabled
 		update_joy_mode_velocity_control();
-
 		break;
 
 	case JOY_MODE_POSITION_SAVED:
-		revolute_axis.command_pos = 0.0f;
-		revolute_axis.command_vel = 0.0f;
-		revolute_axis.velocity = 0.0f;
-		revolute_axis.trajectory_active = false;
-
-		prismatic_axis.command_pos = 0.0f;
-		prismatic_axis.command_vel = 0.0f;
-		prismatic_axis.velocity = 0.0f;
-		prismatic_axis.trajectory_active = false;
-
-		MDXX_set_range(&prismatic_motor, 2000, 0.0f);
-		MDXX_set_range(&revolute_motor, 2000, 0.0f);
-
+		revolute_axis.position = revolute_encoder.rads;
 		// 10 positions saved, pilot light toggling, waiting for B2 to start playback
 		update_joy_mode_pilot_light();
 		break;
 
 	case JOY_MODE_PLAYBACK:
+//		revolute_axis.position = revolute_encoder.rads;
 		// Playing back saved positions - PILOT LIGHT STAYS ON
 		// Handle trajectory sequence states for joy mode playback
 		switch (motion_sequence_state) {
@@ -1558,9 +1553,8 @@ void update_joy_mode(void) {
 			// Current trajectory finished, wait before starting next
 
 			joy_mode_playback_timer++;
-			if (joy_mode_playback_timer <= JOY_MODE_PLAYBACK_DELAY) {
+			if (joy_mode_playback_timer >= JOY_MODE_PLAYBACK_DELAY) {
 				playback_position_index++;
-
 				if (playback_position_index < saved_position_count) {
 					// Start next trajectory
 					float target_pris =
@@ -1573,6 +1567,7 @@ void update_joy_mode(void) {
 					joy_mode_playback_timer = 0;
 				} else {
 					// All positions played back - JUST EXIT JOY MODE (NO HOMING)
+					check[9]++;
 					exit_joy_mode();
 
 					// Optional: Add some indication that playback is complete
@@ -1590,6 +1585,7 @@ void update_joy_mode(void) {
 			break;
 
 		case MOTION_PRISMATIC_ACTIVE:
+			check[6]++;
 			if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
 				Trapezoidal_Evaluated(&prisGen, &prisEva,
 						prismatic_axis.initial_pos, prismatic_axis.target_pos,
@@ -1616,6 +1612,7 @@ void update_joy_mode(void) {
 			break;
 
 		case MOTION_REVOLUTE_ACTIVE:
+			check[7]++;
 			if (revolute_axis.trajectory_active && !revEva.isFinised) {
 				Trapezoidal_Evaluated(&revGen, &revEva,
 						revolute_axis.initial_pos, revolute_axis.target_pos,
@@ -1630,8 +1627,8 @@ void update_joy_mode(void) {
 					revolute_axis.position = revEva.setposition;
 					revolute_axis.velocity = 0.0f;
 
-					PID_CONTROLLER_Reset(&revolute_position_pid);
-					PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//					PID_CONTROLLER_Reset(&revolute_position_pid);
+//					PID_CONTROLLER_Reset(&revolute_velocity_pid);
 
 					motion_delay_timer = 0;
 					motion_sequence_state = MOTION_PEN_DOWN_DELAY;
@@ -1756,15 +1753,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 
 	if (GPIO_Pin == J1_Pin) {
-		if (!is_emergency_active() && !homing_active && !joy_mode_active
-				&& motion_sequence_state == MOTION_IDLE && !first_startup) {
-			start_combined_trajectory(
-					sequence_pris_points[trajectory_sequence_index],
-					sequence_rev_points[trajectory_sequence_index]);
-			trajectory_sequence_index = (trajectory_sequence_index + 1)
-					% SEQUENCE_MAX_POINTS;
-		}
-		return;
+//		if (!is_emergency_active() && !homing_active && !joy_mode_active
+//				&& motion_sequence_state == MOTION_IDLE && !first_startup) {
+//			start_combined_trajectory(
+//					sequence_pris_points[trajectory_sequence_index],
+//					sequence_rev_points[trajectory_sequence_index]);
+//			trajectory_sequence_index = (trajectory_sequence_index + 1)
+//					% SEQUENCE_MAX_POINTS;
+//		}
+//		return;
 	}
 
 // J2 is NOT handled here anymore - it's polled in the main loop
@@ -1831,7 +1828,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 					&& (!joy_mode_active
 							|| (joy_mode_state != JOY_MODE_MANUAL_CONTROL
 									&& joy_mode_state
-											!= JOY_MODE_INITIAL_CONTROL))
+											!= JOY_MODE_INITIAL_CONTROL
+									&& joy_mode_state != JOY_MODE_POSITION_SAVED))
 					&& (!is_emergency_active() || tuning_mode)) {
 				update_position_control();
 			}
@@ -1841,7 +1839,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if ((!homing_active || homing_state == HOMING_REV_TO_ZERO_DEG) // ← FIXED
 				&& (!joy_mode_active
 						|| (joy_mode_state != JOY_MODE_MANUAL_CONTROL
-								&& joy_mode_state != JOY_MODE_INITIAL_CONTROL))
+								&& joy_mode_state != JOY_MODE_INITIAL_CONTROL
+								&& joy_mode_state != JOY_MODE_POSITION_SAVED))
 				&& (!is_emergency_active() || tuning_mode)) {
 			update_velocity_control();
 		}

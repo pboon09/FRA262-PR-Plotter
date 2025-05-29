@@ -142,7 +142,7 @@ void plotter_begin() {
 	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 130, 0.1, 450,
+	PID_CONTROLLER_Init(&revolute_position_pid, 100, 0.2, 850,
 			ZGX45RGG_150RPM_Constant.qd_max);
 	PID_CONTROLLER_Init(&revolute_velocity_pid, 2000, 25, 500,
 			ZGX45RGG_150RPM_Constant.U_max);
@@ -218,8 +218,8 @@ void plotter_update_sensors() {
 	b3 = !HAL_GPIO_ReadPin(J3_GPIO_Port, J3_Pin);
 	b4 = !HAL_GPIO_ReadPin(J4_GPIO_Port, J4_Pin);
 
-//	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
-//	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
+	up_lim = HAL_GPIO_ReadPin(UPPER_LIM_GPIO_Port, UPPER_LIM_Pin);
+	low_lim = HAL_GPIO_ReadPin(LOWER_LIM_GPIO_Port, LOWER_LIM_Pin);
 
 	extern bool homing_active;
 	if (!homing_active) {
@@ -234,5 +234,5 @@ void plotter_pen_up() {
 }
 
 void plotter_pen_down() {
-	PWM_write_duty(&servo, 50, 12);
+	PWM_write_duty(&servo, 50, 10);
 }
