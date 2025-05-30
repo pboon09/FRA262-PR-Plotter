@@ -176,6 +176,15 @@ bool joy_mode_b2_last_state = false;
 
 int check[10];
 uint16_t b2S[2];
+
+//100 point
+uint8_t j1_cycle_count = 0;
+bool j1_going_to_target = true;
+bool j1_active = false;
+const float32_t J1_TARGET_PRIS = 200.0f;
+const float32_t J1_TARGET_REV = 90.0f;
+static uint32_t j1_interrupt_last_time = 0;
+const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 500;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -714,7 +723,7 @@ float calculate_movement_deg(float current_deg, float target_deg) {
 void start_combined_trajectory(float prismatic_target_mm,
 		float revolute_target_deg) {
 
-	check[0]++;
+
 	bool allow_during_homing = (homing_active
 			&& homing_state == HOMING_REV_TO_ZERO_DEG);
 
@@ -924,6 +933,28 @@ void update_control_loops(void) {
 			revolute_axis.deg = UnitConverter_angle(&converter_system,
 					normalized_position, UNIT_RADIAN, UNIT_DEGREE);
 			return;
+		}
+	}
+	//100 point
+	if (j1_active && motion_sequence_state == MOTION_IDLE) {
+		if (j1_going_to_target) {
+
+			// check if finish goto target then goto 0
+			j1_going_to_target = false;
+			start_combined_trajectory(0.0f, 0.0f);
+		} else {
+
+			j1_cycle_count++;
+
+			if (j1_cycle_count >= 100) {
+				//finish 100
+				j1_active = false;
+				j1_cycle_count = 0;
+			} else {
+				// start again
+				j1_going_to_target = true;
+				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+			}
 		}
 	}
 
@@ -1753,39 +1784,54 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 
 	if (GPIO_Pin == J1_Pin) {
-//		if (!is_emergency_active() && !homing_active && !joy_mode_active
-//				&& motion_sequence_state == MOTION_IDLE && !first_startup) {
-//			start_combined_trajectory(
-//					sequence_pris_points[trajectory_sequence_index],
-//					sequence_rev_points[trajectory_sequence_index]);
-//			trajectory_sequence_index = (trajectory_sequence_index + 1)
-//					% SEQUENCE_MAX_POINTS;
-//		}
-//		return;
-	}
 
+		uint32_t current_time = HAL_GetTick();
+		if ((current_time - j1_interrupt_last_time) < 200) {
+		    return; // ignore ถ้ายังไม่ครบ 200ms
+		}
+		j1_interrupt_last_time = current_time;
+
+		if (!is_emergency_active() && !homing_active && !joy_mode_active
+				&& !first_startup ) {
+			check[0]++;
+			if (!j1_active) {
+				// start Again
+				j1_active = true;
+				j1_cycle_count = 0;
+				j1_going_to_target = true;
+
+				// go to target
+				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+			} else {
+				// stop
+
+				j1_active = false;
+				j1_cycle_count = 0;
+			}
+		}
+	}
 // J2 is NOT handled here anymore - it's polled in the main loop
 
-	if (GPIO_Pin == J3_Pin) {
-		if (!is_emergency_active() && !joy_mode_active
-				&& motion_sequence_state == MOTION_IDLE) {
-			start_homing_sequence(false);
+		if (GPIO_Pin == J3_Pin) {
+			if (!is_emergency_active() && !joy_mode_active
+					&& motion_sequence_state == MOTION_IDLE) {
+				start_homing_sequence(false);
+			}
+			return;
 		}
-		return;
-	}
 
 // Modified J4 button handler for joy mode exit
-	if (GPIO_Pin == J4_Pin) {
-		if (joy_mode_active) {
-			// Exit joy mode and hold current position (don't move)
-			exit_joy_mode();
-		} else if (is_emergency_active()) {
-			clear_emergency_state();
-			start_homing_sequence(true);
+		if (GPIO_Pin == J4_Pin) {
+			if (joy_mode_active) {
+				// Exit joy mode and hold current position (don't move)
+				exit_joy_mode();
+			} else if (is_emergency_active()) {
+				clear_emergency_state();
+				start_homing_sequence(true);
+			}
+			return;
 		}
-		return;
 	}
-}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
