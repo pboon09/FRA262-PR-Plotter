@@ -1022,8 +1022,8 @@ void update_control_loops(void) {
 				revolute_axis.position = revEva.setposition;
 				revolute_axis.velocity = 0.0f;
 
-				PID_CONTROLLER_Reset(&revolute_position_pid);
-				PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//				PID_CONTROLLER_Reset(&revolute_position_pid);
+//				PID_CONTROLLER_Reset(&revolute_velocity_pid);
 
 				motion_delay_timer = 0;
 				motion_sequence_state = MOTION_PEN_DOWN_DELAY;
