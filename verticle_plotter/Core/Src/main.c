@@ -97,6 +97,22 @@ typedef struct {
 	float revolute_pos;
 } SavedPosition_t;
 
+// เพิ่มหลัง SavedPosition_t
+typedef struct {
+	float r_mm;
+	float theta_deg;
+	bool pen_down;  // true = วาดเส้น, false = ยกปากกา
+} DrawingPoint_t;
+
+// โครงสร้างสำหรับจัดการลำดับการวาด
+typedef struct {
+	DrawingPoint_t *points;
+	uint8_t num_points;
+	uint8_t current_point;
+	bool sequence_active;
+	const char *character_name;
+} DrawingSequence_t;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -188,9 +204,107 @@ const float32_t J1_TARGET_REV = 90.0f;
 static uint32_t j1_interrupt_last_time = 0;
 const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 500;
 
+static uint8_t j3_press_count = 0;
+static uint32_t j3_last_press_time = 0;
+const uint32_t J3_PRESS_TIMEOUT = 500;
+
 static float sync_start_time = 0.0f;
 static float sync_total_time = 0.0f;
 static bool sync_motion_active = false;
+
+// เพิ่มหลัง static float sync_start_time = 0.0f; ที่มีอยู่แล้ว
+static DrawingSequence_t current_drawing_sequence = { 0 };
+
+// ตัวอักษร 'F'
+DrawingPoint_t letter_F[] = {
+    { 251.79f, 263.16f, false },
+    { 251.79f, 263.16f, true },
+    { 281.78f, 242.53f, true },
+    { 230.22f, 235.62f, true },
+    { 281.78f, 242.53f, true },
+    { 262.49f, 252.26f, true },
+    { 224.72f, 249.15f, true },
+    { 224.72f, 249.15f, false }
+};
+
+// ตัวอักษร 'I'
+DrawingPoint_t letter_I[] = {
+    { 152.97f, 258.69f, false },
+    { 152.97f, 258.69f, true },
+    { 198.49f, 229.09f, true },
+    { 198.49f, 229.09f, false }
+};
+
+// ตัวอักษร 'B'
+DrawingPoint_t letter_B[] = {
+    { 114.02f, 254.74f, false },
+    { 114.02f, 254.74f, true },
+    { 170.29f, 220.24f, true },
+    { 141.16f, 202.93f, true },
+    { 97.08f, 214.51f, true },
+    { 136.01f, 233.97f, true },
+    { 97.08f, 214.51f, true },
+    { 62.65f, 241.39f, true },
+    { 114.02f, 254.74f, true },
+    { 114.02f, 254.74f, false }
+};
+
+// ตัวอักษร 'O'
+DrawingPoint_t letter_O[] = {
+    { 50.00f, 233.13f, false },
+    { 50.00f, 233.13f, true },
+    { 136.01f, 197.10f, true },
+    { 131.53f, 171.25f, true },
+    { 36.06f, 146.31f, true },
+    { 50.00f, 233.13f, true },
+    { 50.00f, 233.13f, false }
+};
+
+// ตัวอักษร '_'
+DrawingPoint_t letter_underscore[] = {
+    { 50.00f, 126.87f, false },
+    { 50.00f, 126.87f, true },
+    { 94.87f, 108.43f, true },
+    { 94.87f, 108.43f, false }
+};
+
+// ตัวอักษร 'G'
+DrawingPoint_t letter_G[] = {
+    { 206.16f, 129.09f, false },
+    { 206.16f, 129.09f, true },
+    { 170.29f, 139.76f, true },
+    { 114.02f, 105.26f, true },
+    { 162.79f, 100.62f, true },
+    { 178.89f, 116.57f, true },
+    { 156.92f, 120.65f, true },
+    { 156.92f, 120.65f, false }
+};
+
+// ตัวเลข '0'
+DrawingPoint_t number_0[] = {
+    { 182.48f, 99.46f, false },
+    { 182.48f, 99.46f, true },
+    { 222.04f, 125.84f, true },
+    { 264.20f, 119.48f, true },
+    { 231.95f, 97.43f, true },
+    { 182.48f, 99.46f, true },
+    { 182.48f, 99.46f, false }
+};
+
+// ตัวเลข '1'
+DrawingPoint_t number_1[] = {
+    { 271.66f, 96.34f, false },
+    { 271.66f, 96.34f, true },
+    { 299.67f, 115.71f, true },
+    { 286.36f, 114.78f, true },
+    { 286.36f, 114.78f, false }
+};
+
+// ตัวแปรสำหรับวาดคำ FIBO_G01
+static uint8_t word_progress = 0;
+static uint32_t word_delay_timer = 0;
+static bool word_drawing_active = false;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -227,6 +341,23 @@ void update_joy_mode_velocity_control(void);
 void handle_b2_button_polling(void);
 
 void modbus_working(void);
+
+void start_character_drawing(DrawingPoint_t *points, uint8_t num_points,
+		const char *character_name);
+void execute_next_drawing_point(void);
+void update_character_drawing(void);
+void draw_letter_F(void);
+void draw_letter_I(void);
+void draw_letter_B(void);
+void draw_letter_O(void);
+void draw_underscore(void);
+void draw_letter_G(void);
+void draw_number_0(void);
+void draw_number_1(void);
+void stop_character_drawing(void);
+bool is_drawing_active(void);
+void draw_word_FIBO_G01(void);
+void start_word_FIBO_G01(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -1896,11 +2027,41 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // J2 is NOT handled here anymore - it's polled in the main loop
 
 	if (GPIO_Pin == J3_Pin) {
+		uint32_t current_time = HAL_GetTick();
+
+		// Reset counter if timeout exceeded
+		if ((current_time - j3_last_press_time) > J3_PRESS_TIMEOUT) {
+			j3_press_count = 0;
+		}
+
+
+
+		j3_last_press_time = current_time;
+		j3_press_count++;
+
 		if (!is_emergency_active() && !joy_mode_active
 				&& motion_sequence_state == MOTION_IDLE) {
-			start_homing_sequence(false);
+			switch (j3_press_count) {
+			case 1:
+				// กดครั้งแรก: วาดคำ FIBO_G01
+				start_word_FIBO_G01();
+				j3_press_count = 0; // Reset counter
+				break;
+
+			case 2:
+				// กดครั้งที่ 2: วาดตัวอักษร F เดี่ยว
+				stop_character_drawing();
+				j3_press_count = 0; // Reset counter; // Reset counter
+				break;
+
+			default:
+				// Reset if pressed too many times
+				j3_press_count = 0;
+				break;
+			}
 		}
 		return;
+
 	}
 
 // Modified J4 button handler for joy mode exit
@@ -2001,6 +2162,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 				prismatic_encoder.mmpss);
 		revolute_axis.accel_show = FIR_process(&revolute_lp_accel,
 				revolute_encoder.radpss);
+
+		update_character_drawing();
+		draw_word_FIBO_G01();
 	}
 }
 
@@ -2062,6 +2226,188 @@ void modbus_working(void) {
 			revolute_encoder.radpss, UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = rev_theta_accel * 10.0f;
 
+}
+
+void start_character_drawing(DrawingPoint_t *points, uint8_t num_points,
+		const char *character_name) {
+	if (is_emergency_active() || homing_active || joy_mode_active) {
+		return;
+	}
+
+	// หยุดการวาดปัจจุบัน (ถ้ามี)
+	current_drawing_sequence.sequence_active = false;
+
+	// ตั้งค่าลำดับการวาดใหม่
+	current_drawing_sequence.points = points;
+	current_drawing_sequence.num_points = num_points;
+	current_drawing_sequence.current_point = 0;
+	current_drawing_sequence.sequence_active = true;
+	current_drawing_sequence.character_name = character_name;
+
+	// รอให้ motion หยุดก่อนเริ่มใหม่
+	if (motion_sequence_state == MOTION_IDLE) {
+		execute_next_drawing_point();
+	}
+}
+
+void execute_next_drawing_point(void) {
+	if (!current_drawing_sequence.sequence_active) {
+		return;
+	}
+
+	if (current_drawing_sequence.current_point
+			< current_drawing_sequence.num_points) {
+		DrawingPoint_t current_point =
+				current_drawing_sequence.points[current_drawing_sequence.current_point];
+
+		// ตั้งค่าปากกาก่อนเคลื่อนที่
+		if (current_point.pen_down) {
+			plotter_pen_down();
+		} else {
+			plotter_pen_up();
+		}
+
+		// เริ่มการเคลื่อนที่ไปจุดถัดไป
+		start_combined_trajectory(current_point.r_mm, current_point.theta_deg);
+		current_drawing_sequence.current_point++;
+
+	} else {
+		// เสร็จสิ้นการวาดตัวอักษรนี้
+		current_drawing_sequence.sequence_active = false;
+		current_drawing_sequence.current_point = 0;
+
+		// ยกปากกาเมื่อเสร็จ
+		plotter_pen_up();
+	}
+}
+
+void update_character_drawing(void) {
+	// ถ้ามีลำดับการวาดที่กำลังทำงานและ motion เสร็จแล้ว
+	if (current_drawing_sequence.sequence_active
+			&& motion_sequence_state == MOTION_IDLE) {
+		execute_next_drawing_point();
+	}
+}
+
+void draw_letter_F(void) {
+	start_character_drawing(letter_F, sizeof(letter_F) / sizeof(DrawingPoint_t),
+			"F");
+}
+
+void draw_letter_I(void) {
+	start_character_drawing(letter_I, sizeof(letter_I) / sizeof(DrawingPoint_t),
+			"I");
+}
+
+void draw_letter_B(void) {
+	start_character_drawing(letter_B, sizeof(letter_B) / sizeof(DrawingPoint_t),
+			"B");
+}
+
+void draw_letter_O(void) {
+	start_character_drawing(letter_O, sizeof(letter_O) / sizeof(DrawingPoint_t),
+			"O");
+}
+
+void draw_underscore(void) {
+	start_character_drawing(letter_underscore,
+			sizeof(letter_underscore) / sizeof(DrawingPoint_t), "_");
+}
+
+void draw_letter_G(void) {
+	start_character_drawing(letter_G, sizeof(letter_G) / sizeof(DrawingPoint_t),
+			"G");
+}
+
+void draw_number_0(void) {
+	start_character_drawing(number_0, sizeof(number_0) / sizeof(DrawingPoint_t),
+			"0");
+}
+
+void draw_number_1(void) {
+	start_character_drawing(number_1, sizeof(number_1) / sizeof(DrawingPoint_t),
+			"1");
+}
+
+void stop_character_drawing(void) {
+	current_drawing_sequence.sequence_active = false;
+	current_drawing_sequence.current_point = 0;
+	word_drawing_active = false;
+	word_progress = 0;
+	plotter_pen_up();
+}
+
+bool is_drawing_active(void) {
+	return current_drawing_sequence.sequence_active || word_drawing_active;
+}
+
+void start_word_FIBO_G01(void) {
+	if (is_emergency_active() || homing_active || joy_mode_active) {
+		return;
+	}
+
+	word_drawing_active = true;
+	word_progress = 0;
+	word_delay_timer = 0;
+
+	// เริ่มวาดตัวอักษรแรก
+	draw_letter_F();
+}
+
+void draw_word_FIBO_G01(void) {
+	const uint32_t LETTER_DELAY = 3000; // หน่วงเวลา 3 วินาทีระหว่างตัวอักษร
+
+	if (!word_drawing_active) {
+		return;
+	}
+
+	if (!is_drawing_active() && motion_sequence_state == MOTION_IDLE) {
+		word_delay_timer++;
+
+		if (word_delay_timer >= LETTER_DELAY) {
+			word_delay_timer = 0;
+
+			switch (word_progress) {
+			case 0:
+				draw_letter_F();
+				word_progress++;
+				break;
+			case 1:
+				draw_letter_I();
+				word_progress++;
+				break;
+			case 2:
+				draw_letter_B();
+				word_progress++;
+				break;
+			case 3:
+				draw_letter_O();
+				word_progress++;
+				break;
+			case 4:
+				draw_underscore();
+				word_progress++;
+				break;
+			case 5:
+				draw_letter_G();
+				word_progress++;
+				break;
+			case 6:
+				draw_number_0();
+				word_progress++;
+				break;
+			case 7:
+				draw_number_1();
+				word_progress++;
+				break;
+			default:
+				// เสร็จสิ้นการวาดคำทั้งหมด
+				word_drawing_active = false;
+				word_progress = 0;
+				break;
+			}
+		}
+	}
 }
 
 /* USER CODE END 4 */
