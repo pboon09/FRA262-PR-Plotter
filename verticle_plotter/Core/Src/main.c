@@ -97,7 +97,6 @@ typedef struct {
 	float revolute_pos;
 } SavedPosition_t;
 
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -188,6 +187,10 @@ const float32_t J1_TARGET_PRIS = 200.0f;
 const float32_t J1_TARGET_REV = 90.0f;
 static uint32_t j1_interrupt_last_time = 0;
 const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 500;
+
+static float sync_start_time = 0.0f;
+static float sync_total_time = 0.0f;
+static bool sync_motion_active = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -725,8 +728,6 @@ float calculate_movement_deg(float current_deg, float target_deg) {
 
 void start_combined_trajectory(float prismatic_target_mm,
 		float revolute_target_deg) {
-
-
 	bool allow_during_homing = (homing_active
 			&& homing_state == HOMING_REV_TO_ZERO_DEG);
 
@@ -759,43 +760,66 @@ void start_combined_trajectory(float prismatic_target_mm,
 			&& homing_state == HOMING_REV_TO_ZERO_DEG);
 
 	if (is_homing_zero_deg) {
-
-		// HOMING_REV_TO_ZERO_DEG: Only generate revolute trajectory, skip prismatic
-
-		// Don't generate prismatic trajectory at all
+		// HOMING_REV_TO_ZERO_DEG: Only generate revolute trajectory
+		sync_motion_active = false;
 		prismatic_axis.trajectory_active = false;
-		prismatic_axis.position = pris_current;  // Hold current position
+		prismatic_axis.position = pris_current;
 		prismatic_axis.velocity = 0.0f;
-		// Only generate revolute trajectory
+
 		check[4]++;
 		Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
 				revolute_axis.target_pos,
 				ZGX45RGG_150RPM_Constant.traject_qd_max,
 				ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
-		revolute_axis.trajectory_active = false;  // Will be activated later
-
-		// Set motion sequence to skip prismatic phase
+		revolute_axis.trajectory_active = false;
 		plotter_pen_up();
 		motion_delay_timer = 0;
-		motion_sequence_state = MOTION_PEN_UP_DELAY; // Will skip to revolute directly
-
+		motion_sequence_state = MOTION_PEN_UP_DELAY;
 	} else {
-
-		// NORMAL TRAJECTORY: Generate both prismatic and revolute trajectories
-		// Generate prismatic trajectory
+		// NORMAL TRAJECTORY: Use time-synchronized motion
 		check[5]++;
 
+		// Calculate distances
+		float pris_distance = fabsf(
+				prismatic_axis.target_pos - prismatic_axis.initial_pos);
+		float rev_distance = fabsf(
+				revolute_axis.target_pos - revolute_axis.initial_pos);
+
+		// Calculate time needed for each axis at their max speeds
+		float pris_time_needed = 0.0f;
+		float rev_time_needed = 0.0f;
+
+		if (pris_distance > 0.1f) {
+			// Time = distance / max_velocity, factor in acceleration/deceleration
+			pris_time_needed = (pris_distance
+					/ ZGX45RGG_400RPM_Constant.traject_sd_max) * 2.5f;
+		}
+
+		if (rev_distance > 0.01f) {
+			rev_time_needed = (rev_distance
+					/ ZGX45RGG_150RPM_Constant.traject_qd_max) * 2.5f;
+		}
+
+		// Use the longer time, with minimum time
+		sync_total_time = fmaxf(pris_time_needed, rev_time_needed);
+		if (sync_total_time < 1.0f)
+			sync_total_time = 1.0f; // Minimum 1 second
+
+		// Generate individual trajectories (we'll interpolate based on sync_total_time)
 		Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
 				prismatic_axis.target_pos,
 				ZGX45RGG_400RPM_Constant.traject_sd_max,
 				ZGX45RGG_400RPM_Constant.traject_sdd_max);
 
 		Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
-		            revolute_axis.target_pos,
-		            ZGX45RGG_150RPM_Constant.traject_qd_max,
-		            ZGX45RGG_150RPM_Constant.traject_qdd_max);
+				revolute_axis.target_pos,
+				ZGX45RGG_150RPM_Constant.traject_qd_max,
+				ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
+		// Initialize synchronized motion
+		sync_motion_active = true;
+		sync_start_time = 0.0f;
 		prismatic_axis.trajectory_active = false;
 		revolute_axis.trajectory_active = false;
 
@@ -808,7 +832,6 @@ void start_combined_trajectory(float prismatic_target_mm,
 		registerFrame[R_Theta_Status].U16 = 0;
 	}
 }
-
 void update_position_control(void) {
 	prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
 	prismatic_axis.command_vel = PWM_Satuation(
@@ -984,56 +1007,112 @@ void update_control_loops(void) {
 		}
 		break;
 
-	case MOTION_BOTH_AXES_ACTIVE:
-	        {
-	            bool pris_finished = true;  // Default to true for homing case
-	            bool rev_finished = false;
+	case MOTION_BOTH_AXES_ACTIVE: {
+		bool motion_finished = false;
 
-	            // Handle prismatic axis (skip if in homing mode)
-	            if (!(homing_active && homing_state == HOMING_REV_TO_ZERO_DEG)) {
-	                if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
-	                    Trapezoidal_Evaluated(&prisGen, &prisEva,
-	                            prismatic_axis.initial_pos, prismatic_axis.target_pos,
-	                            ZGX45RGG_400RPM_Constant.traject_sd_max,
-	                            ZGX45RGG_400RPM_Constant.traject_sdd_max);
+		if (sync_motion_active) {
+			// Time-synchronized motion
+			sync_start_time += 0.001f; // Assuming 1ms control loop
 
-	                    prismatic_axis.position = prisEva.setposition;
-	                    prismatic_axis.velocity = prisEva.setvelocity;
-	                    pris_finished = prisEva.isFinised;
+			float progress = sync_start_time / sync_total_time;
+			if (progress >= 1.0f) {
+				progress = 1.0f;
+				motion_finished = true;
+			}
 
-	                    if (prisEva.isFinised) {
-	                        prismatic_axis.trajectory_active = false;
-	                        prismatic_axis.position = prisEva.setposition;
-	                        prismatic_axis.velocity = 0.0f;
-	                    }
-	                }
-	            }
+			// Apply smooth S-curve to progress for better motion profile
+			float smooth_progress = progress * progress
+					* (3.0f - 2.0f * progress); // Smoothstep function
 
-	            // Handle revolute axis
-	            if (revolute_axis.trajectory_active && !revEva.isFinised) {
-	                Trapezoidal_Evaluated(&revGen, &revEva, revolute_axis.initial_pos,
-	                        revolute_axis.target_pos,
-	                        ZGX45RGG_150RPM_Constant.traject_qd_max,
-	                        ZGX45RGG_150RPM_Constant.traject_qdd_max);
+			// Calculate synchronized positions
+			if (!(homing_active && homing_state == HOMING_REV_TO_ZERO_DEG)) {
+				// Prismatic axis synchronized position
+				prismatic_axis.position = prismatic_axis.initial_pos
+						+ (prismatic_axis.target_pos
+								- prismatic_axis.initial_pos) * smooth_progress;
 
-	                revolute_axis.position = revEva.setposition;
-	                revolute_axis.velocity = revEva.setvelocity;
-	                rev_finished = revEva.isFinised;
+				// Calculate velocity (derivative of position)
+				static float last_pris_pos = 0.0f;
+				prismatic_axis.velocity = (prismatic_axis.position
+						- last_pris_pos) / 0.001f; // mm/s
+				last_pris_pos = prismatic_axis.position;
+			}
 
-	                if (revEva.isFinised) {
-	                    revolute_axis.trajectory_active = false;
-	                    revolute_axis.position = revEva.setposition;
-	                    revolute_axis.velocity = 0.0f;
-	                }
-	            }
+			// Revolute axis synchronized position
+			revolute_axis.position = revolute_axis.initial_pos
+					+ (revolute_axis.target_pos - revolute_axis.initial_pos)
+							* smooth_progress;
 
-	            // Check if BOTH axes are finished (or only revolute for homing)
-	            if (pris_finished && rev_finished) {
-	                motion_delay_timer = 0;
-	                motion_sequence_state = MOTION_PEN_DOWN_DELAY;
-	            }
-	        }
-	        break;
+			// Calculate velocity (derivative of position)
+			static float last_rev_pos = 0.0f;
+			revolute_axis.velocity = (revolute_axis.position - last_rev_pos)
+					/ 0.001f; // rad/s
+			last_rev_pos = revolute_axis.position;
+
+			if (motion_finished) {
+				// Motion completed
+				prismatic_axis.position = prismatic_axis.target_pos;
+				revolute_axis.position = revolute_axis.target_pos;
+				prismatic_axis.velocity = 0.0f;
+				revolute_axis.velocity = 0.0f;
+
+				sync_motion_active = false;
+				motion_delay_timer = 0;
+				motion_sequence_state = MOTION_PEN_DOWN_DELAY;
+			}
+
+		} else {
+			// Original trapezoidal motion (for homing)
+			bool pris_finished = true;  // Default to true for homing case
+			bool rev_finished = false;
+
+			// Handle prismatic axis (skip if in homing mode)
+			if (!(homing_active && homing_state == HOMING_REV_TO_ZERO_DEG)) {
+				if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
+					Trapezoidal_Evaluated(&prisGen, &prisEva,
+							prismatic_axis.initial_pos,
+							prismatic_axis.target_pos,
+							ZGX45RGG_400RPM_Constant.traject_sd_max,
+							ZGX45RGG_400RPM_Constant.traject_sdd_max);
+
+					prismatic_axis.position = prisEva.setposition;
+					prismatic_axis.velocity = prisEva.setvelocity;
+					pris_finished = prisEva.isFinised;
+
+					if (prisEva.isFinised) {
+						prismatic_axis.trajectory_active = false;
+						prismatic_axis.position = prisEva.setposition;
+						prismatic_axis.velocity = 0.0f;
+					}
+				}
+			}
+
+			// Handle revolute axis
+			if (revolute_axis.trajectory_active && !revEva.isFinised) {
+				Trapezoidal_Evaluated(&revGen, &revEva,
+						revolute_axis.initial_pos, revolute_axis.target_pos,
+						ZGX45RGG_150RPM_Constant.traject_qd_max,
+						ZGX45RGG_150RPM_Constant.traject_qdd_max);
+
+				revolute_axis.position = revEva.setposition;
+				revolute_axis.velocity = revEva.setvelocity;
+				rev_finished = revEva.isFinised;
+
+				if (revEva.isFinised) {
+					revolute_axis.trajectory_active = false;
+					revolute_axis.position = revEva.setposition;
+					revolute_axis.velocity = 0.0f;
+				}
+			}
+
+			// Check if BOTH axes are finished (or only revolute for homing)
+			if (pris_finished && rev_finished) {
+				motion_delay_timer = 0;
+				motion_sequence_state = MOTION_PEN_DOWN_DELAY;
+			}
+		}
+	}
+		break;
 
 	case MOTION_PEN_DOWN_DELAY:
 		if (++motion_delay_timer >= 1500) {
@@ -1791,12 +1870,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		uint32_t current_time = HAL_GetTick();
 		if ((current_time - j1_interrupt_last_time) < 200) {
-		    return; // ignore ถ้ายังไม่ครบ 200ms
+			return; // ignore ถ้ายังไม่ครบ 200ms
 		}
 		j1_interrupt_last_time = current_time;
 
 		if (!is_emergency_active() && !homing_active && !joy_mode_active
-				&& !first_startup ) {
+				&& !first_startup) {
 			check[0]++;
 			if (!j1_active) {
 				// start Again
@@ -1816,26 +1895,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 // J2 is NOT handled here anymore - it's polled in the main loop
 
-		if (GPIO_Pin == J3_Pin) {
-			if (!is_emergency_active() && !joy_mode_active
-					&& motion_sequence_state == MOTION_IDLE) {
-				start_homing_sequence(false);
-			}
-			return;
+	if (GPIO_Pin == J3_Pin) {
+		if (!is_emergency_active() && !joy_mode_active
+				&& motion_sequence_state == MOTION_IDLE) {
+			start_homing_sequence(false);
 		}
+		return;
+	}
 
 // Modified J4 button handler for joy mode exit
-		if (GPIO_Pin == J4_Pin) {
-			if (joy_mode_active) {
-				// Exit joy mode and hold current position (don't move)
-				exit_joy_mode();
-			} else if (is_emergency_active()) {
-				clear_emergency_state();
-				start_homing_sequence(true);
-			}
-			return;
+	if (GPIO_Pin == J4_Pin) {
+		if (joy_mode_active) {
+			// Exit joy mode and hold current position (don't move)
+			exit_joy_mode();
+		} else if (is_emergency_active()) {
+			clear_emergency_state();
+			start_homing_sequence(true);
 		}
+		return;
 	}
+}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
