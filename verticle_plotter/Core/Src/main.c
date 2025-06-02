@@ -1042,7 +1042,7 @@ void update_velocity_control(void) {
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+	dfd_filtered = 0.8f * dfd_filtered + 0.5f * revolute_axis.dfd;
 
 	revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
@@ -2338,7 +2338,7 @@ void stop_character_drawing(void) {
 }
 
 bool is_drawing_active(void) {
-	return current_drawing_sequence.sequence_active || word_drawing_active;
+	return current_drawing_sequence.sequence_active;
 }
 
 void start_word_FIBO_G01(void) {
@@ -2346,12 +2346,12 @@ void start_word_FIBO_G01(void) {
 		return;
 	}
 
+//	stop_character_drawing();
+//
 	word_drawing_active = true;
 	word_progress = 0;
 	word_delay_timer = 0;
 
-	// เริ่มวาดตัวอักษรแรก
-	draw_letter_F();
 }
 
 void draw_word_FIBO_G01(void) {
