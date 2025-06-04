@@ -214,7 +214,7 @@ static bool sync_motion_active = false;
 
 // เพิ่มหลัง static float sync_start_time = 0.0f; ที่มีอยู่แล้ว
 static DrawingSequence_t current_drawing_sequence = { 0 };
-
+bool drawing_pen_state = false;
 // ตัวอักษร 'F'
 DrawingPoint_t letter_F[] = { { 251.79f, 263.16f, false }, { 251.79f, 263.16f,
 true }, { 281.78f, 242.53f, true }, { 230.22f, 235.62f, true }, { 281.78f,
@@ -263,6 +263,9 @@ true }, { 299.67f, 115.71f, true }, { 286.36f, 114.78f, true }, { 286.36f,
 static uint8_t word_progress = 0;
 static uint32_t word_delay_timer = 0;
 static bool word_drawing_active = false;
+
+static bool requested_pen_state = false;  // false = pen up, true = pen down
+static bool use_requested_pen_state = false;
 
 /* USER CODE END PV */
 
@@ -870,7 +873,11 @@ void start_combined_trajectory(float prismatic_target_mm,
 		prismatic_axis.velocity = 0.0f;
 
 		revolute_axis.trajectory_active = true;
-		plotter_pen_up();
+
+		if (!current_drawing_sequence.sequence_active) {
+			plotter_pen_up();
+		}
+
 		motion_delay_timer = 0;
 		motion_sequence_state = MOTION_PEN_UP_DELAY;
 
@@ -920,7 +927,21 @@ void start_combined_trajectory(float prismatic_target_mm,
 		prismatic_axis.trajectory_active = false;
 		revolute_axis.trajectory_active = false;
 
-		plotter_pen_up();
+		if (current_drawing_sequence.sequence_active
+				&& current_drawing_sequence.current_point > 0) {
+			// ดูว่าจุดปัจจุบันต้องการวางปากกาหรือไม่
+			DrawingPoint_t current =
+					current_drawing_sequence.points[current_drawing_sequence.current_point
+							- 1];
+
+			// ถ้าต้องการวางปากกา ก็ไม่ต้องยกขึ้น
+			if (!current.pen_down) {
+				plotter_pen_up();
+			}
+		} else {
+			// ไม่ได้วาดตัวอักษร - ยกปากกาตามปกติ
+			plotter_pen_up();
+		}
 		motion_delay_timer = 0;
 		motion_sequence_state = MOTION_PEN_UP_DELAY;
 
@@ -1086,6 +1107,9 @@ void update_control_loops(void) {
 	case MOTION_PEN_UP_DELAY:
 		if (++motion_delay_timer >= 1500) {
 			// ใช้ sync motion สำหรับทุกกรณี รวมถึง homing
+			if (current_drawing_sequence.sequence_active && drawing_pen_state) {
+				plotter_pen_down();
+			}
 			prismatic_axis.trajectory_active = true;
 			revolute_axis.trajectory_active = true;
 			motion_sequence_state = MOTION_BOTH_AXES_ACTIVE;
@@ -1201,7 +1225,22 @@ void update_control_loops(void) {
 
 	case MOTION_PEN_DOWN_DELAY:
 		if (++motion_delay_timer >= 1500) {
-			plotter_pen_down();
+			if (current_drawing_sequence.sequence_active
+					&& current_drawing_sequence.current_point > 0) {
+				// ดูสถานะปากกาจากจุดปัจจุบัน
+				DrawingPoint_t current =
+						current_drawing_sequence.points[current_drawing_sequence.current_point
+								- 1];
+
+				if (current.pen_down) {
+					plotter_pen_down();
+				} else {
+					plotter_pen_up();
+				}
+			} else {
+				// ไม่ได้วาดตัวอักษร - วางปากกาตามปกติ
+				plotter_pen_down();
+			}
 			motion_sequence_state = MOTION_COMPLETE;
 		}
 		break;
@@ -2215,12 +2254,7 @@ void execute_next_drawing_point(void) {
 				current_drawing_sequence.points[current_drawing_sequence.current_point];
 
 		// ตั้งค่าปากกาก่อนเคลื่อนที่
-		if (current_point.pen_down) {
-			plotter_pen_down();
-		} else {
-			plotter_pen_up();
-		}
-
+		drawing_pen_state = current_point.pen_down;
 		// เริ่มการเคลื่อนที่ไปจุดถัดไป
 		start_combined_trajectory(current_point.r_mm, current_point.theta_deg);
 		current_drawing_sequence.current_point++;
@@ -2288,6 +2322,7 @@ void stop_character_drawing(void) {
 	current_drawing_sequence.current_point = 0;
 	word_drawing_active = false;
 	word_progress = 0;
+	drawing_pen_state = false;
 	plotter_pen_up();
 }
 
@@ -2309,7 +2344,7 @@ void start_word_FIBO_G01(void) {
 }
 
 void draw_word_FIBO_G01(void) {
-	const uint32_t LETTER_DELAY = 3000; // หน่วงเวลา 3 วินาทีระหว่างตัวอักษร
+	const uint32_t LETTER_DELAY = 1000; // หน่วงเวลา 3 วินาทีระหว่างตัวอักษร
 
 	if (!word_drawing_active) {
 		return;
