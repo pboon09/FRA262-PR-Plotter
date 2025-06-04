@@ -216,89 +216,48 @@ static bool sync_motion_active = false;
 static DrawingSequence_t current_drawing_sequence = { 0 };
 
 // ตัวอักษร 'F'
-DrawingPoint_t letter_F[] = {
-    { 251.79f, 263.16f, false },
-    { 251.79f, 263.16f, true },
-    { 281.78f, 242.53f, true },
-    { 230.22f, 235.62f, true },
-    { 281.78f, 242.53f, true },
-    { 262.49f, 252.26f, true },
-    { 224.72f, 249.15f, true },
-    { 224.72f, 249.15f, false }
-};
+DrawingPoint_t letter_F[] = { { 251.79f, 263.16f, false }, { 251.79f, 263.16f,
+true }, { 281.78f, 242.53f, true }, { 230.22f, 235.62f, true }, { 281.78f,
+		242.53f, true }, { 262.49f, 252.26f, true }, { 224.72f, 249.15f, true },
+		{ 224.72f, 249.15f, false } };
 
 // ตัวอักษร 'I'
-DrawingPoint_t letter_I[] = {
-    { 152.97f, 258.69f, false },
-    { 152.97f, 258.69f, true },
-    { 198.49f, 229.09f, true },
-    { 198.49f, 229.09f, false }
-};
+DrawingPoint_t letter_I[] = { { 152.97f, 258.69f, false }, { 152.97f, 258.69f,
+true }, { 198.49f, 229.09f, true }, { 198.49f, 229.09f, false } };
 
 // ตัวอักษร 'B'
-DrawingPoint_t letter_B[] = {
-    { 114.02f, 254.74f, false },
-    { 114.02f, 254.74f, true },
-    { 170.29f, 220.24f, true },
-    { 141.16f, 202.93f, true },
-    { 97.08f, 214.51f, true },
-    { 136.01f, 233.97f, true },
-    { 97.08f, 214.51f, true },
-    { 62.65f, 241.39f, true },
-    { 114.02f, 254.74f, true },
-    { 114.02f, 254.74f, false }
-};
+DrawingPoint_t letter_B[] = { { 114.02f, 254.74f, false }, { 114.02f, 254.74f,
+true }, { 170.29f, 220.24f, true }, { 141.16f, 202.93f, true }, { 97.08f,
+		214.51f, true }, { 136.01f, 233.97f, true }, { 97.08f, 214.51f,
+true }, { 62.65f, 241.39f, true }, { 114.02f, 254.74f, true }, { 114.02f,
+		254.74f, false } };
 
 // ตัวอักษร 'O'
-DrawingPoint_t letter_O[] = {
-    { 50.00f, 233.13f, false },
-    { 50.00f, 233.13f, true },
-    { 136.01f, 197.10f, true },
-    { 131.53f, 171.25f, true },
-    { 36.06f, 146.31f, true },
-    { 50.00f, 233.13f, true },
-    { 50.00f, 233.13f, false }
-};
+DrawingPoint_t letter_O[] = { { 50.00f, 233.13f, false }, { 50.00f, 233.13f,
+true }, { 136.01f, 197.10f, true }, { 131.53f, 171.25f, true }, { 36.06f,
+		146.31f, true }, { 50.00f, 233.13f, true }, { 50.00f, 233.13f,
+false } };
 
 // ตัวอักษร '_'
-DrawingPoint_t letter_underscore[] = {
-    { 50.00f, 126.87f, false },
-    { 50.00f, 126.87f, true },
-    { 94.87f, 108.43f, true },
-    { 94.87f, 108.43f, false }
-};
+DrawingPoint_t letter_underscore[] = { { 50.00f, 126.87f, false }, { 50.00f,
+		126.87f, true }, { 94.87f, 108.43f, true }, { 94.87f, 108.43f, false } };
 
 // ตัวอักษร 'G'
-DrawingPoint_t letter_G[] = {
-    { 206.16f, 129.09f, false },
-    { 206.16f, 129.09f, true },
-    { 170.29f, 139.76f, true },
-    { 114.02f, 105.26f, true },
-    { 162.79f, 100.62f, true },
-    { 178.89f, 116.57f, true },
-    { 156.92f, 120.65f, true },
-    { 156.92f, 120.65f, false }
-};
+DrawingPoint_t letter_G[] = { { 206.16f, 129.09f, false }, { 206.16f, 129.09f,
+true }, { 170.29f, 139.76f, true }, { 114.02f, 105.26f, true }, { 162.79f,
+		100.62f, true }, { 178.89f, 116.57f, true }, { 156.92f, 120.65f, true },
+		{ 156.92f, 120.65f, false } };
 
 // ตัวเลข '0'
-DrawingPoint_t number_0[] = {
-    { 182.48f, 99.46f, false },
-    { 182.48f, 99.46f, true },
-    { 222.04f, 125.84f, true },
-    { 264.20f, 119.48f, true },
-    { 231.95f, 97.43f, true },
-    { 182.48f, 99.46f, true },
-    { 182.48f, 99.46f, false }
-};
+DrawingPoint_t number_0[] = { { 182.48f, 99.46f, false }, { 182.48f, 99.46f,
+true }, { 222.04f, 125.84f, true }, { 264.20f, 119.48f, true }, { 231.95f,
+		97.43f, true }, { 182.48f, 99.46f, true }, { 182.48f, 99.46f,
+false } };
 
 // ตัวเลข '1'
-DrawingPoint_t number_1[] = {
-    { 271.66f, 96.34f, false },
-    { 271.66f, 96.34f, true },
-    { 299.67f, 115.71f, true },
-    { 286.36f, 114.78f, true },
-    { 286.36f, 114.78f, false }
-};
+DrawingPoint_t number_1[] = { { 271.66f, 96.34f, false }, { 271.66f, 96.34f,
+true }, { 299.67f, 115.71f, true }, { 286.36f, 114.78f, true }, { 286.36f,
+		114.78f, false } };
 
 // ตัวแปรสำหรับวาดคำ FIBO_G01
 static uint8_t word_progress = 0;
@@ -722,9 +681,14 @@ void update_homing_sequence(void) {
 		if (!rev_to_zero_trajectory_started) {
 			// Get current prismatic position (keep it where it is)
 			float current_pris_pos = prismatic_encoder.mm;
+			float current_rev_deg = normalize_angle(revolute_encoder.rads)
+					* 180.0f / PI;
+
+			check[0] = (int) current_rev_deg;
+			check[1] = (int) movement_deg;
 
 			// Start combined trajectory to move revolute to 0° while keeping prismatic position
-			start_combined_trajectory(current_pris_pos, 0.0f);
+			start_combined_trajectory(0.0, 0.0);
 
 			rev_to_zero_trajectory_started = true;
 		}
@@ -892,25 +856,27 @@ void start_combined_trajectory(float prismatic_target_mm,
 
 	if (is_homing_zero_deg) {
 		// HOMING_REV_TO_ZERO_DEG: Only generate revolute trajectory
-		sync_motion_active = false;
-		prismatic_axis.trajectory_active = false;
-		prismatic_axis.position = pris_current;
-		prismatic_axis.velocity = 0.0f;
 
-		check[4]++;
+		check[2]++;
+
 		Trapezoidal_Generator(&revGen, revolute_axis.initial_pos,
 				revolute_axis.target_pos,
 				ZGX45RGG_150RPM_Constant.traject_qd_max,
 				ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
-		revolute_axis.trajectory_active = false;
+		sync_motion_active = false;
+		prismatic_axis.trajectory_active = false;
+		prismatic_axis.position = pris_current;
+		prismatic_axis.velocity = 0.0f;
+
+		revolute_axis.trajectory_active = true;
 		plotter_pen_up();
 		motion_delay_timer = 0;
 		motion_sequence_state = MOTION_PEN_UP_DELAY;
+
 	} else {
 		// NORMAL TRAJECTORY: Use time-synchronized motion
-		check[5]++;
-
+		check[3]++;
 		// Calculate distances
 		float pris_distance = fabsf(
 				prismatic_axis.target_pos - prismatic_axis.initial_pos);
@@ -1042,7 +1008,7 @@ void update_velocity_control(void) {
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.8f * dfd_filtered + 0.5f * revolute_axis.dfd;
+	dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
 
 	revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
@@ -1119,22 +1085,10 @@ void update_control_loops(void) {
 	switch (motion_sequence_state) {
 	case MOTION_PEN_UP_DELAY:
 		if (++motion_delay_timer >= 1500) {
-			// Check if we're in HOMING_REV_TO_ZERO_DEG mode
-			if (homing_active && homing_state == HOMING_REV_TO_ZERO_DEG) {
-				// Skip prismatic phase entirely - go directly to revolute motion
-				revolute_axis.trajectory_active = true;
-				motion_sequence_state = MOTION_REVOLUTE_ACTIVE;
-
-				// Ensure prismatic stays stationary
-				prismatic_axis.trajectory_active = false;
-				prismatic_axis.position = prismatic_encoder.mm;
-				prismatic_axis.velocity = 0.0f;
-			} else {
-				// Normal trajectory - activate prismatic first
-				prismatic_axis.trajectory_active = true;
-				revolute_axis.trajectory_active = true;
-				motion_sequence_state = MOTION_BOTH_AXES_ACTIVE;
-			}
+			// ใช้ sync motion สำหรับทุกกรณี รวมถึง homing
+			prismatic_axis.trajectory_active = true;
+			revolute_axis.trajectory_active = true;
+			motion_sequence_state = MOTION_BOTH_AXES_ACTIVE;
 		}
 		break;
 
@@ -1363,11 +1317,12 @@ void emergency_stop_all_motors(void) {
 	prismatic_axis.command_vel = 0.0f;
 	revolute_axis.command_vel = 0.0f;
 
-	PID_CONTROLLER_Reset(&prismatic_position_pid);
-	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-	PID_CONTROLLER_Reset(&revolute_position_pid);
-	PID_CONTROLLER_Reset(&revolute_velocity_pid);
-	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//	PID_CONTROLLER_Reset(&prismatic_position_pid);
+//	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
+//	PID_CONTROLLER_Reset(&revolute_position_pid);
+//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+
 }
 
 void update_safety_system(void) {
@@ -1441,10 +1396,10 @@ void enter_joy_mode(void) {
 	revolute_axis.command_vel = 0.0f;
 
 	// Reset PID controllers
-	PID_CONTROLLER_Reset(&prismatic_position_pid);
-	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-	PID_CONTROLLER_Reset(&revolute_position_pid);
-	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//	PID_CONTROLLER_Reset(&prismatic_position_pid);
+//	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
+//	PID_CONTROLLER_Reset(&revolute_position_pid);
+//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 }
 
 /* Updated exit joy mode to handle cleanup properly */
@@ -1477,11 +1432,11 @@ void exit_joy_mode(void) {
 			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 
 	// Reset PID controllers
-	PID_CONTROLLER_Reset(&prismatic_position_pid);
-	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-	PID_CONTROLLER_Reset(&revolute_position_pid);
-	PID_CONTROLLER_Reset(&revolute_velocity_pid);
-	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//	PID_CONTROLLER_Reset(&prismatic_position_pid);
+//	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
+//	PID_CONTROLLER_Reset(&revolute_position_pid);
+//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 
 	// Reset motion state
 	motion_sequence_state = MOTION_IDLE;
@@ -1538,9 +1493,8 @@ void save_current_position(void) {
 }
 
 void start_position_playback(void) {
-	check[3]++;
+
 	if (saved_position_count > 0) {
-		check[2]++;
 		playback_position_index = 0;
 		joy_mode_playback_timer = 0;
 		joy_mode_state = JOY_MODE_PLAYBACK;
@@ -1812,7 +1766,7 @@ void update_joy_mode(void) {
 					joy_mode_playback_timer = 0;
 				} else {
 					// All positions played back - JUST EXIT JOY MODE (NO HOMING)
-					check[9]++;
+
 					exit_joy_mode();
 
 					// Optional: Add some indication that playback is complete
@@ -1830,7 +1784,7 @@ void update_joy_mode(void) {
 			break;
 
 		case MOTION_PRISMATIC_ACTIVE:
-			check[6]++;
+
 			if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
 				Trapezoidal_Evaluated(&prisGen, &prisEva,
 						prismatic_axis.initial_pos, prismatic_axis.target_pos,
@@ -1857,7 +1811,6 @@ void update_joy_mode(void) {
 			break;
 
 		case MOTION_REVOLUTE_ACTIVE:
-			check[7]++;
 			if (revolute_axis.trajectory_active && !revEva.isFinised) {
 				Trapezoidal_Evaluated(&revGen, &revEva,
 						revolute_axis.initial_pos, revolute_axis.target_pos,
@@ -2007,7 +1960,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		if (!is_emergency_active() && !homing_active && !joy_mode_active
 				&& !first_startup) {
-			check[0]++;
 			if (!j1_active) {
 				// start Again
 				j1_active = true;
@@ -2034,8 +1986,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			j3_press_count = 0;
 		}
 
-
-
 		j3_last_press_time = current_time;
 		j3_press_count++;
 
@@ -2048,14 +1998,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				j3_press_count = 0; // Reset counter
 				break;
 
-			case 2:
-				// กดครั้งที่ 2: วาดตัวอักษร F เดี่ยว
-				stop_character_drawing();
-				j3_press_count = 0; // Reset counter; // Reset counter
-				break;
-
 			default:
 				// Reset if pressed too many times
+				stop_character_drawing();
 				j3_press_count = 0;
 				break;
 			}
@@ -2192,7 +2137,16 @@ void modbus_working(void) {
 
 	if (registerFrame[BaseSystem_Status].U16 == 1) {
 		exit_joy_mode();
-		start_homing_sequence(true);
+		check[5] = 1;
+		registerFrame[R_Theta_Status].U16 = 1;
+		start_combined_trajectory(0.0, 0.0);
+
+//		PID_CONTROLLER_Reset(&prismatic_position_pid);
+//		PID_CONTROLLER_Reset(&prismatic_velocity_pid);
+//		PID_CONTROLLER_Reset(&revolute_position_pid);
+//		PID_CONTROLLER_Reset(&revolute_velocity_pid);
+//		PID_CONTROLLER_Reset(&revolute_velocity_pid);
+
 	} else if (registerFrame[BaseSystem_Status].U16 == 2) {
 		registerFrame[R_Theta_Status].U16 = 2;
 		enter_joy_mode();

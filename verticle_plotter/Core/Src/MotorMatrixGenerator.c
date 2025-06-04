@@ -164,6 +164,5 @@ void GenerateMotorMatrices(float32_t R_a, float32_t L_a, float32_t J, float32_t 
     // Bc = [0; 0; 0; 1/L];
     B_c[3] = 1.0f/L_a;
 
-    // Discretize the system using ARM CMSIS DSP
     discretize_system_with_arm(A_c, B_c, dt, A, B);
 }
