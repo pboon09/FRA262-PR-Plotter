@@ -137,15 +137,25 @@ void plotter_begin() {
 	MDXX_set_range(&prismatic_motor, 2000, 0);
 	MDXX_set_range(&revolute_motor, 2000, 0);
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 1e-10, 100,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 1e-10, 103, //103 (D)
 			ZGX45RGG_400RPM_Constant.sd_max);
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0, //150 (P)
 			ZGX45RGG_400RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.001, 700,
 			ZGX45RGG_150RPM_Constant.qd_max);
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 25, 3000,
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 30.5, 2996, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
 			ZGX45RGG_150RPM_Constant.U_max);
+
+//	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 1e-10, 80,
+//			ZGX45RGG_400RPM_Constant.sd_max);
+//	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
+//			ZGX45RGG_400RPM_Constant.U_max);
+//
+//	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.001, 700,
+//			ZGX45RGG_150RPM_Constant.qd_max);
+//	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 25, 3000,
+//			ZGX45RGG_150RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&revolute_joy_pid, 7500, 100, 2000,
 			ZGX45RGG_150RPM_Constant.U_max);
@@ -223,7 +233,7 @@ void plotter_update_sensors() {
 	extern bool homing_active;
 	if (!homing_active) {
 		extern volatile bool up_photo, low_photo;
-		up_photo = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port, UPPER_PHOTO_Pin);
+		up_photo = HAL_GPIO_ReadPin(upperphoto_GPIO_Port, upperphoto_Pin);
 		low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
 	}
 }

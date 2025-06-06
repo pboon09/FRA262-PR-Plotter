@@ -80,6 +80,9 @@ void Error_Handler(void);
 #define LOWER_PHOTO_Pin GPIO_PIN_12
 #define LOWER_PHOTO_GPIO_Port GPIOB
 #define LOWER_PHOTO_EXTI_IRQn EXTI15_10_IRQn
+#define upperphoto_Pin GPIO_PIN_8
+#define upperphoto_GPIO_Port GPIOA
+#define upperphoto_EXTI_IRQn EXTI9_5_IRQn
 #define PILOT_Pin GPIO_PIN_10
 #define PILOT_GPIO_Port GPIOA
 #define T_SWDIO_Pin GPIO_PIN_13
@@ -99,6 +102,9 @@ void Error_Handler(void);
 #define EMER_Pin GPIO_PIN_4
 #define EMER_GPIO_Port GPIOB
 #define EMER_EXTI_IRQn EXTI4_IRQn
+#define prox_Pin GPIO_PIN_5
+#define prox_GPIO_Port GPIOB
+#define prox_EXTI_IRQn EXTI9_5_IRQn
 #define PROX_Pin GPIO_PIN_6
 #define PROX_GPIO_Port GPIOB
 #define PROX_EXTI_IRQn EXTI9_5_IRQn

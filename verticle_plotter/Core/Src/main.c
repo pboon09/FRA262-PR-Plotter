@@ -195,6 +195,7 @@ bool joy_mode_b2_last_state = false;
 int check[10];
 uint16_t b2S[2];
 
+bool emer_pressed;
 //100 point
 uint8_t j1_cycle_count = 0;
 bool j1_going_to_target = true;
@@ -216,48 +217,49 @@ static bool sync_motion_active = false;
 static DrawingSequence_t current_drawing_sequence = { 0 };
 bool drawing_pen_state = false;
 // ตัวอักษร 'F'
-DrawingPoint_t letter_F[] = { { 251.79f, 263.16f, false }, { 251.79f, 263.16f,
-true }, { 281.78f, 242.53f, true }, { 230.22f, 235.62f, true }, { 281.78f,
-		242.53f, true }, { 262.49f, 252.26f, true }, { 224.72f, 249.15f, true },
-		{ 224.72f, 249.15f, false } };
+DrawingPoint_t letter_F[] = { { 281.60f, 263.88f, false }, { 281.60f, 263.88f,
+		true }, { 308.71f, 245.10f, true }, { 255.54f, 239.42f, true }, {
+		308.71f, 245.10f, true }, { 291.20f, 254.05f, true }, { 243.52f,
+		250.82f, true }, { 243.52f, 250.82f, false } };
 
 // ตัวอักษร 'I'
-DrawingPoint_t letter_I[] = { { 152.97f, 258.69f, false }, { 152.97f, 258.69f,
-true }, { 198.49f, 229.09f, true }, { 198.49f, 229.09f, false } };
+DrawingPoint_t letter_I[] = { { 202.24f, 261.47f, false }, { 202.24f, 261.47f,
+		true }, { 238.54f, 236.98f, true }, { 238.54f, 236.98f, false } };
 
 // ตัวอักษร 'B'
-DrawingPoint_t letter_B[] = { { 114.02f, 254.74f, false }, { 114.02f, 254.74f,
-true }, { 170.29f, 220.24f, true }, { 141.16f, 202.93f, true }, { 97.08f,
-		214.51f, true }, { 136.01f, 233.97f, true }, { 97.08f, 214.51f,
-true }, { 62.65f, 241.39f, true }, { 114.02f, 254.74f, true }, { 114.02f,
-		254.74f, false } };
+DrawingPoint_t letter_B[] = { { 177.55f, 260.27f, false }, { 177.55f, 260.27f,
+		true }, { 218.00f, 233.39f, true }, { 176.92f, 222.71f, true }, {
+		144.22f, 236.31f, true }, { 192.42f, 245.43f, true }, { 144.22f,
+		236.31f, true }, { 123.69f, 255.96f, true }, { 177.55f, 260.27f, true },
+		{ 177.55f, 260.27f, false } };
 
 // ตัวอักษร 'O'
-DrawingPoint_t letter_O[] = { { 50.00f, 233.13f, false }, { 50.00f, 233.13f,
-true }, { 136.01f, 197.10f, true }, { 131.53f, 171.25f, true }, { 36.06f,
-		146.31f, true }, { 50.00f, 233.13f, true }, { 50.00f, 233.13f,
-false } };
+DrawingPoint_t letter_O[] = { { 104.40f, 253.30f, false }, { 104.40f, 253.30f,
+		true }, { 164.01f, 217.57f, true }, { 136.01f, 197.10f, true }, {
+		50.00f, 233.13f, true }, { 104.40f, 253.30f, true }, { 104.40f, 253.30f,
+		false } };
 
 // ตัวอักษร '_'
-DrawingPoint_t letter_underscore[] = { { 50.00f, 126.87f, false }, { 50.00f,
-		126.87f, true }, { 94.87f, 108.43f, true }, { 94.87f, 108.43f, false } };
+DrawingPoint_t letter_underscore[] =
+		{ { 58.31f, 120.96f, false }, { 58.31f, 120.96f, true }, { 104.40f,
+				106.70f, true }, { 104.40f, 106.70f, false } };
 
 // ตัวอักษร 'G'
-DrawingPoint_t letter_G[] = { { 206.16f, 129.09f, false }, { 206.16f, 129.09f,
-true }, { 170.29f, 139.76f, true }, { 114.02f, 105.26f, true }, { 162.79f,
-		100.62f, true }, { 178.89f, 116.57f, true }, { 156.92f, 120.65f, true },
-		{ 156.92f, 120.65f, false } };
+DrawingPoint_t letter_G[] = { { 214.01f, 127.41f, false }, { 214.01f, 127.41f,
+		true }, { 176.92f, 137.29f, true }, { 123.69f, 104.04f, true }, {
+		172.63f, 100.01f, true }, { 187.88f, 115.20f, true }, { 165.60f,
+		118.89f, true }, { 165.60f, 118.89f, false } };
 
 // ตัวเลข '0'
-DrawingPoint_t number_0[] = { { 182.48f, 99.46f, false }, { 182.48f, 99.46f,
-true }, { 222.04f, 125.84f, true }, { 264.20f, 119.48f, true }, { 231.95f,
-		97.43f, true }, { 182.48f, 99.46f, true }, { 182.48f, 99.46f,
-false } };
+DrawingPoint_t number_0[] = { { 192.35f, 98.97f, false }, { 192.35f, 98.97f,
+		true }, { 230.22f, 124.38f, true }, { 272.95f, 118.44f, true }, {
+		241.87f, 97.13f, true }, { 192.35f, 98.97f, true }, { 192.35f, 98.97f,
+		false } };
 
 // ตัวเลข '1'
 DrawingPoint_t number_1[] = { { 271.66f, 96.34f, false }, { 271.66f, 96.34f,
-true }, { 299.67f, 115.71f, true }, { 286.36f, 114.78f, true }, { 286.36f,
-		114.78f, false } };
+		true }, { 299.67f, 115.71f, true }, { 282.31f, 112.93f, true }, {
+		282.31f, 112.93f, false } };
 
 // ตัวแปรสำหรับวาดคำ FIBO_G01
 static uint8_t word_progress = 0;
@@ -380,9 +382,9 @@ int main(void) {
 
 	if (first_startup) {
 		// Check if already at home position
-		bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
-		UPPER_PHOTO_Pin);
-		bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+		bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port,
+		upperphoto_Pin);
+		bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
 
 		if (up_photo_detected && prox_detected) {
 			// Already at home position - no need to home
@@ -466,9 +468,9 @@ void start_homing_sequence(bool is_startup) {
 		return;
 
 	// Check current sensor states
-	bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
-	UPPER_PHOTO_Pin);
-	bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+	bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port,
+	upperphoto_Pin);
+	bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
 
 	// Different logic for startup vs manual homing
 	if (is_startup || first_startup) {
@@ -659,7 +661,7 @@ void update_homing_sequence(void) {
 		if (motion_delay_timer >= 500) {
 			if (first_startup) {
 				// STARTUP: Check if prox is already detected before searching
-				bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+				bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
 
 				if (prox_detected) {
 					// Already at prox - skip search and go to completion
@@ -711,7 +713,7 @@ void update_homing_sequence(void) {
 		motion_delay_timer++;
 		if (motion_delay_timer >= 500) {
 			// CHECK IF PROX IS ALREADY DETECTED BEFORE STARTING SEARCH
-			bool prox_detected = HAL_GPIO_ReadPin(PROX_GPIO_Port, PROX_Pin);
+			bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
 
 			if (prox_detected) {
 				// Already at proximity sensor - skip search and go directly to completion
@@ -767,6 +769,7 @@ void update_homing_sequence(void) {
 		break;
 
 	case HOMING_COMPLETE:
+		check[5]++;
 		NVIC_SystemReset();
 		break;
 
@@ -1029,7 +1032,7 @@ void update_velocity_control(void) {
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.8f * dfd_filtered + 0.2f * revolute_axis.dfd;
+	dfd_filtered = 0.8f * dfd_filtered + 0.175f * revolute_axis.dfd; //dfd 0.175
 
 	revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
@@ -1090,7 +1093,7 @@ void update_control_loops(void) {
 
 			j1_cycle_count++;
 
-			if (j1_cycle_count >= 100) {
+			if (j1_cycle_count >= 10) {
 				//finish 100
 				j1_active = false;
 				j1_cycle_count = 0;
@@ -1260,7 +1263,7 @@ void update_control_loops(void) {
 
 void check_emergency_button(void) {
 	// Read current state of emergency button
-	bool emer_pressed = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+	emer_pressed = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
 
 	// If emergency button is pressed (assuming active high)
 	// Adjust the logic based on your hardware:
@@ -1578,8 +1581,8 @@ void reset_joy_mode_data(void) {
 
 void update_joy_mode_velocity_control(void) {
 	// Read current photo sensor states directly
-	bool up_photo_detected = HAL_GPIO_ReadPin(UPPER_PHOTO_GPIO_Port,
-	UPPER_PHOTO_Pin);
+	bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port,
+	upperphoto_Pin);
 	bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port,
 	LOWER_PHOTO_Pin);
 
@@ -1969,12 +1972,12 @@ void handle_b2_button_polling(void) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == PROX_Pin) {
+	if (GPIO_Pin == prox_Pin) {
 		prox_count++;
 		return;
 	}
 
-	if (GPIO_Pin == UPPER_PHOTO_Pin) {
+	if (GPIO_Pin == upperphoto_Pin) {
 		up_photo = true;
 		return;
 	}
@@ -2176,7 +2179,7 @@ void modbus_working(void) {
 
 	if (registerFrame[BaseSystem_Status].U16 == 1) {
 		exit_joy_mode();
-		check[5] = 1;
+
 		registerFrame[R_Theta_Status].U16 = 1;
 		start_combined_trajectory(0.0, 0.0);
 
@@ -2344,7 +2347,7 @@ void start_word_FIBO_G01(void) {
 }
 
 void draw_word_FIBO_G01(void) {
-	const uint32_t LETTER_DELAY = 1000; // หน่วงเวลา 3 วินาทีระหว่างตัวอักษร
+	const uint32_t LETTER_DELAY = 1; // หน่วงเวลา 3 วินาทีระหว่างตัวอักษร
 
 	if (!word_drawing_active) {
 		return;
