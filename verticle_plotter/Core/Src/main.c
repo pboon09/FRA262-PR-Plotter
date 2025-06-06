@@ -122,7 +122,7 @@ typedef struct {
 #define SEQUENCE_MAX_POINTS 6
 
 #define HOMING_PRIS_VELOCITY 250.0f
-#define HOMING_REV_VELOCITY 2.0f
+#define HOMING_REV_VELOCITY 1.5f
 
 #define SAFETY_TOGGLE_PERIOD 250
 #define POSITION_CONTROL_DIVIDER 10
@@ -203,11 +203,11 @@ bool j1_active = false;
 const float32_t J1_TARGET_PRIS = 200.0f;
 const float32_t J1_TARGET_REV = 90.0f;
 static uint32_t j1_interrupt_last_time = 0;
-const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 500;
+const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 150;
 
 static uint8_t j3_press_count = 0;
 static uint32_t j3_last_press_time = 0;
-const uint32_t J3_PRESS_TIMEOUT = 500;
+const uint32_t J3_PRESS_TIMEOUT = 150;
 
 static float sync_start_time = 0.0f;
 static float sync_total_time = 0.0f;
@@ -218,26 +218,26 @@ static DrawingSequence_t current_drawing_sequence = { 0 };
 bool drawing_pen_state = false;
 // ตัวอักษร 'F'
 DrawingPoint_t letter_F[] = { { 281.60f, 263.88f, false }, { 281.60f, 263.88f,
-		true }, { 308.71f, 245.10f, true }, { 255.54f, 239.42f, true }, {
-		308.71f, 245.10f, true }, { 291.20f, 254.05f, true }, { 243.52f,
-		250.82f, true }, { 243.52f, 250.82f, false } };
+true }, { 308.71f, 245.10f, true }, { 255.54f, 239.42f, true }, { 308.71f,
+		245.10f, true }, { 291.20f, 254.05f, true }, { 243.52f, 250.82f, true },
+		{ 243.52f, 250.82f, false } };
 
 // ตัวอักษร 'I'
 DrawingPoint_t letter_I[] = { { 202.24f, 261.47f, false }, { 202.24f, 261.47f,
-		true }, { 238.54f, 236.98f, true }, { 238.54f, 236.98f, false } };
+true }, { 238.54f, 236.98f, true }, { 238.54f, 236.98f, false } };
 
 // ตัวอักษร 'B'
 DrawingPoint_t letter_B[] = { { 177.55f, 260.27f, false }, { 177.55f, 260.27f,
-		true }, { 218.00f, 233.39f, true }, { 176.92f, 222.71f, true }, {
-		144.22f, 236.31f, true }, { 192.42f, 245.43f, true }, { 144.22f,
-		236.31f, true }, { 123.69f, 255.96f, true }, { 177.55f, 260.27f, true },
-		{ 177.55f, 260.27f, false } };
+true }, { 218.00f, 233.39f, true }, { 176.92f, 222.71f, true }, { 144.22f,
+		236.31f, true }, { 192.42f, 245.43f, true }, { 144.22f, 236.31f, true },
+		{ 123.69f, 255.96f, true }, { 177.55f, 260.27f, true }, { 177.55f,
+				260.27f, false } };
 
 // ตัวอักษร 'O'
 DrawingPoint_t letter_O[] = { { 104.40f, 253.30f, false }, { 104.40f, 253.30f,
-		true }, { 164.01f, 217.57f, true }, { 136.01f, 197.10f, true }, {
-		50.00f, 233.13f, true }, { 104.40f, 253.30f, true }, { 104.40f, 253.30f,
-		false } };
+true }, { 164.01f, 217.57f, true }, { 136.01f, 197.10f, true }, { 50.00f,
+		233.13f, true }, { 104.40f, 253.30f, true }, { 104.40f, 253.30f,
+false } };
 
 // ตัวอักษร '_'
 DrawingPoint_t letter_underscore[] =
@@ -246,29 +246,25 @@ DrawingPoint_t letter_underscore[] =
 
 // ตัวอักษร 'G'
 DrawingPoint_t letter_G[] = { { 214.01f, 127.41f, false }, { 214.01f, 127.41f,
-		true }, { 176.92f, 137.29f, true }, { 123.69f, 104.04f, true }, {
-		172.63f, 100.01f, true }, { 187.88f, 115.20f, true }, { 165.60f,
-		118.89f, true }, { 165.60f, 118.89f, false } };
+true }, { 176.92f, 137.29f, true }, { 123.69f, 104.04f, true }, { 172.63f,
+		100.01f, true }, { 187.88f, 115.20f, true }, { 165.60f, 118.89f, true },
+		{ 165.60f, 118.89f, false } };
 
 // ตัวเลข '0'
 DrawingPoint_t number_0[] = { { 192.35f, 98.97f, false }, { 192.35f, 98.97f,
-		true }, { 230.22f, 124.38f, true }, { 272.95f, 118.44f, true }, {
-		241.87f, 97.13f, true }, { 192.35f, 98.97f, true }, { 192.35f, 98.97f,
-		false } };
+true }, { 230.22f, 124.38f, true }, { 272.95f, 118.44f, true }, { 241.87f,
+		97.13f, true }, { 192.35f, 98.97f, true }, { 192.35f, 98.97f,
+false } };
 
 // ตัวเลข '1'
 DrawingPoint_t number_1[] = { { 271.66f, 96.34f, false }, { 271.66f, 96.34f,
-		true }, { 299.67f, 115.71f, true }, { 282.31f, 112.93f, true }, {
-		282.31f, 112.93f, false } };
+true }, { 299.67f, 115.71f, true }, { 282.31f, 112.93f, true }, { 282.31f,
+		112.93f, false } };
 
 // ตัวแปรสำหรับวาดคำ FIBO_G01
 static uint8_t word_progress = 0;
 static uint32_t word_delay_timer = 0;
 static bool word_drawing_active = false;
-
-static bool requested_pen_state = false;  // false = pen up, true = pen down
-static bool use_requested_pen_state = false;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -322,6 +318,7 @@ void stop_character_drawing(void);
 bool is_drawing_active(void);
 void draw_word_FIBO_G01(void);
 void start_word_FIBO_G01(void);
+void ensure_motion_idle(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -370,6 +367,8 @@ int main(void) {
 	MX_LPUART1_UART_Init();
 	/* USER CODE BEGIN 2 */
 	plotter_begin();
+
+	plotter_pen_up();
 
 	prismatic_axis.position = prismatic_encoder.mm;
 	revolute_axis.position = revolute_encoder.rads;
@@ -562,7 +561,7 @@ void update_homing_sequence(void) {
 		prismatic_axis.command_pos = 0.0f;
 		revolute_axis.command_pos = 0.0f;
 		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
+		if (motion_delay_timer >= 150) {
 			// Check if already at low photo sensor
 			low_photo = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port,
 			LOWER_PHOTO_Pin);
@@ -617,7 +616,7 @@ void update_homing_sequence(void) {
 		prismatic_axis.command_pos = 0.0f;
 		revolute_axis.command_pos = 0.0f;
 		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
+		if (motion_delay_timer >= 150) {
 			homing_state = HOMING_PRIS_UP_TO_UP_PHOTO;
 		}
 		break;
@@ -658,7 +657,7 @@ void update_homing_sequence(void) {
 		prismatic_axis.command_pos = 0.0f;
 		revolute_axis.command_pos = 0.0f;
 		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
+		if (motion_delay_timer >= 150) {
 			if (first_startup) {
 				// STARTUP: Check if prox is already detected before searching
 				bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
@@ -711,7 +710,7 @@ void update_homing_sequence(void) {
 	case HOMING_DELAY_AFTER_ZERO_DEG:
 		// Stop motors and wait - let normal control handle this
 		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
+		if (motion_delay_timer >= 150) {
 			// CHECK IF PROX IS ALREADY DETECTED BEFORE STARTING SEARCH
 			bool prox_detected = HAL_GPIO_ReadPin(prox_GPIO_Port, prox_Pin);
 
@@ -763,7 +762,7 @@ void update_homing_sequence(void) {
 		prismatic_axis.command_pos = 0.0f;
 		revolute_axis.command_pos = 0.0f;
 		motion_delay_timer++;
-		if (motion_delay_timer >= 500) {
+		if (motion_delay_timer >= 150) {
 			homing_state = HOMING_COMPLETE;
 		}
 		break;
@@ -789,6 +788,21 @@ float normalize_angle(float angle_rad) {
 
 float calculate_movement_deg(float current_deg, float target_deg) {
 	float movement = 0.0f;
+
+	// Validate inputs
+	if (!isfinite(current_deg) || !isfinite(target_deg)) {
+		return 0.0f;
+	}
+
+	// Normalize angles to 0-360 range
+	while (current_deg < 0.0f)
+		current_deg += 360.0f;
+	while (current_deg >= 360.0f)
+		current_deg -= 360.0f;
+	while (target_deg < 0.0f)
+		target_deg += 360.0f;
+	while (target_deg >= 360.0f)
+		target_deg -= 360.0f;
 
 	// If both angles are on the same side of 180°
 	if ((current_deg < 180.0f && target_deg < 180.0f)
@@ -824,6 +838,17 @@ float calculate_movement_deg(float current_deg, float target_deg) {
 		}
 	}
 
+	// Final validation
+	if (!isfinite(movement)) {
+		movement = 0.0f;
+	}
+
+	// Clamp to reasonable range
+	if (movement > 359.0f)
+		movement = 359.0f;
+	if (movement < -359.0f)
+		movement = -359.0f;
+
 	return movement;
 }
 
@@ -836,8 +861,19 @@ void start_combined_trajectory(float prismatic_target_mm,
 		return;
 	}
 
+	// Check if motion is already active
+	if (motion_sequence_state != MOTION_IDLE) {
+		return; // Don't start new trajectory if one is active
+	}
+
 	float pris_current = prismatic_encoder.mm;
 	float rev_current = revolute_encoder.rads;
+
+	// Reset trajectory structures completely
+	memset(&prisEva, 0, sizeof(prisEva));
+	memset(&revEva, 0, sizeof(revEva));
+	memset(&prisGen, 0, sizeof(prisGen));
+	memset(&revGen, 0, sizeof(revGen));
 
 	prisEva.t = 0.0f;
 	prisEva.isFinised = false;
@@ -850,9 +886,20 @@ void start_combined_trajectory(float prismatic_target_mm,
 	prismatic_axis.target_pos = fminf(
 			fmaxf(prismatic_target_mm, PRISMATIC_MIN_POS), PRISMATIC_MAX_POS);
 
+	// Check for NaN/infinity
+	if (!isfinite(prismatic_axis.target_pos)) {
+		prismatic_axis.target_pos = prismatic_axis.initial_pos;
+	}
+
 	float normalized_current = normalize_angle(rev_current);
 	float current_deg = normalized_current * 180.0f / PI;
 	movement_deg = calculate_movement_deg(current_deg, revolute_target_deg);
+
+	// Validate movement_deg
+	if (!isfinite(movement_deg)) {
+		movement_deg = 0.0f;
+	}
+
 	float movement_rad = movement_deg * PI / 180.0f;
 	revolute_axis.target_pos = revolute_axis.initial_pos + movement_rad;
 
@@ -1108,7 +1155,7 @@ void update_control_loops(void) {
 	// Motion sequence handling
 	switch (motion_sequence_state) {
 	case MOTION_PEN_UP_DELAY:
-		if (++motion_delay_timer >= 1500) {
+		if (++motion_delay_timer >= 500) {
 			// ใช้ sync motion สำหรับทุกกรณี รวมถึง homing
 			if (current_drawing_sequence.sequence_active && drawing_pen_state) {
 				plotter_pen_down();
@@ -1144,10 +1191,14 @@ void update_control_loops(void) {
 								- prismatic_axis.initial_pos) * smooth_progress;
 
 				// Calculate velocity (derivative of position)
-				static float last_pris_pos = 0.0f;
+				// FIX: Use instance-specific variables instead of static
+				static float last_pris_pos_sync = -999999.0f; // Initialize to impossible value
+				if (last_pris_pos_sync == -999999.0f) {
+					last_pris_pos_sync = prismatic_axis.position;
+				}
 				prismatic_axis.velocity = (prismatic_axis.position
-						- last_pris_pos) / 0.001f; // mm/s
-				last_pris_pos = prismatic_axis.position;
+						- last_pris_pos_sync) / 0.001f; // mm/s
+				last_pris_pos_sync = prismatic_axis.position;
 			}
 
 			// Revolute axis synchronized position
@@ -1156,10 +1207,13 @@ void update_control_loops(void) {
 							* smooth_progress;
 
 			// Calculate velocity (derivative of position)
-			static float last_rev_pos = 0.0f;
-			revolute_axis.velocity = (revolute_axis.position - last_rev_pos)
-					/ 0.001f; // rad/s
-			last_rev_pos = revolute_axis.position;
+			static float last_rev_pos_sync = -999999.0f; // Initialize to impossible value
+			if (last_rev_pos_sync == -999999.0f) {
+				last_rev_pos_sync = revolute_axis.position;
+			}
+			revolute_axis.velocity =
+					(revolute_axis.position - last_rev_pos_sync) / 0.001f; // rad/s
+			last_rev_pos_sync = revolute_axis.position;
 
 			if (motion_finished) {
 				// Motion completed
@@ -1227,7 +1281,7 @@ void update_control_loops(void) {
 		break;
 
 	case MOTION_PEN_DOWN_DELAY:
-		if (++motion_delay_timer >= 1500) {
+		if (++motion_delay_timer >= 500) {
 			if (current_drawing_sequence.sequence_active
 					&& current_drawing_sequence.current_point > 0) {
 				// ดูสถานะปากกาจากจุดปัจจุบัน
@@ -1262,33 +1316,53 @@ void update_control_loops(void) {
 }
 
 void check_emergency_button(void) {
-	// Read current state of emergency button
-	emer_pressed = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+	static uint32_t emer_debounce_counter = 0;
+	const uint32_t EMER_DEBOUNCE_TIME = 50; // 50ms
 
-	// If emergency button is pressed (assuming active high)
-	// Adjust the logic based on your hardware:
-	// - If button is active HIGH when pressed: use == GPIO_PIN_SET
-	// - If button is active LOW when pressed: use == GPIO_PIN_RESET
+	bool current_state = (HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin)
+			== GPIO_PIN_RESET);
 
-	if (emer_pressed == GPIO_PIN_RESET) {  // Assuming active high
-		// Emergency button is pressed - trigger hardware emergency
-		if (safety_state != SAFETY_HARDWARE_EMERGENCY) {
-			trigger_hardware_emergency();
+	if (current_state) {
+		emer_debounce_counter++;
+		if (emer_debounce_counter >= EMER_DEBOUNCE_TIME) {
+			if (safety_state != SAFETY_HARDWARE_EMERGENCY) {
+				trigger_hardware_emergency();
+			}
+			emer_debounce_counter = EMER_DEBOUNCE_TIME; // Prevent overflow
 		}
+	} else {
+		emer_debounce_counter = 0;
 	}
-
-	// Optional: If you want to auto-clear when button is released
-	// (usually not recommended for safety reasons)
-	/*
-	 else {
-	 // Emergency button is released
-	 if (safety_state == SAFETY_HARDWARE_EMERGENCY && hardware_emergency_triggered) {
-	 // Auto-clear emergency when button released (NOT RECOMMENDED)
-	 // clear_emergency_state();
-	 }
-	 }
-	 */
 }
+
+//void check_emergency_button(void) {
+//	// Read current state of emergency button
+//	emer_pressed = HAL_GPIO_ReadPin(EMER_GPIO_Port, EMER_Pin);
+//
+//	// If emergency button is pressed (assuming active high)
+//	// Adjust the logic based on your hardware:
+//	// - If button is active HIGH when pressed: use == GPIO_PIN_SET
+//	// - If button is active LOW when pressed: use == GPIO_PIN_RESET
+//
+//	if (emer_pressed == GPIO_PIN_RESET) {  // Assuming active high
+//		// Emergency button is pressed - trigger hardware emergency
+//		if (safety_state != SAFETY_HARDWARE_EMERGENCY) {
+//			trigger_hardware_emergency();
+//		}
+//	}
+//
+//	// Optional: If you want to auto-clear when button is released
+//	// (usually not recommended for safety reasons)
+//	/*
+//	 else {
+//	 // Emergency button is released
+//	 if (safety_state == SAFETY_HARDWARE_EMERGENCY && hardware_emergency_triggered) {
+//	 // Auto-clear emergency when button released (NOT RECOMMENDED)
+//	 // clear_emergency_state();
+//	 }
+//	 }
+//	 */
+//}
 
 void check_safety_conditions(void) {
 	if (tuning_mode || safety_state != SAFETY_NORMAL || homing_active)
@@ -1322,17 +1396,41 @@ void trigger_software_emergency(void) {
 	}
 }
 
+//void trigger_hardware_emergency(void) {
+//	safety_state = SAFETY_HARDWARE_EMERGENCY;
+//	hardware_emergency_triggered = true;
+//	emergency_stop_all_motors();
+//	safety_toggle_timer = 0;
+//	pilot_light_state = false;
+//	homing_active = false;
+//	homing_state = HOMING_IDLE;
+//	motion_sequence_state = MOTION_IDLE;
+//	prismatic_axis.trajectory_active = false;
+//	revolute_axis.trajectory_active = false;
+//
+//	// Exit joy mode if active
+//	if (joy_mode_active) {
+//		exit_joy_mode();
+//	}
+//}
 void trigger_hardware_emergency(void) {
 	safety_state = SAFETY_HARDWARE_EMERGENCY;
 	hardware_emergency_triggered = true;
 	emergency_stop_all_motors();
 	safety_toggle_timer = 0;
 	pilot_light_state = false;
+
+	// Ensure motion is completely stopped
+	ensure_motion_idle();
+
+	// Reset trajectory structures
+	memset(&prisEva, 0, sizeof(prisEva));
+	memset(&revEva, 0, sizeof(revEva));
+	prisEva.isFinised = true;
+	revEva.isFinised = true;
+
 	homing_active = false;
 	homing_state = HOMING_IDLE;
-	motion_sequence_state = MOTION_IDLE;
-	prismatic_axis.trajectory_active = false;
-	revolute_axis.trajectory_active = false;
 
 	// Exit joy mode if active
 	if (joy_mode_active) {
@@ -1340,7 +1438,72 @@ void trigger_hardware_emergency(void) {
 	}
 }
 
+//void clear_emergency_state(void) {
+//    // First ensure motion is idle
+//    ensure_motion_idle();
+//
+//    // Set current positions as target positions for holding
+//    prismatic_axis.position = prismatic_encoder.mm;
+//    revolute_axis.position = revolute_encoder.rads;
+//
+//    // Clear the emergency state
+//    safety_state = SAFETY_NORMAL;
+//    hardware_emergency_triggered = false;
+//    safety_toggle_timer = 0;
+//    pilot_light_state = false;
+//    HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_RESET);
+//    up_photo = false;
+//    low_photo = false;
+//
+//    // Reset command velocities to ensure smooth transition
+//    prismatic_axis.command_vel = 0.0f;
+//    revolute_axis.command_vel = 0.0f;
+//    prismatic_axis.velocity = 0.0f;
+//    revolute_axis.velocity = 0.0f;
+//
+//    // Clear any residual feedforward terms
+//    prismatic_axis.ffd = 0.0f;
+//    prismatic_axis.dfd = 0.0f;
+//    revolute_axis.ffd = 0.0f;
+//
+//    // Keep DFD for revolute axis (gravity compensation)
+//    revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+//            revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+//}
+
 void clear_emergency_state(void) {
+	// First ensure everything is stopped
+	ensure_motion_idle();
+	emergency_stop_all_motors();
+
+	// Reset trajectory structures completely
+	memset(&prisEva, 0, sizeof(prisEva));
+	memset(&revEva, 0, sizeof(revEva));
+	prisEva.isFinised = true;
+	revEva.isFinised = true;
+
+	// Set positions for holding
+	prismatic_axis.position = prismatic_encoder.mm;
+	revolute_axis.position = revolute_encoder.rads;
+	prismatic_axis.target_pos = prismatic_axis.position;
+	revolute_axis.target_pos = revolute_axis.position;
+
+	// Clear all velocities and commands
+	prismatic_axis.command_vel = 0.0f;
+	revolute_axis.command_vel = 0.0f;
+	prismatic_axis.velocity = 0.0f;
+	revolute_axis.velocity = 0.0f;
+	prismatic_axis.command_pos = 0.0f;
+	revolute_axis.command_pos = 0.0f;
+
+	// Clear feedforward
+	prismatic_axis.ffd = 0.0f;
+	prismatic_axis.dfd = 0.0f;
+	revolute_axis.ffd = 0.0f;
+	revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+
+	// Clear emergency state
 	safety_state = SAFETY_NORMAL;
 	hardware_emergency_triggered = false;
 	safety_toggle_timer = 0;
@@ -1411,6 +1574,8 @@ void enter_joy_mode(void) {
 		return;
 	}
 
+	ensure_motion_idle();
+
 	joy_mode_active = true;
 	joy_mode_state = JOY_MODE_INITIAL_CONTROL; // Start in initial control state
 
@@ -1436,6 +1601,8 @@ void enter_joy_mode(void) {
 	revolute_axis.command_pos = 0.0f;
 	prismatic_axis.command_vel = 0.0f;
 	revolute_axis.command_vel = 0.0f;
+
+	plotter_pen_up();
 
 	// Reset PID controllers
 //	PID_CONTROLLER_Reset(&prismatic_position_pid);
@@ -1488,6 +1655,8 @@ void exit_joy_mode(void) {
 	//modbus reset state
 	registerFrame[BaseSystem_Status].U16 = 0;
 	registerFrame[R_Theta_Status].U16 = 0;
+
+	plotter_pen_up();
 }
 
 void save_current_position(void) {
@@ -1819,7 +1988,7 @@ void update_joy_mode(void) {
 
 		case MOTION_PEN_UP_DELAY:
 			// INCREMENT motion_delay_timer here for joy mode
-			if (++motion_delay_timer >= 1500) {
+			if (++motion_delay_timer >= 500) {
 				prismatic_axis.trajectory_active = true;
 				motion_sequence_state = MOTION_PRISMATIC_ACTIVE;
 			}
@@ -1878,7 +2047,7 @@ void update_joy_mode(void) {
 
 		case MOTION_PEN_DOWN_DELAY:
 			// INCREMENT motion_delay_timer here for joy mode
-			if (++motion_delay_timer >= 1500) {
+			if (++motion_delay_timer >= 500) {
 				plotter_pen_down();
 				motion_sequence_state = MOTION_COMPLETE;
 			}
@@ -2058,7 +2227,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			exit_joy_mode();
 		} else if (is_emergency_active()) {
 			clear_emergency_state();
-			start_homing_sequence(true);
 		}
 		return;
 	}
@@ -2107,7 +2275,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 									&& joy_mode_state
 											!= JOY_MODE_INITIAL_CONTROL
 									&& joy_mode_state != JOY_MODE_POSITION_SAVED))
-					&& (!is_emergency_active() || tuning_mode)) {
+					&& (!is_emergency_active())) {
 				update_position_control();
 			}
 		}
@@ -2118,13 +2286,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 						|| (joy_mode_state != JOY_MODE_MANUAL_CONTROL
 								&& joy_mode_state != JOY_MODE_INITIAL_CONTROL
 								&& joy_mode_state != JOY_MODE_POSITION_SAVED))
-				&& (!is_emergency_active() || tuning_mode)) {
+				&& (!is_emergency_active())) {
 			update_velocity_control();
 		}
 
 		update_safety_system();
 
-		if (!is_emergency_active() || tuning_mode) {
+		if (!is_emergency_active()) {
 			check_safety_conditions();
 		}
 
@@ -2400,6 +2568,27 @@ void draw_word_FIBO_G01(void) {
 			}
 		}
 	}
+}
+
+void ensure_motion_idle(void) {
+	// Force motion to idle state
+	motion_sequence_state = MOTION_IDLE;
+	motion_delay_timer = 0;
+
+	// Stop all trajectories
+	prismatic_axis.trajectory_active = false;
+	revolute_axis.trajectory_active = false;
+	sync_motion_active = false;
+
+	// Reset velocities
+	prismatic_axis.velocity = 0.0f;
+	revolute_axis.velocity = 0.0f;
+	prismatic_axis.command_vel = 0.0f;
+	revolute_axis.command_vel = 0.0f;
+
+	// Hold current positions
+	prismatic_axis.position = prismatic_encoder.mm;
+	revolute_axis.position = revolute_encoder.rads;
 }
 
 /* USER CODE END 4 */
