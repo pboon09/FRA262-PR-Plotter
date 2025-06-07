@@ -200,6 +200,7 @@ bool emer_pressed;
 uint8_t j1_cycle_count = 0;
 bool j1_going_to_target = true;
 bool j1_active = false;
+bool j1_in_progress = false;
 const float32_t J1_TARGET_PRIS = 200.0f;
 const float32_t J1_TARGET_REV = 90.0f;
 static uint32_t j1_interrupt_last_time = 0;
@@ -1158,41 +1159,43 @@ void update_control_loops(void) {
 		}
 	}
 	//100 point
-	// Add a new state variable at the top with other J1 variables
-	static bool j1_pen_down_complete = false;
-
 	// Modify the J1 update logic in update_control_loops():
-	if (j1_active && motion_sequence_state == MOTION_IDLE
+	if (j1_active && !j1_in_progress && motion_sequence_state == MOTION_IDLE
 			&& !word_drawing_active
 			&& !current_drawing_sequence.sequence_active) {
+		j1_in_progress = true;
+		j1_cycle_count = 0;
+		j1_going_to_target = true;
+		j1_pen_down_complete = false;  // เคลียร์ flag ให้ชัวร์
+		start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+	}
 
+	// 2) ถ้าอยู่ใน sequence และ motion จบ (idle) แล้ว ให้เดิน state machine ต่อ
+	if (j1_in_progress && motion_sequence_state == MOTION_IDLE) {
 		if (j1_going_to_target) {
-			if (!j1_pen_down_complete) {
-				// Wait a bit for pen to be down
-				static uint32_t j1_pen_delay = 0;
-				j1_pen_delay++;
-
-				if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
-					j1_pen_delay = 0;
-					j1_pen_down_complete = true;
-					j1_going_to_target = false;
-					start_combined_trajectory(0.0f, 0.0f); // Now go back to 0,0
-				}
+			// รอ delay หลัง pen down (250ms)
+			static uint32_t j1_pen_delay = 0;
+			j1_pen_delay++;
+			if (j1_pen_delay >= 250) {
+				j1_pen_delay = 0;
+				j1_pen_down_complete = true;
+				j1_going_to_target = false;
+				// กลับไปที่ 0,0
+				start_combined_trajectory(0.0f, 0.0f);
 			}
 		} else {
-			// Reset flag for next cycle
+			// รอบกลับเสร็จแล้ว เพิ่ม counter และวนใหม่หรือจบ
 			j1_pen_down_complete = false;
-
 			j1_cycle_count++;
-			if (j1_cycle_count >= 10) {
-				// finish 100 point
-				j1_active = false;
-				j1_cycle_count = 0;
-				j1_pen_down_complete = false;
-			} else {
-				// start again
+			if (j1_cycle_count < 10) {
 				j1_going_to_target = true;
 				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+			} else {
+				// ครบ 10 รอบ — จบ sequence
+				j1_active = false;
+				j1_in_progress = false;
+				j1_cycle_count = 0;
+				j1_pen_down_complete = false;
 			}
 		}
 	}
