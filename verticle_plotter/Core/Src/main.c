@@ -167,7 +167,7 @@ volatile bool low_photo = false;
 HomingState_t homing_state = HOMING_IDLE;
 bool first_startup = true;
 bool homing_active = false;
-
+static bool j1_pen_down_complete = false;
 SafetyState_t safety_state = SAFETY_NORMAL;
 volatile uint32_t safety_toggle_timer = 0;
 volatile bool pilot_light_state = false;
@@ -212,7 +212,6 @@ const uint32_t J3_PRESS_TIMEOUT = 150;
 static float sync_start_time = 0.0f;
 static float sync_total_time = 0.0f;
 static bool sync_motion_active = false;
-
 
 uint16_t debounce_counter;
 
@@ -268,6 +267,9 @@ true }, { 299.67f, 115.71f, true }, { 282.31f, 112.93f, true }, { 282.31f,
 static uint8_t word_progress = 0;
 static uint32_t word_delay_timer = 0;
 static bool word_drawing_active = false;
+static bool too_similar = false;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -695,7 +697,6 @@ void update_homing_sequence(void) {
 	case HOMING_REV_TO_ZERO_DEG:
 		if (!rev_to_zero_trajectory_started) {
 			// Get current prismatic position (keep it where it is)
-			float current_pris_pos = prismatic_encoder.mm;
 			float current_rev_deg = normalize_angle(revolute_encoder.rads)
 					* 180.0f / PI;
 
@@ -1162,35 +1163,38 @@ void update_control_loops(void) {
 	static bool j1_pen_down_complete = false;
 
 	// Modify the J1 update logic in update_control_loops():
-	if (j1_active && motion_sequence_state == MOTION_IDLE) {
-		if (j1_going_to_target) {
-			if (!j1_pen_down_complete) {
-				// Wait a bit for pen to be down
-				static uint32_t j1_pen_delay = 0;
-				j1_pen_delay++;
+	if (j1_active && motion_sequence_state == MOTION_IDLE
+	    && !word_drawing_active && !current_drawing_sequence.sequence_active) {
 
-				if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
-					j1_pen_delay = 0;
-					j1_pen_down_complete = true;
-					j1_going_to_target = false;
-					start_combined_trajectory(0.0f, 0.0f); // Now go back to 0,0
-				}
-			}
-		} else {
-			// Reset flag for next cycle
-			j1_pen_down_complete = false;
+	    if (j1_going_to_target) {
+	        if (!j1_pen_down_complete) {
+	            // Wait a bit for pen to be down
+	            static uint32_t j1_pen_delay = 0;
+	            j1_pen_delay++;
 
-			j1_cycle_count++;
-			if (j1_cycle_count >= 10) {
-				// finish 100
-				j1_active = false;
-				j1_cycle_count = 0;
-			} else {
-				// start again
-				j1_going_to_target = true;
-				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-			}
-		}
+	            if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
+	                j1_pen_delay = 0;
+	                j1_pen_down_complete = true;
+	                j1_going_to_target = false;
+	                start_combined_trajectory(0.0f, 0.0f); // Now go back to 0,0
+	            }
+	        }
+	    } else {
+	        // Reset flag for next cycle
+	        j1_pen_down_complete = false;
+
+	        j1_cycle_count++;
+	        if (j1_cycle_count >= 10) {
+	            // finish 100 point
+	            j1_active = false;
+	            j1_cycle_count = 0;
+	            j1_pen_down_complete = false;
+	        } else {
+	            // start again
+	            j1_going_to_target = true;
+	            start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+	        }
+	    }
 	}
 
 	// Motion sequence handling
@@ -1254,7 +1258,7 @@ void update_control_loops(void) {
 							* smooth_progress;
 
 			// Calculate velocity (derivative of position)
-			static float last_rev_pos_sync = -999999.0f; // Initialize to impossible value
+			 // Initialize to impossible value
 			if (last_rev_pos_sync == -999999.0f) {
 				last_rev_pos_sync = revolute_axis.position;
 			}
@@ -1710,7 +1714,7 @@ void save_current_position(void) {
 		float current_pris = prismatic_encoder.mm;
 		float current_rev = revolute_encoder.rads;
 
-		bool too_similar = false;
+
 		if (saved_position_count > 0) {
 			float last_pris =
 					saved_positions[saved_position_count - 1].prismatic_pos;
@@ -2051,76 +2055,57 @@ void handle_b2_button_polling(void) {
 	static uint32_t last_press_time = 0;
 	static uint32_t press_counter = 0;
 	const uint32_t DEBOUNCE_TIME = 200; // 200ms debounce time
-	const uint32_t DEBOUNCE_SAMPLES = 10;
 
 	press_counter++; // Increment every timer tick (assuming 1ms timer)
-	static bool stable_state = false;
-	static bool last_stable_state = false;
+
 //	 Edge detection with debouncing
-	if (b2_current_state == stable_state) {
-		debounce_counter++;
-		if (debounce_counter >= DEBOUNCE_SAMPLES) {
-			// สถานะคงที่แล้ว
-			debounce_counter = DEBOUNCE_SAMPLES;
-		}
-	} else {
-		// สถานะเปลี่ยน - เริ่มนับใหม่
-		stable_state = b2_current_state;
-		debounce_counter = 0;
-	}
+	if (b2_current_state && !joy_mode_b2_last_state) {
+//	 Button just pressed - check if enough time has passed since last press
+		if ((press_counter - last_press_time) >= DEBOUNCE_TIME) {
+			// Button press is valid - trigger action
+			joy_mode_b2_pressed = true;
+			last_press_time = press_counter;
 
-	// ใช้สถานะที่คงที่เท่านั้น
-	if (debounce_counter >= DEBOUNCE_SAMPLES) {
-		// Edge detection with stable state
-		if (stable_state && !last_stable_state) {
-			// Button just pressed with stable reading
-			if ((press_counter - last_press_time) >= DEBOUNCE_TIME) {
-				// เพิ่มการตรวจสอบ state machine ให้รัดกุมขึ้น
-				if (!is_emergency_active() && !homing_active
-						&& motion_sequence_state == MOTION_IDLE
-						&& !is_drawing_active() &&  // เพิ่มการตรวจสอบนี้
-						!word_drawing_active) {   // เพิ่มการตรวจสอบนี้
+//	if (b2S[0] != b2S[1] && b2S[0] == 1) {
+			// Handle B2 button press logic
+			if (!is_emergency_active() && !homing_active
+					&& motion_sequence_state == MOTION_IDLE) {
+				if (!joy_mode_active) {
+					// Enter joy mode (starts in JOY_MODE_INITIAL_CONTROL)
+					enter_joy_mode();
+				} else {
+					// Joy mode is active, handle button press based on current state
+					if (joy_mode_state == JOY_MODE_INITIAL_CONTROL) {
+						// First B2 press in joy mode - start position saving mode
+						joy_mode_state = JOY_MODE_MANUAL_CONTROL;
+					} else if (joy_mode_state == JOY_MODE_MANUAL_CONTROL) {
+						HAL_GPIO_TogglePin(PILOT_GPIO_Port, PILOT_Pin);
+						save_current_position();
 
-					if (!joy_mode_active) {
-						// Enter joy mode
-						enter_joy_mode();
-					} else {
-						// Joy mode is active, handle based on state
-						switch (joy_mode_state) {
-						case JOY_MODE_INITIAL_CONTROL:
-							joy_mode_state = JOY_MODE_MANUAL_CONTROL;
-							break;
-
-						case JOY_MODE_MANUAL_CONTROL:
-							HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_RESET);
-							save_current_position();
-							HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
-							break;
-
-						case JOY_MODE_POSITION_SAVED:
-							start_position_playback();
-							break;
-
-						case JOY_MODE_PLAYBACK:
-							// ไม่ทำอะไรระหว่าง playback
-							break;
-						}
+						// Save current position
+					} else if (joy_mode_state == JOY_MODE_POSITION_SAVED) {
+						start_position_playback();
+						// Start playback of saved positions
 					}
-				}
 
-				joy_mode_b2_pressed = true;
-				last_press_time = press_counter;
+					// Note: During JOY_MODE_PLAYBACK, B2 does nothing (ignore button press)
+					// This prevents accidental interruption of playback
+				}
 			}
 		}
-
-		last_stable_state = stable_state;
+//	b2S[1] = b2S[0];
+		// If not enough time has passed, ignore this button press
 	}
 
-	// Reset pressed flag when button is released
-	if (!stable_state) {
+// Update last state
+	joy_mode_b2_last_state = b2_current_state;
+//
+//// Reset pressed flag when button is released
+	if (!b2_current_state) {
 		joy_mode_b2_pressed = false;
 	}
 }
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == prox_Pin) {
 		prox_count++;
@@ -2143,30 +2128,35 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 
 	if (GPIO_Pin == J1_Pin) {
+	    uint32_t current_time = HAL_GetTick();
 
-		uint32_t current_time = HAL_GetTick();
-		if ((current_time - j1_interrupt_last_time) < 200) {
-			return; // ignore ถ้ายังไม่ครบ 200ms
-		}
-		j1_interrupt_last_time = current_time;
+	    // ใช้ค่า constant ที่ประกาศไว้
+	    if ((current_time - j1_interrupt_last_time) < J1_INTERRUPT_DEBOUNCE_MS) {
+	        return;
+	    }
+	    j1_interrupt_last_time = current_time;
 
-		if (!is_emergency_active() && !homing_active && !joy_mode_active
-				&& !first_startup) {
-			if (!j1_active) {
-				// start Again
-				j1_active = true;
-				j1_cycle_count = 0;
-				j1_going_to_target = true;
+	    // เพิ่มการตรวจสอบว่าไม่มีการวาดอยู่
+	    if (!is_emergency_active() && !homing_active && !joy_mode_active
+	            && !first_startup && !word_drawing_active
+	            && !current_drawing_sequence.sequence_active) {
 
-				// go to target
-				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-			} else {
-				// stop
+	        if (!j1_active) {
+	            // start 100 point
+	            j1_active = true;
+	            j1_cycle_count = 0;
+	            j1_going_to_target = true;
+	            j1_pen_down_complete = false; // Reset flag
 
-				j1_active = false;
-				j1_cycle_count = 0;
-			}
-		}
+	            // go to target
+	            start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+	        } else {
+	            // stop 100 point
+	            j1_active = false;
+	            j1_cycle_count = 0;
+	            j1_pen_down_complete = false;
+	        }
+	    }
 	}
 // J2 is NOT handled here anymore - it's polled in the main loop
 
