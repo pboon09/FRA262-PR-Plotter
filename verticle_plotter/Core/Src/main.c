@@ -173,6 +173,8 @@ volatile uint32_t safety_toggle_timer = 0;
 volatile bool pilot_light_state = false;
 volatile bool hardware_emergency_triggered = false;
 
+static bool reset_on_zero_requested = false;
+
 static bool rev_to_zero_trajectory_started = false;
 
 volatile uint32_t position_control_tick = 0;
@@ -371,6 +373,8 @@ int main(void) {
 	MX_TIM1_Init();
 	MX_LPUART1_UART_Init();
 	/* USER CODE BEGIN 2 */
+	HAL_Delay(250);
+
 	plotter_begin();
 
 	plotter_pen_up();
@@ -729,7 +733,7 @@ void update_homing_sequence(void) {
 			if (prox_detected) {
 				// Already at proximity sensor - skip search and go directly to completion
 				motion_delay_timer = 0;
-				homing_state = HOMING_DELAY_AFTER_PROX;
+				homing_state = HOMING_COMPLETE;
 				prox_count = 1; // Set count to indicate prox found
 			} else {
 				// Not at prox - need to search for it
@@ -780,7 +784,7 @@ void update_homing_sequence(void) {
 		break;
 
 	case HOMING_COMPLETE:
-		check[5]++;
+		check[5] = 99;
 		NVIC_SystemReset();
 		break;
 
@@ -2295,20 +2299,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	}
 }
 
-//modbus
+// Modified modbus_working function
 void modbus_working(void) {
-
 	uint16_t limit_switch_status = 0;
-//heartbeat
+	// heartbeat
 	registerFrame[Heartbeat_Protocol].U16 = 22881;
-//servo write
+
+	// servo write
 	if (registerFrame[Servo_UP].U16 == 1) {
 		plotter_pen_up();
 	} else if (registerFrame[Servo_Down].U16 == 1) {
 		plotter_pen_down();
 	}
 
-//limitSW
+	// limitSW
 	if (up_lim == 1) {
 		limit_switch_status |= 0x02;  // Bit 1 = Limit UP
 	}
@@ -2319,15 +2323,9 @@ void modbus_working(void) {
 
 	if (registerFrame[BaseSystem_Status].U16 == 1) {
 		exit_joy_mode();
-
 		registerFrame[R_Theta_Status].U16 = 1;
 		start_combined_trajectory(0.0, 0.0);
-
-//		PID_CONTROLLER_Reset(&prismatic_position_pid);
-//		PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-//		PID_CONTROLLER_Reset(&revolute_position_pid);
-//		PID_CONTROLLER_Reset(&revolute_velocity_pid);
-//		PID_CONTROLLER_Reset(&revolute_velocity_pid);
+		reset_on_zero_requested = true; // Set flag to trigger reset when reaching (0,0)
 
 	} else if (registerFrame[BaseSystem_Status].U16 == 2) {
 		registerFrame[R_Theta_Status].U16 = 2;
@@ -2341,8 +2339,12 @@ void modbus_working(void) {
 		float goal_r_mm = (float) (int16_t) registerFrame[Goal_R].U16 / 10.0;
 		float goal_theta_deg = (float) (int16_t) registerFrame[Goal_Theta].U16
 				/ 10.0;
-
 		start_combined_trajectory(goal_r_mm, goal_theta_deg);
+	}
+
+	// Check if we need to reset when reaching (0,0)
+	if (reset_on_zero_requested && motion_sequence_state == MOTION_IDLE) {
+		NVIC_SystemReset();
 	}
 
 	registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0f;
@@ -2352,8 +2354,6 @@ void modbus_working(void) {
 	float pris_accel = FIR_process(&prismatic_lp_accel,
 			prismatic_encoder.mmpss);
 	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
-
-	////////////////////////////////////////////////////////////
 
 	registerFrame[Theta_Axis_Actual_Position].U16 = revolute_axis.deg * 10.0f;
 
@@ -2365,7 +2365,6 @@ void modbus_working(void) {
 			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
 			UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = rev_theta_accel * 10.0f;
-
 }
 
 void start_character_drawing(DrawingPoint_t *points, uint8_t num_points,
