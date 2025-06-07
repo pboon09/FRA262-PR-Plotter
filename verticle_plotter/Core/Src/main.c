@@ -269,7 +269,6 @@ static uint32_t word_delay_timer = 0;
 static bool word_drawing_active = false;
 static bool too_similar = false;
 
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -1164,37 +1163,38 @@ void update_control_loops(void) {
 
 	// Modify the J1 update logic in update_control_loops():
 	if (j1_active && motion_sequence_state == MOTION_IDLE
-	    && !word_drawing_active && !current_drawing_sequence.sequence_active) {
+			&& !word_drawing_active
+			&& !current_drawing_sequence.sequence_active) {
 
-	    if (j1_going_to_target) {
-	        if (!j1_pen_down_complete) {
-	            // Wait a bit for pen to be down
-	            static uint32_t j1_pen_delay = 0;
-	            j1_pen_delay++;
+		if (j1_going_to_target) {
+			if (!j1_pen_down_complete) {
+				// Wait a bit for pen to be down
+				static uint32_t j1_pen_delay = 0;
+				j1_pen_delay++;
 
-	            if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
-	                j1_pen_delay = 0;
-	                j1_pen_down_complete = true;
-	                j1_going_to_target = false;
-	                start_combined_trajectory(0.0f, 0.0f); // Now go back to 0,0
-	            }
-	        }
-	    } else {
-	        // Reset flag for next cycle
-	        j1_pen_down_complete = false;
+				if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
+					j1_pen_delay = 0;
+					j1_pen_down_complete = true;
+					j1_going_to_target = false;
+					start_combined_trajectory(0.0f, 0.0f); // Now go back to 0,0
+				}
+			}
+		} else {
+			// Reset flag for next cycle
+			j1_pen_down_complete = false;
 
-	        j1_cycle_count++;
-	        if (j1_cycle_count >= 10) {
-	            // finish 100 point
-	            j1_active = false;
-	            j1_cycle_count = 0;
-	            j1_pen_down_complete = false;
-	        } else {
-	            // start again
-	            j1_going_to_target = true;
-	            start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-	        }
-	    }
+			j1_cycle_count++;
+			if (j1_cycle_count >= 10) {
+				// finish 100 point
+				j1_active = false;
+				j1_cycle_count = 0;
+				j1_pen_down_complete = false;
+			} else {
+				// start again
+				j1_going_to_target = true;
+				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+			}
+		}
 	}
 
 	// Motion sequence handling
@@ -1258,7 +1258,7 @@ void update_control_loops(void) {
 							* smooth_progress;
 
 			// Calculate velocity (derivative of position)
-			 // Initialize to impossible value
+			// Initialize to impossible value
 			if (last_rev_pos_sync == -999999.0f) {
 				last_rev_pos_sync = revolute_axis.position;
 			}
@@ -1714,7 +1714,6 @@ void save_current_position(void) {
 		float current_pris = prismatic_encoder.mm;
 		float current_rev = revolute_encoder.rads;
 
-
 		if (saved_position_count > 0) {
 			float last_pris =
 					saved_positions[saved_position_count - 1].prismatic_pos;
@@ -2128,35 +2127,36 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	}
 
 	if (GPIO_Pin == J1_Pin) {
-	    uint32_t current_time = HAL_GetTick();
+		uint32_t current_time = HAL_GetTick();
 
-	    // ใช้ค่า constant ที่ประกาศไว้
-	    if ((current_time - j1_interrupt_last_time) < J1_INTERRUPT_DEBOUNCE_MS) {
-	        return;
-	    }
-	    j1_interrupt_last_time = current_time;
+		// ใช้ค่า constant ที่ประกาศไว้
+		if ((current_time - j1_interrupt_last_time)
+				< J1_INTERRUPT_DEBOUNCE_MS) {
+			return;
+		}
+		j1_interrupt_last_time = current_time;
 
-	    // เพิ่มการตรวจสอบว่าไม่มีการวาดอยู่
-	    if (!is_emergency_active() && !homing_active && !joy_mode_active
-	            && !first_startup && !word_drawing_active
-	            && !current_drawing_sequence.sequence_active) {
+		// เพิ่มการตรวจสอบว่าไม่มีการวาดอยู่
+		if (!is_emergency_active() && !homing_active && !joy_mode_active
+				&& !first_startup && !word_drawing_active
+				&& !current_drawing_sequence.sequence_active) {
 
-	        if (!j1_active) {
-	            // start 100 point
-	            j1_active = true;
-	            j1_cycle_count = 0;
-	            j1_going_to_target = true;
-	            j1_pen_down_complete = false; // Reset flag
+			if (!j1_active) {
+				// start 100 point
+				j1_active = true;
+				j1_cycle_count = 0;
+				j1_going_to_target = true;
+				j1_pen_down_complete = false; // Reset flag
 
-	            // go to target
-	            start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-	        } else {
-	            // stop 100 point
-	            j1_active = false;
-	            j1_cycle_count = 0;
-	            j1_pen_down_complete = false;
-	        }
-	    }
+				// go to target
+				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+			} else {
+				// stop 100 point
+				j1_active = false;
+				j1_cycle_count = 0;
+				j1_pen_down_complete = false;
+			}
+		}
 	}
 // J2 is NOT handled here anymore - it's polled in the main loop
 
@@ -2350,6 +2350,8 @@ void modbus_working(void) {
 			prismatic_encoder.mmpss);
 	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
 
+	////////////////////////////////////////////////////////////
+
 	registerFrame[Theta_Axis_Actual_Position].U16 = revolute_axis.deg * 10.0f;
 
 	float rev_theta_vel = UnitConverter_angle(&converter_system,
@@ -2357,7 +2359,8 @@ void modbus_working(void) {
 	registerFrame[Theta_Axis_Actual_Speed].U16 = rev_theta_vel * 10.0f;
 
 	float rev_theta_accel = UnitConverter_angle(&converter_system,
-			revolute_encoder.radpss, UNIT_RADIAN, UNIT_DEGREE);
+			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
+			UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = rev_theta_accel * 10.0f;
 
 }
