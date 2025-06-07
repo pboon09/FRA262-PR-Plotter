@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00017618  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0002ccf4  00000000  00000000  00017648  2**0
+ 12 .debug_info   0002ccf2  00000000  00000000  00017648  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00005602  00000000  00000000  0004433c  2**0
+ 13 .debug_abbrev 000055e9  00000000  00000000  0004433a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001d90  00000000  00000000  00049940  2**3
+ 14 .debug_aranges 00001d90  00000000  00000000  00049928  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00001735  00000000  00000000  0004b6d0  2**0
+ 15 .debug_rnglists 00001735  00000000  00000000  0004b6b8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0002dbc2  00000000  00000000  0004ce05  2**0
+ 16 .debug_macro  0002dbc2  00000000  00000000  0004cded  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0002c2fe  00000000  00000000  0007a9c7  2**0
+ 17 .debug_line   0002c2fe  00000000  00000000  0007a9af  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0011a68b  00000000  00000000  000a6cc5  2**0
+ 18 .debug_str    0011a68b  00000000  00000000  000a6cad  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001c1350  2**0
+ 19 .comment      00000043  00000000  00000000  001c1338  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000868c  00000000  00000000  001c1394  2**2
+ 20 .debug_frame  0000868c  00000000  00000000  001c137c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000054  00000000  00000000  001c9a20  2**0
+ 21 .debug_line_str 00000054  00000000  00000000  001c9a08  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -18761,9 +18761,6 @@ void plotter_begin() {
  8009812:	ed9f 0ab8 	vldr	s0, [pc, #736]	@ 8009af4 <plotter_begin+0x6bc>
  8009816:	48b3      	ldr	r0, [pc, #716]	@ (8009ae4 <plotter_begin+0x6ac>)
  8009818:	f7f7 fdb4 	bl	8001384 <MDXX_set_range>
-//			ZGX45RGG_150RPM_Constant.qd_max);
-//	PID_CONTROLLER_Init(&revolute_velocity_pid, 1400, 30, 1000,
-//			ZGX45RGG_150RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 1e-10, 103, //103 (D)
 			ZGX45RGG_400RPM_Constant.sd_max);
@@ -18826,6 +18823,9 @@ void plotter_begin() {
  80098aa:	ed9f 0aa2 	vldr	s0, [pc, #648]	@ 8009b34 <plotter_begin+0x6fc>
  80098ae:	48a2      	ldr	r0, [pc, #648]	@ (8009b38 <plotter_begin+0x700>)
  80098b0:	f7f7 fc7f 	bl	80011b2 <PID_CONTROLLER_Init>
+//			ZGX45RGG_150RPM_Constant.qd_max);
+//	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 25, 3000,
+//			ZGX45RGG_150RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&revolute_joy_pid, 7500, 100, 2000,
 			ZGX45RGG_150RPM_Constant.U_max);
