@@ -44,6 +44,9 @@ UnitConverterSystem converter_system;
 FIR prismatic_lp_accel;
 FIR revolute_lp_accel;
 
+FIR prismatic_lp;
+FIR revolute_lp;
+
 uint16_t joystick_buffer[ADC_BUFFER_SIZE];
 
 ModbusHandleTypedef ModBus;
@@ -74,7 +77,7 @@ void plotter_begin() {
 			* (24.0 / 36.0);
 
 	ZGX45RGG_150RPM_Constant.traject_qd_max = 4.0;
-	ZGX45RGG_150RPM_Constant.traject_qdd_max = 1.0;
+	ZGX45RGG_150RPM_Constant.traject_qdd_max = 2.5;
 
 	SIGNAL_init(&sine_sg_PWM, SIGNAL_SINE);
 	SIGNAL_config_sine(&sine_sg_PWM, SINE_AMPLITUDE, SINE_FREQUENCY, SINE_PHASE,
@@ -175,6 +178,9 @@ void plotter_begin() {
 
 	FIR_init(&prismatic_lp_accel, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
 	FIR_init(&revolute_lp_accel, NUM_TAPS, CUTOFF_FREQ, SAMPLE_RATE);
+
+	FIR_init(&prismatic_lp, NUM_TAPS, 25, SAMPLE_RATE);
+	FIR_init(&revolute_lp, NUM_TAPS, 25, SAMPLE_RATE);
 
 	MotorKalman_Init(&prismatic_kalman, 1e-3, ZGX45RGG_400RPM_Constant.J,
 			ZGX45RGG_400RPM_Constant.B, ZGX45RGG_400RPM_Constant.Kt,

@@ -132,8 +132,8 @@ typedef struct {
 #define JOY_MODE_CONSTANT_VELOCITY_PRIS 150.0f
 #define JOY_MODE_CONSTANT_VELOCITY_REV 3.0f
 #define JOY_MODE_PILOT_TOGGLE_PERIOD 1000
-#define JOY_MODE_PLAYBACK_DELAY 2000
-#define JOY_MODE_B2_DEBOUNCE_TIME 50
+#define JOY_MODE_PLAYBACK_DELAY 500
+#define JOY_MODE_B2_DEBOUNCE_TIME 100
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -212,6 +212,9 @@ const uint32_t J3_PRESS_TIMEOUT = 150;
 static float sync_start_time = 0.0f;
 static float sync_total_time = 0.0f;
 static bool sync_motion_active = false;
+
+
+uint16_t debounce_counter;
 
 // เพิ่มหลัง static float sync_start_time = 0.0f; ที่มีอยู่แล้ว
 static DrawingSequence_t current_drawing_sequence = { 0 };
@@ -940,35 +943,10 @@ void start_combined_trajectory(float prismatic_target_mm,
 		motion_sequence_state = MOTION_PEN_UP_DELAY;
 
 	} else {
-		// NORMAL TRAJECTORY: Use time-synchronized motion
+		// NORMAL TRAJECTORY: Check if this is for drawing or regular motion
 		check[3]++;
-		// Calculate distances
-		float pris_distance = fabsf(
-				prismatic_axis.target_pos - prismatic_axis.initial_pos);
-		float rev_distance = fabsf(
-				revolute_axis.target_pos - revolute_axis.initial_pos);
 
-		// Calculate time needed for each axis at their max speeds
-		float pris_time_needed = 0.0f;
-		float rev_time_needed = 0.0f;
-
-		if (pris_distance > 0.1f) {
-			// Time = distance / max_velocity, factor in acceleration/deceleration
-			pris_time_needed = (pris_distance
-					/ ZGX45RGG_400RPM_Constant.traject_sd_max) * 2.5f;
-		}
-
-		if (rev_distance > 0.01f) {
-			rev_time_needed = (rev_distance
-					/ ZGX45RGG_150RPM_Constant.traject_qd_max) * 2.5f;
-		}
-
-		// Use the longer time, with minimum time
-		sync_total_time = fmaxf(pris_time_needed, rev_time_needed);
-		if (sync_total_time < 1.0f)
-			sync_total_time = 1.0f; // Minimum 1 second
-
-		// Generate individual trajectories (we'll interpolate based on sync_total_time)
+		// Generate trajectories
 		Trapezoidal_Generator(&prisGen, prismatic_axis.initial_pos,
 				prismatic_axis.target_pos,
 				ZGX45RGG_400RPM_Constant.traject_sd_max,
@@ -979,12 +957,52 @@ void start_combined_trajectory(float prismatic_target_mm,
 				ZGX45RGG_150RPM_Constant.traject_qd_max,
 				ZGX45RGG_150RPM_Constant.traject_qdd_max);
 
-		// Initialize synchronized motion
-		sync_motion_active = true;
-		sync_start_time = 0.0f;
-		prismatic_axis.trajectory_active = false;
-		revolute_axis.trajectory_active = false;
+		// Determine if this is a drawing operation
+		bool is_drawing_operation = current_drawing_sequence.sequence_active
+				|| word_drawing_active;
 
+		if (is_drawing_operation) {
+			// DRAWING MODE: Use synchronized motion
+			// Calculate distances
+			float pris_distance = fabsf(
+					prismatic_axis.target_pos - prismatic_axis.initial_pos);
+			float rev_distance = fabsf(
+					revolute_axis.target_pos - revolute_axis.initial_pos);
+
+			// Calculate time needed for each axis at their max speeds
+			float pris_time_needed = 0.0f;
+			float rev_time_needed = 0.0f;
+
+			if (pris_distance > 0.1f) {
+				// Time = distance / max_velocity, factor in acceleration/deceleration
+				pris_time_needed = (pris_distance
+						/ ZGX45RGG_400RPM_Constant.traject_sd_max) * 2.5f;
+			}
+
+			if (rev_distance > 0.01f) {
+				rev_time_needed = (rev_distance
+						/ ZGX45RGG_150RPM_Constant.traject_qd_max) * 2.5f;
+			}
+
+			// Use the longer time, with minimum time
+			sync_total_time = fmaxf(pris_time_needed, rev_time_needed);
+			if (sync_total_time < 1.0f)
+				sync_total_time = 1.0f; // Minimum 1 second
+
+			// Initialize synchronized motion for drawing
+			sync_motion_active = true;
+			sync_start_time = 0.0f;
+			prismatic_axis.trajectory_active = false;
+			revolute_axis.trajectory_active = false;
+		} else {
+			// NORMAL MODE: Use independent trajectories
+			sync_motion_active = false;
+			sync_start_time = 0.0f;
+			prismatic_axis.trajectory_active = true;
+			revolute_axis.trajectory_active = true;
+		}
+
+		// Handle pen up/down
 		if (current_drawing_sequence.sequence_active
 				&& current_drawing_sequence.current_point > 0) {
 			// ดูว่าจุดปัจจุบันต้องการวางปากกาหรือไม่
@@ -1000,6 +1018,7 @@ void start_combined_trajectory(float prismatic_target_mm,
 			// ไม่ได้วาดตัวอักษร - ยกปากกาตามปกติ
 			plotter_pen_up();
 		}
+
 		motion_delay_timer = 0;
 		motion_sequence_state = MOTION_PEN_UP_DELAY;
 
@@ -1008,6 +1027,7 @@ void start_combined_trajectory(float prismatic_target_mm,
 		registerFrame[R_Theta_Status].U16 = 0;
 	}
 }
+
 void update_position_control(void) {
 	prismatic_axis.pos_error = prismatic_axis.position - prismatic_encoder.mm;
 	prismatic_axis.command_vel = PWM_Satuation(
@@ -1149,7 +1169,7 @@ void update_control_loops(void) {
 				static uint32_t j1_pen_delay = 0;
 				j1_pen_delay++;
 
-				if (j1_pen_delay >= 1000) { // 1 second delay after reaching target
+				if (j1_pen_delay >= 250) { // 250 ms delay after reaching target
 					j1_pen_delay = 0;
 					j1_pen_down_complete = true;
 					j1_going_to_target = false;
@@ -1181,14 +1201,20 @@ void update_control_loops(void) {
 			if (current_drawing_sequence.sequence_active && drawing_pen_state) {
 				plotter_pen_down();
 			}
-			prismatic_axis.trajectory_active = true;
-			revolute_axis.trajectory_active = true;
+			if (!sync_motion_active) {
+				prismatic_axis.trajectory_active = true;
+				revolute_axis.trajectory_active = true;
+			}
 			motion_sequence_state = MOTION_BOTH_AXES_ACTIVE;
 		}
 		break;
 
 	case MOTION_BOTH_AXES_ACTIVE: {
 		bool motion_finished = false;
+
+		static float last_pris_pos_sync = -999999.0f;
+		static float last_rev_pos_sync = -999999.0f;
+		static bool last_sync_active = false;
 
 		if (sync_motion_active) {
 			// Time-synchronized motion
@@ -1213,9 +1239,9 @@ void update_control_loops(void) {
 
 				// Calculate velocity (derivative of position)
 				// FIX: Use instance-specific variables instead of static
-				static float last_pris_pos_sync = -999999.0f; // Initialize to impossible value
-				if (last_pris_pos_sync == -999999.0f) {
+				if (!last_sync_active) {
 					last_pris_pos_sync = prismatic_axis.position;
+					last_rev_pos_sync = revolute_axis.position;
 				}
 				prismatic_axis.velocity = (prismatic_axis.position
 						- last_pris_pos_sync) / 0.001f; // mm/s
@@ -1238,8 +1264,8 @@ void update_control_loops(void) {
 
 			if (motion_finished) {
 				// Motion completed
-				prismatic_axis.position = prismatic_axis.target_pos;
-				revolute_axis.position = revolute_axis.target_pos;
+				prismatic_axis.position = prismatic_encoder.mm;
+				revolute_axis.position = revolute_encoder.rads;
 				prismatic_axis.velocity = 0.0f;
 				revolute_axis.velocity = 0.0f;
 
@@ -1268,7 +1294,8 @@ void update_control_loops(void) {
 
 					if (prisEva.isFinised) {
 						prismatic_axis.trajectory_active = false;
-						prismatic_axis.position = prisEva.setposition;
+//						prismatic_axis.position = prisEva.setposition;
+						prismatic_axis.position = prismatic_encoder.mm;
 						prismatic_axis.velocity = 0.0f;
 					}
 				}
@@ -1287,7 +1314,8 @@ void update_control_loops(void) {
 
 				if (revEva.isFinised) {
 					revolute_axis.trajectory_active = false;
-					revolute_axis.position = revEva.setposition;
+//					revolute_axis.position = revEva.setposition;
+					revolute_axis.position = revolute_encoder.rads;
 					revolute_axis.velocity = 0.0f;
 				}
 			}
@@ -1298,6 +1326,7 @@ void update_control_loops(void) {
 				motion_sequence_state = MOTION_PEN_DOWN_DELAY;
 			}
 		}
+		last_sync_active = sync_motion_active;
 	}
 		break;
 
@@ -2022,57 +2051,76 @@ void handle_b2_button_polling(void) {
 	static uint32_t last_press_time = 0;
 	static uint32_t press_counter = 0;
 	const uint32_t DEBOUNCE_TIME = 200; // 200ms debounce time
+	const uint32_t DEBOUNCE_SAMPLES = 10;
 
 	press_counter++; // Increment every timer tick (assuming 1ms timer)
-
+	static bool stable_state = false;
+	static bool last_stable_state = false;
 //	 Edge detection with debouncing
-	if (b2_current_state && !joy_mode_b2_last_state) {
-//	 Button just pressed - check if enough time has passed since last press
-		if ((press_counter - last_press_time) >= DEBOUNCE_TIME) {
-			// Button press is valid - trigger action
-			joy_mode_b2_pressed = true;
-			last_press_time = press_counter;
-
-//	if (b2S[0] != b2S[1] && b2S[0] == 1) {
-			// Handle B2 button press logic
-			if (!is_emergency_active() && !homing_active
-					&& motion_sequence_state == MOTION_IDLE) {
-				if (!joy_mode_active) {
-					// Enter joy mode (starts in JOY_MODE_INITIAL_CONTROL)
-					enter_joy_mode();
-				} else {
-					// Joy mode is active, handle button press based on current state
-					if (joy_mode_state == JOY_MODE_INITIAL_CONTROL) {
-						// First B2 press in joy mode - start position saving mode
-						joy_mode_state = JOY_MODE_MANUAL_CONTROL;
-					} else if (joy_mode_state == JOY_MODE_MANUAL_CONTROL) {
-						HAL_GPIO_TogglePin(PILOT_GPIO_Port, PILOT_Pin);
-						save_current_position();
-
-						// Save current position
-					} else if (joy_mode_state == JOY_MODE_POSITION_SAVED) {
-						start_position_playback();
-						// Start playback of saved positions
-					}
-
-					// Note: During JOY_MODE_PLAYBACK, B2 does nothing (ignore button press)
-					// This prevents accidental interruption of playback
-				}
-			}
+	if (b2_current_state == stable_state) {
+		debounce_counter++;
+		if (debounce_counter >= DEBOUNCE_SAMPLES) {
+			// สถานะคงที่แล้ว
+			debounce_counter = DEBOUNCE_SAMPLES;
 		}
-//	b2S[1] = b2S[0];
-		// If not enough time has passed, ignore this button press
+	} else {
+		// สถานะเปลี่ยน - เริ่มนับใหม่
+		stable_state = b2_current_state;
+		debounce_counter = 0;
 	}
 
-// Update last state
-	joy_mode_b2_last_state = b2_current_state;
-//
-//// Reset pressed flag when button is released
-	if (!b2_current_state) {
+	// ใช้สถานะที่คงที่เท่านั้น
+	if (debounce_counter >= DEBOUNCE_SAMPLES) {
+		// Edge detection with stable state
+		if (stable_state && !last_stable_state) {
+			// Button just pressed with stable reading
+			if ((press_counter - last_press_time) >= DEBOUNCE_TIME) {
+				// เพิ่มการตรวจสอบ state machine ให้รัดกุมขึ้น
+				if (!is_emergency_active() && !homing_active
+						&& motion_sequence_state == MOTION_IDLE
+						&& !is_drawing_active() &&  // เพิ่มการตรวจสอบนี้
+						!word_drawing_active) {   // เพิ่มการตรวจสอบนี้
+
+					if (!joy_mode_active) {
+						// Enter joy mode
+						enter_joy_mode();
+					} else {
+						// Joy mode is active, handle based on state
+						switch (joy_mode_state) {
+						case JOY_MODE_INITIAL_CONTROL:
+							joy_mode_state = JOY_MODE_MANUAL_CONTROL;
+							break;
+
+						case JOY_MODE_MANUAL_CONTROL:
+							HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_RESET);
+							save_current_position();
+							HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
+							break;
+
+						case JOY_MODE_POSITION_SAVED:
+							start_position_playback();
+							break;
+
+						case JOY_MODE_PLAYBACK:
+							// ไม่ทำอะไรระหว่าง playback
+							break;
+						}
+					}
+				}
+
+				joy_mode_b2_pressed = true;
+				last_press_time = press_counter;
+			}
+		}
+
+		last_stable_state = stable_state;
+	}
+
+	// Reset pressed flag when button is released
+	if (!stable_state) {
 		joy_mode_b2_pressed = false;
 	}
 }
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == prox_Pin) {
 		prox_count++;
@@ -2183,6 +2231,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		revolute_axis.kalman_velocity = SteadyStateKalmanFilter(
 				&revolute_kalman, revolute_axis.input_voltage,
 				revolute_encoder.rads);
+//		revolute_axis.kalman_velocity = FIR_process(&revolute_lp, revolute_encoder.radps);
 
 		if (isnan(revolute_axis.kalman_velocity)) {
 			revolute_axis.kalman_velocity = 0.0f;
@@ -2193,6 +2242,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		prismatic_axis.kalman_velocity = MotorKalman_Estimate(&prismatic_kalman,
 				prismatic_axis.input_voltage, prismatic_encoder.rads)
 				* Disturbance_Constant.prismatic_pulley_radius * 1000.0f;
+//		prismatic_axis.kalman_velocity = FIR_process(&prismatic_lp, prismatic_encoder.radps) * Disturbance_Constant.prismatic_pulley_radius * 1000.0f;
 
 		if (isnan(prismatic_axis.kalman_velocity)) {
 			prismatic_axis.kalman_velocity = 0.0f;

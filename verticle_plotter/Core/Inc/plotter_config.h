@@ -179,6 +179,9 @@ extern FIR revolute_lp_accel;
 #define NUM_TAPS 31
 #define CUTOFF_FREQ 10.0
 #define SAMPLE_RATE 1000.0f  // 1kHz
+
+extern FIR prismatic_lp;
+extern FIR revolute_lp;
 /*-------Configure FIR Stop------*/
 
 ///*-------Configure Kalman Start------*/
