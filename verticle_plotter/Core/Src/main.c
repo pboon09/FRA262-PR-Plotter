@@ -183,6 +183,8 @@ bool tuning_mode = true;
 float normalized_position;
 float movement_deg;
 
+static uint32_t j1_pen_delay = 0;
+
 JoyModeState_t joy_mode_state = JOY_MODE_IDLE;
 bool joy_mode_active = false;
 SavedPosition_t saved_positions[JOY_MODE_MAX_POSITIONS];
@@ -1170,36 +1172,48 @@ void update_control_loops(void) {
 		j1_in_progress = true;
 		j1_cycle_count = 0;
 		j1_going_to_target = true;
-		j1_pen_down_complete = false;  // เคลียร์ flag ให้ชัวร์
+		j1_pen_down_complete = false;
+		j1_pen_delay = 0;  // Reset delay counter
 		start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
 	}
 
 	// 2) ถ้าอยู่ใน sequence และ motion จบ (idle) แล้ว ให้เดิน state machine ต่อ
 	if (j1_in_progress && motion_sequence_state == MOTION_IDLE) {
 		if (j1_going_to_target) {
-			// รอ delay หลัง pen down (250ms)
-			static uint32_t j1_pen_delay = 0;
+			// At target position - handle pen down
+			if (!j1_pen_down_complete) {
+				plotter_pen_down();  // Actually put pen down
+				j1_pen_down_complete = true;
+				j1_pen_delay = 0;
+			}
+
+			// Wait for pen down delay
 			j1_pen_delay++;
 			if (j1_pen_delay >= 250) {
 				j1_pen_delay = 0;
-				j1_pen_down_complete = true;
 				j1_going_to_target = false;
-				// กลับไปที่ 0,0
+				plotter_pen_up();  // Lift pen before returning
+				// Return to 0,0
 				start_combined_trajectory(0.0f, 0.0f);
 			}
 		} else {
-			// รอบกลับเสร็จแล้ว เพิ่ม counter และวนใหม่หรือจบ
+			// Returned to origin - prepare for next cycle or finish
 			j1_pen_down_complete = false;
 			j1_cycle_count++;
+
 			if (j1_cycle_count < 10) {
+				// Continue to next cycle
 				j1_going_to_target = true;
+				j1_pen_delay = 0;  // Reset delay for next cycle
 				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
 			} else {
-				// ครบ 10 รอบ — จบ sequence
+				// All 10 cycles complete - clean up
 				j1_active = false;
 				j1_in_progress = false;
 				j1_cycle_count = 0;
 				j1_pen_down_complete = false;
+				j1_pen_delay = 0;
+				plotter_pen_up();  // Ensure pen is up at end
 			}
 		}
 	}
@@ -1286,10 +1300,6 @@ void update_control_loops(void) {
 			}
 
 		} else {
-			// Original trapezoidal motion (for homing)
-			bool pris_finished = true;  // Default to true for homing case
-			bool rev_finished = false;
-
 			// Handle prismatic axis (skip if in homing mode)
 			if (!(homing_active && homing_state == HOMING_REV_TO_ZERO_DEG)) {
 				if (prismatic_axis.trajectory_active && !prisEva.isFinised) {
@@ -1301,7 +1311,6 @@ void update_control_loops(void) {
 
 					prismatic_axis.position = prisEva.setposition;
 					prismatic_axis.velocity = prisEva.setvelocity;
-					pris_finished = prisEva.isFinised;
 
 					if (prisEva.isFinised) {
 						prismatic_axis.trajectory_active = false;
@@ -1321,7 +1330,6 @@ void update_control_loops(void) {
 
 				revolute_axis.position = revEva.setposition;
 				revolute_axis.velocity = revEva.setvelocity;
-				rev_finished = revEva.isFinised;
 
 				if (revEva.isFinised) {
 					revolute_axis.trajectory_active = false;
@@ -1332,7 +1340,7 @@ void update_control_loops(void) {
 			}
 
 			// Check if BOTH axes are finished (or only revolute for homing)
-			if (pris_finished && rev_finished) {
+			if (prisEva.isFinised && revEva.isFinised) {
 				motion_delay_timer = 0;
 				motion_sequence_state = MOTION_PEN_DOWN_DELAY;
 			}
@@ -2136,32 +2144,41 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == J1_Pin) {
 		uint32_t current_time = HAL_GetTick();
 
-		// ใช้ค่า constant ที่ประกาศไว้
 		if ((current_time - j1_interrupt_last_time)
 				< J1_INTERRUPT_DEBOUNCE_MS) {
 			return;
 		}
 		j1_interrupt_last_time = current_time;
 
-		// เพิ่มการตรวจสอบว่าไม่มีการวาดอยู่
 		if (!is_emergency_active() && !homing_active && !joy_mode_active
 				&& !first_startup && !word_drawing_active
 				&& !current_drawing_sequence.sequence_active) {
 
 			if (!j1_active) {
-				// start 100 point
+				// Start 100 point sequence
 				j1_active = true;
+				j1_in_progress = false;  // Will be set true when motion is idle
 				j1_cycle_count = 0;
 				j1_going_to_target = true;
-				j1_pen_down_complete = false; // Reset flag
+				j1_pen_down_complete = false;
+				j1_pen_delay = 0;  // Reset delay counter
 
-				// go to target
-				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+				// Only start if motion is idle
+				if (motion_sequence_state == MOTION_IDLE) {
+					j1_in_progress = true;
+					start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+				}
 			} else {
-				// stop 100 point
+				// Stop 100 point sequence - full cleanup
 				j1_active = false;
+				j1_in_progress = false;
 				j1_cycle_count = 0;
 				j1_pen_down_complete = false;
+				j1_pen_delay = 0;
+				plotter_pen_up();
+
+				// If motion is active, let it complete naturally
+				// The motion will stop when j1_active is false
 			}
 		}
 	}

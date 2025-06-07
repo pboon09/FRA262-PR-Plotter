@@ -155,9 +155,9 @@ void plotter_begin() {
 //	PID_CONTROLLER_Init(&prismatic_velocity_pid, 148, 0.1, 110,
 //			ZGX45RGG_400RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 85, 2e-1, 180,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 85, 2e-1, 200,
 			ZGX45RGG_400RPM_Constant.sd_max);
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 150, 1e-5, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 120, 1e-5, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
 
 	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.001, 700,
