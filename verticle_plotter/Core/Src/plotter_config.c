@@ -175,7 +175,7 @@ void plotter_begin() {
 //	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 30.5, 2996, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
 //			ZGX45RGG_150RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_joy_pid, 7500, 100, 2000,
+	PID_CONTROLLER_Init(&revolute_joy_pid, 150, 1e-5, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
 
 	REVOLUTE_MOTOR_FFD_Init(&revolute_motor_ffd, &ZGX45RGG_150RPM_Constant);

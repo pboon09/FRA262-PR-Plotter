@@ -1892,7 +1892,7 @@ void update_joy_mode_velocity_control(void) {
 		prismatic_axis.vel_error = pris_command_vel
 				- prismatic_axis.kalman_velocity;
 		prismatic_axis.command_pos = PWM_Satuation(
-				PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+				PID_CONTROLLER_Compute(&revolute_joy_pid,
 						prismatic_axis.vel_error),
 				ZGX45RGG_400RPM_Constant.U_max,
 				-ZGX45RGG_400RPM_Constant.U_max);
@@ -2049,7 +2049,8 @@ void update_joy_mode(void) {
 					joy_mode_playback_timer = 0;
 				} else {
 					// All positions played back - exit joy mode
-					exit_joy_mode();
+					plotter_pen_up();
+					joy_mode_state = JOY_MODE_INITIAL_CONTROL;
 				}
 			}
 		}

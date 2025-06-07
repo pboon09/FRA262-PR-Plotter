@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00017618  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0002ccdd  00000000  00000000  00017648  2**0
+ 12 .debug_info   0002cce9  00000000  00000000  00017648  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00005616  00000000  00000000  00044325  2**0
+ 13 .debug_abbrev 00005616  00000000  00000000  00044331  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001d90  00000000  00000000  00049940  2**3
+ 14 .debug_aranges 00001d90  00000000  00000000  00049948  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00001735  00000000  00000000  0004b6d0  2**0
+ 15 .debug_rnglists 00001735  00000000  00000000  0004b6d8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0002dbc2  00000000  00000000  0004ce05  2**0
+ 16 .debug_macro  0002dbc2  00000000  00000000  0004ce0d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0002c33a  00000000  00000000  0007a9c7  2**0
+ 17 .debug_line   0002c33a  00000000  00000000  0007a9cf  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0011a688  00000000  00000000  000a6d01  2**0
+ 18 .debug_str    0011a688  00000000  00000000  000a6d09  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001c1389  2**0
+ 19 .comment      00000043  00000000  00000000  001c1391  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  0000868c  00000000  00000000  001c13cc  2**2
+ 20 .debug_frame  0000868c  00000000  00000000  001c13d4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000054  00000000  00000000  001c9a58  2**0
+ 21 .debug_line_str 00000054  00000000  00000000  001c9a60  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -15795,7 +15795,7 @@ void update_joy_mode_velocity_control(void) {
  800811a:	483b      	ldr	r0, [pc, #236]	@ (8008208 <update_joy_mode_velocity_control+0x2f8>)
  800811c:	f7f9 f87c 	bl	8001218 <PID_CONTROLLER_Compute>
  8008120:	eeb0 8a40 	vmov.f32	s16, s0
-				PID_CONTROLLER_Compute(&prismatic_velocity_pid,
+				PID_CONTROLLER_Compute(&revolute_joy_pid,
 						prismatic_axis.vel_error),
 				ZGX45RGG_400RPM_Constant.U_max,
  8008124:	4b39      	ldr	r3, [pc, #228]	@ (800820c <update_joy_mode_velocity_control+0x2fc>)
@@ -15879,7 +15879,7 @@ void update_joy_mode_velocity_control(void) {
  80081fc:	200008dc 	.word	0x200008dc
  8008200:	20000988 	.word	0x20000988
  8008204:	20000704 	.word	0x20000704
- 8008208:	20000a68 	.word	0x20000a68
+ 8008208:	20000ae0 	.word	0x20000ae0
  800820c:	20000080 	.word	0x20000080
  8008210:	447a0000 	.word	0x447a0000
  8008214:	20000b08 	.word	0x20000b08
@@ -16359,7 +16359,7 @@ void update_joy_mode(void) {
  800865e:	f083 0301 	eor.w	r3, r3, #1
  8008662:	b2db      	uxtb	r3, r3
  8008664:	2b00      	cmp	r3, #0
- 8008666:	d17e      	bne.n	8008766 <update_joy_mode+0x112>
+ 8008666:	d17f      	bne.n	8008768 <update_joy_mode+0x114>
 		return;
 	}
 
@@ -16395,7 +16395,7 @@ void update_joy_mode(void) {
  80086a8:	781b      	ldrb	r3, [r3, #0]
  80086aa:	3b01      	subs	r3, #1
  80086ac:	2b03      	cmp	r3, #3
- 80086ae:	d85d      	bhi.n	800876c <update_joy_mode+0x118>
+ 80086ae:	d85e      	bhi.n	800876e <update_joy_mode+0x11a>
  80086b0:	a201      	add	r2, pc, #4	@ (adr r2, 80086b8 <update_joy_mode+0x64>)
  80086b2:	f852 f023 	ldr.w	pc, [r2, r3, lsl #2]
  80086b6:	bf00      	nop
@@ -16408,14 +16408,14 @@ void update_joy_mode(void) {
 		update_joy_mode_velocity_control();
  80086c8:	f7ff fc22 	bl	8007f10 <update_joy_mode_velocity_control>
 		break;
- 80086cc:	e04e      	b.n	800876c <update_joy_mode+0x118>
+ 80086cc:	e04f      	b.n	800876e <update_joy_mode+0x11a>
 
 	case JOY_MODE_MANUAL_CONTROL:
 		// Manual joystick control with position saving enabled
 		update_joy_mode_velocity_control();
  80086ce:	f7ff fc1f 	bl	8007f10 <update_joy_mode_velocity_control>
 		break;
- 80086d2:	e04b      	b.n	800876c <update_joy_mode+0x118>
+ 80086d2:	e04c      	b.n	800876e <update_joy_mode+0x11a>
 
 	case JOY_MODE_POSITION_SAVED:
 		revolute_axis.position = revolute_encoder.rads;
@@ -16427,7 +16427,7 @@ void update_joy_mode(void) {
 		update_joy_mode_pilot_light();
  80086dc:	f7ff ff88 	bl	80085f0 <update_joy_mode_pilot_light>
 		break;
- 80086e0:	e044      	b.n	800876c <update_joy_mode+0x118>
+ 80086e0:	e045      	b.n	800876e <update_joy_mode+0x11a>
 
 	case JOY_MODE_PLAYBACK:
 		// Playing back saved positions - let update_control_loops handle trajectory
@@ -16437,7 +16437,7 @@ void update_joy_mode(void) {
  80086e2:	4b2c      	ldr	r3, [pc, #176]	@ (8008794 <update_joy_mode+0x140>)
  80086e4:	781b      	ldrb	r3, [r3, #0]
  80086e6:	2b00      	cmp	r3, #0
- 80086e8:	d13f      	bne.n	800876a <update_joy_mode+0x116>
+ 80086e8:	d140      	bne.n	800876c <update_joy_mode+0x118>
 			// Current trajectory finished, wait before starting next
 			joy_mode_playback_timer++;
  80086ea:	4b2b      	ldr	r3, [pc, #172]	@ (8008798 <update_joy_mode+0x144>)
@@ -16450,7 +16450,7 @@ void update_joy_mode(void) {
  80086f4:	4b28      	ldr	r3, [pc, #160]	@ (8008798 <update_joy_mode+0x144>)
  80086f6:	681b      	ldr	r3, [r3, #0]
  80086f8:	f5b3 7ffa 	cmp.w	r3, #500	@ 0x1f4
- 80086fc:	d335      	bcc.n	800876a <update_joy_mode+0x116>
+ 80086fc:	d336      	bcc.n	800876c <update_joy_mode+0x118>
 				playback_position_index++;
  80086fe:	4b27      	ldr	r3, [pc, #156]	@ (800879c <update_joy_mode+0x148>)
  8008700:	781b      	ldrb	r3, [r3, #0]
@@ -16510,23 +16510,24 @@ void update_joy_mode(void) {
 		// Let update_control_loops handle the actual motion control
 		// No need to handle motion states here anymore
 		break;
- 800875e:	e004      	b.n	800876a <update_joy_mode+0x116>
-					exit_joy_mode();
- 8008760:	f7ff fa1e 	bl	8007ba0 <exit_joy_mode>
+ 800875e:	e005      	b.n	800876c <update_joy_mode+0x118>
+					joy_mode_state = JOY_MODE_INITIAL_CONTROL;
+ 8008760:	4b0b      	ldr	r3, [pc, #44]	@ (8008790 <update_joy_mode+0x13c>)
+ 8008762:	2201      	movs	r2, #1
+ 8008764:	701a      	strb	r2, [r3, #0]
 		break;
- 8008764:	e001      	b.n	800876a <update_joy_mode+0x116>
+ 8008766:	e001      	b.n	800876c <update_joy_mode+0x118>
 		return;
- 8008766:	bf00      	nop
- 8008768:	e000      	b.n	800876c <update_joy_mode+0x118>
+ 8008768:	bf00      	nop
+ 800876a:	e000      	b.n	800876e <update_joy_mode+0x11a>
 		break;
- 800876a:	bf00      	nop
+ 800876c:	bf00      	nop
 
 	}
 }
- 800876c:	3710      	adds	r7, #16
- 800876e:	46bd      	mov	sp, r7
- 8008770:	bd80      	pop	{r7, pc}
- 8008772:	bf00      	nop
+ 800876e:	3710      	adds	r7, #16
+ 8008770:	46bd      	mov	sp, r7
+ 8008772:	bd80      	pop	{r7, pc}
  8008774:	20000809 	.word	0x20000809
  8008778:	200009e4 	.word	0x200009e4
  800877c:	200007fc 	.word	0x200007fc
@@ -18862,17 +18863,17 @@ void plotter_begin() {
 //	PID_CONTROLLER_Init(&revolute_velocity_pid, 2275, 30.5, 2996, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
 //			ZGX45RGG_150RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&revolute_joy_pid, 7500, 100, 2000,
+	PID_CONTROLLER_Init(&revolute_joy_pid, 150, 1e-5, 0,
 			ZGX45RGG_150RPM_Constant.U_max);
  80098dc:	4b98      	ldr	r3, [pc, #608]	@ (8009b40 <plotter_begin+0x6e0>)
  80098de:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&revolute_joy_pid, 7500, 100, 2000,
+	PID_CONTROLLER_Init(&revolute_joy_pid, 150, 1e-5, 0,
  80098e2:	4610      	mov	r0, r2
  80098e4:	4619      	mov	r1, r3
  80098e6:	f7f7 f935 	bl	8000b54 <__aeabi_d2f>
  80098ea:	4603      	mov	r3, r0
  80098ec:	ee01 3a90 	vmov	s3, r3
- 80098f0:	ed9f 1a8a 	vldr	s2, [pc, #552]	@ 8009b1c <plotter_begin+0x6bc>
+ 80098f0:	ed9f 1a89 	vldr	s2, [pc, #548]	@ 8009b18 <plotter_begin+0x6b8>
  80098f4:	eddf 0a9a 	vldr	s1, [pc, #616]	@ 8009b60 <plotter_begin+0x700>
  80098f8:	ed9f 0a9a 	vldr	s0, [pc, #616]	@ 8009b64 <plotter_begin+0x704>
  80098fc:	489a      	ldr	r0, [pc, #616]	@ (8009b68 <plotter_begin+0x708>)
@@ -19131,8 +19132,8 @@ void plotter_begin() {
  8009b54:	453b8000 	.word	0x453b8000
  8009b58:	450e8000 	.word	0x450e8000
  8009b5c:	20000ab8 	.word	0x20000ab8
- 8009b60:	42c80000 	.word	0x42c80000
- 8009b64:	45ea6000 	.word	0x45ea6000
+ 8009b60:	3727c5ac 	.word	0x3727c5ac
+ 8009b64:	43160000 	.word	0x43160000
  8009b68:	20000ae0 	.word	0x20000ae0
  8009b6c:	20000b14 	.word	0x20000b14
  8009b70:	20000b08 	.word	0x20000b08
