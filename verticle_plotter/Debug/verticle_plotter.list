@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00017618  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0002cd60  00000000  00000000  00017648  2**0
+ 12 .debug_info   0002cd64  00000000  00000000  00017648  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00005617  00000000  00000000  000443a8  2**0
+ 13 .debug_abbrev 00005615  00000000  00000000  000443ac  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001d90  00000000  00000000  000499c0  2**3
+ 14 .debug_aranges 00001d90  00000000  00000000  000499c8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00001735  00000000  00000000  0004b750  2**0
+ 15 .debug_rnglists 00001735  00000000  00000000  0004b758  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  0002dbc2  00000000  00000000  0004ce85  2**0
+ 16 .debug_macro  0002dbc2  00000000  00000000  0004ce8d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0002c363  00000000  00000000  0007aa47  2**0
+ 17 .debug_line   0002c363  00000000  00000000  0007aa4f  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0011a669  00000000  00000000  000a6daa  2**0
+ 18 .debug_str    0011a669  00000000  00000000  000a6db2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  001c1413  2**0
+ 19 .comment      00000043  00000000  00000000  001c141b  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00008690  00000000  00000000  001c1458  2**2
+ 20 .debug_frame  00008690  00000000  00000000  001c1460  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000054  00000000  00000000  001c9ae8  2**0
+ 21 .debug_line_str 00000054  00000000  00000000  001c9af0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -18879,15 +18879,15 @@ void plotter_begin() {
  80098b2:	ed9f 0ab8 	vldr	s0, [pc, #736]	@ 8009b94 <plotter_begin+0x6bc>
  80098b6:	48b3      	ldr	r0, [pc, #716]	@ (8009b84 <plotter_begin+0x6ac>)
  80098b8:	f7f7 fd64 	bl	8001384 <MDXX_set_range>
-//			ZGX45RGG_400RPM_Constant.sd_max);
-//	PID_CONTROLLER_Init(&prismatic_velocity_pid, 148, 0.1, 110,
-//			ZGX45RGG_400RPM_Constant.U_max);
+//			ZGX45RGG_150RPM_Constant.qd_max);
+//	PID_CONTROLLER_Init(&revolute_velocity_pid, 2270., 25, 3000, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
+//			ZGX45RGG_150RPM_Constant.U_max);
 
-	PID_CONTROLLER_Init(&prismatic_position_pid, 95, 3e-1, 200,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 3e-1, 165,
 			ZGX45RGG_400RPM_Constant.sd_max);
  80098bc:	4bb6      	ldr	r3, [pc, #728]	@ (8009b98 <plotter_begin+0x6c0>)
  80098be:	e9d3 2314 	ldrd	r2, r3, [r3, #80]	@ 0x50
-	PID_CONTROLLER_Init(&prismatic_position_pid, 95, 3e-1, 200,
+	PID_CONTROLLER_Init(&prismatic_position_pid, 75, 3e-1, 165,
  80098c2:	4610      	mov	r0, r2
  80098c4:	4619      	mov	r1, r3
  80098c6:	f7f7 f945 	bl	8000b54 <__aeabi_d2f>
@@ -18898,11 +18898,11 @@ void plotter_begin() {
  80098d8:	ed9f 0ab2 	vldr	s0, [pc, #712]	@ 8009ba4 <plotter_begin+0x6cc>
  80098dc:	48b2      	ldr	r0, [pc, #712]	@ (8009ba8 <plotter_begin+0x6d0>)
  80098de:	f7f7 fc68 	bl	80011b2 <PID_CONTROLLER_Init>
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 120, 2e-5, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 140, 2e-7, 0,
 			ZGX45RGG_400RPM_Constant.U_max);
  80098e2:	4bad      	ldr	r3, [pc, #692]	@ (8009b98 <plotter_begin+0x6c0>)
  80098e4:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&prismatic_velocity_pid, 120, 2e-5, 0,
+	PID_CONTROLLER_Init(&prismatic_velocity_pid, 140, 2e-7, 0,
  80098e8:	4610      	mov	r0, r2
  80098ea:	4619      	mov	r1, r3
  80098ec:	f7f7 f932 	bl	8000b54 <__aeabi_d2f>
@@ -18914,11 +18914,11 @@ void plotter_begin() {
  8009902:	48ac      	ldr	r0, [pc, #688]	@ (8009bb4 <plotter_begin+0x6dc>)
  8009904:	f7f7 fc55 	bl	80011b2 <PID_CONTROLLER_Init>
 
-	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.017, 700,
+	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.002, 700,
 			ZGX45RGG_150RPM_Constant.qd_max);
  8009908:	4bab      	ldr	r3, [pc, #684]	@ (8009bb8 <plotter_begin+0x6e0>)
  800990a:	e9d3 2310 	ldrd	r2, r3, [r3, #64]	@ 0x40
-	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.017, 700,
+	PID_CONTROLLER_Init(&revolute_position_pid, 250, 0.002, 700,
  800990e:	4610      	mov	r0, r2
  8009910:	4619      	mov	r1, r3
  8009912:	f7f7 f91f 	bl	8000b54 <__aeabi_d2f>
@@ -18929,11 +18929,11 @@ void plotter_begin() {
  8009924:	ed9f 0aa7 	vldr	s0, [pc, #668]	@ 8009bc4 <plotter_begin+0x6ec>
  8009928:	48a7      	ldr	r0, [pc, #668]	@ (8009bc8 <plotter_begin+0x6f0>)
  800992a:	f7f7 fc42 	bl	80011b2 <PID_CONTROLLER_Init>
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 2280, 25, 3000, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 2500, 25, 3000,
 			ZGX45RGG_150RPM_Constant.U_max);
  800992e:	4ba2      	ldr	r3, [pc, #648]	@ (8009bb8 <plotter_begin+0x6e0>)
  8009930:	e9d3 230e 	ldrd	r2, r3, [r3, #56]	@ 0x38
-	PID_CONTROLLER_Init(&revolute_velocity_pid, 2280, 25, 3000, //2280->2275 (P), 25->30 (I), 3000 -> 2996 (D)
+	PID_CONTROLLER_Init(&revolute_velocity_pid, 2500, 25, 3000,
  8009934:	4610      	mov	r0, r2
  8009936:	4619      	mov	r1, r3
  8009938:	f7f7 f90c 	bl	8000b54 <__aeabi_d2f>
@@ -19202,20 +19202,20 @@ void plotter_begin() {
  8009b90:	00000000 	.word	0x00000000
  8009b94:	44fa0000 	.word	0x44fa0000
  8009b98:	20000080 	.word	0x20000080
- 8009b9c:	43480000 	.word	0x43480000
+ 8009b9c:	43250000 	.word	0x43250000
  8009ba0:	3e99999a 	.word	0x3e99999a
- 8009ba4:	42be0000 	.word	0x42be0000
+ 8009ba4:	42960000 	.word	0x42960000
  8009ba8:	20000a3c 	.word	0x20000a3c
- 8009bac:	37a7c5ac 	.word	0x37a7c5ac
- 8009bb0:	42f00000 	.word	0x42f00000
+ 8009bac:	3456bf95 	.word	0x3456bf95
+ 8009bb0:	430c0000 	.word	0x430c0000
  8009bb4:	20000a64 	.word	0x20000a64
  8009bb8:	20000000 	.word	0x20000000
  8009bbc:	442f0000 	.word	0x442f0000
- 8009bc0:	3c8b4396 	.word	0x3c8b4396
+ 8009bc0:	3b03126f 	.word	0x3b03126f
  8009bc4:	437a0000 	.word	0x437a0000
  8009bc8:	20000a8c 	.word	0x20000a8c
  8009bcc:	453b8000 	.word	0x453b8000
- 8009bd0:	450e8000 	.word	0x450e8000
+ 8009bd0:	451c4000 	.word	0x451c4000
  8009bd4:	20000ab4 	.word	0x20000ab4
  8009bd8:	3727c5ac 	.word	0x3727c5ac
  8009bdc:	43160000 	.word	0x43160000
