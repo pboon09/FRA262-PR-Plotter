@@ -4,7 +4,7 @@ from pymodbus.client import ModbusSerialClient as ModbusClient
 from pymodbus.client import ModbusTcpClient
 
 # ----------------------------------- Config this variable before using ----------------------------------- 
-device_port = "COM8"
+device_port = "COM14"
 # example: for os -> device_port = "/dev/cu.usbmodem14103"
 #          for window -> device_port = "COM3"
 # ---------------------------------------------------------------------------------------------------------

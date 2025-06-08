@@ -1847,116 +1847,126 @@ void reset_joy_mode_data(void) {
 }
 
 void update_joy_mode_velocity_control(void) {
-    // Read current photo sensor states directly
-    bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port, upperphoto_Pin);
-    bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port, LOWER_PHOTO_Pin);
+	// Read current photo sensor states directly
+	bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port,
+			upperphoto_Pin);
+	bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port,
+			LOWER_PHOTO_Pin);
 
-    /* PRISMATIC AXIS - SIMPLE PWM CONTROL (NO PID, NO FEEDFORWARD) */
-    float pris_base_pwm = 0.0f;
+	/* PRISMATIC AXIS - SIMPLE PWM CONTROL (NO PID, NO FEEDFORWARD) */
+	float pris_base_pwm = 0.0f;
 
-    // Check sensor limits and joystick input
-    if (up_photo_detected && joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
-        // At up photo and trying to go up - block movement
-        pris_base_pwm = 0.0f;
-    } else if (low_photo_detected && joystick_x < -JOY_MODE_VELOCITY_THRESHOLD) {
-        // At low photo and trying to go down - block movement
-        pris_base_pwm = 0.0f;
-    } else if (joystick_x < -JOY_MODE_VELOCITY_THRESHOLD) {
-        // Moving down (positive direction)
-        float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
-        pris_base_pwm = -joystick_normalized * (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
+	// Check sensor limits and joystick input
+	if (up_photo_detected && joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
+		// At up photo and trying to go up - block movement
+		pris_base_pwm = 0.0f;
+	} else if (low_photo_detected && joystick_x < -JOY_MODE_VELOCITY_THRESHOLD) {
+		// At low photo and trying to go down - block movement
+		pris_base_pwm = 0.0f;
+	} else if (joystick_x < -JOY_MODE_VELOCITY_THRESHOLD) {
+		// Moving down (positive direction)
+		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
+		pris_base_pwm = -joystick_normalized
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
 
-        // Clear flags when moving away from sensors
-        if (!low_photo_detected) {
-            up_photo = false;
-        }
-    } else if (joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
-        // Moving up (negative direction)
-        float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
-        pris_base_pwm = -joystick_normalized * (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
+		// Clear flags when moving away from sensors
+		if (!low_photo_detected) {
+			up_photo = false;
+		}
+	} else if (joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
+		// Moving up (negative direction)
+		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
+		pris_base_pwm = -joystick_normalized
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
 
-        // Clear flags when moving away from sensors
-        if (!up_photo_detected) {
-            low_photo = false;
-        }
-    } else {
-        // Joystick in deadband - no movement
-        pris_base_pwm = 0.0f;
-    }
+		// Clear flags when moving away from sensors
+		if (!up_photo_detected) {
+			low_photo = false;
+		}
+	} else {
+		// Joystick in deadband - no movement
+		pris_base_pwm = 0.0f;
+	}
 
-    // Apply prismatic command directly (no feedforward, no PID)
-    prismatic_axis.command_pos = pris_base_pwm;
+	// Apply prismatic command directly (no feedforward, no PID)
+	prismatic_axis.command_pos = pris_base_pwm;
 
-    // Saturate final command
-    prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
-            ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
+	// Saturate final command
+	prismatic_axis.command_pos = PWM_Satuation(prismatic_axis.command_pos,
+			ZGX45RGG_400RPM_Constant.U_max, -ZGX45RGG_400RPM_Constant.U_max);
 
-    // Update position for display
-    prismatic_axis.position = prismatic_encoder.mm;
+	// Update position for display
+	prismatic_axis.position = prismatic_encoder.mm;
 
-    /* REVOLUTE AXIS - KEEP EXISTING SIMPLE PWM CONTROL */
-    float rev_base_pwm = 0.0f;
-    bool rev_moving = false;
+	/* REVOLUTE AXIS - KEEP EXISTING SIMPLE PWM CONTROL */
+	float rev_base_pwm = 0.0f;
+	bool rev_moving = false;
 
-    // Get current revolute position in degrees for limit checking
-    float revolute_deg = UnitConverter_angle(&converter_system,
-            revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
+	// Get current revolute position in degrees for limit checking
+	float revolute_deg = UnitConverter_angle(&converter_system,
+			revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
 
-    // Process revolute axis joystick control with limits
-    if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD) ||
-        (revolute_deg < -175.0f && joystick_y < -JOY_MODE_VELOCITY_THRESHOLD)) {
-        // At revolute limits - block movement
-        rev_base_pwm = 0.0f;
-        rev_moving = false;
-    } else if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
-        float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
-        rev_base_pwm = joystick_normalized * (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
-        rev_moving = true;
-    } else if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
-        float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
-        rev_base_pwm = joystick_normalized * (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
-        rev_moving = true;
-    } else {
-        // Joystick in deadband - only compensation
-        rev_base_pwm = 0.0f;
-        rev_moving = false;
-    }
+	// Process revolute axis joystick control with limits
+	if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD)
+			|| (revolute_deg < -175.0f
+					&& joystick_y < -JOY_MODE_VELOCITY_THRESHOLD)) {
+		// At revolute limits - block movement
+		rev_base_pwm = 0.0f;
+		rev_moving = false;
+	} else if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
+		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
+		rev_base_pwm = joystick_normalized
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
+		rev_moving = true;
+	} else if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
+		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
+		rev_base_pwm = joystick_normalized
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
+		rev_moving = true;
+	} else {
+		// Joystick in deadband - only compensation
+		rev_base_pwm = 0.0f;
+		rev_moving = false;
+	}
 
-    // Calculate feedforward terms for revolute only
-    if (rev_moving) {
-        // Simple velocity feedforward proportional to joystick
-        revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
-                joystick_y > 0 ? JOY_MODE_CONSTANT_VELOCITY_REV : -JOY_MODE_CONSTANT_VELOCITY_REV);
-    } else {
-        revolute_axis.ffd = 0.0f;
-    }
+	// Calculate feedforward terms for revolute only
+	if (rev_moving) {
+		// Simple velocity feedforward proportional to joystick
+		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
+				joystick_y > 0 ?
+						JOY_MODE_CONSTANT_VELOCITY_REV :
+						-JOY_MODE_CONSTANT_VELOCITY_REV);
+	} else {
+		revolute_axis.ffd = 0.0f;
+	}
 
-    // Always add gravity compensation for revolute
-    if (prismatic_encoder.mm < 100.0) {
-        revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-                revolute_encoder.rads, prismatic_encoder.mm / 1000.0f) * 2.5;
-    } else {
-        revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-                revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
-    }
+	// Always add gravity compensation for revolute
+	if (prismatic_encoder.mm < 100.0) {
+		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f) * 2.5;
+	} else {
+		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+	}
 
-    // Apply filtering to feedforward terms
-    static float ffd_filtered = 0.0f;
-    static float dfd_filtered = 0.0f;
+	// Apply filtering to feedforward terms
+	static float ffd_filtered = 0.0f;
+	static float dfd_filtered = 0.0f;
 
-    ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-    dfd_filtered = 0.2f * dfd_filtered + 0.8f * revolute_axis.dfd;
+	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
+	dfd_filtered = 0.2f * dfd_filtered + 0.8f * revolute_axis.dfd;
 
-    // Combine base PWM with feedforward compensation
-    revolute_axis.command_pos = rev_base_pwm + 0.01f * (ffd_filtered + dfd_filtered);
+	// Combine base PWM with feedforward compensation
+	revolute_axis.command_pos = rev_base_pwm
+			+ 0.01f * (ffd_filtered + dfd_filtered);
 
-    // Saturate final command
-    revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
-            ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
+	// Saturate final command
+	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
+			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
-    // Apply motor commands
-    MDXX_set_range(&prismatic_motor, 2000, prismatic_axis.command_pos);
-    MDXX_set_range(&revolute_motor, 2000, revolute_axis.command_pos);
+	// Apply motor commands
+	MDXX_set_range(&prismatic_motor, 2000, prismatic_axis.command_pos);
+	MDXX_set_range(&revolute_motor, 2000, revolute_axis.command_pos);
 }
 
 void update_joy_mode_pilot_light(void) {
@@ -2021,10 +2031,41 @@ void update_joy_mode(void) {
 					start_combined_trajectory(target_pris, target_rev_deg);
 					joy_mode_playback_timer = 0;
 				} else {
-					// All positions played back - exit joy mode
+					// All positions played back - RESET EVERYTHING TO ALLOW NEW SAVING
 					plotter_pen_up();
+
+					// Reset saved positions data
+					saved_position_count = 0;
+					playback_position_index = 0;
+
+					// Clear all saved positions
+					for (int i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
+						saved_positions[i].prismatic_pos = 0.0f;
+						saved_positions[i].revolute_pos = 0.0f;
+					}
+
+					// Clear modbus registers for saved positions
+					for (uint8_t i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
+						uint8_t r_addr = 0x20 + i * 2;
+						uint8_t t_addr = r_addr + 1;
+						if (r_addr <= 0x38 && t_addr <= 0x39) {
+							registerFrame[r_addr].U16 = 0;
+							registerFrame[t_addr].U16 = 0;
+						}
+					}
+
+					// Reset timers
+					joy_mode_playback_timer = 0;
+					joy_mode_pilot_timer = 0;
+
+					// Go back to initial control state
 					joy_mode_state = JOY_MODE_INITIAL_CONTROL;
+
+					// Keep pilot light on steady (not blinking)
+					HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
+					joy_mode_pilot_state = true;
 				}
+
 			}
 		}
 
@@ -2110,10 +2151,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		return;
 	}
 
-	if (GPIO_Pin == EMER_Pin) {
-		trigger_hardware_emergency();
-		return;
-	}
+//	if (GPIO_Pin == EMER_Pin) {
+//		trigger_hardware_emergency();
+//		return;
+//	}
 
 	if (GPIO_Pin == J1_Pin) {
 		uint32_t current_time = HAL_GetTick();
@@ -2191,7 +2232,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 // Modified J4 button handler for joy mode exit
 	if (GPIO_Pin == J4_Pin) {
-	    if (is_emergency_active()) {
+		if (is_emergency_active()) {
 			clear_emergency_state();
 		}
 		return;
@@ -2336,19 +2377,19 @@ void modbus_working(void) {
 		prismatic_encoder.mm = 0.0;
 		revolute_encoder.rads = 0.0;
 
-	    // Reset axis states
-	    memset(&prismatic_axis, 0, sizeof(prismatic_axis));
-	    memset(&revolute_axis, 0, sizeof(revolute_axis));
+		// Reset axis states
+		memset(&prismatic_axis, 0, sizeof(prismatic_axis));
+		memset(&revolute_axis, 0, sizeof(revolute_axis));
 
-	    // Reset trajectory structures
-	    memset(&prisGen, 0, sizeof(prisGen));
-	    memset(&revGen, 0, sizeof(revGen));
-	    memset(&prisEva, 0, sizeof(prisEva));
-	    memset(&revEva, 0, sizeof(revEva));
+		// Reset trajectory structures
+		memset(&prisGen, 0, sizeof(prisGen));
+		memset(&revGen, 0, sizeof(revGen));
+		memset(&prisEva, 0, sizeof(prisEva));
+		memset(&revEva, 0, sizeof(revEva));
 	}
 
-	if (prismatic_encoder.mm == 0.0 && revolute_encoder.rads == 0.0){
-	    reset_on_zero_requested = false;
+	if (prismatic_encoder.mm == 0.0 && revolute_encoder.rads == 0.0) {
+		reset_on_zero_requested = false;
 	}
 
 	registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0f;
