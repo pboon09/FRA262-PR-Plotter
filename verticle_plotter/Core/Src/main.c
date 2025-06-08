@@ -2362,7 +2362,23 @@ void modbus_working(void) {
 
 	// Check if we need to reset when reaching (0,0)
 	if (reset_on_zero_requested && motion_sequence_state == MOTION_IDLE) {
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		prismatic_encoder.mm = 0.0;
+		revolute_encoder.rads = 0.0;
+
+	    // Reset axis states
+	    memset(&prismatic_axis, 0, sizeof(prismatic_axis));
+	    memset(&revolute_axis, 0, sizeof(revolute_axis));
+
+	    // Reset trajectory structures
+	    memset(&prisGen, 0, sizeof(prisGen));
+	    memset(&revGen, 0, sizeof(revGen));
+	    memset(&prisEva, 0, sizeof(prisEva));
+	    memset(&revEva, 0, sizeof(revEva));
+	}
+
+	if (prismatic_encoder.mm == 0.0 && revolute_encoder.rads == 0.0){
+	    reset_on_zero_requested = false;
 	}
 
 	registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0f;
