@@ -1498,6 +1498,23 @@ void trigger_hardware_emergency(void) {
 	prisEva.isFinised = true;
 	revEva.isFinised = true;
 
+	// IMPORTANT: Stop J1 sequence
+	j1_active = false;
+	j1_in_progress = false;
+	j1_cycle_count = 0;
+	j1_going_to_target = true;
+	j1_pen_down_complete = false;
+	j1_pen_delay = 0;
+
+	// Stop any drawing sequences
+	stop_character_drawing();
+	word_drawing_active = false;
+	word_progress = 0;
+	word_delay_timer = 0;
+
+	// Ensure pen is up
+	plotter_pen_up();
+
 	homing_active = false;
 	homing_state = HOMING_IDLE;
 
@@ -1571,6 +1588,23 @@ void clear_emergency_state(void) {
 	revolute_axis.ffd = 0.0f;
 	revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+
+	// IMPORTANT: Reset J1 sequence variables
+	j1_active = false;
+	j1_in_progress = false;
+	j1_cycle_count = 0;
+	j1_going_to_target = true;
+	j1_pen_down_complete = false;
+	j1_pen_delay = 0;
+
+	// Stop any drawing sequences
+	stop_character_drawing();
+	word_drawing_active = false;
+	word_progress = 0;
+	word_delay_timer = 0;
+
+	// Ensure pen is up after emergency
+	plotter_pen_up();
 
 	// Clear emergency state
 	safety_state = SAFETY_NORMAL;
