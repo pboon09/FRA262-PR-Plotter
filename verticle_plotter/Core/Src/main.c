@@ -208,7 +208,7 @@ bool j1_in_progress = false;
 const float32_t J1_TARGET_PRIS = 200.0f;
 const float32_t J1_TARGET_REV = 90.0f;
 static uint32_t j1_interrupt_last_time = 0;
-const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 150;
+const uint32_t J1_INTERRUPT_DEBOUNCE_MS = 700;
 
 static uint8_t j3_press_count = 0;
 static uint32_t j3_last_press_time = 0;
