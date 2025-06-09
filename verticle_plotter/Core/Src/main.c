@@ -133,7 +133,7 @@ typedef struct {
 #define JOY_MODE_CONSTANT_VELOCITY_REV 3.0f
 #define JOY_MODE_PILOT_TOGGLE_PERIOD 1000
 #define JOY_MODE_PLAYBACK_DELAY 500
-#define JOY_MODE_B2_DEBOUNCE_TIME 100
+#define JOY_MODE_B2_DEBOUNCE_TIME 500
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -350,7 +350,7 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
-	/* USER CODE BEGIN Init */
+	 /* USER CODE BEGIN Init */
 
 	/* USER CODE END Init */
 
@@ -1114,7 +1114,7 @@ void update_velocity_control(void) {
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.8f * dfd_filtered + 0.175f * revolute_axis.dfd; //dfd 0.175
+	dfd_filtered = 0.8f * dfd_filtered + 0.175 * revolute_axis.dfd; //dfd 0.175
 
 	revolute_axis.command_pos += 0.01 * (dfd_filtered + ffd_filtered);
 
@@ -1680,10 +1680,19 @@ void enter_joy_mode(void) {
 	ensure_motion_idle();
 
 	joy_mode_active = true;
-	joy_mode_state = JOY_MODE_INITIAL_CONTROL; // Start in initial control state
 
-	// Reset all joy mode data
-	reset_joy_mode_data();
+	// Check if we already have saved positions
+	if (saved_position_count >= JOY_MODE_MAX_POSITIONS) {
+		// Already have 10 positions saved - go directly to POSITION_SAVED state
+		joy_mode_state = JOY_MODE_POSITION_SAVED;
+		joy_mode_pilot_timer = 0;
+	} else if (saved_position_count > 0) {
+		// Have some positions but not 10 - continue saving
+		joy_mode_state = JOY_MODE_MANUAL_CONTROL;
+	} else {
+		// No saved positions - start from initial control
+		joy_mode_state = JOY_MODE_INITIAL_CONTROL;
+	}
 
 	// Turn on pilot light to indicate joy mode
 	HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
@@ -1704,26 +1713,26 @@ void enter_joy_mode(void) {
 	revolute_axis.command_pos = 0.0f;
 	prismatic_axis.command_vel = 0.0f;
 	revolute_axis.command_vel = 0.0f;
-
-	// Reset PID controllers
-//	PID_CONTROLLER_Reset(&prismatic_position_pid);
-//	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-//	PID_CONTROLLER_Reset(&revolute_position_pid);
-//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 }
-
 /* Updated exit joy mode to handle cleanup properly */
 void exit_joy_mode(void) {
 	joy_mode_active = false;
 	joy_mode_state = JOY_MODE_IDLE;
 
-	// Reset all data
-	reset_joy_mode_data();
+	// DON'T reset saved positions data - keep them for next time
+	// Only reset the pilot light and button states
 
 	// Turn off pilot light
 	HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_RESET);
 	joy_mode_pilot_state = false;
 	joy_mode_pilot_timer = 0;
+
+	// Reset button states only
+	joy_mode_b2_pressed = false;
+	joy_mode_b2_last_state = false;
+
+	// Reset playback timer but NOT the saved positions
+	joy_mode_playback_timer = 0;
 
 	// DON'T stop motors - hold current position
 	// Set current positions as target positions for holding
@@ -1740,13 +1749,6 @@ void exit_joy_mode(void) {
 	// Keep DFD for revolute axis (gravity compensation)
 	revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
 			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
-
-	// Reset PID controllers
-//	PID_CONTROLLER_Reset(&prismatic_position_pid);
-//	PID_CONTROLLER_Reset(&prismatic_velocity_pid);
-//	PID_CONTROLLER_Reset(&revolute_position_pid);
-//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
-//	PID_CONTROLLER_Reset(&revolute_velocity_pid);
 
 	// Reset motion state
 	motion_sequence_state = MOTION_IDLE;
@@ -1849,12 +1851,18 @@ void reset_joy_mode_data(void) {
 void update_joy_mode_velocity_control(void) {
 	// Read current photo sensor states directly
 	bool up_photo_detected = HAL_GPIO_ReadPin(upperphoto_GPIO_Port,
-			upperphoto_Pin);
+	upperphoto_Pin);
 	bool low_photo_detected = HAL_GPIO_ReadPin(LOWER_PHOTO_GPIO_Port,
-			LOWER_PHOTO_Pin);
+	LOWER_PHOTO_Pin);
 
 	/* PRISMATIC AXIS - SIMPLE PWM CONTROL (NO PID, NO FEEDFORWARD) */
 	float pris_base_pwm = 0.0f;
+
+	if (registerFrame[Servo_UP].U16 == 1) {
+		plotter_pen_up();
+	} else if (registerFrame[Servo_Down].U16 == 1) {
+		plotter_pen_down();
+	}
 
 	// Check sensor limits and joystick input
 	if (up_photo_detected && joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
@@ -1867,7 +1875,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving down (positive direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!low_photo_detected) {
@@ -1877,7 +1885,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving up (negative direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 40% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!up_photo_detected) {
@@ -1916,12 +1924,12 @@ void update_joy_mode_velocity_control(void) {
 	} else if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
 		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
 		rev_base_pwm = joystick_normalized
-				* (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
 		rev_moving = true;
 	} else if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
 		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
 		rev_base_pwm = joystick_normalized
-				* (ZGX45RGG_150RPM_Constant.U_max * 0.3f); // 30% max PWM
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
 		rev_moving = true;
 	} else {
 		// Joystick in deadband - only compensation
@@ -1934,8 +1942,8 @@ void update_joy_mode_velocity_control(void) {
 		// Simple velocity feedforward proportional to joystick
 		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
 				joystick_y > 0 ?
-						JOY_MODE_CONSTANT_VELOCITY_REV :
-						-JOY_MODE_CONSTANT_VELOCITY_REV);
+				JOY_MODE_CONSTANT_VELOCITY_REV :
+									-JOY_MODE_CONSTANT_VELOCITY_REV);
 	} else {
 		revolute_axis.ffd = 0.0f;
 	}
@@ -2007,6 +2015,7 @@ void update_joy_mode(void) {
 		revolute_axis.position = revolute_encoder.rads;
 		// 10 positions saved, pilot light toggling, waiting for B2 to start playback
 		update_joy_mode_pilot_light();
+		update_joy_mode_velocity_control();
 		break;
 
 	case JOY_MODE_PLAYBACK:
@@ -2039,10 +2048,10 @@ void update_joy_mode(void) {
 					playback_position_index = 0;
 
 					// Clear all saved positions
-					for (int i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
-						saved_positions[i].prismatic_pos = 0.0f;
-						saved_positions[i].revolute_pos = 0.0f;
-					}
+//					for (int i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
+//						saved_positions[i].prismatic_pos = 0.0f;
+//						saved_positions[i].revolute_pos = 0.0f;
+//					}
 
 					// Clear modbus registers for saved positions
 					for (uint8_t i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
@@ -2083,7 +2092,7 @@ void handle_b2_button_polling(void) {
 //	b2S[0] = !HAL_GPIO_ReadPin(J2_GPIO_Port, J2_Pin);
 	static uint32_t last_press_time = 0;
 	static uint32_t press_counter = 0;
-	const uint32_t DEBOUNCE_TIME = 200; // 200ms debounce time
+	const uint32_t DEBOUNCE_TIME = 700; // 200ms debounce time
 
 	press_counter++; // Increment every timer tick (assuming 1ms timer)
 
@@ -2335,10 +2344,19 @@ void modbus_working(void) {
 	registerFrame[Heartbeat_Protocol].U16 = 22881;
 
 	// servo write
-	if (registerFrame[Servo_UP].U16 == 1) {
-		plotter_pen_up();
-	} else if (registerFrame[Servo_Down].U16 == 1) {
-		plotter_pen_down();
+	if (j1_active || current_drawing_sequence.sequence_active || word_drawing_active) {
+		// Clear commands during automated sequences
+		registerFrame[Servo_UP].U16 = 0;
+		registerFrame[Servo_Down].U16 = 0;
+	} else if (!joy_mode_active) {
+		// Not in joy mode - handle pen commands here
+		if (registerFrame[Servo_UP].U16 == 1) {
+			plotter_pen_up();
+			registerFrame[Servo_UP].U16 = 0; // Clear after execution
+		} else if (registerFrame[Servo_Down].U16 == 1) {
+			plotter_pen_down();
+			registerFrame[Servo_Down].U16 = 0; // Clear after execution
+		}
 	}
 
 	// limitSW
@@ -2392,24 +2410,39 @@ void modbus_working(void) {
 		reset_on_zero_requested = false;
 	}
 
-	registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0f;
 	registerFrame[R_Axis_Actual_Speed].U16 = prismatic_axis.kalman_velocity
 			* 10.0f;
+
+
+
+	float r_mm = prismatic_encoder.mm;
+	float theta_deg = revolute_axis.deg;
+
+	// Rotate by 90 degrees (subtract 90 from theta)
+	float rotated_theta_deg = theta_deg - 90.0f;
+
+	// Normalize the angle to stay within -180 to +180 or 0 to 360 range
+	while (rotated_theta_deg < -180.0f) rotated_theta_deg += 360.0f;
+	while (rotated_theta_deg > 180.0f) rotated_theta_deg -= 360.0f;
+
+	// Update registers with rotated values
+	registerFrame[R_Axis_Actual_Position].U16 = r_mm * 10.0f;  // R stays the same
+	registerFrame[Theta_Axis_Actual_Position].U16 = rotated_theta_deg * 10.0f;
+
 
 	float pris_accel = FIR_process(&prismatic_lp_accel,
 			prismatic_encoder.mmpss);
 	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
 
-	registerFrame[Theta_Axis_Actual_Position].U16 = revolute_axis.deg * 10.0f;
 
 	float rev_theta_vel = UnitConverter_angle(&converter_system,
 			revolute_axis.kalman_velocity, UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Actual_Speed].U16 = rev_theta_vel * 10.0f;
 
-	float rev_theta_accel = UnitConverter_angle(&converter_system,
+	revolute_axis.accel_show = UnitConverter_angle(&converter_system,
 			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
 			UNIT_RADIAN, UNIT_DEGREE);
-	registerFrame[Theta_Axis_Acceleration].U16 = rev_theta_accel * 10.0f;
+	registerFrame[Theta_Axis_Acceleration].U16 = revolute_axis.accel_show * 10.0f;
 }
 
 void start_character_drawing(DrawingPoint_t *points, uint8_t num_points,

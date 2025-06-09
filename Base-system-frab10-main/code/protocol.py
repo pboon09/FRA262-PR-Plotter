@@ -103,75 +103,71 @@ class Protocol_RT(Binary):
         else:
             return False
 
-    def read_ui_button_status(self):
-        """
-        Read UI button status from register 0x06 - แก้ไข error handling
-        """
-        try:
-            response = self.client.read_holding_registers(
-                address=0x06, 
-                count=1, 
-                slave=self.slave_address
-            )
+    # def read_ui_button_status(self):
+    #     """
+    #     Read UI button status from register 0x06 - แก้ไข error handling
+    #     """
+    #     try:
+    #         response = self.client.read_holding_registers(
+    #             address=0x06, 
+    #             count=1, 
+    #             slave=self.slave_address
+    #         )
             
-            # เช็ค response
-            if hasattr(response, 'isError') and response.isError():
-                print(f"Read UI button error: {response}")
-                return {
-                    "home_pressed": False,
-                    "run_pressed": False,
-                    "up_down_toggle": False,
-                    "mode_jog": True,
-                    "mode_point": False
-                }
+    #         # เช็ค response
+    #         if hasattr(response, 'isError') and response.isError():
+    #             print(f"Read UI button error: {response}")
+    #             return {
+    #                 "home_pressed": False,
+    #                 "run_pressed": False,
+    #                 "up_down_toggle": False,
+    #                 "mode_jog": True,
+    #                 "mode_point": False
+    #             }
                 
-            if not hasattr(response, 'registers') or len(response.registers) == 0:
-                print("Invalid UI button response")
-                return {
-                    "home_pressed": False,
-                    "run_pressed": False,
-                    "up_down_toggle": False,
-                    "mode_jog": True,
-                    "mode_point": False
-                }
+    #         if not hasattr(response, 'registers') or len(response.registers) == 0:
+    #             print("Invalid UI button response")
+    #             return {
+    #                 "home_pressed": False,
+    #                 "run_pressed": False,
+    #                 "up_down_toggle": False,
+    #                 "mode_jog": True,
+    #                 "mode_point": False
+    #             }
                 
-            status = response.registers[0]
+    #         status = response.registers[0]
             
-            return {
-                "home_pressed": (status & 0x01) > 0,     # Bit 0
-                "run_pressed": (status & 0x02) > 0,      # Bit 1  
-                "up_down_toggle": (status & 0x04) > 0,   # Bit 2
-                "mode_jog": (status & 0x08) > 0,         # Bit 3
-                "mode_point": (status & 0x10) > 0        # Bit 4
-            }
+    #         return {
+    #             "home_pressed": (status & 0x01) > 0,     # Bit 0
+    #             "run_pressed": (status & 0x02) > 0,      # Bit 1  
+    #             "up_down_toggle": (status & 0x04) > 0,   # Bit 2
+    #             "mode_jog": (status & 0x08) > 0,         # Bit 3
+    #             "mode_point": (status & 0x10) > 0        # Bit 4
+    #         }
             
-        except Exception as e:
-            print(f"Read UI button exception: {e}")
-            return {
-                "home_pressed": False,
-                "run_pressed": False,
-                "up_down_toggle": False,
-                "mode_jog": True,
-                "mode_point": False
-            }
+    #     except Exception as e:
+    #         print(f"Read UI button exception: {e}")
+    #         return {
+    #             "home_pressed": False,
+    #             "run_pressed": False,
+    #             "up_down_toggle": False,
+    #             "mode_jog": True,
+    #             "mode_point": False
+    #         }
 
     def routine(self):
-        """แก้ไข routine ให้ handle errors ได้ดีขึ้น"""
         try:
-            # เช็คการเชื่อมต่อ - ปรับปรุงการเช็ค
+
             if not self.client or not hasattr(self.client, 'connect'):
                 print("Invalid Modbus client")
                 self.routine_normal = False
                 self.usb_connect = False
                 return
-            
-            # ลองอ่าน register เพื่อทดสอบการเชื่อมต่อ
             test_response = self.client.read_holding_registers(
                 address=0x00, 
                 count=1, 
                 slave=self.slave_address
             )
-            
             if hasattr(test_response, 'isError') and test_response.isError():
                 print(f"Connection test failed: {test_response}")
                 self.routine_normal = False
@@ -184,14 +180,12 @@ class Protocol_RT(Binary):
                 self.usb_connect = False
                 return
             
-            # อ่าน registers หลัก
             register_response = self.client.read_holding_registers(
                 address=0x00, 
                 count=0x46, 
                 slave=self.slave_address
             )
             
-            # เช็ค response
             if hasattr(register_response, 'isError') and register_response.isError():
                 print(f"Error reading registers: {register_response}")
                 self.routine_normal = False
@@ -204,16 +198,14 @@ class Protocol_RT(Binary):
                 self.usb_connect = False
                 return
                 
-            # เช็คขนาด registers
             self.register = register_response.registers
             if len(self.register) < 0x46:
                 print(f"Incomplete register data: expected 70, got {len(self.register)}")
                 self.routine_normal = False
                 return
             
-            # print(f"Successfully read {len(self.register)} registers")
+            print(f"Successfully read {len(self.register)} registers")
             
-            # อ่านข้อมูลต่างๆ
             try:
                 self.read_r_theta_moving_status()
             except Exception as e:
@@ -229,7 +221,6 @@ class Protocol_RT(Binary):
             except Exception as e:
                 print(f"Error reading target positions: {e}")
 
-            # อ่านสถานะ limit switch
             try:
                 limit_switch = self.read_limit_switch_status()
                 if limit_switch["limit_up"]:
@@ -242,18 +233,17 @@ class Protocol_RT(Binary):
                 print(f"Error reading limit switch: {e}")
                 servo_status = "UNKNOWN"
 
-            # อ่าน UI button status
-            try:
-                self.ui_buttons = self.read_ui_button_status()
-            except Exception as e:
-                print(f"Error reading UI button status: {e}")
-                self.ui_buttons = {
-                    "home_pressed": False,
-                    "run_pressed": False,
-                    "up_down_toggle": False,
-                    "mode_jog": True,
-                    "mode_point": False
-                }
+            # try:
+            #     self.ui_buttons = self.read_ui_button_status()
+            # except Exception as e:
+            #     print(f"Error reading UI button status: {e}")
+            #     self.ui_buttons = {
+            #         "home_pressed": False,
+            #         "run_pressed": False,
+            #         "up_down_toggle": False,
+            #         "mode_jog": True,
+            #         "mode_point": False
+            #     }
 
             self.routine_normal = True
             self.usb_connect = True
@@ -308,12 +298,10 @@ class Protocol_RT(Binary):
                 slave=self.slave_address
             )
             
-            # เช็ค response ก่อนเข้าถึง registers
             if hasattr(response, 'isError') and response.isError():
                 print(f"Read heartbeat error: {response}")
                 return "Error"
             
-            # เช็คว่ามี registers attribute หรือไม่
             if not hasattr(response, 'registers'):
                 print(f"Response has no registers attribute: {type(response)}")
                 return "Error"
@@ -323,7 +311,7 @@ class Protocol_RT(Binary):
                 return "Error"
                 
             heartbeat_value = response.registers[0]
-            # print(f"Heartbeat response: {heartbeat_value}")
+            print(f"Heartbeat response: {heartbeat_value}")
             return heartbeat_value
             
         except Exception as e:
@@ -346,7 +334,7 @@ class Protocol_RT(Binary):
                 self.usb_connect = False
             else:
                 self.usb_connect = True
-                # print("Heartbeat sent successfully")
+                print("Heartbeat sent successfully")
                     
         except Exception as e:
             print(f"Write heartbeat exception: {e}")
@@ -411,7 +399,6 @@ class Protocol_RT(Binary):
                 slave=self.slave_address
             )
             
-            # เช็ค response
             if hasattr(response, 'isError') and response.isError():
                 print(f"Read up/down error: {response}")
                 return False, False
@@ -426,7 +413,7 @@ class Protocol_RT(Binary):
             return limit_up, limit_down
             
         except Exception as e:
-            print(f"💥 Read up/down exception: {e}")
+            print(f"Read up/down exception: {e}")
             return False, False
 
 
@@ -465,11 +452,9 @@ class Protocol_RT(Binary):
             theta_value = self.binary_reverse_twos_complement(self.register[0x20 + i * 2 + 1]) / 10 
             self.target_positions[i] = (r_value, theta_value)
             
-            # เช็คว่ามีการเปลี่ยนแปลงหรือไม่
             if old_positions[i] != self.target_positions[i]:
                 positions_changed = True
 
-        # Print เฉพาะเมื่อมีการเปลี่ยนแปลง
         if positions_changed:
             print("Target Positions Changed:")
             for i, (r_value, theta_value) in enumerate(self.target_positions):
@@ -489,17 +474,3 @@ class Protocol_RT(Binary):
             print(f"Goal Point Sent: r={r} mm, theta={theta}Degree")
         except Exception as e:
             print(f"Goal Point Send Failed: {e}")
-
-    def write_target_positions(self, positions):
-        try:
-            for i, (r, theta) in enumerate(positions[:10]):
-                r_scaled = int(r * 10)
-                theta_scaled = int(theta * 10)
-                
-                self.client.write_register(address=0x20 + i*2, value=r_scaled, slave=self.slave_address)
-                self.client.write_register(address=0x20 + i*2 + 1, value=theta_scaled, slave=self.slave_address)
-                
-            print(f"Written {len(positions)} target positions")
-        except Exception as e:
-            print(f"Error writing target positions: {e}")
-

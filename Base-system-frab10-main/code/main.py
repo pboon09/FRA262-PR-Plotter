@@ -51,13 +51,7 @@ class App(tk.Tk):
             "status_before": "Idle",
             "up": False,
             "down": False,
-            "ui_buttons": {           
-                "home_pressed": False,
-                "run_pressed": False, 
-                "up_down_toggle": False,
-                "mode_jog": True,
-                "mode_point": False
-                }
+            
         }
 
         # create component
@@ -104,7 +98,6 @@ class App(tk.Tk):
                             self.shared_data["status_before"] = self.shared_data["status"]
                             self.shared_data["status"] = getattr(self.protocol_rt, 'r_theta_moving_status', 'Unknown')
                             
-                            # อ่าน up/down status แยกจาก UI buttons
                             try:
                                 up, down = self.protocol_rt.read_up_down_order()
                                 self.shared_data["up"] = up
@@ -114,54 +107,16 @@ class App(tk.Tk):
                                 self.shared_data["up"] = False
                                 self.shared_data["down"] = False
                             
-                            # อ่าน UI button status แยกต่างหาก
-                            try:
-                                ui_buttons = getattr(self.protocol_rt, 'ui_buttons', {})
-                                self.shared_data["ui_buttons"] = {
-                                    "home_pressed": ui_buttons.get("home_pressed", False),
-                                    "run_pressed": ui_buttons.get("run_pressed", False), 
-                                    "up_down_toggle": ui_buttons.get("up_down_toggle", False),
-                                    "mode_jog": ui_buttons.get("mode_jog", True),
-                                    "mode_point": ui_buttons.get("mode_point", False)
-                                }
-                            except Exception as e:
-                                print(f"Error updating UI button status: {e}")
-                                # ตั้งค่า default เมื่อเกิด error
-                                self.shared_data["ui_buttons"] = {
-                                    "home_pressed": False,
-                                    "run_pressed": False,
-                                    "up_down_toggle": False,
-                                    "mode_jog": True,
-                                    "mode_point": False
-                                }
 
                     else:
-                        # เมื่อไม่ได้เชื่อมต่อ ให้ reset ข้อมูล
                         with self.data_lock:
-                            self.shared_data["status"] = "Disconnected"
-                            # Reset UI buttons เมื่อไม่เชื่อมต่อ
-                            self.shared_data["ui_buttons"] = {
-                                "home_pressed": False,
-                                "run_pressed": False,
-                                "up_down_toggle": False,
-                                "mode_jog": True,
-                                "mode_point": False
-                            }
-                            
-                time.sleep(0.05)  # 50ms - ลดจาก 10ms เพื่อประสิทธิภาพ
+                            self.shared_data["status"] = "Disconnected" 
+                time.sleep(0.05)
                 
             except Exception as e:
                 print(f"Protocol loop error: {e}")
                 with self.data_lock:
                     self.shared_data["status"] = "Error"
-                    # Reset UI buttons เมื่อเกิด error
-                    self.shared_data["ui_buttons"] = {
-                        "home_pressed": False,
-                        "run_pressed": False,
-                        "up_down_toggle": False,
-                        "mode_jog": True,
-                        "mode_point": False
-                    }
                 time.sleep(0.1)
 
 
@@ -178,16 +133,13 @@ class App(tk.Tk):
     def task(self):
         loop_start = time.perf_counter()
         
-        # จัดการ UI events (ไม่เปลี่ยน)
         self.handle_toggle_up_down()
         self.handle_radio_operation() 
         self.handle_press_home()
         self.handle_press_run()
         self.handle_ui_change()
         
-        # จัดการ connection status (ปรับให้เช็คน้อยลง)
         if self.mode == "Protocol" and self.protocol_rt:
-            # เช็ค connection ทุก 5 รอบ แทนทุกรอบ
             if not hasattr(self, '_connection_check_counter'):
                 self._connection_check_counter = 0
             
@@ -196,13 +148,11 @@ class App(tk.Tk):
                 self.handle_connection_change()
                 self._connection_check_counter = 0
         
-        # Jog mode tracking (ปรับให้เรียกน้อยลง)
         if self.operation_mode == "Jog" and self.protocol_rt:
             with self.data_lock:
                 r = self.shared_data["r"]
                 theta = self.shared_data["theta"]
             
-            # เช็คว่าตำแหน่งเปลี่ยนจริงๆ ก่อนจะเรียก handle_jog_mode_movement
             if not hasattr(self, '_last_jog_position'):
                 self._last_jog_position = (0, 0)
                 
@@ -213,13 +163,11 @@ class App(tk.Tk):
         loop_end = time.perf_counter()
         elapsed_ms = (loop_end - loop_start) * 1000
         
-        # แสดง performance เฉพาะเมื่อช้ามาก (เพิ่มจาก 20ms เป็น 50ms)
-        if elapsed_ms > 50:  # เพิ่มจาก 20ms เป็น 50ms
+        if elapsed_ms > 50: 
             print(f"[Task Loop] took {elapsed_ms:.2f} ms (VERY SLOW)")
         
-        # เพิ่ม sleep เล็กน้อยถ้า task ทำงานเร็วเกินไป
-        if elapsed_ms < 5:  # ถ้าทำงานเร็วกว่า 5ms
-            time.sleep(0.002)  # พัก 2ms
+        if elapsed_ms < 5:  
+            time.sleep(0.002)  
         
         self.after(10, self.task)
 
@@ -227,7 +175,6 @@ class App(tk.Tk):
         """
         This function creates each UI components
         """
-        # Define font size of each OS
         font_size_title = 12
         font_size_subtitle = 11
         font_size_detail = 9
@@ -237,7 +184,6 @@ class App(tk.Tk):
         font_size_button_run = 17
         font_size_message_error = 7
 
-        # Field of table (background)
         self.canvas_field = tk.Canvas(master=self, width=900, height=800, bg=Color.darkgray, bd=0, highlightthickness=0)
         self.canvas_field.pack(side="top")
 
@@ -367,7 +313,6 @@ class App(tk.Tk):
         self.running = False
         self.press_run.activate()
         
-        # รีเซ็ตข้อความปุ่ม
         if self.operation_mode == "Point":
             self.press_run.change_text("Run")
         else:
@@ -376,7 +321,6 @@ class App(tk.Tk):
     def simulate_graphic_data(self):
         """จำลองข้อมูลสำหรับ Graphic Mode"""
         if self.mode == "Graphic":
-            # จำลองข้อมูลตำแหน่ง
             import random
             self.text_r_pos_num.change_text(f"{random.uniform(0, 100):.2f}")
             self.text_theta_pos_num.change_text(f"{random.uniform(-45, 45):.2f}")
@@ -387,17 +331,10 @@ class App(tk.Tk):
             self.jog_points.pop(0)  
 
         self.jog_points.append((r, theta))
-
-        # เมื่อครบ 10 จุด ส่งกลับไปหุ่นยนต์เพื่อ acknowledgment
-        if self.protocol_rt and len(self.jog_points) == 10:
-            self.protocol_rt.write_target_positions(self.jog_points)
-            print("✅ 10 positions sent to robot for acknowledgment - Ready for joystick Run!")
-            
         self.plot_graph()
         self.debug_print(f"[Jog Mode] Saved point {len(self.jog_points)}/10: r = {r}, theta = {theta}")  # ใช้ debug_print แทน print
 
     def handle_radio_operation(self, event=None):
-        # ใช้การตรวจสอบแบบเดิมจากโค้ดต้นฉบับ
         if self.radio_point.on and self.operation_mode != "Point":
             self.operation_mode = "Point"
             print("Switched to Point Mode")
@@ -438,7 +375,6 @@ class App(tk.Tk):
             self.entry_theta.disable()
             self.point_mode_points.clear() 
             
-            # ใน Graphic Mode ให้ปุ่ม Run ยังใช้งานได้ (จำลองการทำงาน)
             if self.mode == "Graphic":
                 self.press_run.activate()
                 self.press_run.change_text("Run")
@@ -453,28 +389,38 @@ class App(tk.Tk):
 
     def handle_toggle_up_down(self):
         if self.toggle_up_down.pressed:
-            if self.mode == "Graphic":
+            if self.mode == "Protocol":
+                if not self.connection or not self.protocol_rt:
+                    # print("Cannot change pen status - Not connected to robot")
+                    self.toggle_up_down.pressed = False
+                    return
+                    
+                if not getattr(self.protocol_rt, 'usb_connect', False):
+                    # print("Cannot change pen status - Robot disconnected")  
+                    self.toggle_up_down.pressed = False
+                    return
+                try:
+                    if not self.toggle_up_down.on:
+                        print("🔼 Moving UP")
+                        self.protocol_rt.write_up_down_order(up=1, down=0)
+                        self.toggle_up_down.toggle_on()
+                    else:
+                        print("🔽 Moving DOWN") 
+                        self.protocol_rt.write_up_down_order(up=0, down=1)
+                        self.toggle_up_down.toggle_off()
+                        
+                except Exception as e:
+                    print(f"Failed to send up/down command: {e}")
+                    
+            elif self.mode == "Graphic":
+                # Graphic Mode จำลองได้ปกติ
                 if not self.toggle_up_down.on:
                     print("🔼 Moving UP (Graphic Mode)")
                     self.toggle_up_down.toggle_on()
                 else:
                     print("🔽 Moving DOWN (Graphic Mode)")
                     self.toggle_up_down.toggle_off()
-
-            elif self.mode == "Protocol" and self.protocol_rt is not None:
-                # โค้ด Protocol เดิม...
-                if not self.toggle_up_down.on:
-                    print("🔼 Moving UP")
-                    self.protocol_rt.write_up_down_order(up=1, down=0)
-                    self.toggle_up_down.toggle_on()
-                else:
-                    print("🔽 Moving DOWN")
-                    self.protocol_rt.write_up_down_order(up=0, down=1)
-                    self.toggle_up_down.toggle_off()
-
-
-                pass
-                
+                    
             self.update_idletasks()
             self.toggle_up_down.pressed = False
 
@@ -502,9 +448,7 @@ class App(tk.Tk):
 
                     print(f"Target Position: r = {self.target_r}, theta = {self.target_theta}")
 
-                    # ไม่ต้อง set_text กลับไป เพราะจะทำให้ค่าหาย
-                    # entry_r.set_text(str(self.target_r))  # ลบบรรทัดนี้
-                    # entry_theta.set_text(str(self.target_theta))  # ลบบรรทัดนี้
+
 
                 except ValueError as e:
                     print(f"Invalid input: {e}")
@@ -516,10 +460,6 @@ class App(tk.Tk):
 
 
     def validate_entry(self):
-        """
-        This function validates input in entry and shows an error message if invalid.
-        แก้ไขให้ไม่ clear ค่าใน entry เมื่อ validation ผ่าน
-        """
         if self.operation_mode == "Point":
             validate_point_result = "Normal"
             has_error = False
@@ -530,7 +470,7 @@ class App(tk.Tk):
                 theta_text = entry_theta.get_value()
                 
                 # ตรวจสอบ r value
-                if r_text:  # เช็คเฉพาะเมื่อมีการกรอกข้อมูล
+                if r_text: 
                     try:
                         r_value = float(r_text)
                         if r_value < 0 or r_value > 500:
@@ -603,7 +543,6 @@ class App(tk.Tk):
         """
         ตั้งค่า event bindings สำหรับ entry fields ให้เหมาะสม
         """
-        # ใช้ <KeyRelease> แทน <FocusOut> เพื่อ real-time validation
         self.entry_r.bind("<KeyRelease>", self.on_entry_change)
         self.entry_r.bind("<Return>", self.out_entry)
         self.entry_theta.bind("<KeyRelease>", self.on_entry_change)  
@@ -614,7 +553,6 @@ class App(tk.Tk):
         เรียกเมื่อมีการพิมพ์ใน entry field - ทำ validation แบบ real-time
         """
         if self.operation_mode == "Point":
-            # Validation แบบไม่แสดง error message (เฉพาะสี)
             for entry_r, entry_theta in self.point_entries:
                 r_text = entry_r.get_value()
                 theta_text = entry_theta.get_value()
@@ -781,7 +719,6 @@ class App(tk.Tk):
             print("Warning: Protocol is not initialized. Skipping check_run_status.")
             return  
 
-        # ใช้ shared_data แทน protocol_rt โดยตรง
         with self.data_lock:
             current_status = self.shared_data["status"]
             
@@ -936,11 +873,9 @@ class App(tk.Tk):
         if self.mode != "Protocol":
             return
 
-        # อ่านข้อมูลครั้งเดียวด้วย lock
         with self.data_lock:
             data_snapshot = self.shared_data.copy()
 
-        # เช็คว่ามีข้อมูลเก่าสำหรับเปรียบเทียบหรือไม่
         if not hasattr(self, '_last_ui_data'):
             self._last_ui_data = {}
 
@@ -991,7 +926,6 @@ class App(tk.Tk):
             status == "Idle" and status_before != "Idle"):
             self.handle_movement_finished(status_before)
         
-        # เก็บข้อมูลปัจจุบันเป็นข้อมูลเก่าสำหรับครั้งถัดไป
         self._last_ui_data = {
             "r": r,
             "theta": theta,
@@ -1005,26 +939,9 @@ class App(tk.Tk):
             "down": down
         }
         
-        # อัพเดท status_before ใน shared_data เฉพาะเมื่อจำเป็น
         if status != status_before:
             with self.data_lock:
                 self.shared_data["status_before"] = status
-
-        try:
-            ui_buttons = data_snapshot.get("ui_buttons", {})
-
-            # ตัวอย่างการใช้งาน - sync hardware button กับ UI
-            if ui_buttons.get("home_pressed") and not self.press_home.pressed:
-                print("Hardware Home button pressed!")
-                # สามารถเรียก self.handle_press_home() ได้
-                
-            if ui_buttons.get("run_pressed") and not self.press_run.pressed:
-                print("Hardware Run button pressed!")
-                # สามารถเรียก self.handle_press_run() ได้
-        except KeyError as e:
-            print(f"ui_buttons not found in shared_data: {e}")
-        except Exception as e:
-            print(f"Error handling UI buttons: {e}")
     
 if __name__ == "__main__":
     print("Starting Base System...") 
@@ -1038,7 +955,3 @@ if __name__ == "__main__":
     app.task()   
     print("Task started!") 
     app.mainloop()
-
-
-
-    
