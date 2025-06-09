@@ -350,7 +350,7 @@ int main(void) {
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
-	 /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
 	/* USER CODE END Init */
 
@@ -1858,12 +1858,6 @@ void update_joy_mode_velocity_control(void) {
 	/* PRISMATIC AXIS - SIMPLE PWM CONTROL (NO PID, NO FEEDFORWARD) */
 	float pris_base_pwm = 0.0f;
 
-	if (registerFrame[Servo_UP].U16 == 1) {
-		plotter_pen_up();
-	} else if (registerFrame[Servo_Down].U16 == 1) {
-		plotter_pen_down();
-	}
-
 	// Check sensor limits and joystick input
 	if (up_photo_detected && joystick_x > JOY_MODE_VELOCITY_THRESHOLD) {
 		// At up photo and trying to go up - block movement
@@ -2040,46 +2034,42 @@ void update_joy_mode(void) {
 					start_combined_trajectory(target_pris, target_rev_deg);
 					joy_mode_playback_timer = 0;
 				} else {
-					// All positions played back - RESET EVERYTHING TO ALLOW NEW SAVING
+					// All positions played back
 					plotter_pen_up();
 
-					// Reset saved positions data
-					saved_position_count = 0;
-					playback_position_index = 0;
+					// DO NOT RESET saved positions data - keep them for next playback
+					// saved_position_count = 0;  // COMMENTED OUT
+					playback_position_index = 0; // Reset only the playback index
 
-					// Clear all saved positions
-//					for (int i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
-//						saved_positions[i].prismatic_pos = 0.0f;
-//						saved_positions[i].revolute_pos = 0.0f;
-//					}
+					// DO NOT CLEAR saved positions array
+					// for (int i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
+					//     saved_positions[i].prismatic_pos = 0.0f;
+					//     saved_positions[i].revolute_pos = 0.0f;
+					// }
 
-					// Clear modbus registers for saved positions
-					for (uint8_t i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
-						uint8_t r_addr = 0x20 + i * 2;
-						uint8_t t_addr = r_addr + 1;
-						if (r_addr <= 0x38 && t_addr <= 0x39) {
-							registerFrame[r_addr].U16 = 0;
-							registerFrame[t_addr].U16 = 0;
-						}
-					}
+					// DO NOT CLEAR modbus registers - keep the saved values
+					// for (uint8_t i = 0; i < JOY_MODE_MAX_POSITIONS; i++) {
+					//     uint8_t r_addr = 0x20 + i * 2;
+					//     uint8_t t_addr = r_addr + 1;
+					//     if (r_addr <= 0x38 && t_addr <= 0x39) {
+					//         registerFrame[r_addr].U16 = 0;
+					//         registerFrame[t_addr].U16 = 0;
+					//     }
+					// }
 
 					// Reset timers
 					joy_mode_playback_timer = 0;
 					joy_mode_pilot_timer = 0;
 
-					// Go back to initial control state
-					joy_mode_state = JOY_MODE_INITIAL_CONTROL;
+					// EXIT JOY MODE after playback completes
+					exit_joy_mode();
 
-					// Keep pilot light on steady (not blinking)
-					HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
-					joy_mode_pilot_state = true;
+					// Note: The saved positions are preserved in memory
+					// Next time J2 is pressed, it will detect saved_position_count >= 10
+					// and immediately start playback
 				}
-
 			}
 		}
-
-		// Let update_control_loops handle the actual motion control
-		// No need to handle motion states here anymore
 		break;
 
 	}
@@ -2344,19 +2334,14 @@ void modbus_working(void) {
 	registerFrame[Heartbeat_Protocol].U16 = 22881;
 
 	// servo write
-	if (j1_active || current_drawing_sequence.sequence_active || word_drawing_active) {
-		// Clear commands during automated sequences
-		registerFrame[Servo_UP].U16 = 0;
-		registerFrame[Servo_Down].U16 = 0;
-	} else if (!joy_mode_active) {
-		// Not in joy mode - handle pen commands here
-		if (registerFrame[Servo_UP].U16 == 1) {
-			plotter_pen_up();
-			registerFrame[Servo_UP].U16 = 0; // Clear after execution
-		} else if (registerFrame[Servo_Down].U16 == 1) {
-			plotter_pen_down();
-			registerFrame[Servo_Down].U16 = 0; // Clear after execution
-		}
+
+	if (registerFrame[Servo_UP].U16 == 1) {
+		plotter_pen_up();
+		registerFrame[Servo_UP].U16 = 0; // Clear after execution
+	}
+	if (registerFrame[Servo_Down].U16 == 1) {
+		plotter_pen_down();
+		registerFrame[Servo_Down].U16 = 0; // Clear after execution
 	}
 
 	// limitSW
@@ -2376,7 +2361,7 @@ void modbus_working(void) {
 
 	} else if (registerFrame[BaseSystem_Status].U16 == 2) {
 		registerFrame[R_Theta_Status].U16 = 2;
-		plotter_pen_up();
+
 		enter_joy_mode();
 	} else if (registerFrame[BaseSystem_Status].U16 == 4) {
 		exit_joy_mode();
@@ -2410,30 +2395,19 @@ void modbus_working(void) {
 		reset_on_zero_requested = false;
 	}
 
+	registerFrame[R_Axis_Actual_Position].U16 = prismatic_encoder.mm * 10.0f;
 	registerFrame[R_Axis_Actual_Speed].U16 = prismatic_axis.kalman_velocity
 			* 10.0f;
-
-
-
-	float r_mm = prismatic_encoder.mm;
-	float theta_deg = revolute_axis.deg;
-
-	// Rotate by 90 degrees (subtract 90 from theta)
-	float rotated_theta_deg = theta_deg - 90.0f;
-
-	// Normalize the angle to stay within -180 to +180 or 0 to 360 range
-	while (rotated_theta_deg < -180.0f) rotated_theta_deg += 360.0f;
-	while (rotated_theta_deg > 180.0f) rotated_theta_deg -= 360.0f;
-
-	// Update registers with rotated values
-	registerFrame[R_Axis_Actual_Position].U16 = r_mm * 10.0f;  // R stays the same
-	registerFrame[Theta_Axis_Actual_Position].U16 = rotated_theta_deg * 10.0f;
-
 
 	float pris_accel = FIR_process(&prismatic_lp_accel,
 			prismatic_encoder.mmpss);
 	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
 
+	float adjusted_angle = 270.0f - revolute_axis.deg;
+	while (adjusted_angle < 0.0f) {
+		adjusted_angle += 360.0f;
+	}
+	registerFrame[Theta_Axis_Actual_Position].U16 = adjusted_angle * 10.0f;
 
 	float rev_theta_vel = UnitConverter_angle(&converter_system,
 			revolute_axis.kalman_velocity, UNIT_RADIAN, UNIT_DEGREE);
@@ -2442,7 +2416,8 @@ void modbus_working(void) {
 	revolute_axis.accel_show = UnitConverter_angle(&converter_system,
 			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
 			UNIT_RADIAN, UNIT_DEGREE);
-	registerFrame[Theta_Axis_Acceleration].U16 = revolute_axis.accel_show * 10.0f;
+	registerFrame[Theta_Axis_Acceleration].U16 = revolute_axis.accel_show
+			* 10.0f;
 }
 
 void start_character_drawing(DrawingPoint_t *points, uint8_t num_points,
