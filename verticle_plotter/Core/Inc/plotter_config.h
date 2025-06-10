@@ -176,7 +176,7 @@ void update_sensors(void);
 /*-------Configure FIR Start------*/
 extern FIR prismatic_lp_accel;
 extern FIR revolute_lp_accel;
-#define NUM_TAPS 31
+#define NUM_TAPS 51
 #define CUTOFF_FREQ 10.0
 #define SAMPLE_RATE 1000.0f  // 1kHz
 

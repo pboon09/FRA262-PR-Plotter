@@ -146,7 +146,7 @@ typedef struct {
 /* USER CODE BEGIN PV */
 AxisState_t prismatic_axis = { 0 };
 AxisState_t revolute_axis = { 0 };
-
+float pris_accel;
 MotionSequenceState_t motion_sequence_state = MOTION_IDLE;
 Trapezoidal_GenStruct prisGen, revGen;
 Trapezoidal_EvaStruct prisEva, revEva;
@@ -198,6 +198,8 @@ bool joy_mode_b2_last_state = false;
 
 int check[10];
 uint16_t b2S[2];
+
+bool rev_moving_down = false;
 
 bool emer_pressed;
 //100 point
@@ -1869,7 +1871,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving down (positive direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 20% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!low_photo_detected) {
@@ -1879,7 +1881,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving up (negative direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 30% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!up_photo_detected) {
@@ -1900,33 +1902,15 @@ void update_joy_mode_velocity_control(void) {
 	// Update position for display
 	prismatic_axis.position = prismatic_encoder.mm;
 
-	/* REVOLUTE AXIS - KEEP EXISTING SIMPLE PWM CONTROL */
+	/* REVOLUTE AXIS - LOAD-DEPENDENT PWM CONTROL WITH IMPROVED GRAVITY COMPENSATION */
 	float rev_base_pwm = 0.0f;
 	bool rev_moving = false;
 
-	// Get current revolute position in degrees for limit checking
+	// Get current positions
 	float revolute_deg = UnitConverter_angle(&converter_system,
 			revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
-
-	// AGGRESSIVE gravity scaling based on prismatic position
-	float gravity_scale = 1.0f;
-	if (prismatic_encoder.mm <= 50.0f) {
-		gravity_scale = 5.0f;  // เพิ่มจาก 1.0f
-	} else if (prismatic_encoder.mm <= 150.0f) {
-		// Quadratic scaling for better compensation
-		float t = (prismatic_encoder.mm - 50.0f) / 100.0f;  // 0 to 1
-		gravity_scale = 1.5f + t * t * 2.5f;  // 1.5 to 5.0
-	} else {
-		// Even more aggressive for extended positions
-		float t = (prismatic_encoder.mm - 150.0f) / 150.0f;  // 0 to 1
-		gravity_scale = 5.0f + t * 3.0f;  // 5.0 to 8.0
-	}
-
-	// เพิ่ม angle-based compensation
-	float angle_factor = 1.0f;
+	float prismatic_mm = prismatic_encoder.mm;
 	float angle_rad = revolute_encoder.rads;
-	// Compensation is highest at horizontal positions (90° and 270°)
-	angle_factor = 1.0f + 1.0f * fabsf(sinf(angle_rad));
 
 	// Process revolute axis joystick control with limits
 	if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD)
@@ -1935,62 +1919,133 @@ void update_joy_mode_velocity_control(void) {
 		// At revolute limits - block movement
 		rev_base_pwm = 0.0f;
 		rev_moving = false;
-	} else if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
-		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
+	} else if (fabsf(joystick_y) > JOY_MODE_VELOCITY_THRESHOLD) {
+		// Joystick active
+		float joystick_normalized = joystick_y / 50.0f;  // -1.0 to +1.0
+
+		// Check if moving down
+		if (revolute_axis.deg < 180) {
+			if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
+				rev_moving_down = true;
+			}
+		} else if (revolute_axis.deg > 180) {
+			if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
+				rev_moving_down = true;
+			}
+		}
+		// *** LOAD-DEPENDENT BASE PWM ***
+		float base_pwm_percent = 0.20f;  // Default minimum
+
+		// Adjust PWM based on prismatic position (load)
+		if (prismatic_mm >= 250.0f) {
+			base_pwm_percent = 0.30f;  // Very high load - 30% PWM
+		} else if (prismatic_mm >= 200.0f) {
+			base_pwm_percent = 0.30f;  // High load - 30% PWM
+		} else if (prismatic_mm >= 150.0f) {
+			base_pwm_percent = 0.30f;  // Medium-high load - 30% PWM
+		} else if (prismatic_mm >= 100.0f) {
+			base_pwm_percent = 0.25f;  // Medium load - 25% PWM
+		} else if (prismatic_mm >= 50.0f) {
+			base_pwm_percent = 0.22f;  // Low-medium load - 22% PWM
+		} else {
+			// Low load (< 50mm) - adjust for better control
+			if (rev_moving_down) {
+				base_pwm_percent = 0.25f; // MORE power when moving down at low load
+			} else {
+				base_pwm_percent = 0.20f;  // Normal power when moving up
+			}
+		}
+
+		// Additional adjustment based on angle (horizontal positions need more power)
+		float angle_adjustment = 1.0f + 0.2f * fabsf(sinf(angle_rad)); // 1.0 to 1.2
+		base_pwm_percent *= angle_adjustment;
+
+		// Cap maximum PWM to prevent motor damage
+		base_pwm_percent = fminf(base_pwm_percent, 0.5f);  // Max 50% PWM
+
 		rev_base_pwm = joystick_normalized
-				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
-		rev_moving = true;
-	} else if (joystick_y < - JOY_MODE_VELOCITY_THRESHOLD) {
-		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
-		rev_base_pwm = joystick_normalized
-				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
+				* (ZGX45RGG_150RPM_Constant.U_max * base_pwm_percent);
 		rev_moving = true;
 	} else {
-		// Joystick in deadband - only compensation
+		// Joystick in deadband
 		rev_base_pwm = 0.0f;
 		rev_moving = false;
+		rev_moving_down = false;
 	}
 
-	// Calculate feedforward terms for revolute only
-	if (rev_moving) {
-		// Simple velocity feedforward proportional to joystick
+	// Calculate gravity compensation with load-dependent scaling
+	float gravity_scale;
 
+	// Dynamic gravity scale based on load
+	if (prismatic_mm < 50.0f) {
+		gravity_scale = 4.0f;  // Lower compensation for light loads
+	} else if (prismatic_mm < 100.0f) {
+		gravity_scale = 2.5f;
+	} else if (prismatic_mm < 150.0f) {
+		gravity_scale = 3.0f;
+	} else {
+		gravity_scale = 3.5f;  // Full compensation for heavy loads
+	}
+
+	float angle_factor = 1.0f + 1.0f * fabsf(sinf(angle_rad));
+
+	// Calculate feedforward terms
+	if (rev_moving) {
+		// Velocity feedforward
+		float target_vel = (joystick_y > 0) ?
+		JOY_MODE_CONSTANT_VELOCITY_REV :
+												-JOY_MODE_CONSTANT_VELOCITY_REV;
 		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
-				joystick_y > 0 ?
-				JOY_MODE_CONSTANT_VELOCITY_REV :
-									-JOY_MODE_CONSTANT_VELOCITY_REV);
+				target_vel);
 	} else {
 		revolute_axis.ffd = 0.0f;
 	}
 
-	// Enhanced gravity compensation with multiple factors
-	float base_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+	// Gravity compensation with motion-aware scaling
+	float base_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, angle_rad,
+			prismatic_mm / 1000.0f);
 
-	// Apply all compensation factors
-	revolute_axis.dfd = base_dfd * gravity_scale * angle_factor;
+	if (rev_moving) {
+		// Reduce gravity compensation when moving
+		float motion_scale = 1.0f;
+		if (rev_moving_down) {
+			// Moving down - significantly reduce gravity compensation
+			if (prismatic_mm < 50.0f) {
+				motion_scale = 0.2f; // Only 20% gravity comp for light loads moving down
+			} else {
+				motion_scale = 0.3f;  // 30% for heavier loads moving down
+			}
+		} else {
+			// Moving up - moderate reduction
+			motion_scale = 0.5f;  // 50% when moving up
+		}
+		revolute_axis.dfd = base_dfd * gravity_scale * angle_factor
+				* motion_scale;
+	} else {
+		// Full gravity compensation when holding position
+		revolute_axis.dfd = base_dfd * gravity_scale * angle_factor;
+	}
 
-	// เพิ่ม static friction compensation เมื่อไม่มีการเคลื่อนที่
+	// Static friction compensation when not moving
 	float static_compensation = 0.0f;
 	if (!rev_moving && fabsf(revolute_axis.kalman_velocity) < 0.1f) {
-		// Add small static friction compensation
-		static_compensation = 0.05f * ZGX45RGG_150RPM_Constant.U_max
+		// Load-dependent static compensation
+		float static_scale = 0.1f + (prismatic_mm / 1500.0f);  // 0.1 to 0.3
+		static_compensation = static_scale * ZGX45RGG_150RPM_Constant.U_max
 				* angle_factor;
 	}
 
-	// Add position holding assistance when not moving
+	// Position holding when not moving
 	float position_hold_comp = 0.0f;
 	static float last_position = 0.0f;
 	static float position_drift = 0.0f;
 
 	if (!rev_moving) {
-		// Detect position drift
 		float current_pos = revolute_encoder.rads;
 		position_drift = current_pos - last_position;
 
-		// If drifting, add compensation in opposite direction
 		if (fabsf(position_drift) > 0.01f) {  // 0.01 rad = ~0.57 degrees
-			position_hold_comp = -position_drift * 5000.0f; // Aggressive P-gain
+			position_hold_comp = -position_drift * 5000.0f;
 			position_hold_comp = PWM_Satuation(position_hold_comp,
 					0.2f * ZGX45RGG_150RPM_Constant.U_max,
 					-0.2f * ZGX45RGG_150RPM_Constant.U_max);
@@ -2000,29 +2055,64 @@ void update_joy_mode_velocity_control(void) {
 		position_drift = 0.0f;
 	}
 
-	// Apply filtering with adjusted parameters
+	// Apply filtering
 	static float ffd_filtered = 0.0f;
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.95f * dfd_filtered + 0.05f * revolute_axis.dfd; // Very slow filter
+	dfd_filtered = 0.95f * dfd_filtered + 0.05f * revolute_axis.dfd;
 
-	// Combine with MUCH higher feedforward gain
-	float feedforward_gain = 0.035f;  // เพิ่มจาก 0.015f
+	// Combine all components with direction-aware scaling
+	if (rev_moving) {
+		// When moving: base PWM with load compensation already included
+		revolute_axis.command_pos = rev_base_pwm;
 
-	revolute_axis.command_pos = rev_base_pwm
-			+ feedforward_gain * (ffd_filtered + dfd_filtered)
-			+ static_compensation + position_hold_comp;
+		// Add small feedforward for smoother motion
+		revolute_axis.command_pos += 0.01f * ffd_filtered;
 
-	// Override minimum command for movement
-	if (rev_moving
-			&& fabsf(revolute_axis.command_pos)
-					< 0.2f * ZGX45RGG_150RPM_Constant.U_max) {
-		float sign = (revolute_axis.command_pos >= 0) ? 1.0f : -1.0f;
-		revolute_axis.command_pos = sign * 0.2f
-				* ZGX45RGG_150RPM_Constant.U_max;  // เพิ่มจาก 0.1f
+		// Direction-aware gravity compensation
+		if (rev_moving_down) {
+			// Much smaller gravity compensation when moving down
+			if (prismatic_mm < 50.0f) {
+				revolute_axis.command_pos += 0.008f * dfd_filtered; // Very small for light loads
+			} else {
+				revolute_axis.command_pos += 0.008f * dfd_filtered; // Still reduced for heavier loads
+			}
+		} else {
+			// Normal gravity compensation when moving up
+			revolute_axis.command_pos += 0.015f * dfd_filtered;
+		}
+
+	} else {
+		// When holding: position control + gravity compensation
+		float feedforward_gain = 0.035f;
+		revolute_axis.command_pos = position_hold_comp
+				+ feedforward_gain * dfd_filtered + static_compensation;
 	}
-	// Saturate final command
+
+	// Load-dependent minimum command to overcome static friction
+	if (rev_moving) {
+		float min_command = 0.15f;  // Base minimum
+
+		// Adjust minimum based on load and direction
+		if (prismatic_mm >= 200.0f) {
+			min_command = 0.25f;
+		} else if (prismatic_mm >= 100.0f) {
+			min_command = 0.20f;
+		} else if (prismatic_mm < 50.0f && rev_moving_down) {
+			// Higher minimum when moving down at low load to overcome reduced gravity comp
+			min_command = 0.20f;
+		}
+
+		if (fabsf(revolute_axis.command_pos)
+				< min_command * ZGX45RGG_150RPM_Constant.U_max) {
+			float sign = (revolute_axis.command_pos >= 0) ? 1.0f : -1.0f;
+			revolute_axis.command_pos = sign * min_command
+					* ZGX45RGG_150RPM_Constant.U_max;
+		}
+	}
+
+	// Final saturation
 	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
@@ -2459,9 +2549,8 @@ void modbus_working(void) {
 	registerFrame[R_Axis_Actual_Speed].U16 = prismatic_axis.kalman_velocity
 			* 10.0f;
 
-	float pris_accel = FIR_process(&prismatic_lp_accel,
-			prismatic_encoder.mmpss);
-	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
+
+	registerFrame[R_Axis_Acceleration].U16 = prismatic_axis.accel_show * 10.0f;
 
 	float adjusted_angle = 270.0f - revolute_axis.deg;
 	while (adjusted_angle < 0.0f) {
@@ -2473,9 +2562,6 @@ void modbus_working(void) {
 			revolute_axis.kalman_velocity, UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Actual_Speed].U16 = rev_theta_vel * 10.0f;
 
-	revolute_axis.accel_show = UnitConverter_angle(&converter_system,
-			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
-			UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = revolute_axis.accel_show
 			* 10.0f;
 }
