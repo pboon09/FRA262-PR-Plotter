@@ -201,8 +201,8 @@ void plotter_begin() {
 	ADC_DMA_SetCenterPoint(&joystick, ADC_CENTERPOINT, ADC_ERROR);
 	ADC_DMA_Start(&joystick);
 
-	FIR_init(&prismatic_lp_accel, NUM_TAPS, 80, SAMPLE_RATE);
-	FIR_init(&revolute_lp_accel, NUM_TAPS, 80, SAMPLE_RATE);
+	FIR_init(&prismatic_lp_accel, NUM_TAPS, 0.00001, SAMPLE_RATE);
+	FIR_init(&revolute_lp_accel, NUM_TAPS, 0.00001, SAMPLE_RATE);
 
 	FIR_init(&prismatic_lp, NUM_TAPS, 25, SAMPLE_RATE);
 	FIR_init(&revolute_lp, NUM_TAPS, 25, SAMPLE_RATE);

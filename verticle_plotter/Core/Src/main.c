@@ -1908,6 +1908,26 @@ void update_joy_mode_velocity_control(void) {
 	float revolute_deg = UnitConverter_angle(&converter_system,
 			revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
 
+	// AGGRESSIVE gravity scaling based on prismatic position
+	float gravity_scale = 1.0f;
+	if (prismatic_encoder.mm <= 50.0f) {
+		gravity_scale = 5.0f;  // เพิ่มจาก 1.0f
+	} else if (prismatic_encoder.mm <= 150.0f) {
+		// Quadratic scaling for better compensation
+		float t = (prismatic_encoder.mm - 50.0f) / 100.0f;  // 0 to 1
+		gravity_scale = 1.5f + t * t * 2.5f;  // 1.5 to 5.0
+	} else {
+		// Even more aggressive for extended positions
+		float t = (prismatic_encoder.mm - 150.0f) / 150.0f;  // 0 to 1
+		gravity_scale = 5.0f + t * 3.0f;  // 5.0 to 8.0
+	}
+
+	// เพิ่ม angle-based compensation
+	float angle_factor = 1.0f;
+	float angle_rad = revolute_encoder.rads;
+	// Compensation is highest at horizontal positions (90° and 270°)
+	angle_factor = 1.0f + 1.0f * fabsf(sinf(angle_rad));
+
 	// Process revolute axis joystick control with limits
 	if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD)
 			|| (revolute_deg < -175.0f
@@ -1920,7 +1940,7 @@ void update_joy_mode_velocity_control(void) {
 		rev_base_pwm = joystick_normalized
 				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
 		rev_moving = true;
-	} else if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
+	} else if (joystick_y < - JOY_MODE_VELOCITY_THRESHOLD) {
 		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
 		rev_base_pwm = joystick_normalized
 				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
@@ -1934,6 +1954,7 @@ void update_joy_mode_velocity_control(void) {
 	// Calculate feedforward terms for revolute only
 	if (rev_moving) {
 		// Simple velocity feedforward proportional to joystick
+
 		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
 				joystick_y > 0 ?
 				JOY_MODE_CONSTANT_VELOCITY_REV :
@@ -1942,26 +1963,65 @@ void update_joy_mode_velocity_control(void) {
 		revolute_axis.ffd = 0.0f;
 	}
 
-	// Always add gravity compensation for revolute
-	if (prismatic_encoder.mm < 100.0) {
-		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f) * 2.5;
-	} else {
-		revolute_axis.dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
-				revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+	// Enhanced gravity compensation with multiple factors
+	float base_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
+
+	// Apply all compensation factors
+	revolute_axis.dfd = base_dfd * gravity_scale * angle_factor;
+
+	// เพิ่ม static friction compensation เมื่อไม่มีการเคลื่อนที่
+	float static_compensation = 0.0f;
+	if (!rev_moving && fabsf(revolute_axis.kalman_velocity) < 0.1f) {
+		// Add small static friction compensation
+		static_compensation = 0.05f * ZGX45RGG_150RPM_Constant.U_max
+				* angle_factor;
 	}
 
-	// Apply filtering to feedforward terms
+	// Add position holding assistance when not moving
+	float position_hold_comp = 0.0f;
+	static float last_position = 0.0f;
+	static float position_drift = 0.0f;
+
+	if (!rev_moving) {
+		// Detect position drift
+		float current_pos = revolute_encoder.rads;
+		position_drift = current_pos - last_position;
+
+		// If drifting, add compensation in opposite direction
+		if (fabsf(position_drift) > 0.01f) {  // 0.01 rad = ~0.57 degrees
+			position_hold_comp = -position_drift * 5000.0f; // Aggressive P-gain
+			position_hold_comp = PWM_Satuation(position_hold_comp,
+					0.2f * ZGX45RGG_150RPM_Constant.U_max,
+					-0.2f * ZGX45RGG_150RPM_Constant.U_max);
+		}
+	} else {
+		last_position = revolute_encoder.rads;
+		position_drift = 0.0f;
+	}
+
+	// Apply filtering with adjusted parameters
 	static float ffd_filtered = 0.0f;
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.2f * dfd_filtered + 0.8f * revolute_axis.dfd;
+	dfd_filtered = 0.95f * dfd_filtered + 0.05f * revolute_axis.dfd; // Very slow filter
 
-	// Combine base PWM with feedforward compensation
+	// Combine with MUCH higher feedforward gain
+	float feedforward_gain = 0.035f;  // เพิ่มจาก 0.015f
+
 	revolute_axis.command_pos = rev_base_pwm
-			+ 0.01f * (ffd_filtered + dfd_filtered);
+			+ feedforward_gain * (ffd_filtered + dfd_filtered)
+			+ static_compensation + position_hold_comp;
 
+	// Override minimum command for movement
+	if (rev_moving
+			&& fabsf(revolute_axis.command_pos)
+					< 0.2f * ZGX45RGG_150RPM_Constant.U_max) {
+		float sign = (revolute_axis.command_pos >= 0) ? 1.0f : -1.0f;
+		revolute_axis.command_pos = sign * 0.2f
+				* ZGX45RGG_150RPM_Constant.U_max;  // เพิ่มจาก 0.1f
+	}
 	// Saturate final command
 	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
