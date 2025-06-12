@@ -53,6 +53,13 @@ typedef struct {
 	float32_t mm;
 	float32_t deg;
 	float32_t accel_show;
+	float32_t overshoot_mm;        // Overshoot ในหน่วย mm สำหรับ prismatic
+	float32_t overshoot_deg;       // Overshoot ในหน่วย degrees สำหรับ revolute
+	float32_t overshoot_percent;   // Overshoot เป็นเปอร์เซ็นต์
+	float32_t max_position;   // ค่าตำแหน่งสูงสุดที่เกิดขึ้นระหว่างการเคลื่อนที่
+	float32_t min_position;   // ค่าตำแหน่งต่ำสุดที่เกิดขึ้นระหว่างการเคลื่อนที่
+	bool overshoot_calculated;     // สถานะการคำนวณ overshoot
+	bool direction_positive;     // ทิศทางการเคลื่อนที่ (true = บวก, false = ลบ)
 } AxisState_t;
 
 typedef enum {
@@ -146,7 +153,7 @@ typedef struct {
 /* USER CODE BEGIN PV */
 AxisState_t prismatic_axis = { 0 };
 AxisState_t revolute_axis = { 0 };
-float pris_accel;
+
 MotionSequenceState_t motion_sequence_state = MOTION_IDLE;
 Trapezoidal_GenStruct prisGen, revGen;
 Trapezoidal_EvaStruct prisEva, revEva;
@@ -198,8 +205,6 @@ bool joy_mode_b2_last_state = false;
 
 int check[10];
 uint16_t b2S[2];
-
-bool rev_moving_down = false;
 
 bool emer_pressed;
 //100 point
@@ -330,6 +335,11 @@ bool is_drawing_active(void);
 void draw_word_FIBO_G01(void);
 void start_word_FIBO_G01(void);
 void ensure_motion_idle(void);
+
+void calculate_overshoot(AxisState_t *axis, float current_position,
+		bool is_prismatic);
+void reset_overshoot_data(AxisState_t *axis);
+void update_overshoot_calculation(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -894,6 +904,8 @@ void start_combined_trajectory(float prismatic_target_mm,
 	memset(&revEva, 0, sizeof(revEva));
 	memset(&prisGen, 0, sizeof(prisGen));
 	memset(&revGen, 0, sizeof(revGen));
+	reset_overshoot_data(&prismatic_axis);
+	reset_overshoot_data(&revolute_axis);
 
 	prisEva.t = 0.0f;
 	prisEva.isFinised = false;
@@ -1168,57 +1180,57 @@ void update_control_loops(void) {
 	}
 	//100 point
 	// Modify the J1 update logic in update_control_loops():
-	if (j1_active && !j1_in_progress && motion_sequence_state == MOTION_IDLE
-			&& !word_drawing_active
-			&& !current_drawing_sequence.sequence_active) {
-		j1_in_progress = true;
-		j1_cycle_count = 0;
-		j1_going_to_target = true;
-		j1_pen_down_complete = false;
-		j1_pen_delay = 0;  // Reset delay counter
-		start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-	}
-
-	// 2) ถ้าอยู่ใน sequence และ motion จบ (idle) แล้ว ให้เดิน state machine ต่อ
-	if (j1_in_progress && motion_sequence_state == MOTION_IDLE) {
-		if (j1_going_to_target) {
-			// At target position - handle pen down
-			if (!j1_pen_down_complete) {
-				plotter_pen_down();  // Actually put pen down
-				j1_pen_down_complete = true;
-				j1_pen_delay = 0;
-			}
-
-			// Wait for pen down delay
-			j1_pen_delay++;
-			if (j1_pen_delay >= 250) {
-				j1_pen_delay = 0;
-				j1_going_to_target = false;
-				plotter_pen_up();  // Lift pen before returning
-				// Return to 0,0
-				start_combined_trajectory(0.0f, 0.0f);
-			}
-		} else {
-			// Returned to origin - prepare for next cycle or finish
-			j1_pen_down_complete = false;
-			j1_cycle_count++;
-
-			if (j1_cycle_count < 10) {
-				// Continue to next cycle
-				j1_going_to_target = true;
-				j1_pen_delay = 0;  // Reset delay for next cycle
-				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-			} else {
-				// All 10 cycles complete - clean up
-				j1_active = false;
-				j1_in_progress = false;
-				j1_cycle_count = 0;
-				j1_pen_down_complete = false;
-				j1_pen_delay = 0;
-				plotter_pen_up();  // Ensure pen is up at end
-			}
-		}
-	}
+//	if (j1_active && !j1_in_progress && motion_sequence_state == MOTION_IDLE
+//			&& !word_drawing_active
+//			&& !current_drawing_sequence.sequence_active) {
+//		j1_in_progress = true;
+//		j1_cycle_count = 0;
+//		j1_going_to_target = true;
+//		j1_pen_down_complete = false;
+//		j1_pen_delay = 0;  // Reset delay counter
+//		start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+//	}
+//
+//	// 2) ถ้าอยู่ใน sequence และ motion จบ (idle) แล้ว ให้เดิน state machine ต่อ
+//	if (j1_in_progress && motion_sequence_state == MOTION_IDLE) {
+//		if (j1_going_to_target) {
+//			// At target position - handle pen down
+//			if (!j1_pen_down_complete) {
+//				plotter_pen_down();  // Actually put pen down
+//				j1_pen_down_complete = true;
+//				j1_pen_delay = 0;
+//			}
+//
+//			// Wait for pen down delay
+//			j1_pen_delay++;
+//			if (j1_pen_delay >= 250) {
+//				j1_pen_delay = 0;
+//				j1_going_to_target = false;
+//				plotter_pen_up();  // Lift pen before returning
+//				// Return to 0,0
+//				start_combined_trajectory(0.0f, 0.0f);
+//			}
+//		} else {
+//			// Returned to origin - prepare for next cycle or finish
+//			j1_pen_down_complete = false;
+//			j1_cycle_count++;
+//
+//			if (j1_cycle_count < 10) {
+//				// Continue to next cycle
+//				j1_going_to_target = true;
+//				j1_pen_delay = 0;  // Reset delay for next cycle
+//				start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
+//			} else {
+//				// All 10 cycles complete - clean up
+//				j1_active = false;
+//				j1_in_progress = false;
+//				j1_cycle_count = 0;
+//				j1_pen_down_complete = false;
+//				j1_pen_delay = 0;
+//				plotter_pen_up();  // Ensure pen is up at end
+//			}
+//		}
+//	}
 
 	// Motion sequence handling
 	switch (motion_sequence_state) {
@@ -1871,7 +1883,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving down (positive direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.2f); // 20% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!low_photo_detected) {
@@ -1881,7 +1893,7 @@ void update_joy_mode_velocity_control(void) {
 		// Moving up (negative direction)
 		float joystick_normalized = joystick_x / 50.0f; // Normalize to -1.0 to +1.0
 		pris_base_pwm = -joystick_normalized
-				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 30% max PWM
+				* (ZGX45RGG_400RPM_Constant.U_max * 0.3f); // 40% max PWM
 
 		// Clear flags when moving away from sensors
 		if (!up_photo_detected) {
@@ -1902,15 +1914,33 @@ void update_joy_mode_velocity_control(void) {
 	// Update position for display
 	prismatic_axis.position = prismatic_encoder.mm;
 
-	/* REVOLUTE AXIS - LOAD-DEPENDENT PWM CONTROL WITH IMPROVED GRAVITY COMPENSATION */
+	/* REVOLUTE AXIS - KEEP EXISTING SIMPLE PWM CONTROL */
 	float rev_base_pwm = 0.0f;
 	bool rev_moving = false;
 
-	// Get current positions
+	// Get current revolute position in degrees for limit checking
 	float revolute_deg = UnitConverter_angle(&converter_system,
 			revolute_encoder.rads, UNIT_RADIAN, UNIT_DEGREE);
-	float prismatic_mm = prismatic_encoder.mm;
+
+	// AGGRESSIVE gravity scaling based on prismatic position
+	float gravity_scale = 1.0f;
+	if (prismatic_encoder.mm <= 50.0f) {
+		gravity_scale = 5.0f;  // เพิ่มจาก 1.0f
+	} else if (prismatic_encoder.mm <= 150.0f) {
+		// Quadratic scaling for better compensation
+		float t = (prismatic_encoder.mm - 50.0f) / 100.0f;  // 0 to 1
+		gravity_scale = 1.5f + t * t * 2.5f;  // 1.5 to 5.0
+	} else {
+		// Even more aggressive for extended positions
+		float t = (prismatic_encoder.mm - 150.0f) / 150.0f;  // 0 to 1
+		gravity_scale = 5.0f + t * 3.0f;  // 5.0 to 8.0
+	}
+
+	// เพิ่ม angle-based compensation
+	float angle_factor = 1.0f;
 	float angle_rad = revolute_encoder.rads;
+	// Compensation is highest at horizontal positions (90° and 270°)
+	angle_factor = 1.0f + 1.0f * fabsf(sinf(angle_rad));
 
 	// Process revolute axis joystick control with limits
 	if ((revolute_deg > 175.0f && joystick_y > JOY_MODE_VELOCITY_THRESHOLD)
@@ -1919,133 +1949,65 @@ void update_joy_mode_velocity_control(void) {
 		// At revolute limits - block movement
 		rev_base_pwm = 0.0f;
 		rev_moving = false;
-	} else if (fabsf(joystick_y) > JOY_MODE_VELOCITY_THRESHOLD) {
-		// Joystick active
-		float joystick_normalized = joystick_y / 50.0f;  // -1.0 to +1.0
-
-		// Check if moving down
-		if (revolute_axis.deg < 180) {
-			if (joystick_y < -JOY_MODE_VELOCITY_THRESHOLD) {
-				rev_moving_down = true;
-			}
-		} else if (revolute_axis.deg > 180) {
-			if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
-				rev_moving_down = true;
-			}
-		}
-		// *** LOAD-DEPENDENT BASE PWM ***
-		float base_pwm_percent = 0.20f;  // Default minimum
-
-		// Adjust PWM based on prismatic position (load)
-		if (prismatic_mm >= 250.0f) {
-			base_pwm_percent = 0.30f;  // Very high load - 30% PWM
-		} else if (prismatic_mm >= 200.0f) {
-			base_pwm_percent = 0.30f;  // High load - 30% PWM
-		} else if (prismatic_mm >= 150.0f) {
-			base_pwm_percent = 0.30f;  // Medium-high load - 30% PWM
-		} else if (prismatic_mm >= 100.0f) {
-			base_pwm_percent = 0.25f;  // Medium load - 25% PWM
-		} else if (prismatic_mm >= 50.0f) {
-			base_pwm_percent = 0.22f;  // Low-medium load - 22% PWM
-		} else {
-			// Low load (< 50mm) - adjust for better control
-			if (rev_moving_down) {
-				base_pwm_percent = 0.25f; // MORE power when moving down at low load
-			} else {
-				base_pwm_percent = 0.20f;  // Normal power when moving up
-			}
-		}
-
-		// Additional adjustment based on angle (horizontal positions need more power)
-		float angle_adjustment = 1.0f + 0.2f * fabsf(sinf(angle_rad)); // 1.0 to 1.2
-		base_pwm_percent *= angle_adjustment;
-
-		// Cap maximum PWM to prevent motor damage
-		base_pwm_percent = fminf(base_pwm_percent, 0.5f);  // Max 50% PWM
+	} else if (joystick_y > JOY_MODE_VELOCITY_THRESHOLD) {
+		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
+		rev_base_pwm = joystick_normalized
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
+		rev_moving = true;
+	} else if (joystick_y < - JOY_MODE_VELOCITY_THRESHOLD) {
+		float joystick_normalized = joystick_y / 50.0f; // -1.0 to +1.0
 
 		rev_base_pwm = joystick_normalized
-				* (ZGX45RGG_150RPM_Constant.U_max * base_pwm_percent);
+				* (ZGX45RGG_150RPM_Constant.U_max * 0.2f); // 30% max PWM
 		rev_moving = true;
 	} else {
-		// Joystick in deadband
+		// Joystick in deadband - only compensation
 		rev_base_pwm = 0.0f;
 		rev_moving = false;
-		rev_moving_down = false;
+
 	}
 
-	// Calculate gravity compensation with load-dependent scaling
-	float gravity_scale;
-
-	// Dynamic gravity scale based on load
-	if (prismatic_mm < 50.0f) {
-		gravity_scale = 4.0f;  // Lower compensation for light loads
-	} else if (prismatic_mm < 100.0f) {
-		gravity_scale = 2.5f;
-	} else if (prismatic_mm < 150.0f) {
-		gravity_scale = 3.0f;
-	} else {
-		gravity_scale = 3.5f;  // Full compensation for heavy loads
-	}
-
-	float angle_factor = 1.0f + 1.0f * fabsf(sinf(angle_rad));
-
-	// Calculate feedforward terms
+	// Calculate feedforward terms for revolute only
 	if (rev_moving) {
-		// Velocity feedforward
-		float target_vel = (joystick_y > 0) ?
-		JOY_MODE_CONSTANT_VELOCITY_REV :
-												-JOY_MODE_CONSTANT_VELOCITY_REV;
+		// Simple velocity feedforward proportional to joystick
+
 		revolute_axis.ffd = REVOLUTE_MOTOR_FFD_Compute(&revolute_motor_ffd,
-				target_vel);
+				joystick_y > 0 ?
+				JOY_MODE_CONSTANT_VELOCITY_REV :
+									-JOY_MODE_CONSTANT_VELOCITY_REV);
 	} else {
 		revolute_axis.ffd = 0.0f;
 	}
 
-	// Gravity compensation with motion-aware scaling
-	float base_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd, angle_rad,
-			prismatic_mm / 1000.0f);
+	// Enhanced gravity compensation with multiple factors
+	float base_dfd = REVOLUTE_MOTOR_DFD_Compute(&revolute_motor_dfd,
+			revolute_encoder.rads, prismatic_encoder.mm / 1000.0f);
 
-	if (rev_moving) {
-		// Reduce gravity compensation when moving
-		float motion_scale = 1.0f;
-		if (rev_moving_down) {
-			// Moving down - significantly reduce gravity compensation
-			if (prismatic_mm < 50.0f) {
-				motion_scale = 0.2f; // Only 20% gravity comp for light loads moving down
-			} else {
-				motion_scale = 0.3f;  // 30% for heavier loads moving down
-			}
-		} else {
-			// Moving up - moderate reduction
-			motion_scale = 0.5f;  // 50% when moving up
-		}
-		revolute_axis.dfd = base_dfd * gravity_scale * angle_factor
-				* motion_scale;
-	} else {
-		// Full gravity compensation when holding position
-		revolute_axis.dfd = base_dfd * gravity_scale * angle_factor;
-	}
+	// Apply all compensation factors
+	revolute_axis.dfd = base_dfd * gravity_scale * angle_factor;
 
-	// Static friction compensation when not moving
+	// เพิ่ม static friction compensation เมื่อไม่มีการเคลื่อนที่
 	float static_compensation = 0.0f;
 	if (!rev_moving && fabsf(revolute_axis.kalman_velocity) < 0.1f) {
-		// Load-dependent static compensation
-		float static_scale = 0.1f + (prismatic_mm / 1500.0f);  // 0.1 to 0.3
-		static_compensation = static_scale * ZGX45RGG_150RPM_Constant.U_max
-				* angle_factor;
+		// Add small static friction compensation
+		static_compensation = 0.05f * ZGX45RGG_150RPM_Constant.U_max
+
+		* angle_factor;
 	}
 
-	// Position holding when not moving
+	// Add position holding assistance when not moving
 	float position_hold_comp = 0.0f;
 	static float last_position = 0.0f;
 	static float position_drift = 0.0f;
 
 	if (!rev_moving) {
+		// Detect position drift
 		float current_pos = revolute_encoder.rads;
 		position_drift = current_pos - last_position;
 
+		// If drifting, add compensation in opposite direction
 		if (fabsf(position_drift) > 0.01f) {  // 0.01 rad = ~0.57 degrees
-			position_hold_comp = -position_drift * 5000.0f;
+			position_hold_comp = -position_drift * 5000.0f; // Aggressive P-gain
 			position_hold_comp = PWM_Satuation(position_hold_comp,
 					0.2f * ZGX45RGG_150RPM_Constant.U_max,
 					-0.2f * ZGX45RGG_150RPM_Constant.U_max);
@@ -2055,64 +2017,30 @@ void update_joy_mode_velocity_control(void) {
 		position_drift = 0.0f;
 	}
 
-	// Apply filtering
+	// Apply filtering with adjusted parameters
 	static float ffd_filtered = 0.0f;
 	static float dfd_filtered = 0.0f;
 
 	ffd_filtered = 0.8f * ffd_filtered + 0.2f * revolute_axis.ffd;
-	dfd_filtered = 0.95f * dfd_filtered + 0.05f * revolute_axis.dfd;
+	dfd_filtered = 0.95f * dfd_filtered + 0.05f * revolute_axis.dfd; // Very slow filter
 
-	// Combine all components with direction-aware scaling
-	if (rev_moving) {
-		// When moving: base PWM with load compensation already included
-		revolute_axis.command_pos = rev_base_pwm;
+	// Combine with MUCH higher feedforward gain
+	float feedforward_gain = 0.035f;  // เพิ่มจาก 0.015f
 
-		// Add small feedforward for smoother motion
-		revolute_axis.command_pos += 0.01f * ffd_filtered;
+	revolute_axis.command_pos = rev_base_pwm
+			+ feedforward_gain * (ffd_filtered + dfd_filtered)
+			+ static_compensation + position_hold_comp;
 
-		// Direction-aware gravity compensation
-		if (rev_moving_down) {
-			// Much smaller gravity compensation when moving down
-			if (prismatic_mm < 50.0f) {
-				revolute_axis.command_pos += 0.008f * dfd_filtered; // Very small for light loads
-			} else {
-				revolute_axis.command_pos += 0.008f * dfd_filtered; // Still reduced for heavier loads
-			}
-		} else {
-			// Normal gravity compensation when moving up
-			revolute_axis.command_pos += 0.015f * dfd_filtered;
-		}
-
-	} else {
-		// When holding: position control + gravity compensation
-		float feedforward_gain = 0.035f;
-		revolute_axis.command_pos = position_hold_comp
-				+ feedforward_gain * dfd_filtered + static_compensation;
+	// Override minimum command for movement
+	if (rev_moving
+			&& fabsf(revolute_axis.command_pos)
+					< 0.2f * ZGX45RGG_150RPM_Constant.U_max) {
+		float sign = (revolute_axis.command_pos >= 0) ? 1.0f : -1.0f;
+		revolute_axis.command_pos = sign * 0.2f
+				* ZGX45RGG_150RPM_Constant.U_max;  // เพิ่มจาก 0.1f
 	}
+	// Saturate final command
 
-	// Load-dependent minimum command to overcome static friction
-	if (rev_moving) {
-		float min_command = 0.15f;  // Base minimum
-
-		// Adjust minimum based on load and direction
-		if (prismatic_mm >= 200.0f) {
-			min_command = 0.25f;
-		} else if (prismatic_mm >= 100.0f) {
-			min_command = 0.20f;
-		} else if (prismatic_mm < 50.0f && rev_moving_down) {
-			// Higher minimum when moving down at low load to overcome reduced gravity comp
-			min_command = 0.20f;
-		}
-
-		if (fabsf(revolute_axis.command_pos)
-				< min_command * ZGX45RGG_150RPM_Constant.U_max) {
-			float sign = (revolute_axis.command_pos >= 0) ? 1.0f : -1.0f;
-			revolute_axis.command_pos = sign * min_command
-					* ZGX45RGG_150RPM_Constant.U_max;
-		}
-	}
-
-	// Final saturation
 	revolute_axis.command_pos = PWM_Satuation(revolute_axis.command_pos,
 			ZGX45RGG_150RPM_Constant.U_max, -ZGX45RGG_150RPM_Constant.U_max);
 
@@ -2392,7 +2320,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		Modbus_Protocal_Worker();
 		modbus_working();
-
+		update_overshoot_calculation();
 		plotter_update_sensors();
 		check_emergency_button();
 
@@ -2549,8 +2477,9 @@ void modbus_working(void) {
 	registerFrame[R_Axis_Actual_Speed].U16 = prismatic_axis.kalman_velocity
 			* 10.0f;
 
-
-	registerFrame[R_Axis_Acceleration].U16 = prismatic_axis.accel_show * 10.0f;
+	float pris_accel = FIR_process(&prismatic_lp_accel,
+			prismatic_encoder.mmpss);
+	registerFrame[R_Axis_Acceleration].U16 = pris_accel * 10.0f;
 
 	float adjusted_angle = 270.0f - revolute_axis.deg;
 	while (adjusted_angle < 0.0f) {
@@ -2562,6 +2491,9 @@ void modbus_working(void) {
 			revolute_axis.kalman_velocity, UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Actual_Speed].U16 = rev_theta_vel * 10.0f;
 
+	revolute_axis.accel_show = UnitConverter_angle(&converter_system,
+			FIR_process(&revolute_lp_accel, revolute_encoder.radpss),
+			UNIT_RADIAN, UNIT_DEGREE);
 	registerFrame[Theta_Axis_Acceleration].U16 = revolute_axis.accel_show
 			* 10.0f;
 }
@@ -2763,6 +2695,103 @@ void ensure_motion_idle(void) {
 	// Hold current positions
 	prismatic_axis.position = prismatic_encoder.mm;
 	revolute_axis.position = revolute_encoder.rads;
+}
+void calculate_overshoot(AxisState_t *axis, float current_position,
+		bool is_prismatic) {
+	// ถ้ายังไม่เริ่ม trajectory หรือคำนวณเสร็จแล้วให้ return
+	if (!axis->trajectory_active && axis->overshoot_calculated) {
+		return;
+	}
+
+	// ตรวจสอบทิศทางการเคลื่อนที่
+	if (!axis->overshoot_calculated && axis->trajectory_active) {
+		axis->direction_positive = (axis->target_pos > axis->initial_pos);
+		axis->overshoot_calculated = false;
+		axis->max_position = current_position;
+		axis->min_position = current_position;
+	}
+
+	// อัพเดทค่า max/min position
+	if (current_position > axis->max_position) {
+		axis->max_position = current_position;
+	}
+	if (current_position < axis->min_position) {
+		axis->min_position = current_position;
+	}
+
+	// คำนวณ overshoot เมื่อ trajectory เสร็จสิ้น
+	if (!axis->trajectory_active && !axis->overshoot_calculated) {
+		float overshoot_value = 0.0f;
+		float movement_distance = fabsf(axis->target_pos - axis->initial_pos);
+
+		if (axis->direction_positive) {
+			// การเคลื่อนที่ไปทางบวก
+			if (axis->max_position > axis->target_pos) {
+				overshoot_value = axis->max_position - axis->target_pos;
+			}
+		} else {
+			// การเคลื่อนที่ไปทางลบ
+			if (axis->min_position < axis->target_pos) {
+				overshoot_value = axis->target_pos - axis->min_position;
+			}
+		}
+
+		// คำนวณ overshoot เป็นเปอร์เซ็นต์
+		if (movement_distance > 0.001f) {  // ป้องกันการหารด้วยศูนย์
+			axis->overshoot_percent = (overshoot_value / movement_distance)
+					* 100.0f;
+		} else {
+			axis->overshoot_percent = 0.0f;
+		}
+
+		// เก็บค่า overshoot ในหน่วยที่เหมาะสม
+		if (is_prismatic) {
+			axis->overshoot_mm = overshoot_value;
+		} else {
+			// แปลงจาก radian เป็น degree สำหรับ revolute
+			axis->overshoot_deg = overshoot_value * 180.0f / PI;
+		}
+
+		axis->overshoot_calculated = true;
+	}
+}
+
+/* ฟังก์ชัน reset ข้อมูล overshoot */
+void reset_overshoot_data(AxisState_t *axis) {
+	axis->overshoot_mm = 0.0f;
+	axis->overshoot_deg = 0.0f;
+	axis->overshoot_percent = 0.0f;
+	axis->max_position = 0.0f;
+	axis->min_position = 0.0f;
+	axis->overshoot_calculated = false;
+	axis->direction_positive = true;
+}
+
+/* ฟังก์ชันอัพเดทการคำนวณ overshoot */
+void update_overshoot_calculation(void) {
+	static bool pris_traj_was_active = false;
+	static bool rev_traj_was_active = false;
+
+	// ตรวจสอบการเริ่มต้น trajectory ใหม่สำหรับ prismatic
+	if (prismatic_axis.trajectory_active && !pris_traj_was_active) {
+		reset_overshoot_data(&prismatic_axis);
+	}
+
+	// ตรวจสอบการเริ่มต้น trajectory ใหม่สำหรับ revolute
+	if (revolute_axis.trajectory_active && !rev_traj_was_active) {
+		reset_overshoot_data(&revolute_axis);
+	}
+
+	// คำนวณ overshoot สำหรับ prismatic axis
+	calculate_overshoot(&prismatic_axis, prismatic_encoder.mm, true);
+
+	// คำนวณ overshoot สำหรับ revolute axis
+	float normalized_rev_position = normalize_angle(revolute_encoder.rads);
+	calculate_overshoot(&revolute_axis, normalized_rev_position, false);
+
+	// อัพเดทสถานะ trajectory
+	pris_traj_was_active = prismatic_axis.trajectory_active;
+	rev_traj_was_active = revolute_axis.trajectory_active;
 }
 
 /* USER CODE END 4 */
