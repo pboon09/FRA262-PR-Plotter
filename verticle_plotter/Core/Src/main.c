@@ -305,7 +305,7 @@ void clear_emergency_state(void);
 void update_safety_system(void);
 bool is_emergency_active(void);
 void emergency_stop_all_motors(void);
-
+void delete_last_saved_position(void);
 void enter_joy_mode(void);
 void exit_joy_mode(void);
 void update_joy_mode(void);
@@ -337,7 +337,7 @@ void start_word_FIBO_G01(void);
 void ensure_motion_idle(void);
 
 void calculate_overshoot(AxisState_t *axis, float current_position,
-		bool is_prismatic);
+bool is_prismatic);
 void reset_overshoot_data(AxisState_t *axis);
 void update_overshoot_calculation(void);
 /* USER CODE END PFP */
@@ -2242,37 +2242,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		}
 		j1_interrupt_last_time = current_time;
 
-		if (!is_emergency_active() && !homing_active && !joy_mode_active
-				&& !first_startup && !word_drawing_active
-				&& !current_drawing_sequence.sequence_active) {
+		// ถ้าอยู่ใน joy mode และกำลังบันทึกตำแหน่ง ให้ลบตำแหน่งล่าสุด
+		if (joy_mode_active
+				&& (joy_mode_state == JOY_MODE_MANUAL_CONTROL
+						|| joy_mode_state == JOY_MODE_POSITION_SAVED)) {
 
-			if (!j1_active) {
-				// Start 100 point sequence
-				j1_active = true;
-				j1_in_progress = false;  // Will be set true when motion is idle
-				j1_cycle_count = 0;
-				j1_going_to_target = true;
-				j1_pen_down_complete = false;
-				j1_pen_delay = 0;  // Reset delay counter
-
-				// Only start if motion is idle
-				if (motion_sequence_state == MOTION_IDLE) {
-					j1_in_progress = true;
-					start_combined_trajectory(J1_TARGET_PRIS, J1_TARGET_REV);
-				}
-			} else {
-				// Stop 100 point sequence - full cleanup
-				j1_active = false;
-				j1_in_progress = false;
-				j1_cycle_count = 0;
-				j1_pen_down_complete = false;
-				j1_pen_delay = 0;
-				plotter_pen_up();
-
-				// If motion is active, let it complete naturally
-				// The motion will stop when j1_active is false
-			}
+			delete_last_saved_position();
 		}
+
 	}
 // J2 is NOT handled here anymore - it's polled in the main loop
 
@@ -2309,13 +2286,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 // Modified J4 button handler for joy mode exit
 	if (GPIO_Pin == J4_Pin) {
-		if (is_emergency_active()) {
+		// ถ้าอยู่ใน joy mode และไม่ได้กำลัง playback ให้ reset saved positions
+		if (joy_mode_active && joy_mode_state != JOY_MODE_PLAYBACK) {
+			// Reset all saved positions
+			reset_joy_mode_data();
+
+		}
+		// ถ้าไม่ได้อยู่ใน joy mode ให้ทำงานเหมือนเดิม (clear emergency)
+		else if (is_emergency_active()) {
 			clear_emergency_state();
 		}
 		return;
 	}
 }
-
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim == &htim2) {
 		Modbus_Protocal_Worker();
@@ -2697,7 +2680,7 @@ void ensure_motion_idle(void) {
 	revolute_axis.position = revolute_encoder.rads;
 }
 void calculate_overshoot(AxisState_t *axis, float current_position,
-		bool is_prismatic) {
+bool is_prismatic) {
 	// ถ้ายังไม่เริ่ม trajectory หรือคำนวณเสร็จแล้วให้ return
 	if (!axis->trajectory_active && axis->overshoot_calculated) {
 		return;
@@ -2792,6 +2775,26 @@ void update_overshoot_calculation(void) {
 	// อัพเดทสถานะ trajectory
 	pris_traj_was_active = prismatic_axis.trajectory_active;
 	rev_traj_was_active = revolute_axis.trajectory_active;
+}
+void delete_last_saved_position(void) {
+	if (saved_position_count > 0) {
+		saved_position_count--;
+
+		// Clear ตำแหน่งที่ลบใน array
+		saved_positions[saved_position_count].prismatic_pos = 0.0f;
+		saved_positions[saved_position_count].revolute_pos = 0.0f;
+
+
+		// ถ้าลบจนเหลือน้อยกว่า 10 ตำแหน่ง ให้กลับไป MANUAL_CONTROL state
+		if (saved_position_count < JOY_MODE_MAX_POSITIONS
+				&& joy_mode_state == JOY_MODE_POSITION_SAVED) {
+			joy_mode_state = JOY_MODE_MANUAL_CONTROL;
+			// หยุดการกระพริบ pilot light
+			HAL_GPIO_WritePin(PILOT_GPIO_Port, PILOT_Pin, GPIO_PIN_SET);
+			joy_mode_pilot_state = true;
+			joy_mode_pilot_timer = 0;
+		}
+	}
 }
 
 /* USER CODE END 4 */
