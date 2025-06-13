@@ -202,7 +202,7 @@ volatile bool joy_mode_pilot_state = false;
 volatile uint32_t joy_mode_playback_timer = 0;
 bool joy_mode_b2_pressed = false;
 bool joy_mode_b2_last_state = false;
-
+bool joy_3check = false ;
 int check[10];
 uint16_t b2S[2];
 
@@ -2245,7 +2245,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		// ถ้าอยู่ใน joy mode และกำลังบันทึกตำแหน่ง ให้ลบตำแหน่งล่าสุด
 		if (joy_mode_active
 				&& (joy_mode_state == JOY_MODE_MANUAL_CONTROL
-						|| joy_mode_state == JOY_MODE_POSITION_SAVED)) {
+						|| joy_mode_state == JOY_MODE_POSITION_SAVED)&& joy_3check) {
 
 			delete_last_saved_position();
 		}
@@ -2255,7 +2255,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	if (GPIO_Pin == J3_Pin) {
 		uint32_t current_time = HAL_GetTick();
-
 		// Reset counter if timeout exceeded
 		if ((current_time - j3_last_press_time) > J3_PRESS_TIMEOUT) {
 			j3_press_count = 0;
@@ -2287,7 +2286,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Modified J4 button handler for joy mode exit
 	if (GPIO_Pin == J4_Pin) {
 		// ถ้าอยู่ใน joy mode และไม่ได้กำลัง playback ให้ reset saved positions
-		if (joy_mode_active && joy_mode_state != JOY_MODE_PLAYBACK) {
+		if (joy_mode_active && joy_mode_state != JOY_MODE_PLAYBACK && joy_3check) {
 			// Reset all saved positions
 			reset_joy_mode_data();
 
@@ -2306,6 +2305,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		update_overshoot_calculation();
 		plotter_update_sensors();
 		check_emergency_button();
+		if (b3){
+			joy_3check = true;
+		}else{joy_3check = false;}
+
 
 		QEI_get_diff_count(&prismatic_encoder);
 		QEI_compute_data(&prismatic_encoder);
